@@ -83,6 +83,8 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/inicio', isLoggedIn, function(req, res) {
+		
+		
 		pool.query("select e.activo 'estado', m.nombre 'maquina', p.nombre 'producto' \
 							from eventos e, maquinas m, productos p  \
 							where e.maquinas_id = m.id  \
@@ -90,6 +92,7 @@ module.exports = function(app, passport) {
 
 			res.render("pages/index.ejs",{eventos:r, user: req.user})
 		});
+		
 	});
 
 	// =====================================
@@ -98,7 +101,6 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/disponibilidad', isLoggedIn, function(req, res) {
-
 
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
@@ -184,8 +186,27 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/calidad', isLoggedIn, function(req, res) {
-		res.render('pages/calidad.ejs', {
-			user : req.user // get the user out of session and pass to template
+
+		var return_data = {}
+		promisePool.getConnection().then(function(connection) {
+
+			// Primero obtiene el turno actual
+			connection.query("select * from turnos").then(function(rows){
+				return_data.turnos = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from productos")
+				return result
+			}).then(function(rows) {
+				return_data.productos = rows
+				//console.log(return_data)
+				res.render("pages/calidad.ejs",{
+					turnos: return_data.turnos,
+					productos: return_data.productos,
+					user: req.user
+				});
+			}).catch(function(err) {
+				console.log(err);
+			});
 		});
 	});
 
@@ -583,7 +604,7 @@ module.exports = function(app, passport) {
 					AND activo = 0 \
 					AND maquinas_id = 1) as 'inactivo'")
 				return result
-			}).then(function(rows){
+			}).then(function(rows){ // Maquina (con producto)
 				return_data.tiempo = rows // se agrega las filas que regreso la anterior promesa el arreglo return_data
 				// Las maquinas ya tienen asociadas el producto que estan trabajando.
 				var result = connection.query("SELECT m.nombre maquina, p.nombre producto \
@@ -591,7 +612,7 @@ module.exports = function(app, passport) {
 					WHERE m.id = 1 and m.productos_id = p.id") // TODO: modificar para obtener la informacion de mas maquinas Para utilizar esto en la version de mas pantallas
 
 				return result
-			}).then(function(rows){
+			}).then(function(rows){ // Estado (activo/inactivo)
 				return_data.maquinas = rows
 				// Las maquinas ya tienen asociadas el producto que estan trabajando.
 				var result = connection.query("SELECT e.activo, r.nombre \
@@ -601,7 +622,7 @@ module.exports = function(app, passport) {
 					ORDER BY e.id DESC LIMIT 1") 
 					
 				return result
-			}).then(function(rows){
+			}).then(function(rows){ // Kgs buenos query
 				return_data.estado = rows
 				// Las maquinas ya tienen asociadas el producto que estan trabajando.
 				// TODO: Hacer que este query haga la conversion del cuenta metros a kgs dependiendo del producto
@@ -615,7 +636,7 @@ module.exports = function(app, passport) {
 					AND maquinas_id = 1") 
 
 				return result
-			}).then(function(rows){
+			}).then(function(rows){ // Rendimiento query
 				return_data.kgsbuenos = rows
 
 				var result = connection.query("select sum(x.valor)/count(*)*100 as valor from \
@@ -631,7 +652,7 @@ module.exports = function(app, passport) {
 					group by productos_id) x") 
 
 				return result
-			}).then(function(rows){
+			}).then(function(rows){ // Calidad query
 				return_data.rendimiento = rows
 
 				var result = connection.query("select sum(x.valor)/count(*) 'valor' from \

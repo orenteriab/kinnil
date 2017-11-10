@@ -29,8 +29,24 @@
 
          <div class="container-fluid" id="contenedor-maestro">
             <h1>Inicio</h1>
+            <!--<p><input type="button" value="Send all to the fucking fuck" id="poke" /></p>-->
 
 
+            <%if(maquinas.length>0){%><br>
+
+
+            <div>
+               <p>Ultimo estado de la maquina:</p>
+
+
+               <p id='status'><%= eventos[eventos.length-1].estado%>
+               </p>
+
+
+               <p>Ultimo estado de la conexión:</p>
+
+
+               <p id='connection'>Connectado</p>
                <!-- TODO: Hay que hay que revisar si la tablet esta connectada o no para poner el status real una vez se abre la pagina -->
             </div>
             <br>
@@ -49,18 +65,18 @@
                      <th>OEE</th>
                   </tr>
                </thead>
-               
+               <%for(var i=0; i<eventos.length; i++) {%>
 
                <tr class="quote">
                   <td>OK
                   </td>
-                  <td>
+                  <td><%= eventos[i].estado %>
                   </td>
-                  <td>
+                  <td><%= eventos[i].maquina %>
                   </td>
-                  <td>
+                  <td><%= eventos[i].producto %>
                   </td>
-                  <td>
+                  <td><%= eventos[i].fecha %>
                   </td>
                   <td>
                   </td>
@@ -69,12 +85,12 @@
                   <td>
                     </td>
                </tr>
-               
+               <%} %>
             </table>
-            
+            <%} else {%>
 
             <p class="alert alert-warning">No eventos</p>
-            
+            <%} %>
          </div>
       </div>
       <!-- /#page-content-wrapper -->
