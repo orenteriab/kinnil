@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+
+   <title>
+   </title>
+</head>
+
+<body>
+   <div id="wrapper">
+      <!-- Sidebar -->
+
+
+      <div id="sidebar-wrapper">
+         <%include ../partials/sidebar-wrapper %>
+      </div>
+      <!-- Page Content -->
+
+
+      <div id="page-content-wrapper">
+         <%include ../partials/navbar %>
+
+         <div class="container-fluid" id="contenedor-maestro">
+            Error:<br>
+            <%= error.stack %>
+         </div>
+      </div>
+      <!-- /#page-content-wrapper -->
+   </div>
+   <!-- /#wrapper -->
+   <%include ../partials/js %>
+</body>
+</html>
+
+
+
+

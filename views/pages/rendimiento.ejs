@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+
+   <title>
+   </title>
+</head>
+
+<body>
+   <div id="wrapper">
+      <!-- Sidebar -->
+
+
+      <div id="sidebar-wrapper">
+         <%include ../partials/sidebar-wrapper %>
+      </div>
+      <!-- Page Content -->
+
+
+      <div id="page-content-wrapper">
+         <%include ../partials/navbar %>
+
+         <div class="container-fluid" id="contenedor-maestro">
+            <h1>Rendimiento</h1>
+            <%include ../partials/search %>
+
+            <div class="grid-stack" id="custom-stack-items">
+            </div>
+            <button id="queFecha">Que fecha es?</button>
+         </div>
+      </div>
+   </div>
+   <!-- /#wrapper -->
+   
+   <%include ../partials/js %>
+
+   <script>
+
+        var fechaInicio;
+        var fechaFin;
+        var tipo = "turno"; // Por default es por turno para que aparesca algo aunque el usuario no seleccione una opcion.
+
+        // Hace que se despliegue las opciones de los turnos
+        document.getElementById('ifTurno').style.display = 'block';
+
+        function byTurno() {
+            document.getElementById('ifTurno').style.display = 'block';
+            document.getElementById('ifProducto').style.display = 'none';
+            document.getElementById('ifHora').style.display = 'none';
+            tipo = "turno";
+        }
+        function byProducto() {
+            document.getElementById('ifTurno').style.display = 'none';
+            document.getElementById('ifProducto').style.display = 'block';
+            document.getElementById('ifHora').style.display = 'none';
+            tipo = "producto";
+        }
+        function byHora() {
+            document.getElementById('ifTurno').style.display = 'none';
+            document.getElementById('ifProducto').style.display = 'none';
+            document.getElementById('ifHora').style.display = 'block';
+            tipo = "hora";
+        }
+        
+        
+
+        $(document).ready(function() {
+
+        $(function() {
+        
+            $('#reportrange i').click(function() {
+                $(this).parent().find('input').click();
+            });
+
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                fechaInicio = start;
+                fechaFin = end;
+            }
+
+            $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                'Hoy': [moment(), moment()],
+                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Ultimos 7 Dias': [moment().subtract(6, 'days'), moment()],
+                'Ultimos 30 Dias': [moment().subtract(29, 'days'), moment()],
+                'Este mes': [moment().startOf('month'), moment().endOf('month')]
+                /*'Anterior mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]*/
+                },
+                locale: {
+                    "direction": "ltr",
+                    "format": "DD/MM/YYYY HH:mm",
+                    "separator": " - ",
+                    "applyLabel": "Apicar",
+                    "cancelLabel": "Cancelar",
+                    "fromLabel": "Desde",
+                    "toLabel": "Hasta",
+                    "customRangeLabel": "Custom",
+                    "daysOfWeek": [
+                        "Dom",
+                        "Lun",
+                        "Mar",
+                        "Mie",
+                        "jue",
+                        "Vie",
+                        "Sa"
+                    ],
+                    "monthNames": [
+                        "Enero",
+                        "Febrero",
+                        "Marzo",
+                        "Abril",
+                        "Mayo",
+                        "Junio",
+                        "Julio",
+                        "Agosto",
+                        "Septiembre",
+                        "Octubre",
+                        "Noviembre",
+                        "Diciembre"
+                    ],
+                    "firstDay": 1
+                }
+
+            }, cb);
+            
+            cb(start, end);
+        });
+    });
+        $('#queFecha').click(function(){
+            console.log(fechaInicio.format('DD-MM-YYYY') + ' - ' + fechaFin.format('DD-MM-YYYY'));
+        });
+
+        function consultar() {
+            var turno = $("#turno").val();
+            var producto = $("#producto").val();
+            var inicio = fechaInicio.format('DD-MM-YYYY');
+            var fin = fechaFin.format('DD-MM-YYYY');
+            var horarInicio = $('#horaInicio').val();
+            var horarFin = $('#horaFin').val();
+
+            // Previene que ocurra el evento POST
+            event.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '/rendimiento',
+                data: "turno=" + turno + "&producto=" + producto + "&inicio=" + inicio + "&fin=" + fin + "&horaInicio=" + horarInicio + "&horaFin=" + horarFin + "&tipo=" + tipo,
+                dataType: 'text',
+                success: function(data, textStatus, jQxhr) {
+                    //$('#response pre').html(data);
+                },
+                error: function(jqXhr, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

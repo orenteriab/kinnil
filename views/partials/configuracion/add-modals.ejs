@@ -1,0 +1,296 @@
+<!-- Modal Agregar Plantas -->
+<div class="modal fade" id="addPlantasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar plantas</h4>
+    </div>
+    <form role="form" id="addPlantasForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="message" class="h4 ">Nombre</label>
+                <input id="nombreAddPlanta" class="form-control" rows="5" required></input>
+            </div>
+            <!--<div class="form-group">
+                <label for="message" class="h4 ">Notas</label>
+                <input id="notasAddPlanta" class="form-control" rows="5"></input>
+            </div>-->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-plantas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- Modal Agregar Areas -->
+<div class="modal fade" id="addAreasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar areas</h4>
+    </div>
+    <form role="form" id="addAreasForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="nombreArea" class="h4 ">Nombre</label>
+                <input id="nombreAddAreas" class="form-control" rows="5" required></input>
+            </div>
+            <div class="form-group">
+                <label for="message" class="h4 ">Notas</label>
+                <select id="plantaId" class="form-control" >
+                    <% if(plantas.length>0){%>
+                    <% for(var i=0; i<plantas.length; i++) {%>
+                    <option value = "<%= plantas[i].id %>"><%= plantas[i].nombre %></option>
+                    <% } %>
+                    <%} else {%>
+                        <option value = "sinarea">No hay plantas.</option>
+                    <% } %>
+                </select>
+            </div><!--
+            <div class="form-group">
+                <label for="message" class="h4 ">Notas</label>
+                <input id="message" class="form-control" rows="5"></input>
+            </div>-->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-areas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- Modal Agregar Maquinas -->
+<div class="modal fade" id="addMaquinasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar maquinas</h4>
+    </div>
+    <form role="form" id="addMaquinasForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="message" class="h4 ">Nombre</label>
+                <input id="nombreAddMaquinas" class="form-control" rows="5" required></input>
+            </div>
+            <div class="form-group">
+                <label for="message" class="h4 ">Area</label>
+                <select id="idAreaAddMaquinas" class="form-control" required>
+                    <% if(areas.length>0){%>
+                    <% for(var i=0; i<areas.length; i++) {%>
+                    <option value = "<%= areas[i].id %>"><%= areas[i].nombre %></option>
+                    <% } %>
+                    <%} else {%>
+                        <option value = "sinarea">No hay areas.</option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="form-group">
+                    <label for="message" class="h4 ">Producto</label>
+                    <select id="idProductoAddMaquinas" class="form-control" required>
+                        <% if(productos.length>0){%>
+                        <% for(var i=0; i<productos.length; i++) {%>
+                        <option value = "<%= productos[i].id %>"><%= productos[i].nombre %></option>
+                        <% } %>
+                        <%} else {%>
+                            <option value = "sinarea">No hay productos.</option>
+                        <% } %>
+                    </select>
+                </div><!--
+            <div class="form-group">
+                <label for="message" class="h4 ">Notas</label>
+                <input id="message" class="form-control" rows="5"></input>
+            </div>-->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-maquinas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal Agregar Razones de paro -->
+<div class="modal fade" id="addRazonesModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar una razon de paro</h4>
+    </div>
+    <form role="form" id="contactForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="message" class="h4 ">Nombre</label>
+                <input id="message" class="form-control" rows="5" required></input>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-maquinas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal Agregar Razones de calidad -->
+<div class="modal fade" id="addCalidadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar una razon de calidad</h4>
+    </div>
+    <form role="form" id="contactForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="message" class="h4 ">Nombre</label>
+                <input id="message" class="form-control" rows="5" required></input>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-maquinas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal Agregar productos -->
+<div class="modal fade" id="addProductosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar un producto</h4>
+    </div>
+    <form role="form" id="addProductosForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="addProductosNombre" class="h4 ">Nombre</label>
+                <input id="addProductosNombre" class="form-control" rows="5" required></input>
+            </div>
+            <div class="form-group">
+                <label for="addProductosDisponibilidad" class="h4 ">Disponibilidad</label>
+                <input id="addProductosDisponibilidad" class="form-control" rows="5" required></input>
+            </div>
+            <div class="form-group">
+                <label for="addProductosRendimiento" class="h4 ">Rendimiento</label>
+                <input id="addProductosRendimiento" class="form-control" rows="5" required></input>
+            </div>
+            <div class="form-group">
+                <label for="addProductosCalidad" class="h4 ">Calidad</label>
+                <input tyoe="range" id="addProductosCalidad" class="form-control" rows="5" required></input>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-maquinas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal Agregar turnos -->
+<div class="modal fade" id="addTurnosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar un turno</h4>
+    </div>
+    <form role="form" id="addTurnosForm">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="addTurnosNombre" class="h4 ">Nombre</label>
+                <input id="addTurnosNombre" class="form-control" rows="5" required></input>
+            </div>
+            <div class="form-group">
+                <label for="addTurnosHoraInicial" class="h4 ">Hora inicial</label>
+                <select id="addTurnosHoraInicial" class="form-control" required><option value="0">12:00 AM</option><option value="1800">12:30 AM</option><option value="3600">01:00 AM</option><option value="5400">01:30 AM</option><option value="7200">02:00 AM</option><option value="9000">02:30 AM</option><option value="10800">03:00 AM</option><option value="12600">03:30 AM</option><option value="14400">04:00 AM</option><option value="16200">04:30 AM</option><option value="18000">05:00 AM</option><option value="19800">05:30 AM</option><option value="21600">06:00 AM</option><option value="23400">06:30 AM</option><option value="25200">07:00 AM</option><option value="27000">07:30 AM</option><option value="28800">08:00 AM</option><option value="30600">08:30 AM</option><option value="32400">09:00 AM</option><option value="34200">09:30 AM</option><option value="36000">10:00 AM</option><option value="37800">10:30 AM</option><option value="39600">11:00 AM</option><option value="41400">11:30 AM</option><option value="43200">12:00 PM</option><option value="45000">12:30 PM</option><option value="46800">01:00 PM</option><option value="48600">01:30 PM</option><option value="50400">02:00 PM</option><option value="52200">02:30 PM</option><option value="54000">03:00 PM</option><option value="55800">03:30 PM</option><option value="57600">04:00 PM</option><option value="59400">04:30 PM</option><option value="61200">05:00 PM</option><option value="63000">05:30 PM</option><option value="64800">06:00 PM</option><option value="66600">06:30 PM</option><option value="68400">07:00 PM</option><option value="70200">07:30 PM</option><option value="72000">08:00 PM</option><option value="73800">08:30 PM</option><option value="75600">09:00 PM</option><option value="77400">09:30 PM</option><option value="79200">10:00 PM</option><option value="81000">10:30 PM</option><option value="82800">11:00 PM</option><option value="84600">11:30 PM</option></select>
+            </div>
+            <div class="form-group">
+                <label for="addTurnosHoraFinal" class="h4 ">Hora final</label>
+                <select id="addTurnosHoraFinal" class="form-control" required><option value="0">12:00 AM</option><option value="1800">12:30 AM</option><option value="3600">01:00 AM</option><option value="5400">01:30 AM</option><option value="7200">02:00 AM</option><option value="9000">02:30 AM</option><option value="10800">03:00 AM</option><option value="12600">03:30 AM</option><option value="14400">04:00 AM</option><option value="16200">04:30 AM</option><option value="18000">05:00 AM</option><option value="19800">05:30 AM</option><option value="21600">06:00 AM</option><option value="23400">06:30 AM</option><option value="25200">07:00 AM</option><option value="27000">07:30 AM</option><option value="28800">08:00 AM</option><option value="30600">08:30 AM</option><option value="32400">09:00 AM</option><option value="34200">09:30 AM</option><option value="36000">10:00 AM</option><option value="37800">10:30 AM</option><option value="39600">11:00 AM</option><option value="41400">11:30 AM</option><option value="43200">12:00 PM</option><option value="45000">12:30 PM</option><option value="46800">01:00 PM</option><option value="48600">01:30 PM</option><option value="50400">02:00 PM</option><option value="52200">02:30 PM</option><option value="54000">03:00 PM</option><option value="55800">03:30 PM</option><option value="57600">04:00 PM</option><option value="59400">04:30 PM</option><option value="61200">05:00 PM</option><option value="63000">05:30 PM</option><option value="64800">06:00 PM</option><option value="66600">06:30 PM</option><option value="68400">07:00 PM</option><option value="70200">07:30 PM</option><option value="72000">08:00 PM</option><option value="73800">08:30 PM</option><option value="75600">09:00 PM</option><option value="77400">09:30 PM</option><option value="79200">10:00 PM</option><option value="81000">10:30 PM</option><option value="82800">11:00 PM</option><option value="84600">11:30 PM</option></select>
+            </div>
+            <div class="form-group">
+                <label for="message" class="h4 ">Planta</label>
+                <select id="addTurnosPlanta" class="form-control" required>
+                    <% if(plantas.length>0){%>
+                    <% for(var i=0; i<plantas.length; i++) {%>
+                    <option value = "<%= plantas[i].id %>"><%= plantas[i].nombre %></option>
+                    <% } %>
+                    <% } %>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-maquinas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal Agregar usuarios -->
+<div class="modal fade" id="addUsuariosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Agregar un usuario</h4>
+    </div>
+    <form role="form" id="addUsuariosForm">
+        <div class="modal-body">
+            <!-- SIGNUP FORM -->
+            <div class="form-group">
+                <label>Usuario</label>
+                <input id="addUsuariosUsername" type="text" class="form-control" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input id="addUsuariosPassword" type="password" class="form-control" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>email</label>
+                <input id="addUsuariosEmail" type="email" class="form-control" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="addUsuariosRole" class="form-control">
+                    <option selected value="1">Regular</option>
+                    <option value="2">Admin</option>
+                    <option value="3">Superuser</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nivel (para las alertas)</label>
+                <select id="addUsuariosNivel" class="form-control">
+                    <option selected value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="add-maquinas-submit" class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

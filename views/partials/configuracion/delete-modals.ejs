@@ -1,0 +1,42 @@
+<!-- Modal Agregar Plantas -->
+<div class="modal fade" id="deletePlantasModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Eliminar plantas</h4>
+    </div>
+    <form role="form" id="deletePlantasForm">
+        <div class="modal-body">
+            <p>Confirmación requerida para eliminar la planta: </p>
+            <div class="form-group">
+                <hidden id="idPlanta"></hidden>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="submit" id="delete-plantas-submit" class="btn btn-success">Eliminar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script>
+/*$('a[data-toggle="modal"]').on('click', function(){
+    // update modal header with contents of button that invoked the modal
+    $('#myModalLabel').html( $(this).html() );
+    //fixes a bootstrap bug that prevents a modal from being reused
+    $('#utility_body').load(
+        $(this).attr('href'),
+        function(response, status, xhr) {
+            if (status === 'error') {
+                //console.log('got here');
+                $('#utility_body').html('<h2>Oh boy</h2><p>Sorry, but there was an error:' + xhr.status + ' ' + xhr.statusText+ '</p>');
+            }
+            return this;
+        }
+    );
+});*/​
+</script>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+
+   <title>
+   </title>
+</head>
+
+<body>
+   <div id="wrapper">
+      <!-- Sidebar -->
+
+
+      <div id="sidebar-wrapper">
+         <%include ../partials/sidebar-wrapper %>
+      </div>
+      <!-- Page Content -->
+
+
+      <div id="page-content-wrapper">
+         <%include ../partials/navbar %>
+
+         <div class="container-fluid" id="contenedor-maestro">
+            <h1>Superusuario only</h1>
+
+
+            <p><input id="poke" type="button" value="Poke the server">
+            </p>
+
+
+            <p><input id="config" type="button" value="Ask config">
+            </p>
+
+
+            <p><input id="encendido" type="button" value="Enviar evento encendido">
+            </p>
+
+
+            <p><input id="apagado" type="button" value="Enviar evento apagado">
+            </p>
+
+
+            <div id="test">
+               this is a test
+            </div>
+
+
+            <div class="grid-stack" id="custom-stack-items">
+            </div>
+         </div>
+      </div>
+      <!-- /#page-content-wrapper -->
+   </div>
+   <!-- /#wrapper -->
+   <script src="http://code.jquery.com/jquery-1.10.1.min.js">
+   </script> 
+   <script src="/socket.io/socket.io.js">
+   </script> 
+   <script>
+    var socket = io.connect('http://localhost:3000');
+
+    socket.on('message', function(message) {
+        //alert('The server has a message for you: ' + message );
+    })
+
+    socket.on('evento', function(message) {
+        alert('Este es el UUID que mandaste: ' + message);
+    })
+
+    // Esta funcion de aqui es de jquery
+    $('#poke').click(function() {
+        socket.emit('message', 'Hi server, how are you?');
+    })
+
+    // Esta funcion de aqui es de jquery
+    $('#config').click(function() {
+        socket.emit('config', 'all');
+    })
+
+    // Esta funcion de aqui es de jquery
+    $('#encendido').click(function() {
+        socket.emit('evento', '{"operacion_uuid":"UUID", "maquinas_id":1, "activo":true, "razones_id":1, "tiempo":300 }');
+    })
+
+    $('#apagado').click(function() {
+        socket.emit('evento', '{"operacion_uuid":"UUID", "maquinas_id":1, "activo":false, "razones_id":2, "tiempo":300 }');
+    })
+   </script> <%include ../partials/js %>
+</body>
+</html>

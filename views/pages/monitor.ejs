@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Monitor</title>
+    <link rel="stylesheet" href="./css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        
+        .jumbotron.vertical-center {
+            margin-bottom: 0;
+            /* Remove the default bottom margin of .jumbotron */
+        }
+        
+        .vertical-center {
+            min-height: 100%;
+            /* Fallback for vh unit */
+            min-height: 100vh;
+            /* You might also want to use
+            'height' property instead.
+            Note that for percentage values of
+            'height' or 'min-height' properties,
+            the 'height' of the parent element
+            should be specified explicitly.
+            In this case the parent of '.vertical-center'
+            is the 
+            <body> element */
+            /* Make it a flex container */
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            /* Align the bootstrap's container vertically */
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -moz-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            /* In legacy web browsers such as Firefox 9
+            we need to specify the width of the flex container */
+            width: 100%;
+            /* Also 'margin: 0 auto' doesn't have any effect on flex items in such web browsers
+            hence the bootstrap's container won't be aligned to the center anymore.
+            Therefore, we should use the following declarations to get it centered again */
+            -webkit-box-pack: center;
+            -moz-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+        /*.panel-default > .panel-heading {
+        background-color: #93C47D;
+        border-color: #93C47D;
+        }*/
+        
+        .panel-default > .green {
+            background-color: #93C47D;
+            border-color: #93C47D;
+        }
+        
+        .panel-default > .red {
+            background-color: #FF0000;
+            border-color: #FF0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="jumbotron vertical-center">
+        <div class="container text-center">
+            <div class="panel panel-default">
+                <div class="panel-heading <%= estado == 1 ? " green " : "red " %>">
+                    <h1 class="panel-title">
+                        <%if (estado == 1) { %>
+                        Operación    
+                        <% } else{ %> 
+                        <%= estado[0].nombre %>
+                        <% } %>  
+                    </h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="top-bg">
+                                <h2>Producto: <%= maquinas[0].producto %></h2></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="top-bg">
+                                <h2>Maquina: <%= maquinas[0].maquina %></h2></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="top-bg">
+                                <h2>Turno: <%= turnoActual[0].nombre %></h2></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Disponibilidad: <%= (tiempo[0].activo/(tiempo[0].activo + tiempo[0].inactivo)*100).toFixed(2) %> %</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Rendimiento: <%= (rendimiento[0].valor).toFixed(2) %> %</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Calidad: <%= (calidad[0].valor).toFixed(2) %> %</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>OEE: <%= (((tiempo[0].activo/(tiempo[0].activo + tiempo[0].inactivo)*100)+(rendimiento[0].valor)+(calidad[0].valor))/3).toFixed(2) %> %</h2></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Tiempo activo: <%= (tiempo[0].activo/60/60).toFixed(2) %> horas</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Tiempo muerto: <%= (tiempo[0].inactivo/60/60).toFixed(2) %> hrs</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Kgs buenos: <%= (kgsbuenos[0].valor).toFixed(2) %> kgs</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Kgs malos: kgs</h2></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
