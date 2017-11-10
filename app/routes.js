@@ -88,9 +88,6 @@ module.exports = function(app, passport) {
 							where e.maquinas_id = m.id  \
 							order by e.id limit 1",function(e,r){
 
-			console.log(r)
-			console.log("--")
-			console.log(e)
 			res.render("pages/index.ejs",{eventos:r, user: req.user})
 		});
 	});
@@ -102,35 +99,26 @@ module.exports = function(app, passport) {
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/disponibilidad', isLoggedIn, function(req, res) {
 
-		var productosQuery = "SELECT * FROM productos";
-		var turnosQuery = "SELECT * FROM turnos";
 
-		var return_data = {};
+		var return_data = {}
+		promisePool.getConnection().then(function(connection) {
 
-		pool.getConnection(function (err, connection) {
-			async.parallel([
-				function(parallel_done) {
-					connection.query(productosQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.productos = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(turnosQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.turnos = results;
-						parallel_done();
-					});
-				}
-			], function(err) {
-				if (err) console.log(err);
-				connection.release();
-				//res.send(return_data);
+			// Primero obtiene el turno actual
+			connection.query("select * from turnos").then(function(rows){
+				return_data.turnos = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from productos")
+				return result
+			}).then(function(rows) {
+				return_data.productos = rows
+				//console.log(return_data)
 				res.render("pages/disponibilidad.ejs",{
-					productos:return_data.productos,
-					turnos:return_data.turnos,
-					user: req.user});
+					turnos: return_data.turnos,
+					productos: return_data.productos,
+					user: req.user
+				});
+			}).catch(function(err) {
+				console.log(err);
 			});
 		});
 	});
@@ -154,7 +142,7 @@ module.exports = function(app, passport) {
 		promisePool.getConnection().then(function(connection) {
 
 			// Primero obtiene el turno actual
-			connection.query("SELECT * FROM turnos").then(function(rows){
+			connection.query("select * from turnos").then(function(rows){
 				return_data.turnos = rows
 				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
 				var result = connection.query("select * from productos")
