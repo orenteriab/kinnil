@@ -241,8 +241,8 @@ module.exports = function(app, passport) {
 
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		///// TODO: homologar el activo active en todas las tablas, no puede estar diferente.
-		var plantasQuery = "SELECT * FROM plantas";
-		var areasQuery = "SELECT a.id 'id', a.nombre 'nombre', a.notas 'notas', p.id 'p_id', p.nombre 'planta' FROM areas a INNER JOIN plantas p ON a.plantas_id = p.id"; // TODO: agregar el where active = true
+		var plantasQuery = "SELECT * FROM plantas WHERE active = true";
+		var areasQuery = "SELECT a.id 'id', a.nombre 'nombre', a.notas 'notas', p.id 'p_id', p.nombre 'planta' FROM areas a INNER JOIN plantas p ON a.plantas_id = p.id and a.active=true"; // TODO: agregar el where active = true
 		var maquinasQuery = "SELECT m.id 'id', m.nombre 'nombre', m.notas 'notas', a.nombre 'area', p.id 'productos_id', p.nombre 'producto' FROM maquinas m INNER JOIN areas a ON m.areas_id = a.id INNER JOIN productos p ON m.productos_id = p.id WHERE m.active = true";
 		var razonesQuery = "SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_paro r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.active = true";
 		var calidadQuery = "SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_calidad r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.activo = true";
@@ -542,23 +542,104 @@ module.exports = function(app, passport) {
 		});
 	});
 
-	app.put('/configuracion/eliminar-plantas-nombre', isLoggedIn, function(req, res) {
+	/*
+	* Borrar plantas - solo las desactivamos :) (active = false in MySql)
+	*/
+	app.delete('/configuracion/plantas/:plantaId', isLoggedIn, function(req, res) {
 		
-		var pk = req.body.pk;
-		var value = req.body.value;
-	
-		pool.getConnection(function (err, connection) {
-			connection.query('UPDATE plantas SET nombre ="' + value + '" where id = ' + pk , function (error, results, fields) {
-				if (error) {
-					throw error;
-					res.sendStatus(400);
-				}else
-					res.sendStatus(200);
-			// Neat!
+		var pk = req.params.plantaId;
+		
+		promisePool.getConnection().then(function(connection) {
+			connection.query('UPDATE plantas SET active = 0 where id = ' + pk).then(function(rows){
+			}).then(function(rows) {
+				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
+			}).catch(function(err) {
+				// TODO: cambiar los console.log por un buen sistema de logueo de errores
+				res.sendStatus(400);
+				console.log(err);
 			});
-			connection.release(); // Siempre hay que soltar la conexion si no le pegas al GET
+			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
+	});
+
+	/*
+	* Borrar areas - solo las desactivamos :) (active = false in MySql)
+	*/
+	app.delete('/configuracion/areas/:areaId', isLoggedIn, function(req, res) {
 		
+		var pk = req.params.areaId;
+		
+		promisePool.getConnection().then(function(connection) {
+			connection.query('UPDATE areas SET active = 0 where id = ' + pk).then(function(rows){
+			}).then(function(rows) {
+				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
+			}).catch(function(err) {
+				// TODO: cambiar los console.log por un buen sistema de logueo de errores
+				res.sendStatus(400);
+				console.log(err);
+			});
+			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
+		});
+	});
+
+	/*
+	* Borrar maquinas - solo las desactivamos :) (active = false in MySql)
+	*/
+	app.delete('/configuracion/maquinas/:maquinaId', isLoggedIn, function(req, res) {
+		
+		var pk = req.params.maquinaId;
+		
+		promisePool.getConnection().then(function(connection) {
+			connection.query('UPDATE maquinas SET active = 0 where id = ' + pk).then(function(rows){
+			}).then(function(rows) {
+				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
+			}).catch(function(err) {
+				// TODO: cambiar los console.log por un buen sistema de logueo de errores
+				res.sendStatus(400);
+				console.log(err);
+			});
+			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
+		});
+	});
+
+	/*
+	* Borrar productos - solo las desactivamos :) (active = false in MySql)
+	*/
+	app.delete('/configuracion/productos/:productoId', isLoggedIn, function(req, res) {
+		
+		var pk = req.params.productoId;
+		
+		promisePool.getConnection().then(function(connection) {
+			connection.query('UPDATE productos SET activo = 0 where id = ' + pk).then(function(rows){ // TODO cambiar activo a active.!
+			}).then(function(rows) {
+				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
+			}).catch(function(err) {
+				// TODO: cambiar los console.log por un buen sistema de logueo de errores
+				res.sendStatus(400);
+				console.log(err);
+			});
+			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
+		});
+	});
+
+	/*
+	* Borrar turnos - solo las desactivamos :) (active = false in MySql)
+	*/
+	app.delete('/configuracion/turnos/:turnoId', isLoggedIn, function(req, res) {
+		
+		var pk = req.params.turnoId;
+		
+		promisePool.getConnection().then(function(connection) {
+			connection.query('UPDATE turnos SET activo = 0 where id = ' + pk).then(function(rows){ // TODO cambiar activo a active.!
+			}).then(function(rows) {
+				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
+			}).catch(function(err) {
+				// TODO: cambiar los console.log por un buen sistema de logueo de errores
+				res.sendStatus(400);
+				console.log(err);
+			});
+			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
+		});
 	});
 
 	// =====================================

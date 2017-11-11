@@ -71,7 +71,7 @@
                               <a data-pk="<%= plantas[i].id %>" data-title="Cambiar el nombre" data-type="text" data-url="/configuracion/modif-plantas-nombre" href="#" id="editar-plantas-<%= plantas[i].id %>"><%= plantas[i].nombre %></a>
                            </td>
                            <td>
-                              <a class="btn-xs btn btn-danger" href="/delete/">Eliminar</a>
+                              <a href="#" id="delete-plantas-<%= plantas[i].id %>" class="btn-xs btn btn-danger">Eliminar</a>
                            </td>
                         </tr><%} %>
                      </table><%} else {%>
@@ -101,7 +101,7 @@
                               <a data-pk="<%= areas[i].planta %>" data-title="Cambiar la maquina" data-type="text" data-url="/post" href="#" id="<%= areas[i].plantas_id %>-<%= areas[i].nombre %>"><%= areas[i].planta %></a>
                            </td>
                            <td>
-                              <a class="btn-xs btn btn-danger" href="/delete/">Eliminar</a>
+                              <a href="#" id="delete-areas-<%= areas[i].id %>" class="btn-xs btn btn-danger">Eliminar</a>
                            </td>
                         </tr><%} %>
                      </table><%} else {%>
@@ -136,7 +136,7 @@
                                 <a data-pk="<%= maquinas[i].id %>" data-title="Cambiar el producto" data-type="select" data-url="/configuracion/modif-maquinas-producto" href="#" id="editar-maquinas-producto-<%= maquinas[i].id %>"><%= maquinas[i].producto %></a>
                             </td>
                            <td>
-                              <a class="btn-xs btn btn-danger" href="/delete/">Eliminar</a>
+                              <a href="#" id="delete-maquinas-<%= maquinas[i].id %>" class="btn-xs btn btn-danger">Eliminar</a>
                            </td>
                         </tr><%} %>
                      </table><%} else {%>
@@ -217,7 +217,7 @@
                            <td><%= productos[i].rendimiento %></td>
                            <td><%= productos[i].calidad %></td>
                            <td>
-                              <a class="btn-xs btn btn-danger" href="/delete/">Eliminar</a>
+                              <a href="#" id="delete-productos-<%= productos[i].id %>" class="btn-xs btn btn-danger">Eliminar</a>
                            </td>
                         </tr><%} %>
                      </table><%} else {%>
@@ -246,7 +246,7 @@
                            <td><%= turnos[i].fin %></td>
                            <td><%= turnos[i].planta %></td>
                            <td>
-                              <a class="btn-xs btn btn-danger" href="/delete/">Eliminar</a>
+                              <a href="#" id="delete-turnos-<%= turnos[i].id %>" class="btn-xs btn btn-danger">Eliminar</a>
                            </td>
                         </tr><%} %>
                      </table><%} else {%>
@@ -518,32 +518,10 @@
                         refreshPage();
                     });
 
-                    
-                    /*
-                     * Eliminar plantas
-                     */
-                    /*$("#deletePlantasForm").submit(function(event){
-                        // cancels the form submission
-                        event.preventDefault();
-
-                        $.ajax({
-                            type: "POST",
-                            url: "/configuracion",
-                            data: "nombre=" + nombre + "&notas=" + notas + "&tipo=" + tipo,
-                            dataType: 'text',
-                            success : function(text){
-                                console.log("si se hiso el insert");
-                                if (text == "success"){ ///// TODO: Hay que ver que pedo porque este success no funciona.
-                                    alert("sea armo si se guardo"); // This is weird porque no se pone .
-                                }
-                            }
-                        });
-                        $('#deletePlantasModal').modal('hide');
-                        refreshPage();
-                    });
-                    */
                 });
-   </script> 
+   </script>
+
+
    <%if(plantas.length>0){%> 
    <%for(var i=0; i<plantas.length; i++) {%> 
    <script>
@@ -571,12 +549,11 @@
     </script> 
     <%} %> 
     <%} %>
-
-    
     <%if(maquinas.length>0){%> 
     <%if(productos.length>0){%> 
     <%for(var i=0; i<maquinas.length; i++) {%> 
     <script>
+            // TODO: hay que verificar esta logica, porque no se van a poder modifircar el nombre de las maquinas si no hay productos. (sera correcto?)
             $(document).ready(function() {
                 $('#editar-maquinas-<%= maquinas[i].id %>').editable({
                     success: function(response, newValue) {
@@ -604,6 +581,210 @@
     <%} %> 
     <%} %>
     <%} %>
+
+
+    <%if(plantas.length>0){%> 
+    <%for(var i=0; i<plantas.length; i++) {%> 
+    <script>
+            $(document).ready(function() {
+                // Para refrescar la pagina una vez que se halla echo un cambio
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                async function refreshPage() {
+                    console.log('Taking a break...');
+                    await sleep(2000);
+                    console.log('Two second later');
+                    location.reload();
+                }
+
+                $('#delete-plantas-<%= plantas[i].id %>').click(function(){
+                    var result = confirm("Quieres borrar: <%= plantas[i].nombre %>?");
+                    if (result) {
+                        console.log("se va a borrar :(");
+
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/configuracion/plantas/<%= plantas[i].id %>",
+                            success: function(text) {
+                                //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
+                                if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.
+                                    //alert("sea armo si se guardo"); // This is weird porque no se pone .
+                                    console.log("vamos a ver si se booro");
+                                }
+                            }
+                        });
+                        refreshPage();
+                    }
+                });
+
+            });
+    </script>
+    <%} %>
+    <%} %>
+    <%if(areas.length>0){%> 
+    <%for(var i=0; i<areas.length; i++) {%> 
+        <script>
+                $(document).ready(function() {
+                    // Para refrescar la pagina una vez que se halla echo un cambio
+                    function sleep(ms) {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
+    
+                    async function refreshPage() {
+                        console.log('Taking a break...');
+                        await sleep(2000);
+                        console.log('Two second later');
+                        location.reload();
+                    }
+                    
+                    $('#delete-areas-<%= areas[i].id %>').click(function(){
+                        var result = confirm("Quieres borrar: <%= areas[i].nombre %>?");
+                        if (result) {
+                            console.log("se va a borrar :(");
+    
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/configuracion/areas/<%= areas[i].id %>",
+                                success: function(text) {
+                                    //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
+                                    if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.
+                                        //alert("sea armo si se guardo"); // This is weird porque no se pone .
+                                        console.log("vamos a ver si se booro");
+                                    }
+                                }
+                            });
+                            refreshPage();
+                        }
+                    });
+    
+                });
+        </script>
+    <%} %>
+    <%} %>
+    <%if(maquinas.length>0){%> 
+    <%for(var i=0; i<maquinas.length; i++) {%> 
+        <script>
+                $(document).ready(function() {
+                    // Para refrescar la pagina una vez que se halla echo un cambio
+                    function sleep(ms) {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
+    
+                    async function refreshPage() {
+                        console.log('Taking a break...');
+                        await sleep(2000);
+                        console.log('Two second later');
+                        location.reload();
+                    }
+                    
+                    $('#delete-maquinas-<%= maquinas[i].id %>').click(function(){
+                        var result = confirm("Quieres borrar: <%= maquinas[i].nombre %>?");
+                        if (result) {
+                            console.log("se va a borrar :(");
+    
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/configuracion/maquinas/<%= maquinas[i].id %>",
+                                success: function(text) {
+                                    //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
+                                    if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.
+                                        //alert("sea armo si se guardo"); // This is weird porque no se pone .
+                                        console.log("vamos a ver si se booro");
+                                    }
+                                }
+                            });
+                            refreshPage();
+                        }
+                    });
+    
+                });
+        </script>
+    <%} %>
+    <%} %>
+    <%if(productos.length>0){%> 
+    <%for(var i=0; i<productos.length; i++) {%> 
+        <script>
+                $(document).ready(function() {
+                    // Para refrescar la pagina una vez que se halla echo un cambio
+                    function sleep(ms) {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
+    
+                    async function refreshPage() {
+                        console.log('Taking a break...');
+                        await sleep(2000);
+                        console.log('Two second later');
+                        location.reload();
+                    }
+                    
+                    $('#delete-productos-<%= productos[i].id %>').click(function(){
+                        var result = confirm("Quieres borrar: <%= productos[i].nombre %>?");
+                        if (result) {
+                            console.log("se va a borrar :(");
+    
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/configuracion/productos/<%= productos[i].id %>",
+                                success: function(text) {
+                                    //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
+                                    if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.
+                                        //alert("sea armo si se guardo"); // This is weird porque no se pone .
+                                        console.log("vamos a ver si se booro");
+                                    }
+                                }
+                            });
+                            refreshPage();
+                        }
+                    });
+    
+                });
+        </script>
+    <%} %>
+    <%} %>
+    <%if(turnos.length>0){%> 
+    <%for(var i=0; i<turnos.length; i++) {%> 
+        <script>
+                $(document).ready(function() {
+                    // Para refrescar la pagina una vez que se halla echo un cambio
+                    function sleep(ms) {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
+    
+                    async function refreshPage() {
+                        console.log('Taking a break...');
+                        await sleep(2000);
+                        console.log('Two second later');
+                        location.reload();
+                    }
+                    
+                    $('#delete-turnos-<%= turnos[i].id %>').click(function(){
+                        var result = confirm("Quieres borrar: <%= turnos[i].nombre %>?");
+                        if (result) {
+                            console.log("se va a borrar :(");
+    
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/configuracion/turnos/<%= turnos[i].id %>",
+                                success: function(text) {
+                                    //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
+                                    if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.
+                                        //alert("sea armo si se guardo"); // This is weird porque no se pone .
+                                        console.log("vamos a ver si se booro");
+                                    }
+                                }
+                            });
+                            refreshPage();
+                        }
+                    });
+    
+                });
+        </script>
+    <%} %>
+    <%} %>
+
+
 
    <%include ../partials/js %>
 </body>
