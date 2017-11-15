@@ -106,17 +106,29 @@ module.exports = function(app, passport) {
 		promisePool.getConnection().then(function(connection) {
 
 			// Primero obtiene el turno actual
-			connection.query("select * from turnos").then(function(rows){
+			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
 				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
-				var result = connection.query("select * from productos")
+				var result = connection.query("select * from productos where activo = true")
+				return result
+			}).then(function(rows){
+				return_data.productos = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from plantas where active = true")
+				return result
+			}).then(function(rows){
+				return_data.plantas = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from areas where active = true")
 				return result
 			}).then(function(rows) {
-				return_data.productos = rows
+				return_data.areas = rows
 				//console.log(return_data)
 				res.render("pages/disponibilidad.ejs",{
 					turnos: return_data.turnos,
 					productos: return_data.productos,
+					plantas: return_data.plantas,
+					areas: return_data.areas,
 					user: req.user
 				});
 			}).catch(function(err) {
@@ -142,19 +154,31 @@ module.exports = function(app, passport) {
 
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
-
+			
 			// Primero obtiene el turno actual
-			connection.query("select * from turnos").then(function(rows){
+			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
 				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
-				var result = connection.query("select * from productos")
+				var result = connection.query("select * from productos where activo = true")
+				return result
+			}).then(function(rows){
+				return_data.productos = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from plantas where active = true")
+				return result
+			}).then(function(rows){
+				return_data.plantas = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from areas where active = true")
 				return result
 			}).then(function(rows) {
-				return_data.productos = rows
+				return_data.areas = rows
 				//console.log(return_data)
 				res.render("pages/rendimiento.ejs",{
 					turnos: return_data.turnos,
 					productos: return_data.productos,
+					plantas: return_data.plantas,
+					areas: return_data.areas,
 					user: req.user
 				});
 			}).catch(function(err) {
@@ -189,19 +213,31 @@ module.exports = function(app, passport) {
 
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
-
+			
 			// Primero obtiene el turno actual
-			connection.query("select * from turnos").then(function(rows){
+			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
 				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
-				var result = connection.query("select * from productos")
+				var result = connection.query("select * from productos where activo = true")
+				return result
+			}).then(function(rows){
+				return_data.productos = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from plantas where active = true")
+				return result
+			}).then(function(rows){
+				return_data.plantas = rows
+				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				var result = connection.query("select * from areas where active = true")
 				return result
 			}).then(function(rows) {
-				return_data.productos = rows
+				return_data.areas = rows
 				//console.log(return_data)
 				res.render("pages/calidad.ejs",{
 					turnos: return_data.turnos,
 					productos: return_data.productos,
+					plantas: return_data.plantas,
+					areas: return_data.areas,
 					user: req.user
 				});
 			}).catch(function(err) {
