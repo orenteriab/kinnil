@@ -1,5 +1,6 @@
 {
-  "name": "node-authentication",
+  "name": "kinnil-web-app",
+  "version": "0.0.1",
   "main": "server.js",
   "scripts": {
     "start": "node ./server"
