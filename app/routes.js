@@ -104,7 +104,6 @@ module.exports = function(app, passport) {
 
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
-
 			// Primero obtiene el turno actual
 			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
@@ -123,6 +122,7 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows) {
 				return_data.areas = rows
+				console.log(return_data)
 				//console.log(return_data)
 				res.render("pages/disponibilidad.ejs",{
 					turnos: return_data.turnos,

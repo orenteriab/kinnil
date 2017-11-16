@@ -4,12 +4,20 @@
 var LocalStrategy   = require('passport-local').Strategy;
 
 // load up the user model
-var mysql = require('mysql');
-var bcrypt = require('bcrypt-nodejs');
-var dbconfig = require('./database');
-var connection = mysql.createConnection(dbconfig.connection);
+var mysql = require('mysql')
+var bcrypt = require('bcrypt-nodejs')
+var dbconfig = require('./database')
 
-connection.query('USE ' + dbconfig.database);
+var promiseMysql = require('promise-mysql');
+promisePool = promiseMysql.createPool({
+	host: 'localhost',
+	user: 'root',
+	password: 'root',
+	database: 'kinnil',
+	connectionLimit: 25
+});
+promisePool.query('USE ' + dbconfig.database)
+
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
@@ -26,8 +34,15 @@ module.exports = function(passport) {
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
-        connection.query("SELECT * FROM users WHERE id = ? ",[id], function(err, rows){
-            done(err, rows[0]);
+
+        promisePool.getConnection().then(function(connection) {
+            connection.query('SELECT * FROM users WHERE id = ?',[id]).then(function(rows){
+                done(null, rows[0]);
+            }).catch(function(err) {
+                console.log(err) // TODO: hacer algo con los console.log
+                return done(err)
+            });
+            connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
         });
     });
 
@@ -48,31 +63,39 @@ module.exports = function(passport) {
         function(req, username, password, done) {
             // find a user whose email is the same as the forms email
             // we are checking to see if the user trying to login already exists
-            connection.query("SELECT * FROM users WHERE username = ?",[username], function(err, rows) {
-                if (err)
-                    return done(err);
-                if (rows.length) {
-                    return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
-                } else {
-                    // if there is no user with that username
-                    // create the user
-                    var newUserMysql = {
-                        username: username,
-                        password: bcrypt.hashSync(password, null, null)  // use the generateHash function in our user model
-                    };
 
-                    var insertQuery = "INSERT INTO users ( username, password ) values (?,?)";
+            promisePool.getConnection().then(function(connection) {
+                connection.query('SELECT * FROM users WHERE username = ?',[username]).then(function(rows){
+                    if (rows.length) {
+                        return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
+                    } else {
+                        // if there is no user with that username
+                        // create the user
+                        var newUserMysql = {
+                            username: username,
+                            password: bcrypt.hashSync(password, null, null)  // use the generateHash function in our user model
+                        };
+                        // TODO: probar si puedo crear nuevos usuarios
+                        var data = {username: newUserMysql.username, password:newUserMysql.password}
 
-                    connection.query(insertQuery,[newUserMysql.username, newUserMysql.password],function(err, rows) {
-                        newUserMysql.id = rows.insertId;
-
-                        return done(null, newUserMysql);
-                    });
-                }
+                        promisePool.getConnection().then(function(connection) {
+                            connection.query('INSERT INTO users SET ?', data).then(function(rows){
+                                newUserMysql.id = rows.insertId;
+                                return done(null, newUserMysql);
+                            }).catch(function(err) {
+                                return done(err)
+                            });
+                        });
+                    }
+                }).catch(function(err) {
+                    return done(err)
+                });
+                connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
             });
         })
     );
 
+    // Works great after the upgrade.
     // =========================================================================
     // LOCAL LOGIN =============================================================
     // =========================================================================
@@ -88,19 +111,21 @@ module.exports = function(passport) {
             passReqToCallback : true // allows us to pass back the entire request to the callback
         },
         function(req, username, password, done) { // callback with email and password from our form
-            connection.query("SELECT * FROM users WHERE username = ?",[username], function(err, rows){
-                if (err)
-                    return done(err);
-                if (!rows.length) {
-                    return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
-                }
 
-                // if the user is found but the password is wrong
-                if (!bcrypt.compareSync(password, rows[0].password))
-                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+            promisePool.getConnection().then(function(connection) {
+                connection.query('SELECT * FROM users WHERE username = ?',[username]).then(function(rows){
+                    if (!rows.length) {
+                        return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+                    }
+                    // if the user is found but the password is wrong
+                    if (!bcrypt.compareSync(password, rows[0].password))
+                        return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
-                // all is well, return successful user
-                return done(null, rows[0]);
+                    return done(null, rows[0]);
+                }).catch(function(err) {
+                    return done(err)
+                });
+                connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
             });
         })
     );
