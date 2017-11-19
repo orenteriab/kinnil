@@ -11,14 +11,10 @@
 <body>
    <div id="wrapper">
       <!-- Sidebar -->
-
-
       <div id="sidebar-wrapper">
          <%include ../partials/sidebar-wrapper %>
       </div>
       <!-- Page Content -->
-
-
       <div id="page-content-wrapper">
          <%include ../partials/navbar %>
 
@@ -29,23 +25,18 @@
             <p><input id="poke" type="button" value="Poke the server">
             </p>
 
-
             <p><input id="config" type="button" value="Ask config">
             </p>
-
 
             <p><input id="encendido" type="button" value="Enviar evento encendido">
             </p>
 
-
             <p><input id="apagado" type="button" value="Enviar evento apagado">
             </p>
-
 
             <div id="test">
                this is a test
             </div>
-
 
             <div class="grid-stack" id="custom-stack-items">
             </div>
@@ -54,10 +45,8 @@
       <!-- /#page-content-wrapper -->
    </div>
    <!-- /#wrapper -->
-   <script src="http://code.jquery.com/jquery-1.10.1.min.js">
-   </script> 
-   <script src="/socket.io/socket.io.js">
-   </script> 
+   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script> 
+   <script src="/socket.io/socket.io.js"></script> 
    <script>
     var socket = io.connect('http://localhost:3000');
 

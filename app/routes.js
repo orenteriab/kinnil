@@ -107,28 +107,71 @@ module.exports = function(app, passport) {
 			// Primero obtiene el turno actual
 			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				
 				var result = connection.query("select * from productos where activo = true")
 				return result
 			}).then(function(rows){
 				return_data.productos = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				
 				var result = connection.query("select * from plantas where active = true")
 				return result
 			}).then(function(rows){
 				return_data.plantas = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				
 				var result = connection.query("select * from areas where active = true")
 				return result
-			}).then(function(rows) {
+			}).then(function(rows){
 				return_data.areas = rows
-				console.log(return_data)
-				//console.log(return_data)
+
+				// Se separan los datos obtenidos de los queries.
+				var plantas = return_data.plantas
+				var areas = return_data.areas
+				var turnos = return_data.turnos
+				var productos = return_data.productos
+
+
+				// TODO: ver si se puede utilizar una de estas formas para hacer mas rapido este pedo y delegar las operaciones a otro modulo
+				/*https://github.com/kyleladd/node-mysql-nesting
+				http://bender.io/2013/09/22/returning-hierarchical-data-in-a-single-sql-query/
+				http://blog.tcs.de/creating-trees-from-sql-queries-in-javascript/*/
+
+				// Objeto donde se va a guardar toda la confirguacion.
+				var json = {plantas : []}
+
+				for (var x = 0; x<plantas.length; x++){
+					planta = plantas[x]
+					json.plantas.push({"id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [], "productos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
+
+					for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
+						area = areas[y]
+
+						if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
+							json.plantas[x].areas.push({"id": area.id, "nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
+						}
+					}
+					for (var b = 0; b<turnos.length; b++){
+						turno = turnos[b]
+
+						if (turno.plantas_id == planta.id){
+							json.plantas[x].turnos.push({"id": turno.id, "nombre": turno.nombre})
+						}
+					}
+					for (var c = 0; c<productos.length; c++){
+						producto = productos[b]
+
+						if (producto.plantas_id == planta.id){
+							json.plantas[x].productos.push({"id": producto.id, "nombre": producto.nombre})
+						}
+					}
+				}
+				
+				//console.log(JSON.stringify(json))
 				res.render("pages/disponibilidad.ejs",{
 					turnos: return_data.turnos,
 					productos: return_data.productos,
 					plantas: return_data.plantas,
 					areas: return_data.areas,
+					json: json,
 					user: req.user
 				});
 			}).catch(function(err) {

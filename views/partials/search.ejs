@@ -4,11 +4,13 @@
     <label for="sel1">Planta:</label>
     <select class="form-control" id="plantas-choice">
         <% if(plantas.length>0){%>
+          <option value = "all">Todas las plantas</option>
         <% for(var i=0; i<plantas.length; i++) {%>
         <option value = "<%= plantas[i].id %>"><%= plantas[i].nombre %></option>
         <% } %>
         <%} else {%>
-          <option value = "sinturno">No hay plantas.</option>
+          <!-- TODO: Tomar las medidas necesarias para que no aparezcan errores en routes.js -->
+          <option value = "sin-plantas">No hay plantas</option>
         <% } %>
     </select>
   </div>
@@ -16,7 +18,8 @@
   <div class="form-group">
     <label for="sel1">Area:</label>
     <select class="form-control" id="areas-choice">
-      <option>Selecciona la planta</option>
+      <option value = "all">Todas las areas</option>
+      <option value = "sin-plantas">No hay areas</option>
     </select>
   </div>
 

@@ -40,33 +40,91 @@ module.exports = function(io) {
                 
                 var return_data = {}
                 promisePool.getConnection().then(function(connection) {
-        
-                    // Primero obtiene el turno actual
-                    connection.query("SELECT * FROM turnos").then(function(rows){
+                    // TODO: hay que probar si funciona este codigo, con jossie
+                    // TODO: montar el servidor de prueba eternamente
+                    connection.query("select * from turnos where activo = true").then(function(rows){
                         return_data.turnos = rows
-                        // TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
-                        var result = connection.query("select * from productos")
+                        
+                        var result = connection.query("select * from plantas where active = true")
+                        return result
+                    }).then(function(rows){
+                        return_data.plantas = rows
+                        
+                        var result = connection.query("select * from areas where active = true")
+                        return result
+                    }).then(function(rows){
+                        return_data.areas = rows
+                        
+                        var result = connection.query("select * from maquinas where active = true")
+                        return result
+                    }).then(function(rows){
+                        return_data.maquinas = rows
+                        
+                        var result = connection.query("select * from razones_paro where active = true")
                         return result
                     }).then(function(rows) {
-                        return_data.productos = rows
-                        //console.log(return_data)
-                        res.render("pages/rendimiento.ejs",{
-                            turnos: return_data.turnos,
-                            productos: return_data.productos,
-                            user: req.user
-                        });
+                        return_data.razones_paro = rows
+                        
+                        // Se separan los datos obtenidos de los queries
+                        var plantas = return_data.plantas
+                        var areas = return_data.areas
+                        var maquinas = return_data.maquinas
+                        var razones_paro =return_data.razones_paro
+                        var turnos = return_data.turnos
+        
+                        // Objeto donde se va a guardar toda la confirguacion.
+                        // TODO: hay que agregar el id a cada elemento para que Jossie me regrese puros Ids que esten en la base de datos
+                        var json = {plantas : []}
+        
+                        for (var x = 0; x<plantas.length; x++){
+                            planta = plantas[x]
+                            json.plantas.push({"nombre": planta.nombre, "areas": [], "turnos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
+        
+                            for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
+                                area = areas[y]
+        
+                                if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
+                                    json.plantas[x].areas.push({"nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
+        
+                                    for (var z = 0; z<maquinas.length; z++){ // Se recorren todas las maquinas
+                                        var maquina = maquinas[z]
+        
+                                        if (maquina.areas_id == area.id) // Si la maquina pertenece al area en turno
+                                        {
+                                            json.plantas[x].areas[y].maquinas.push({"nombre": maquina.nombre, razones: []}) // Se agrega la maquina al area en turno (4to nivel)
+        
+                                            for (var a = 0; a<razones_paro.length; a++){ // Se recorren todas las razones de paro
+                                                var razon_paro = razones_paro[a]
+        
+                                                if (razon_paro.maquinas_id == maquina.id){ // Si la razon de paro pertenece a la maquina en turno 
+                                                    json.plantas[x].areas[y].maquinas[z].razones.push(razon_paro.nombre) // Se agrega la razon de paro a la maquina en turno (5to nivel)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            for (var b = 0; b<turnos.length; b++){
+                                turno = turnos[b]
+        
+                                if (turno.plantas_id == planta.id){
+                                    json.plantas[x].turnos.push({"nombre": turno.nombre, "inicio":turno.inicio, "fin":turno.fin})
+                                }
+                            }
+                        }
+                    
+                        // Anterior emit ---- se guarda para pruebas solamente
+                        //io.emit('config', '{"plantas": [{"planta": "Planta1-Chihuahua-Nave1", "areas": [{"nombre": "area 1", "maquinas": [{"nombre": "area1-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] }, {"nombre": "area 2", "maquinas": [{"nombre": "area2-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] } ], "turnos": [{"nombre": "primera", "inicio": "06:00", "fin": "15:00"}, {"nombre": "segunda", "inicio": "15:00", "fin": "21:00"}, {"nombre": "tercera", "inicio": "21:00", "fin": "06:00"} ] }, {"planta": "Planta1-Chihuahua-Nave2", "areas": [{"nombre": "area 1", "maquinas": [{"nombre": "area1-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] }, {"nombre": "area 2", "maquinas": [{"nombre": "area2-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] } ], "turnos": [{"nombre": "primera", "inicio": "06:00", "fin": "15:00"}, {"nombre": "segunda", "inicio": "15:00", "fin": "21:00"}, {"nombre": "tercera", "inicio": "21:00", "fin": "06:00"} ] } ] }'); // io.emit send a message to everione connected
+                        io.emit('config', JSON.stringify(json)); // io.emit send a message to everione connected
                     }).catch(function(err) {
                         console.log(err);
                     });
                 });
-
-                // TODO: Hacer que esta configuacion se obtenga desde la DB y se mande como un json
-                io.emit('config', '{"plantas": [{"planta": "Planta1-Chihuahua-Nave1", "areas": [{"nombre": "area 1", "maquinas": [{"nombre": "area1-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] }, {"nombre": "area 2", "maquinas": [{"nombre": "area2-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] } ], "turnos": [{"nombre": "primera", "inicio": "06:00", "fin": "15:00"}, {"nombre": "segunda", "inicio": "15:00", "fin": "21:00"}, {"nombre": "tercera", "inicio": "21:00", "fin": "06:00"} ] }, {"planta": "Planta1-Chihuahua-Nave2", "areas": [{"nombre": "area 1", "maquinas": [{"nombre": "area1-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] }, {"nombre": "area 2", "maquinas": [{"nombre": "area2-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] } ], "turnos": [{"nombre": "primera", "inicio": "06:00", "fin": "15:00"}, {"nombre": "segunda", "inicio": "15:00", "fin": "21:00"}, {"nombre": "tercera", "inicio": "21:00", "fin": "06:00"} ] } ] }'); // io.emit send a message to everione connected
-                console.log('A client want to know the actual configuration: {"planta":"planta 1", "areas": [{ "nombre":"area 1", "maquinas":[{"nombre":"area1-maquina-1", "razones":["razon 1", "razon 2","razon 3"] }, {"nombre":"area1-maquina-2", "razones":["razon 1", "razon 2","razon 3"] }, {"nombre":"area1-maquina-3", "razones":["razon 1", "razon 2","razon 3"] } ] }, { "nombre":"area 2", "maquinas":[{"nombre":"area2-maquina-1", "razones":["razon 1", "razon 2","razon 3"] }, {"nombre":"area2-maquina-2", "razones":["razon 1", "razon 2","razon 3"] }, {"nombre":"area2-maquina-3", "razones":["razon 1", "razon 2","razon 3"] } ] } ], "turnos": [{ "nombre":"primera", "inicio":"06:00", "fin":"15:00" }, { "nombre":"segunda", "inicio":"15:00", "fin":"21:00" }, { "nombre":"tercera", "inicio":"21:00", "fin":"06:00" } ] }');
             }
         });
 
-        // When the server receives a “config” type signal from the client   
+        // When the server receives a “config” type signal from the client 
+        // TODO: cambiar esto para que se haga con promesas y con un pool de conexiones
         socket.on('evento', function (message) {
             var evento = JSON.parse(message);
 
@@ -110,6 +168,42 @@ module.exports = function(io) {
             console.log("alguien se desconecto por " + reason);
             socket.emit('desconectado', "se desconecto una tablet")
         });
+
+        /*
+        * Cambio de la planta seleccionada (Paginas que hacen reportes)
+        */
+        socket.on('cambio-planta', function (message) {
+            
+            if (message != "all")
+            {
+                var return_data = {}
+                promisePool.getConnection().then(function(connection) {
+                    connection.query("select * from turnos where activo = true and plantas_id = " + id).then(function(rows){
+                        return_data.turnos = rows
+                        
+                        var result = connection.query("select * from areas where active = true and plantas_id = " + id)
+                        return result
+                    }).then(function(rows){
+                        return_data.areas = rows
+                        
+                        var result = connection.query("select * from productos where active = true and plantas_id = " + id)
+                        return result
+                    }).then(function(rows) {
+                        return_data.productos = rows
+                        // TODO: Modificar este codigo para enviarselo solo al que lo pidio, estudiar mas el funcionamiento de los sockets
+                        io.emit('cambio-planta', return_data); // io.emit send a message to everione connected
+
+                    }).catch(function(err) {
+                        console.log(err);
+                    });
+                });
+            }else{
+                io.emit('cambio-planta', 'all'); // io.emit send a message to everione connected
+            }
+        });
+
+        // Aqui puedo ir agregando mas sockets
+
     });
 
 };

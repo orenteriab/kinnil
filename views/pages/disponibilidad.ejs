@@ -33,8 +33,9 @@
       <!-- /#page-content-wrapper -->
    </div>
    <!-- /#wrapper -->
-   <script src="http://code.jquery.com/jquery-1.10.1.min.js">
-   </script> <%include ../partials/js %>
+   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+   <script src="/socket.io/socket.io.js"></script> 
+   <%include ../partials/js %>
    <script>
     
             var fechaInicio;
@@ -137,6 +138,13 @@
                 console.log(fechaInicio.format('DD-MM-YYYY') + ' - ' + fechaFin.format('DD-MM-YYYY'));
             });
     
+            // Se hace la consulta segun los campos seleccionados
+            // TODO: falta agregar planta y area a este post
+            // TODO: no dejar hacer post si aun no se selecciona una planta y una area
+            // TODO: tomar en cuenta las reglas del negocio a programar
+            // una planta o todas, una area a todas, un producto o varios mas 
+            // TODO: ya no encontre las demas hojas, hay que retomar con ricardo y ver si va a haber casos especificos donde se seleccione por maquina
+            //
             function consultar() {
                 var turno = $("#turno").val();
                 var producto = $("#producto").val();
@@ -161,6 +169,30 @@
                     }
                 });
             }
+
+            // En este momento se va a entablar la conexion.
+            var socket = io.connect('http://localhost:3000'); // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
+
+            $("#plantas-choice").change(function() {
+
+                var $dropdown = $(this);
+                
+                var id = $dropdown.val();
+                 
+                socket.emit('cambio-planta', id);
+
+            });
+
+            socket.on('cambio-planta', function(message) {
+
+                var $secondChoice = $("#areas-choice");
+                $secondChoice.empty();
+                $.each(vals, function(index, value) {
+                    $secondChoice.append("<option value="+ message.areas.id +" >" + message.areas.nombre + "</option>");
+                });
+
+            })
+
         </script>
 </body>
 </html>

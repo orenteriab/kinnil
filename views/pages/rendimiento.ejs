@@ -12,12 +12,10 @@
    <div id="wrapper">
       <!-- Sidebar -->
 
-
       <div id="sidebar-wrapper">
          <%include ../partials/sidebar-wrapper %>
       </div>
       <!-- Page Content -->
-
 
       <div id="page-content-wrapper">
          <%include ../partials/navbar %>
@@ -28,7 +26,7 @@
 
             <div class="grid-stack" id="custom-stack-items">
             </div>
-            <button id="queFecha">Que fecha es?</button>
+            
          </div>
       </div>
    </div>
@@ -134,10 +132,7 @@
             cb(start, end);
         });
     });
-        $('#queFecha').click(function(){
-            console.log(fechaInicio.format('DD-MM-YYYY') + ' - ' + fechaFin.format('DD-MM-YYYY'));
-        });
-
+        
         function consultar() {
             var turno = $("#turno").val();
             var producto = $("#producto").val();
