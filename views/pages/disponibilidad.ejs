@@ -176,20 +176,37 @@
             $("#plantas-choice").change(function() {
 
                 var $dropdown = $(this);
-                
                 var id = $dropdown.val();
                  
-                socket.emit('cambio-planta', id);
+                if (id == "all"){ // (Todas las plantas)
+                    location.reload(); // Se refresca la pagina para obtener los campos como al principio
+                } else {
+                    socket.emit('cambio-planta', id);
+                }
 
             });
 
             socket.on('cambio-planta', function(message) {
+                alert(message.areas[0].id);
+                alert(message.areas.lenght);
+                if (message != "all"){
+                    //alert("areas-choice");
+                    var $areasChoice = $("#areas-choice");
+                    $areasChoice.empty();
 
-                var $secondChoice = $("#areas-choice");
-                $secondChoice.empty();
-                $.each(vals, function(index, value) {
-                    $secondChoice.append("<option value="+ message.areas.id +" >" + message.areas.nombre + "</option>");
-                });
+                    //vals = message.areas.id;
+                    /*
+                    for (var x = 0; x < message.areas.lenght; x++){
+                        $areasChoice.append("<option value="+ message.areas[x].id +" >" + message.areas[x].nombre + "</option>");
+
+                        //alert(message.areas[0].id);
+                    }*/
+                    /*$.each(vals, function(index, value) {
+                        $areasChoice.append("<option value="+ message.areas.id +" >" + message.areas.nombre + "</option>");
+                    });*/
+                } else {
+                    alert ("se seleccionaron todas las plantas") // TODO: agregar cuando se seleccionen todas las plantas que se vuelva a poner la informacion de todas, la inicial....
+                }
 
             })
 

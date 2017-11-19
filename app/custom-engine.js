@@ -178,15 +178,15 @@ module.exports = function(io) {
             {
                 var return_data = {}
                 promisePool.getConnection().then(function(connection) {
-                    connection.query("select * from turnos where activo = true and plantas_id = " + id).then(function(rows){
+                    connection.query("select * from turnos where activo = true and plantas_id = " + message).then(function(rows){
                         return_data.turnos = rows
                         
-                        var result = connection.query("select * from areas where active = true and plantas_id = " + id)
+                        var result = connection.query("select * from areas where active = true and plantas_id = " + message)
                         return result
                     }).then(function(rows){
                         return_data.areas = rows
                         
-                        var result = connection.query("select * from productos where active = true and plantas_id = " + id)
+                        var result = connection.query("select * from productos where activo = true and plantas_id = " + message)
                         return result
                     }).then(function(rows) {
                         return_data.productos = rows
