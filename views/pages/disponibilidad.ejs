@@ -38,13 +38,12 @@
    <%include ../partials/js %>
    <script>
     
-            var fechaInicio;
+            var fechaInicio; 
             var fechaFin;
             var tipo = "turno"; // Por default es por turno para que aparesca algo aunque el usuario no seleccione una opcion.
-    
-            // Hace que se despliegue las opciones de los turnos
-            document.getElementById('ifTurno').style.display = 'block';
-    
+            
+            document.getElementById('ifTurno').style.display = 'block'; // Hace que se despliegue las opciones de los turnos
+
             function byTurno() {
                 document.getElementById('ifTurno').style.display = 'block';
                 document.getElementById('ifProducto').style.display = 'none';
@@ -66,7 +65,7 @@
             
             
     
-            $(document).ready(function() {
+            $(document).ready(function() { // El selector de fechas se despliega hasta que toda la pagina cargo
     
             $(function() {
             
@@ -134,32 +133,40 @@
                 cb(start, end);
             });
         });
-            $('#queFecha').click(function(){
-                console.log(fechaInicio.format('DD-MM-YYYY') + ' - ' + fechaFin.format('DD-MM-YYYY'));
-            });
     
             // Se hace la consulta segun los campos seleccionados
-            // TODO: falta agregar planta y area a este post
-            // TODO: no dejar hacer post si aun no se selecciona una planta y una area
             // TODO: tomar en cuenta las reglas del negocio a programar
             // una planta o todas, una area a todas, un producto o varios mas 
             // TODO: ya no encontre las demas hojas, hay que retomar con ricardo y ver si va a haber casos especificos donde se seleccione por maquina
             //
             function consultar() {
+
+                var planta = $("#plantas-choice").val();
+                var area = $("#areas-choice").val(); 
                 var turno = $("#turno").val();
                 var producto = $("#producto").val();
                 var inicio = fechaInicio.format('DD-MM-YYYY');
                 var fin = fechaFin.format('DD-MM-YYYY');
                 var horarInicio = $('#horaInicio').val();
                 var horarFin = $('#horaFin').val();
-    
-                // Previene que ocurra el evento POST
+
+                // Previene que ocurra el evento POST y se refresque la pagina asi como asi
                 event.preventDefault();
+
+                // No hace POST si no hay productos o turnos seleccionados
+                if (tipo == 'turno' && turno == 'noturnos'){
+                    alert("No se puede obtener el reporte por turnos, No hay turnos"); 
+                    return;
+                }
+                if (tipo == 'producto' && producto == 'noproductos'){
+                    alert("No se puede obtener el reporte por productos, No hay productos");
+                    return;
+                }
     
                 $.ajax({
                     type: 'POST',
-                    url: '/rendimiento',
-                    data: "turno=" + turno + "&producto=" + producto + "&inicio=" + inicio + "&fin=" + fin + "&horaInicio=" + horarInicio + "&horaFin=" + horarFin + "&tipo=" + tipo,
+                    url: '/disponibilidad',
+                    data: "&planta=" + planta + "&area=" + area +"&turno=" + turno + "&producto=" + producto + "&inicio=" + inicio + "&fin=" + fin + "&horaInicio=" + horarInicio + "&horaFin=" + horarFin + "&tipo=" + tipo,
                     dataType: 'text',
                     success: function(data, textStatus, jQxhr) {
                         //$('#response pre').html(data);
@@ -170,46 +177,89 @@
                 });
             }
 
-            // En este momento se va a entablar la conexion.
-            var socket = io.connect('http://localhost:3000'); // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
+            // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
+            var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
 
-            $("#plantas-choice").change(function() {
+            $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas
 
+                // Se obtiene el ID de la planta seleccionada
                 var $dropdown = $(this);
-                var id = $dropdown.val();
-                 
-                if (id == "all"){ // (Todas las plantas)
-                    location.reload(); // Se refresca la pagina para obtener los campos como al principio
+                var id = $dropdown.val(); 
+
+                // Se hace una limpieza por si el formario no estaba como valido
+                document.getElementById("areas-choice-div").classList.remove('has-error');
+                $("#btnConsultar").removeAttr('disabled','disabled');
+                $("#btnConsultar").attr('enabled','enabled');
+
+                if (id == "all"){ 
+
+                    location.reload(); // Si todas las plantas estan seleccionadas se refresca la pagina para obtener los campos como al principio
+
                 } else {
-                    socket.emit('cambio-planta', id);
+
+                    socket.emit('cambio-planta', id); // Si se selecciona cualquier otra se manada el ID por un socket
+
                 }
 
             });
 
-            socket.on('cambio-planta', function(message) {
-                alert(message.areas[0].id);
-                alert(message.areas.lenght);
-                if (message != "all"){
-                    //alert("areas-choice");
-                    var $areasChoice = $("#areas-choice");
-                    $areasChoice.empty();
+            socket.on('cambio-planta', function(returnData) {
+                // se vacian estos select inputs para agregar nuevos datos.
+                var $areasChoice = $("#areas-choice");
+                $areasChoice.empty();
 
-                    //vals = message.areas.id;
-                    /*
-                    for (var x = 0; x < message.areas.lenght; x++){
-                        $areasChoice.append("<option value="+ message.areas[x].id +" >" + message.areas[x].nombre + "</option>");
+                var $turnosChoice = $("#turno");
+                $turnosChoice.empty();
 
-                        //alert(message.areas[0].id);
-                    }*/
-                    /*$.each(vals, function(index, value) {
-                        $areasChoice.append("<option value="+ message.areas.id +" >" + message.areas.nombre + "</option>");
-                    });*/
+                var $productosChoice = $("#producto");
+                $productosChoice.empty();
+
+                // AREAS
+                if (returnData.areas == ""){ // Si no hay areas!
+                    
+                    // Se marca un error y se deshabhilita el boton de sumbit
+                    $areasChoice.append("<option value='noareas'> Planta sin areas, por favor seleccione otra planta </option>");
+                    document.getElementById("areas-choice-div").classList.add('has-error');
+                    $("#btnConsultar").removeAttr('enabled','enabled');
+                    $("#btnConsultar").attr('disabled','disabled');
+
                 } else {
-                    alert ("se seleccionaron todas las plantas") // TODO: agregar cuando se seleccionen todas las plantas que se vuelva a poner la informacion de todas, la inicial....
+
+                    // Se llena el input select con todas las areas
+                    $areasChoice.append("<option value='all-areas' > Todas las areas </option>")  
+                    for (var i = 0, l = returnData.areas.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
+                        $areasChoice.append("<option value="+ returnData.areas[i].id +" >" + returnData.areas[i].nombre + "</option>")  
+                        $("#btnConsultar").removeAttr('disabled','disabled');
+                        $("#btnConsultar").attr('enabled','enabled'); // Habilita el boton por que cambiaron a una planta que si tiene areas
+                    }
                 }
 
-            })
+                // TURNOS
+                if (returnData.turnos == ""){ // Si no hay turnos!
 
+                    $turnosChoice.append("<option value='noturnos'> No hay turnos en esta planta, seleccione otra opcion </option>");
+                    
+                } else {
+
+                    // Se llena el input select con los turnos
+                    for (var i = 0, l = returnData.turnos.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
+                        $turnosChoice.append("<option value="+ returnData.turnos[i].id +" >" + returnData.turnos[i].nombre + "</option>")  
+                    }
+                }
+
+                // PRODUCTOS 
+                if (returnData.productos == ""){ // Si no hay productos
+
+                    $productosChoice.append("<option value='noproductos'> No hay productos en esta planta, seleccione otra opcion </option>");
+
+                } else {
+
+                    // Se llena el input select con los productos
+                    for (var i = 0, l = returnData.productos.length; i < l; i += 1) { 
+                        $productosChoice.append("<option value="+ returnData.productos[i].id +" >" + returnData.productos[i].nombre + "</option>")  
+                    }
+                }
+            })
         </script>
 </body>
 </html>

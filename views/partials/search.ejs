@@ -15,7 +15,7 @@
     </select>
   </div>
 
-  <div class="form-group">
+  <div class="form-group" id="areas-choice-div">
     <label for="sel1">Area:</label>
     <select class="form-control" id="areas-choice">
       <% if(areas.length>0){%>
@@ -86,6 +86,6 @@
         </div>
       </div>
   </div>
-  <button onclick="consultar()" type="submit" class="btn btn-primary">Consultar</button>
+  <button onclick="consultar()" id="btnConsultar" type="submit" class="btn btn-primary">Consultar</button>
 </form>
 

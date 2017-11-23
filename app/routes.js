@@ -101,28 +101,28 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/disponibilidad', isLoggedIn, function(req, res) {
-
+		//console.log("empece con el get")
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
 			// Primero obtiene el turno actual
 			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
-				
+				//console.log("primera promesa")
 				var result = connection.query("select * from productos where activo = true")
 				return result
 			}).then(function(rows){
 				return_data.productos = rows
-				
+				//console.log("segunda promesa")
 				var result = connection.query("select * from plantas where active = true")
 				return result
 			}).then(function(rows){
 				return_data.plantas = rows
-				
+				//console.log("tercera promesa")
 				var result = connection.query("select * from areas where active = true")
 				return result
 			}).then(function(rows){
 				return_data.areas = rows
-
+				//console.log("cuarda promesa")
 				// Se separan los datos obtenidos de los queries.
 				var plantas = return_data.plantas
 				var areas = return_data.areas
@@ -164,8 +164,7 @@ module.exports = function(app, passport) {
 						}
 					}
 				}
-				
-				//console.log(JSON.stringify(json))
+
 				res.render("pages/disponibilidad.ejs",{
 					turnos: return_data.turnos,
 					productos: return_data.productos,
@@ -183,9 +182,27 @@ module.exports = function(app, passport) {
 	app.post('/disponibilidad', isLoggedIn, function(req, res) {
 
 		console.log("post en disponibilidad")
-		res.render("pages/disponibilidad.ejs",{
+		console.log(req.body.planta)
+		console.log("-")
+		console.log(req.body.area)
+		console.log("-")
+		console.log(req.body.turno)
+		console.log("-")
+		console.log(req.body.producto)
+		console.log("-")
+		console.log(req.body.inicio)
+		console.log("-")
+		console.log(req.body.fin)
+		console.log("-")
+		console.log(req.body.horaInicio/60/60)
+		console.log("-")
+		console.log(req.body.horaFin/60/60)
+		console.log("-")
+		console.log(req.body.tipo)
+		console.log("-")
+		/*res.render("pages/disponibilidad.ejs",{
 			user: req.user
-		});
+		});*/
 	});
 
 	// =====================================
@@ -849,7 +866,7 @@ module.exports = function(app, passport) {
 
 // route middleware to make sure
 function isLoggedIn(req, res, next) {
-
+	//console.log("verify is the user is authenticated")
 	// if user is authenticated in the session, carry on
 	if (req.isAuthenticated())
 		return next();

@@ -174,34 +174,31 @@ module.exports = function(io) {
         */
         socket.on('cambio-planta', function (message) {
             
-            if (message != "all")
-            {
-                var return_data = {}
-                promisePool.getConnection().then(function(connection) {
-                    connection.query("select * from turnos where activo = true and plantas_id = " + message).then(function(rows){
-                        return_data.turnos = rows
-                        
-                        var result = connection.query("select * from areas where active = true and plantas_id = " + message)
-                        return result
-                    }).then(function(rows){
-                        return_data.areas = rows
-                        
-                        var result = connection.query("select * from productos where activo = true and plantas_id = " + message)
-                        return result
-                    }).then(function(rows) {
-                        return_data.productos = rows
-                        // TODO: Modificar este codigo para enviarselo solo al que lo pidio, estudiar mas el funcionamiento de los sockets
-                        io.emit('cambio-planta', return_data); // io.emit send a message to everione connected
+            var return_data = {}
+            promisePool.getConnection().then(function(connection) {
+                connection.query("select * from turnos where activo = true and plantas_id = " + message).then(function(rows){
+                    return_data.turnos = rows
+                    
+                    var result = connection.query("select * from areas where active = true and plantas_id = " + message)
+                    return result
+                }).then(function(rows){
+                    return_data.areas = rows
+                    
+                    var result = connection.query("select * from productos where activo = true and plantas_id = " + message)
+                    return result
+                }).then(function(rows) {
+                    return_data.productos = rows
 
-                    }).catch(function(err) {
-                        console.log(err);
-                    });
+                    console.log(return_data)
+                    // TODO: Modificar este codigo para enviarselo solo al que lo pidio, estudiar mas el funcionamiento de los sockets
+                    io.emit('cambio-planta', return_data); // io.emit send a message to everione connected
+
+                }).catch(function(err) {
+                    console.log(err);
                 });
-            }else{
-                io.emit('cambio-planta', 'all'); // io.emit send a message to everione connected
-            }
+            });
+            
         });
-
         // Aqui puedo ir agregando mas sockets
 
     });
