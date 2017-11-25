@@ -189,7 +189,6 @@ module.exports = function(io) {
                 }).then(function(rows) {
                     return_data.productos = rows
 
-                    console.log(return_data)
                     // TODO: Modificar este codigo para enviarselo solo al que lo pidio, estudiar mas el funcionamiento de los sockets
                     io.emit('cambio-planta', return_data); // io.emit send a message to everione connected
 
@@ -198,6 +197,63 @@ module.exports = function(io) {
                 });
             });
             
+        });
+
+        socket.on('reporte-disponibilidad', function (json) {
+            var planta = json.planta
+            var area = json.area
+            var turno = json.turno
+            var productos = json.producto
+            var inicio = json.inicio
+            var fin = json.fin
+            var horaInicio = json.horaInicio/60/60
+            var horaFin = json.horaFin/60/60
+            var tipo = json.tipo
+    
+            var where = " WHERE (e.fecha BETWEEN '" + inicio + "' AND '" + fin + "')"
+    
+            if (planta != "all") {
+                where += " AND e.plantas_id =" + planta
+            }
+            if (area != "all") {
+                where += " AND e.areas_id =" + area
+            }
+            if (tipo == "hora") {
+                // TODO Logica para agregar la hora transformada de los segundos.
+            }
+            if (tipo == "producto") {
+                // TODO Logica para los productos
+            }
+    
+            var return_data = {}
+            promisePool.getConnection().then(function(connection) {
+                // Primero obtiene el turno actual
+                connection.query("select * from turnos where activo = true").then(function(rows){
+                    return_data.turnos = rows
+                    // TODO: obtener el id del selected turno.
+    
+                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true")
+                    return result
+                }).then(function(rows){
+                    return_data.ta = rows
+                    //console.log("segunda promesa")
+                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = false")
+                    return result
+                }).then(function(rows){
+                    return_data.tm = rows
+                    //console.log("tercera promesa")
+                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false")
+                    return result
+                }).then(function(rows){
+                    return_data.desglose = rows
+                    console.log(return_data)
+
+                    io.emit('reporte-disponibilidad', return_data); // io.emit send a message to everione connected
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            });
         });
         // Aqui puedo ir agregando mas sockets
 

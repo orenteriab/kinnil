@@ -181,28 +181,63 @@ module.exports = function(app, passport) {
 
 	app.post('/disponibilidad', isLoggedIn, function(req, res) {
 
-		console.log("post en disponibilidad")
-		console.log(req.body.planta)
-		console.log("-")
-		console.log(req.body.area)
-		console.log("-")
-		console.log(req.body.turno)
-		console.log("-")
-		console.log(req.body.producto)
-		console.log("-")
-		console.log(req.body.inicio)
-		console.log("-")
-		console.log(req.body.fin)
-		console.log("-")
-		console.log(req.body.horaInicio/60/60)
-		console.log("-")
-		console.log(req.body.horaFin/60/60)
-		console.log("-")
-		console.log(req.body.tipo)
-		console.log("-")
-		/*res.render("pages/disponibilidad.ejs",{
-			user: req.user
-		});*/
+		var planta = req.body.planta
+		var area = req.body.area
+		var turno = req.body.turno
+		var productos = req.body.producto
+		var inicio = req.body.inicio
+		var fin = req.body.fin
+		var horaInicio = req.body.horaInicio/60/60
+		var horaFin = req.body.horaFin/60/60
+		var tipo = req.body.tipo
+
+		var where = " WHERE (e.fecha BETWEEN " + inicio + " AND " + fin + ")"
+
+		if (planta != "all") {
+			where += " AND e.plantas_id =" + planta
+		}
+		if (area != "all") {
+			where += " AND e.areas_id =" + area
+		}
+		if (tipo == "hora") {
+			// TODO Logica para agregar la hora transformada de los segundos.
+		}
+		if (tipo == "producto") {
+			// TODO Logica para los productos
+		}
+
+		var return_data = {}
+		promisePool.getConnection().then(function(connection) {
+			// Primero obtiene el turno actual
+			connection.query("select * from turnos where activo = true").then(function(rows){
+				return_data.turnos = rows
+				// TODO: obtener el id del selected turno.
+
+				var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true")
+				return result
+			}).then(function(rows){
+				return_data.ta = rows
+				//console.log("segunda promesa")
+				var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = false")
+				return result
+			}).then(function(rows){
+				return_data.tm = rows
+				//console.log("tercera promesa")
+				var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false")
+				return result
+			}).then(function(rows){
+				return_data.tm_desglose = rows
+				console.log(return_data)
+				res.render("pages/disponibilidad-resultado.ejs",{ // TODO:no se puede mandar a la misma pagina, tengo que ver otra manera
+					ta: return_data.ta,
+					tm: return_data.tm,
+					tm_desglose: return_data.tm_desglose,
+					user: req.user
+				});
+			}).catch(function(err) {
+				console.log(err);
+			});
+		});
 	});
 
 	// =====================================

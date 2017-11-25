@@ -26,6 +26,8 @@
             <h1>Disponibilidad</h1>
             <%include ../partials/search %>
 
+            <%include ../partials/resultados-disp %>
+
             <div class="grid-stack" id="custom-stack-items">
             </div>
          </div>
@@ -37,6 +39,7 @@
    <script src="/socket.io/socket.io.js"></script> 
    <%include ../partials/js %>
    <script>
+       
     
             var fechaInicio; 
             var fechaFin;
@@ -139,14 +142,15 @@
             // una planta o todas, una area a todas, un producto o varios mas 
             // TODO: ya no encontre las demas hojas, hay que retomar con ricardo y ver si va a haber casos especificos donde se seleccione por maquina
             //
+            /*
             function consultar() {
 
                 var planta = $("#plantas-choice").val();
                 var area = $("#areas-choice").val(); 
                 var turno = $("#turno").val();
                 var producto = $("#producto").val();
-                var inicio = fechaInicio.format('DD-MM-YYYY');
-                var fin = fechaFin.format('DD-MM-YYYY');
+                var inicio = fechaInicio.format('YYYY-DD-MM');
+                var fin = fechaFin.format('YYYY-DD-MM');
                 var horarInicio = $('#horaInicio').val();
                 var horarFin = $('#horaFin').val();
 
@@ -176,10 +180,55 @@
                     }
                 });
             }
-
+            */
+            // TODO: Refactorizar este codigo.
             // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
             var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
 
+            function consultar() {
+
+                var json = {}
+
+                json.planta = $("#plantas-choice").val();
+                json.area = $("#areas-choice").val(); 
+                json.turno = $("#turno").val();
+                json.producto = $("#producto").val();
+                json.inicio = fechaInicio.format('YYYY-DD-MM');
+                json.fin = fechaFin.format('YYYY-DD-MM');
+                json.horarInicio = $('#horaInicio').val();
+                json.horarFin = $('#horaFin').val();
+                json.tipo = tipo;
+
+                // Previene que ocurra el evento POST y se refresque la pagina asi como asi
+                event.preventDefault();
+
+                // No hace POST si no hay productos o turnos seleccionados
+                if (tipo == 'turno' && json.turno == 'noturnos'){
+                    alert("No se puede obtener el reporte por turnos, No hay turnos"); 
+                    return;
+                }
+                if (tipo == 'producto' && json.producto == 'noproductos'){
+                    alert("No se puede obtener el reporte por productos, No hay productos");
+                    return;
+                }
+                socket.emit('reporte-disponibilidad', json);
+            }
+
+            socket.on('reporte-disponibilidad', function(data) {
+                // TODO: hacer algo para cuando los valores sean NULOS
+
+                //alert(data.ta.ta)
+                
+                $('#ta').html("ta" + data.ta.ta); // Cuando no tiene nada, este undefined..... que raro
+                $('#tm').html("tm" + data.tm.tm);
+                $('#desglose').html("desglose" + data.desglose.tm);
+            });
+
+            
+
+            /*
+            * Se ejecuta cuando se cambia de planta 
+            */
             $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas
 
                 // Se obtiene el ID de la planta seleccionada
@@ -192,17 +241,16 @@
                 $("#btnConsultar").attr('enabled','enabled');
 
                 if (id == "all"){ 
-
                     location.reload(); // Si todas las plantas estan seleccionadas se refresca la pagina para obtener los campos como al principio
-
                 } else {
-
                     socket.emit('cambio-planta', id); // Si se selecciona cualquier otra se manada el ID por un socket
-
                 }
 
             });
 
+            /*
+            * Se ejecuta cuando se recibe la respuesta del socket de cuando se cambia una planta
+            */ 
             socket.on('cambio-planta', function(returnData) {
                 // se vacian estos select inputs para agregar nuevos datos.
                 var $areasChoice = $("#areas-choice");
