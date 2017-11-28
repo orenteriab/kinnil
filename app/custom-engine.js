@@ -209,8 +209,12 @@ module.exports = function(io) {
             var horaInicio = json.horaInicio/60/60
             var horaFin = json.horaFin/60/60
             var tipo = json.tipo
+
+            console.log(json)
     
-            var where = " WHERE (e.fecha BETWEEN '" + inicio + "' AND '" + fin + "')"
+            var where = " WHERE e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "'"
+
+            console.log(where)
     
             if (planta != "all") {
                 where += " AND e.plantas_id =" + planta
@@ -237,12 +241,12 @@ module.exports = function(io) {
                 }).then(function(rows){
                     return_data.ta = rows
                     //console.log("segunda promesa")
-                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = false")
+                    var result = connection.query("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
                     return result
                 }).then(function(rows){
                     return_data.tm = rows
                     //console.log("tercera promesa")
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false")
+                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
                     return result
                 }).then(function(rows){
                     return_data.desglose = rows
