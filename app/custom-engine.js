@@ -200,58 +200,87 @@ module.exports = function(io) {
         });
 
         socket.on('reporte-disponibilidad', function (json) {
-            var planta = json.planta
-            var area = json.area
-            var turno = json.turno
-            var productos = json.producto
-            var inicio = json.inicio
-            var fin = json.fin
-            var horaInicio = json.horaInicio/60/60
-            var horaFin = json.horaFin/60/60
-            var tipo = json.tipo
+            var planta = json.planta // all | id
+            var area = json.area // all | id
+            var turno = json.turno // id
+            var productos = json.producto // TODO: solo recibe un producto, tiene que ser un arreglo.
+            var inicio = json.inicio // YYYY-MM-DD
+            var fin = json.fin // YYYY-MM-DD
+            var horaInicio = json.horaInicio // Este valor es recibido en segundos.
+            var horaFin = json.horaFin // Este valor es recibido en segundos.
+            var tipo = json.tipo // hora | producto | turno.
 
-            console.log(json)
-    
-            var where = " WHERE e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "'"
+            // Clausula where inicial, se agregan areas para poder utiilizarlo con un JOIN para el desglose.
+            // Se agrega la fecha de inicio y la fecha final, porque siempre existen estos filtros.
+            var where = " WHERE e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "' "
 
-            console.log(where)
-    
+            // Si las planta no es "todas" se filtra tambien por planta ID
             if (planta != "all") {
                 where += " AND e.plantas_id =" + planta
             }
+
+            // Si el area no es "todas" se filtra tambien por area ID
             if (area != "all") {
                 where += " AND e.areas_id =" + area
             }
-            if (tipo == "hora") {
-                // TODO Logica para agregar la hora transformada de los segundos.
+            // TODO: hay que tener cuidado con el noturno y el noproductos, esto pasa cuando la planta no contiene turnos o productos
+
+            var turnosQuery = ""
+            if (turno == "noturnos"){
+                turnosQuery = "select * from turnos" // Workaround por si no hay turnos
+            } else {
+                turnosQuery = "select * from turnos where id =" + turno // Se agrega el turno ID al query
             }
+
+            // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
+            if (tipo == "hora") {
+                where += " AND e.hora > SEC_TO_TIME(" + horaInicio + ") AND e.hora <  SEC_TO_TIME(" + horaFin + ") "
+            }
+
+            // Si el reporte es por producto, se agrega el producto ID al where
             if (tipo == "producto") {
-                // TODO Logica para los productos
+                // Hay que tener cuidado con el noproductos, que es cuando la planta no tiene productos---- y si quieren reportar asi que no se pueda
+                // TODO Revisar esta logica, a lo mejor hay una mejor manera de hacerlo
+                if (productos != "noproductos"){
+                    // Solo si existe un producto es que se agrega esa seccion al query.
+                    // TODO: A lo mejor cancelar el reporte y mandar una notificacion al usuario de que no se puede reportar asi
+                    where += " AND productos_id = " + productos
+                }
             }
     
-            var return_data = {}
+            var return_data = {} // Guarda los datos de las promesas
             promisePool.getConnection().then(function(connection) {
                 // Primero obtiene el turno actual
-                connection.query("select * from turnos where activo = true").then(function(rows){
+                // TODO: Cuando se resiven muchos eventos se empiezan a encolar hasta que se traba toda la app por los sockets
+                // TODO : Poner un delay, que no puedan subir muchos sockets a la vez
+                connection.query(turnosQuery).then(function(rows){
                     return_data.turnos = rows
-                    // TODO: obtener el id del selected turno.
-    
-                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true")
+                    
+                    if (tipo == "turno"){
+                        // Agrega la hora de inicio y fin a la clausula where (para cuando se busca por turno)
+                        where += " AND e.hora > '" + rows[0].inicio +"' AND e.hora < '" + rows[0].fin + "' "
+                        //console.log(where)
+                    }
+
+                    // Obtiene el TA
+                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true") // Esta es una promesa
                     return result
                 }).then(function(rows){
                     return_data.ta = rows
-                    //console.log("segunda promesa")
+                    
+                    // Obtiene el TM
                     var result = connection.query("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
                     return result
                 }).then(function(rows){
                     return_data.tm = rows
-                    //console.log("tercera promesa")
+                    
+                    // Obtiene el desglose
                     var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
                     return result
                 }).then(function(rows){
                     return_data.desglose = rows
-                    console.log(return_data)
 
+                    // Emite el evento que es recibido por el cliente para graficarlo
                     io.emit('reporte-disponibilidad', return_data); // io.emit send a message to everione connected
 
                 }).catch(function(err) {
@@ -262,6 +291,5 @@ module.exports = function(io) {
         // Aqui puedo ir agregando mas sockets
 
     });
-
 };
 

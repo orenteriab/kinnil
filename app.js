@@ -56,3 +56,5 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 var index = require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
 module.exports = app;
+
+console.log("Running in :"  + process.env.NODE_ENV);
