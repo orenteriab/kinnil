@@ -18,37 +18,32 @@
       <div id="page-content-wrapper">
          <%include ../partials/navbar %>
 
-         <div class="container-fluid" id="contenedor-maestro">
-            <h1>Rendimiento</h1>
-            <%include ../partials/search %>
 
-            <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                Rendimiento
-                </div>
-                <div class="panel-body">
-                <div id = "rendimiento" class="canvas-wrapper">
-                    <!--<canvas id='gauge'>gauge</canvas>-->
-                    <div id="gauge" class="200x160px"></div>
-                </div>
-                </div>
+        <div class="row">
+        <div class="col-lg-12 col-sm-12">
+            <h2>Rendimiento</h2> <!-- TODO: Hay que cambiar este titulo a otro lado o de plano quitarlo -->
+            <!-- TODO: Hay que hay que revisar si la tablet esta connectada o no para poner el status real una vez se abre la pagina -->
+            <div class="widget widget-stats">
+            <div class="content">
+                <%include ../partials/search %>
             </div>
             </div>
-            <!--
-            <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                Desglose de tiempo muerto
-                </div>
-                <div class="panel-body">
-                <div id = "reporte2" class="canvas-wrapper">
-                    <canvas id='desglose'></canvas>
-                </div>
-                </div>
+        </div>
+        </div>
+
+        <div class="row">
+        <div class="col-lg-4 col-sm-4">
+            <div class="widget widget-stats">
+            <div class="content">
+
+                <p>Rendimiento</p>
+                <div id="gauge" class="200x160px"></div>
+
             </div>
             </div>
-            -->
+        </div>
+        </div>
+
          </div>
       </div>
    </div>

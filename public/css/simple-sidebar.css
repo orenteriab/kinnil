@@ -121,7 +121,7 @@
         padding: 20px;
         position: relative;
         background-color: #F7F7F8;
-        height: 100vh; /* Esta linea esta a prueba substituye a 100% funciona en la mayoria de los nuevos buscadores */
+        /*height: 100vh; /* */
     }
 
     #wrapper.toggled #page-content-wrapper {

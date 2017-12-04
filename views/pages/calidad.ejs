@@ -18,35 +18,42 @@
       <div id="page-content-wrapper">
          <%include ../partials/navbar %>
 
-         <div class="container-fluid" id="contenedor-maestro">
-            <h1>Calidad</h1>
-            <%include ../partials/search %>
+        <div class="row">
+        <div class="col-lg-12 col-sm-12">
+            <h2>Calidad</h2> <!-- TODO: Hay que cambiar este titulo a otro lado o de plano quitarlo -->
+            <!-- TODO: Hay que hay que revisar si la tablet esta connectada o no para poner el status real una vez se abre la pagina -->
+            <div class="widget widget-stats">
+            <div class="content">
+                <%include ../partials/search %>
+            </div>
+            </div>
+        </div>
+        </div>
 
-            <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                Tiempo activo / Tiempo muerto
-                </div>
-                <div class="panel-body">
-                <div id = "reporte1" class="canvas-wrapper">
-                    <canvas id='tatm'></canvas>
-                </div>
-                </div>
+        <div class="row">
+        <div class="col-lg-4 col-sm-4">
+            <div class="widget widget-stats">
+            <div class="content">
+
+                <p>Tiempo activo / Tiempo muerto</p>
+                <canvas id='tatm'></canvas>
+
             </div>
             </div>
-            <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                Desglose de tiempo muerto
-                </div>
-                <div class="panel-body">
-                <div id = "reporte2" class="canvas-wrapper">
-                    <canvas id='desglose'></canvas>
-                </div>
-                </div>
+        </div>
+        <div class="col-lg-4 col-sm-4">
+            <div class="widget widget-stats">
+            <div class="content">
+
+                <p>Desglose</p>
+                <canvas id='desglose'></canvas>
+
             </div>
             </div>
-         </div>
+        </div>
+        </div>
+
+
       </div>
       <!-- /#page-content-wrapper -->
    </div>

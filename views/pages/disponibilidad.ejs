@@ -18,9 +18,47 @@
       <div id="page-content-wrapper">
          <%include ../partials/navbar %>
 
+        <div class="row">
+        <div class="col-lg-12 col-sm-12">
+            <h2>Disponibilidad</h2> <!-- TODO: Hay que cambiar este titulo a otro lado o de plano quitarlo -->
+            <!-- TODO: Hay que hay que revisar si la tablet esta connectada o no para poner el status real una vez se abre la pagina -->
+            <div class="widget widget-stats">
+            <div class="content">
+                <%include ../partials/search %>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 col-sm-4">
+                <div class="widget widget-stats">
+                <div class="content">
+
+                    <p>Tiempo activo / Tiempo muerto</p>
+                                                <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
+                    <canvas id='tatm'></canvas> <!-- TODO: Hay que ver la manera de destruir estos elementos y reconstruirlos al actualizar -->
+
+                </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-4">
+                <div class="widget widget-stats">
+                <div class="content">
+
+                    <p> Desglose de tiempo muerto</p>
+                    <canvas id='desglose'></canvas>
+                   
+                </div>
+                </div>
+            </div>
+        </div>
+
+
+            <!--
          <div class="container-fluid" id="contenedor-maestro">
-            <h1>Disponibilidad</h1>
-            <%include ../partials/search %>
+            <h1></h1>
+            
 
             <hr/>
 
@@ -48,7 +86,11 @@
                 </div>
             </div>
             </div>
-         </div>
+         </div>-->
+
+
+
+
       </div>
       <!-- /#page-content-wrapper -->
    </div>
