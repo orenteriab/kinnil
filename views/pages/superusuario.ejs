@@ -17,24 +17,50 @@
          <%include ../partials/navbar %>
 
          <div class="container-fluid" id="contenedor-maestro">
-            <h1>Superusuario only</h1>
+            <h1>Superusuario</h1>
+            <hr>
+            <div>
+                <!-- Nav tabs -->
+               <ul class="nav nav-tabs" role="tablist">
+                <li class="active" role="presentation">
+                    <a aria-controls="principal" data-toggle="tab" href="#principal" role="tab">Principal</a>
+                </li>
+                <li role="presentation">
+                    <a aria-controls="version" data-toggle="tab" href="#version" role="tab">Version</a>
+                </li>
+                </ul>
+                <div class="tab-content"> 
+                    <div class="tab-pane active" id="principal" role="tabpanel">
+                    <!-- 
+                        Principal
+                    -->
+                     <h4>Principal</h4>
+                    </div>
+                    <div class="tab-pane" id="version" role="tabpanel">
+                    <!-- 
+                        Versiones
+                    -->
+                     <h4>Versiones</h4>
+                     <div class="form-group">
+                        <select class="form-control" id="sel1">
+                           <option>
+                              Tiempos muertos
+                           </option>
+                           <option>
+                              Tiempos muertos y calidad
+                           </option>
+                           <option>
+                              OEE
+                           </option>
+                        </select>
+                     </div>
+                    </div>
+                </div>
 
-
-            <p><input id="poke" type="button" value="Poke the server">
-            </p>
-
-            <p><input id="config" type="button" value="Ask config">
-            </p>
-
-            <p><input id="encendido" type="button" value="Enviar evento encendido">
-            </p>
-
-            <p><input id="apagado" type="button" value="Enviar evento apagado">
-            </p>
-
-            <div id="test">
-               this is a test
             </div>
+
+
+            
 
             <div class="grid-stack" id="custom-stack-items">
             </div>

@@ -101,28 +101,28 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/disponibilidad', isLoggedIn, function(req, res) {
-		//console.log("empece con el get")
+		
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
 			// Primero obtiene el turno actual
 			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
-				//console.log("primera promesa")
+				
 				var result = connection.query("select * from productos where activo = true")
 				return result
 			}).then(function(rows){
 				return_data.productos = rows
-				//console.log("segunda promesa")
+				
 				var result = connection.query("select * from plantas where active = true")
 				return result
 			}).then(function(rows){
 				return_data.plantas = rows
-				//console.log("tercera promesa")
+				
 				var result = connection.query("select * from areas where active = true")
 				return result
 			}).then(function(rows){
 				return_data.areas = rows
-				//console.log("cuarda promesa")
+				
 				// Se separan los datos obtenidos de los queries.
 				var plantas = return_data.plantas
 				var areas = return_data.areas
@@ -179,124 +179,87 @@ module.exports = function(app, passport) {
 		});
 	});
 
-	app.post('/disponibilidad', isLoggedIn, function(req, res) {
-
-		var planta = req.body.planta
-		var area = req.body.area
-		var turno = req.body.turno
-		var productos = req.body.producto
-		var inicio = req.body.inicio
-		var fin = req.body.fin
-		var horaInicio = req.body.horaInicio/60/60
-		var horaFin = req.body.horaFin/60/60
-		var tipo = req.body.tipo
-
-		var where = " WHERE (e.fecha BETWEEN " + inicio + " AND " + fin + ")"
-
-		if (planta != "all") {
-			where += " AND e.plantas_id =" + planta
-		}
-		if (area != "all") {
-			where += " AND e.areas_id =" + area
-		}
-		if (tipo == "hora") {
-			// TODO Logica para agregar la hora transformada de los segundos.
-		}
-		if (tipo == "producto") {
-			// TODO Logica para los productos
-		}
-
-		var return_data = {}
-		promisePool.getConnection().then(function(connection) {
-			// Primero obtiene el turno actual
-			connection.query("select * from turnos where activo = true").then(function(rows){
-				return_data.turnos = rows
-				// TODO: obtener el id del selected turno.
-
-				var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true")
-				return result
-			}).then(function(rows){
-				return_data.ta = rows
-				//console.log("segunda promesa")
-				var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = false")
-				return result
-			}).then(function(rows){
-				return_data.tm = rows
-				//console.log("tercera promesa")
-				var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false")
-				return result
-			}).then(function(rows){
-				return_data.tm_desglose = rows
-				console.log(return_data)
-				res.render("pages/disponibilidad-resultado.ejs",{ // TODO:no se puede mandar a la misma pagina, tengo que ver otra manera
-					ta: return_data.ta,
-					tm: return_data.tm,
-					tm_desglose: return_data.tm_desglose,
-					user: req.user
-				});
-			}).catch(function(err) {
-				console.log(err);
-			});
-		});
-	});
-
 	// =====================================
 	// RENDIMIENTO =========================
 	// =====================================
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/rendimiento', isLoggedIn, function(req, res) {
-
 		var return_data = {}
 		promisePool.getConnection().then(function(connection) {
-			
 			// Primero obtiene el turno actual
 			connection.query("select * from turnos where activo = true").then(function(rows){
 				return_data.turnos = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				
 				var result = connection.query("select * from productos where activo = true")
 				return result
 			}).then(function(rows){
 				return_data.productos = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				
 				var result = connection.query("select * from plantas where active = true")
 				return result
 			}).then(function(rows){
 				return_data.plantas = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
+				
 				var result = connection.query("select * from areas where active = true")
 				return result
-			}).then(function(rows) {
+			}).then(function(rows){
 				return_data.areas = rows
-				//console.log(return_data)
+				
+				// Se separan los datos obtenidos de los queries.
+				var plantas = return_data.plantas
+				var areas = return_data.areas
+				var turnos = return_data.turnos
+				var productos = return_data.productos
+
+
+				// TODO: ver si se puede utilizar una de estas formas para hacer mas rapido este pedo y delegar las operaciones a otro modulo
+				/*https://github.com/kyleladd/node-mysql-nesting
+				http://bender.io/2013/09/22/returning-hierarchical-data-in-a-single-sql-query/
+				http://blog.tcs.de/creating-trees-from-sql-queries-in-javascript/*/
+
+				// Objeto donde se va a guardar toda la confirguacion.
+				var json = {plantas : []}
+
+				for (var x = 0; x<plantas.length; x++){
+					planta = plantas[x]
+					json.plantas.push({"id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [], "productos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
+
+					for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
+						area = areas[y]
+
+						if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
+							json.plantas[x].areas.push({"id": area.id, "nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
+						}
+					}
+					for (var b = 0; b<turnos.length; b++){
+						turno = turnos[b]
+
+						if (turno.plantas_id == planta.id){
+							json.plantas[x].turnos.push({"id": turno.id, "nombre": turno.nombre})
+						}
+					}
+					for (var c = 0; c<productos.length; c++){
+						producto = productos[b]
+
+						if (producto.plantas_id == planta.id){
+							json.plantas[x].productos.push({"id": producto.id, "nombre": producto.nombre})
+						}
+					}
+				}
+
 				res.render("pages/rendimiento.ejs",{
 					turnos: return_data.turnos,
 					productos: return_data.productos,
 					plantas: return_data.plantas,
 					areas: return_data.areas,
+					json: json,
 					user: req.user
 				});
 			}).catch(function(err) {
 				console.log(err);
 			});
 		});
-	});
-
-	//rendimiento post
-	app.post('/rendimiento', isLoggedIn, function(req, res) {
-
-		// TODO: Hay que mandar los detalles de las plantas, asi tal cual como cuando se le manda la configuracion a la electronica
-
-		console.log("post para rendimiento")
-		console.log(req.body.turno)
-		console.log(req.body.producto)
-		console.log(req.body.inicio)
-		console.log(req.body.fin)
-		console.log(req.body.horaInicio/60/60)
-		console.log(req.body.horaFin/60/60)
-		console.log(req.body.tipo)
-
-		
 	});
 
 	// =====================================
@@ -346,6 +309,7 @@ module.exports = function(app, passport) {
 	// =====================================
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
+	// TODO: Hacer que esta pagina solo se pueda ver para los usuarios con privilegios especiales
 	app.get('/superusuario', isLoggedIn, function(req, res) {
 		res.render('pages/superusuario.ejs', {
 			user : req.user // get the user out of session and pass to template
@@ -785,8 +749,6 @@ module.exports = function(app, passport) {
 	* Monitor
 	*/
 	app.get('/monitor', function(req, res) {
-
-
 		var return_data = {}
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
@@ -861,10 +823,10 @@ module.exports = function(app, passport) {
 					AND e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
 					AND e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
 					AND e.activo = 1 \
-					group by productos_id) x") 
+					group by productos_id) x")
 
 				return result
-			}).then(function(rows){ // Calidad query
+
 				return_data.rendimiento = rows
 
 				var result = connection.query("select sum(x.valor)/count(*) 'valor' from \

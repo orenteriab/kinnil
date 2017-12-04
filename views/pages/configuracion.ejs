@@ -45,13 +45,9 @@
                   <li role="presentation">
                      <a aria-controls="usuarios" data-toggle="tab" href="#usuarios" role="tab">Usuarios</a>
                   </li>
-                  <li role="presentation">
-                     <a aria-controls="version" data-toggle="tab" href="#version" role="tab">Version</a>
-                  </li>
-               </ul
-               ><!-- Tab panes -->
-               <div class="tab-content">
-                  
+               </ul>
+               <!-- Tab panes -->
+               <div class="tab-content"> 
                   <div class="tab-pane active" id="plantas" role="tabpanel">
                      
                     <!--
@@ -98,7 +94,7 @@
                               <a data-pk="<%= areas[i].id %>" data-title="Cambiar el nombre" data-type="text" data-url="/configuracion/modif-areas-nombre" href="#" id="editar-areas-<%= areas[i].id %>"><%= areas[i].nombre %></a>
                            </td>
                            <td>
-                              <a data-pk="<%= areas[i].planta %>" data-title="Cambiar la maquina" data-type="text" data-url="/post" href="#" id="<%= areas[i].plantas_id %>-<%= areas[i].nombre %>"><%= areas[i].planta %></a>
+                              <%= areas[i].planta %>
                            </td>
                            <td>
                               <a href="#" id="delete-areas-<%= areas[i].id %>" class="btn-xs btn btn-danger">Eliminar</a>
@@ -127,10 +123,9 @@
                         <tr class="quote">
                            <td>
                                <a data-pk="<%= maquinas[i].id %>" data-title="Cambiar el nombre" data-type="text" data-url="/configuracion/modif-maquinas-nombre" href="#" id="editar-maquinas-<%= maquinas[i].id %>"><%= maquinas[i].nombre %></a>
-                               
                             </td>
                            <td>
-                                <a data-pk="<%= maquinas[i].area %>" data-title="Cambiar la area" data-type="text" data-url="/configuracion/" href="#" id=""><%= maquinas[i].area %></a>
+                                <%= maquinas[i].area %>
                             </td>
                             <td>
                                 <a data-pk="<%= maquinas[i].id %>" data-title="Cambiar el producto" data-type="select" data-url="/configuracion/modif-maquinas-producto" href="#" id="editar-maquinas-producto-<%= maquinas[i].id %>"><%= maquinas[i].producto %></a>
@@ -264,6 +259,7 @@
                     <!-- 
                          Usuarios 
                     -->
+                    <!-- Los usuarios guardados con esta opcion no tienen su password encriptado y se guardan mal -->
                      <h4>Usuarios</h4><button class="btn btn-primary" data-target="#addUsuariosModal" data-toggle="modal" type="button"><i aria-hidden="true" class="fa fa-plus"></i> Agregar un usuario</button> <%if(users.length>0){%>
                      <table border="1" class="table table-bordered" id='usuarios'>
                         <thead>
@@ -288,26 +284,6 @@
                      <p class="alert alert-warning">No hay usuarios</p><%} %>
                   </div>
                   
-                  <div class="tab-pane" id="version" role="tabpanel">
-
-                    <!-- 
-                         Versiones
-                    -->
-                     <h4>Versiones</h4>
-                     <div class="form-group">
-                        <select class="form-control" id="sel1">
-                           <option>
-                              Tiempos muertos
-                           </option>
-                           <option>
-                              Tiempos muertos y calidad
-                           </option>
-                           <option>
-                              OEE
-                           </option>
-                        </select>
-                     </div>
-                  </div>
                </div>
             </div>
             <div class="grid-stack" id="custom-stack-items"></div>
@@ -320,21 +296,21 @@
    <script src="/socket.io/socket.io.js">
    </script> 
    <script>
-                var socket = io.connect('http://localhost:3000');
+        var socket = io.connect('http://localhost:3000');
 
-                socket.on('message', function(message) {
-                    //alert('The server has a message for you: ' + message );
-                })
+        socket.on('message', function(message) {
+            //alert('The server has a message for you: ' + message );
+        })
 
-                // Esta funcion de aqui es de jquery
-                $('#poke').click(function() {
-                    socket.emit('message', 'Hi server, how are you?');
-                })
+        // Esta funcion de aqui es de jquery
+        $('#poke').click(function() {
+            socket.emit('message', 'Hi server, how are you?');
+        })
 
-                $('#myTabs a').click(function(e) {
-                    e.preventDefault()
-                    $(this).tab('show')
-                })
+        $('#myTabs a').click(function(e) {
+            e.preventDefault()
+            $(this).tab('show')
+        })
    </script> 
    <script type="text/javascript">
                 // this function makes that the bellow code runs after the document has finished loading.

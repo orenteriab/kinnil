@@ -57,4 +57,6 @@ var index = require('./app/routes.js')(app, passport); // load our routes and pa
 
 module.exports = app;
 
+// TODO: hacer que node corra con variables de ambiente
 console.log("Running in :"  + process.env.NODE_ENV);
+

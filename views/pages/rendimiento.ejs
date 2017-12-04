@@ -22,18 +22,47 @@
             <h1>Rendimiento</h1>
             <%include ../partials/search %>
 
-            <div class="grid-stack" id="custom-stack-items">
+            <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                Rendimiento
+                </div>
+                <div class="panel-body">
+                <div id = "rendimiento" class="canvas-wrapper">
+                    <!--<canvas id='gauge'>gauge</canvas>-->
+                    <div id="gauge" class="200x160px"></div>
+                </div>
+                </div>
             </div>
-            
+            </div>
+            <!--
+            <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                Desglose de tiempo muerto
+                </div>
+                <div class="panel-body">
+                <div id = "reporte2" class="canvas-wrapper">
+                    <canvas id='desglose'></canvas>
+                </div>
+                </div>
+            </div>
+            </div>
+            -->
          </div>
       </div>
    </div>
    <!-- /#wrapper -->
-   
+   <script type="text/javascript" src="./js/gauge.min.js"></script> <!-- Grafica para la gauge Rendimiento/Calidad/OEE -->
+   <script src="./js/raphael-2.1.4.min.js"></script>
+   <script src="./js/justgage.js"></script>
+   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script> <!-- Se carga el chart.js -->
+   <!-- <script src="path/to/chartjs/dist/Chart.js"></script> --> <!-- A lo mejor es bueno cargar desde una direccion fija TODO: revisar -->
+   <script src="/socket.io/socket.io.js"></script> 
    <%include ../partials/js %>
-
+   
    <script>
-
         var fechaInicio;
         var fechaFin;
         var tipo = "turno"; // Por default es por turno para que aparesca algo aunque el usuario no seleccione una opcion.
@@ -59,8 +88,6 @@
             document.getElementById('ifHora').style.display = 'block';
             tipo = "hora";
         }
-        
-        
 
         $(document).ready(function() {
 
@@ -130,31 +157,151 @@
             cb(start, end);
         });
     });
-        
-        function consultar() {
-            var turno = $("#turno").val();
-            var producto = $("#producto").val();
-            var inicio = fechaInicio.format('DD-MM-YYYY');
-            var fin = fechaFin.format('DD-MM-YYYY');
-            var horarInicio = $('#horaInicio').val();
-            var horarFin = $('#horaFin').val();
+    
+        // Se hace la consulta segun los campos seleccionados
+        // TODO: tomar en cuenta las reglas del negocio a programar
+        // una planta o todas, una area a todas, un producto o varios mas 
+        // TODO: ya no encontre las demas hojas, hay que retomar con ricardo y ver si va a haber casos especificos donde se seleccione por maquina
+        //
+        // TODO: Refactorizar este codigo.
+        // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
+        var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
 
-            // Previene que ocurra el evento POST
+        function consultar() {
+            var json = {}
+            
+            json.planta = $("#plantas-choice").val();
+            json.area = $("#areas-choice").val(); 
+            json.turno = $("#turno").val();
+            json.producto = $("#producto").val();
+            json.inicio = fechaInicio.format('YYYY-MM-DD'); // TODO: hay que ver si esta fecha siempre va a ser igual o si falla como en C#
+            json.fin = fechaFin.format('YYYY-MM-DD');
+            json.horaInicio = $('#horaInicio').val();
+            json.horaFin = $('#horaFin').val();
+            json.tipo = tipo;
+            // TODO: Agregar las validaciones
+            // TODO: Agregar un titulo y todo a la grafica del reporte.
+            // TODO: Agregar una tabla con el resultado del desglose
+            // TODO: desplegar un mensage de que no se puede graficar si es que el reporte no regreso datos
+            // TODO: Pensar en desplegar el reporte en un modal (would be nice)
+
+            // Previene que ocurra el evento POST y se refresque la pagina asi como asi
             event.preventDefault();
 
-            $.ajax({
-                type: 'POST',
-                url: '/rendimiento',
-                data: "turno=" + turno + "&producto=" + producto + "&inicio=" + inicio + "&fin=" + fin + "&horaInicio=" + horarInicio + "&horaFin=" + horarFin + "&tipo=" + tipo,
-                dataType: 'text',
-                success: function(data, textStatus, jQxhr) {
-                    //$('#response pre').html(data);
-                },
-                error: function(jqXhr, textStatus, errorThrown) {
-                    console.log(errorThrown);
-                }
-            });
+            // No hace POST si no hay productos o turnos seleccionados
+            if (tipo == 'turno' && json.turno == 'noturnos'){
+                alert("No se puede obtener el reporte por turnos, No hay turnos"); 
+                return;
+            }
+            if (tipo == 'producto' && json.producto == 'noproductos'){
+                alert("No se puede obtener el reporte por productos, No hay productos");
+                return;
+            }
+            // TODO: hacer algo para que este socket no pueda ser llamado tantas veces. (Hace que se trave node.js).
+            socket.emit('reporte-rendimiento', json);
         }
-    </script>
+    
+    
+        socket.on('reporte-rendimiento', function(data) {
+                // TODO: Hacer algo con los valores nulos
+                $('#gauge').empty();
+                
+                var g = new JustGage({
+                    id: "gauge",
+                    value: 67,
+                    min: 0,
+                    max: 100,
+                    title: "Rendimiento",
+                    label: "Rendimiento",
+                    reverse: true
+                });
+
+
+            });
+
+            /*
+            * Se ejecuta cuando se cambia de planta .
+            */
+            $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas.
+
+                // Se obtiene el ID de la planta seleccionada.
+                var $dropdown = $(this);
+                var id = $dropdown.val(); 
+
+                // Se hace una limpieza por si el formario no estaba como valido.
+                document.getElementById("areas-choice-div").classList.remove('has-error');
+                $("#btnConsultar").removeAttr('disabled','disabled');
+                $("#btnConsultar").attr('enabled','enabled');
+
+                if (id == "all"){ 
+                    location.reload(); // Si todas las plantas estan seleccionadas se refresca la pagina para obtener los campos como al principio.
+                } else {
+                    // TODO: Hacer estos eventos aparte, porque se van a meter el pie si la gente se mete al mismo tiempo.
+                    socket.emit('cambio-planta', id); // Si se selecciona cualquier otra se manada el ID por un socket.
+                }
+
+            });
+
+            /*
+            * Se ejecuta cuando se recibe la respuesta del socket de cuando se cambia una planta.
+            */ 
+            socket.on('cambio-planta', function(returnData) {
+                // se vacian estos select inputs para agregar nuevos datos.
+                var $areasChoice = $("#areas-choice");
+                $areasChoice.empty();
+
+                var $turnosChoice = $("#turno");
+                $turnosChoice.empty();
+
+                var $productosChoice = $("#producto");
+                $productosChoice.empty();
+
+                // AREAS
+                if (returnData.areas == ""){ // Si no hay areas!
+                    
+                    // Se marca un error y se deshabhilita el boton de sumbit
+                    $areasChoice.append("<option value='noareas'> Planta sin areas, por favor seleccione otra planta </option>");
+                    document.getElementById("areas-choice-div").classList.add('has-error');
+                    $("#btnConsultar").removeAttr('enabled','enabled');
+                    $("#btnConsultar").attr('disabled','disabled');
+
+                } else {
+
+                    // Se llena el input select con todas las areas
+                    $areasChoice.append("<option value='all-areas' > Todas las areas </option>")  
+                    for (var i = 0, l = returnData.areas.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
+                        $areasChoice.append("<option value="+ returnData.areas[i].id +" >" + returnData.areas[i].nombre + "</option>")  
+                        $("#btnConsultar").removeAttr('disabled','disabled');
+                        $("#btnConsultar").attr('enabled','enabled'); // Habilita el boton por que cambiaron a una planta que si tiene areas
+                    }
+                }
+
+                // TURNOS
+                if (returnData.turnos == ""){ // Si no hay turnos!
+
+                    $turnosChoice.append("<option value='noturnos'> No hay turnos en esta planta, seleccione otra opcion </option>");
+                    
+                } else {
+
+                    // Se llena el input select con los turnos
+                    for (var i = 0, l = returnData.turnos.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
+                        $turnosChoice.append("<option value="+ returnData.turnos[i].id +" >" + returnData.turnos[i].nombre + "</option>")  
+                    }
+                }
+
+                // PRODUCTOS 
+                if (returnData.productos == ""){ // Si no hay productos
+
+                    $productosChoice.append("<option value='noproductos'> No hay productos en esta planta, seleccione otra opcion </option>");
+
+                } else {
+
+                    // Se llena el input select con los productos
+                    for (var i = 0, l = returnData.productos.length; i < l; i += 1) { 
+                        $productosChoice.append("<option value="+ returnData.productos[i].id +" >" + returnData.productos[i].nombre + "</option>")  
+                    }
+                }
+            })
+        </script>
 </body>
 </html>
