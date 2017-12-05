@@ -121,7 +121,7 @@
         padding: 20px;
         position: relative;
         background-color: #F7F7F8;
-        /*height: 100vh; /* */
+        height: 100%;
     }
 
     #wrapper.toggled #page-content-wrapper {
@@ -136,4 +136,10 @@
 
 .connection-form {
     padding: 50px 10px;
+}
+
+.sidebar .nav>li.active-pro {
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
 }
