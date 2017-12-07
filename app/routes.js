@@ -801,42 +801,31 @@ module.exports = function(app, passport) {
 			// Primero obtiene el turno actual
 			connection.query("SELECT * FROM turnos where inicio < STR_TO_DATE('" + horaActual + "','%H.%i.%s') and fin > STR_TO_DATE('" + horaActual + "','%H.%i.%s')").then(function(rows){
 				return_data.turnoActual = rows
-				// TODO: Hay que poner algo para que la fecha siempre sea el dia de hoy
-				var result = connection.query("select ( \
-					SELECT sum(tiempo) \
-					FROM eventos \
-					WHERE fecha = STR_TO_DATE('2017.10.28','%Y.%m.%d') \
-					AND hora >= STR_TO_DATE('"+ rows[0].inicio +"','%H:%i:%s') \
-					AND hora < STR_TO_DATE('"+ rows[0].fin +"','%H:%i:%s') \
-					AND activo = 1 \
-					AND maquinas_id = 1) as 'activo', \
-					(SELECT sum(tiempo) \
-					FROM eventos \
-					WHERE fecha = STR_TO_DATE('2017.10.28','%Y.%m.%d') \
-					AND hora >= STR_TO_DATE('"+ rows[0].inicio +"','%H:%i:%s') \
-					AND hora < STR_TO_DATE('"+ rows[0].fin +"','%H:%i:%s') \
-					AND activo = 0 \
-					AND maquinas_id = 1) as 'inactivo'")
+				
+				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta.
+				var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
+				sum(case when activo=0 then tiempo else 0 end) tm, \
+				sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
+				from eventos2 \
+				where e.fecha = CURDATE() \
+				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				group by maquinas_id") 
 				return result
-			}).then(function(rows){ // Maquina (con producto)
-				return_data.tiempo = rows // se agrega las filas que regreso la anterior promesa el arreglo return_data
-				// Las maquinas ya tienen asociadas el producto que estan trabajando.
-				var result = connection.query("SELECT m.nombre maquina, p.nombre producto \
-					FROM maquinas m, productos p \
-					WHERE m.id = 1 and m.productos_id = p.id") // TODO: modificar para obtener la informacion de mas maquinas Para utilizar esto en la version de mas pantallas
-
-				return result
-			}).then(function(rows){ // Estado (activo/inactivo)
-				return_data.maquinas = rows
-				// Las maquinas ya tienen asociadas el producto que estan trabajando.
-				var result = connection.query("SELECT e.activo, r.nombre \
-					FROM eventos e \
-					INNER JOIN razones_paro r ON e.razones_id = r.id \
-					WHERE e.maquinas_id = 1 \
-					ORDER BY e.id DESC LIMIT 1") 
+			}).then(function(rows){
+				return_data.disponibilidad = rows
+				
+				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
+				var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+				from (SELECT maquinas_id, max(id) as id \
+					FROM eventos2 \
+					group by maquinas_id) as x \
+				inner join eventos2 e on x.id = e.id \
+				inner join razones_paro r on r.id = e.razones_paro_id \
+				inner join productos p on e.productos_id = p.id") 
 					
 				return result
-			}).then(function(rows){ // Kgs buenos query
+			}).then(function(rows){ 
 				return_data.estado = rows
 				// Las maquinas ya tienen asociadas el producto que estan trabajando.
 				// TODO: Hacer que este query haga la conversion del cuenta metros a kgs dependiendo del producto
@@ -886,8 +875,7 @@ module.exports = function(app, passport) {
 				console.log(return_data)
 				res.render("pages/monitor.ejs",{
 					turnoActual:return_data.turnoActual,
-					tiempo:return_data.tiempo,
-					maquinas:return_data.maquinas,
+					disponibilidad:return_data.disponibilidad,
 					estado: return_data.estado,
 					kgsbuenos: return_data.kgsbuenos,
 					rendimiento: return_data.rendimiento,

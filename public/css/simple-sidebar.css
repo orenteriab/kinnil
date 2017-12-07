@@ -138,7 +138,7 @@
     padding: 50px 10px;
 }
 
-.sidebar .nav>li.active-pro {
+.sidebar-wrapper>.sidebar-nav>li.active-pro {
     position: absolute;
     width: 100%;
     bottom: 10px;
