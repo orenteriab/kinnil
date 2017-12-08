@@ -134,6 +134,7 @@ module.exports = function(app, passport) {
 				var json = {plantas : []}
 
 				// Arma un json con las plantas las areas productos y turnos para mandarlo a la pagina.
+				// TODO: hay que checar esta funcion porque ya me dio un error TypeError: Cannot read property 'plantas_id' of undefined at c:\projects\kinnil\app\routes.js:158:19
 				for (var x = 0; x<plantas.length; x++){
 					planta = plantas[x]
 					json.plantas.push({"id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [], "productos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
@@ -551,7 +552,7 @@ module.exports = function(app, passport) {
 				var planta = req.body.planta
 
 				promisePool.getConnection().then(function(connection) {
-						connection.query("INSERT INTO turnos SET nombre = '"+ nombre +"', inicio = SEC_TO_TIME("+ inicio +"), fin = SEC_TO_TIME("+ fin +"), plantas_id = "+ planta).then(function(rows){
+						connection.query("INSERT INTO turnos SET nombre = '"+ nombre +"', inicio = SEC_TO_TIME("+ inicio +"), fin = SEC_TO_TIME("+ fin +"), plantas_id = "+ planta+", activo = 1").then(function(rows){
 							// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 							// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 							// return_data.turnos = rows
@@ -798,15 +799,17 @@ module.exports = function(app, passport) {
 			var m = d.getMinutes()
 			var s = d.getSeconds()
 			var horaActual = h + "." + m + "." + s
-			// Primero obtiene el turno actual
+			// TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
+			// TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
+			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
 			connection.query("SELECT * FROM turnos where inicio < STR_TO_DATE('" + horaActual + "','%H.%i.%s') and fin > STR_TO_DATE('" + horaActual + "','%H.%i.%s')").then(function(rows){
 				return_data.turnoActual = rows
 				
-				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta.
+				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
 				var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
 				sum(case when activo=0 then tiempo else 0 end) tm, \
 				sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
-				from eventos2 \
+				from eventos2 e \
 				where e.fecha = CURDATE() \
 				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
 				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
@@ -814,7 +817,7 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){
 				return_data.disponibilidad = rows
-				
+				// TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
 				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
 				var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
 				from (SELECT maquinas_id, max(id) as id \
@@ -827,57 +830,38 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){ 
 				return_data.estado = rows
-				// Las maquinas ya tienen asociadas el producto que estan trabajando.
-				// TODO: Hacer que este query haga la conversion del cuenta metros a kgs dependiendo del producto
-				// TODO: o ver si es necesario guardar la como kgs en la tabla de eventos dependiendo del tipo de producto
-				var result = connection.query("SELECT sum(valor) 'valor' \
-					FROM eventos \
-					WHERE fecha = STR_TO_DATE('2017.10.28','%Y.%m.%d') \
-					AND hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-					AND hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
-					AND activo = 1 \
-					AND maquinas_id = 1") 
-
+				// TODO: Estos queries cuando no regresan filas en el template ejs me aparece como undefined y no se despliega un buen resultado
+				// Rendimiento agrupado por maquina
+				var result = connection.query("select e.maquinas_id maquina, \
+				sum(e.valor) piezas, \
+				sum(e.tiempo) tiempo, \
+				sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+				(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+				from eventos2 e \
+				inner join productos p on e.productos_id = p.id \
+				where e.fecha = CURDATE() \
+				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				group by e.maquinas_id") 
 				return result
-			}).then(function(rows){ // Rendimiento query
-				return_data.kgsbuenos = rows
-
-				var result = connection.query("select sum(x.valor)/count(*)*100 as valor from \
-					(select sum(e.valor)/sum(e.tiempo)*60*60 as 'mtsh', \
-					p.rendimiento 'rendprod', \
-					(sum(e.valor)/sum(e.tiempo)*60*60) / (p.rendimiento ) 'valor' \
-					from eventos e \
-					inner join productos p on e.productos_id = p.id \
-					WHERE e.fecha = STR_TO_DATE('2017.10.28','%Y.%m.%d') \
-					AND e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-					AND e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
-					AND e.activo = 1 \
-					group by productos_id) x")
-
-				return result
-
+			}).then(function(rows){ 
 				return_data.rendimiento = rows
 
-				var result = connection.query("select sum(x.valor)/count(*) 'valor' from \
-				(select sum(e.valor)*100 / (sum(e.valor)) 'valor' \
-				from eventos e \
-				inner join productos p on e.productos_id = p.id \
-				WHERE e.fecha = STR_TO_DATE('2017.10.28','%Y.%m.%d') \
-				AND e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				AND e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
-				AND e.activo = 1 \
-				group by productos_id) x")
-
+				// Calidad agrupada por maquina
+				// TODO: le falta guiarce con el turno actual. etc
+				var result = connection.query("select maquinas_id id, sum(valor) calidad\
+				from eventos2 \
+				group by maquinas_id")
 				connection.release();
 				return result
 			}).then(function(rows) {
 				return_data.calidad = rows
+
 				console.log(return_data)
 				res.render("pages/monitor.ejs",{
 					turnoActual:return_data.turnoActual,
-					disponibilidad:return_data.disponibilidad,
 					estado: return_data.estado,
-					kgsbuenos: return_data.kgsbuenos,
+					disponibilidad:return_data.disponibilidad,
 					rendimiento: return_data.rendimiento,
 					calidad: return_data.calidad
 				});

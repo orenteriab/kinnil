@@ -79,17 +79,17 @@
                         <%if (estado == 1) { %>
                         Operación    
                         <% } else{ %> 
-                        <%= estado[0].nombre %>
+                        <%= estado[0].razon %>
                         <% } %>  
                     </h1>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="top-bg">
-                                <h2>Producto: <%= maquinas[0].producto %></h2></div>
+                                <h2>Producto: <%= estado[0].producto %></h2></div>
                         </div>
                         <div class="col-md-4">
                             <div class="top-bg">
-                                <h2>Maquina: <%= maquinas[0].maquina %></h2></div>
+                                <h2>Maquina: <%= estado[0].maquina %></h2></div>
                         </div>
                         <div class="col-md-4">
                             <div class="top-bg">
@@ -101,37 +101,37 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Disponibilidad: <%= (tiempo[0].activo/(tiempo[0].activo + tiempo[0].inactivo)*100).toFixed(2) %> %</h2></div>
+                                <h2>Disponibilidad: <%= (disponibilidad[0].disponibilidad).toFixed(2) %> %</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Rendimiento:  <!--(rendimiento[0].valor).toFixed(2) --> %</h2></div>
+                                <h2>Rendimiento:  (rendimiento[0].rendimiento).toFixed(2) %> %</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Calidad: <%= (calidad[0].valor).toFixed(2) %> %</h2></div>
+                                <h2>Calidad: <%= (calidad[0].calidad).toFixed(2) %> %</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>OEE:  <!--(((tiempo[0].activo/(tiempo[0].activo + tiempo[0].inactivo)*100)+(rendimiento[0].valor)+(calidad[0].valor))/3).toFixed(2)-->  %</h2></div>
+                                <h2>OEE:    %</h2></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Tiempo activo: <%= (tiempo[0].activo/60/60).toFixed(2) %> horas</h2></div>
+                                <h2>Tiempo activo: <%= (disponibilidad[0].ta/60/60).toFixed(2) %> horas</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Tiempo muerto: <%= (tiempo[0].inactivo/60/60).toFixed(2) %> hrs</h2></div>
+                                <h2>Tiempo muerto: <%= (disponibilidad[0].tm/60/60).toFixed(2) %> hrs</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs buenos: <%= (kgsbuenos[0].valor).toFixed(2) %> kgs</h2></div>
+                                <h2>Kgs buenos: TODO kgs</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs malos: kgs</h2></div>
+                                <h2>Kgs malos: TODO kgs</h2></div>
                         </div>
                     </div>
                 </div>
