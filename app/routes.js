@@ -850,9 +850,12 @@ module.exports = function(app, passport) {
 
 				// Calidad agrupada por maquina
 				// TODO: le falta guiarce con el turno actual. etc
-				var result = connection.query("select maquinas_id id, sum(valor) calidad\
-				from eventos2 \
-				group by maquinas_id")
+				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+				from eventos2 e \
+				where e.fecha = CURDATE() \
+				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				group by e.maquinas_id")
 				connection.release();
 				return result
 			}).then(function(rows) {

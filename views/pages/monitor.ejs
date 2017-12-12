@@ -74,13 +74,9 @@
     <div class="jumbotron vertical-center">
         <div class="container text-center">
             <div class="panel panel-default">
-                <div class="panel-heading <%= estado == 1 ? " green " : "red " %>">
+                <div class="panel-heading <%= estado[0].razon == 'activo' ? " green " : "red " %>">
                     <h1 class="panel-title">
-                        <%if (estado == 1) { %>
-                        Operación    
-                        <% } else{ %> 
                         <%= estado[0].razon %>
-                        <% } %>  
                     </h1>
                     <div class="row">
                         <div class="col-md-4">
@@ -101,37 +97,77 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Disponibilidad: <%= (disponibilidad[0].disponibilidad).toFixed(2) %> %</h2></div>
+                                <h2>Disponibilidad: 
+                                    <!-- Si el query de disponibilidad esta empty despliega un 0 -->
+                                    <%if (disponibilidad[0]) { %>
+                                        <%= (disponibilidad[0].disponibilidad).toFixed(2) %> %
+                                    <% } else{ %> 
+                                        0%
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Rendimiento:  (rendimiento[0].rendimiento).toFixed(2) %> %</h2></div>
+                                <h2>Rendimiento: 
+                                    <%if (rendimiento[0]) { %>
+                                        <%= (rendimiento[0].rendimiento).toFixed(2) %> %
+                                    <% } else{ %> 
+                                        0%
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Calidad: <%= (calidad[0].calidad).toFixed(2) %> %</h2></div>
+                                <h2>Calidad: 
+                                    <%if (calidad[0]) { %>
+                                        <%= (calidad[0].calidad).toFixed(2) %> %
+                                    <% } else{ %> 
+                                        0%
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>OEE:    %</h2></div>
+                                <h2>OEE: 
+                                    <%if (calidad[0] && rendimiento[0] && disponibilidad[0]) { %>
+                                        <!-- TODO: verificar que esto este bien -->
+                                        <%= ((calidad[0].calidad + rendimiento[0].rendimiento + disponibilidad[0].disponibilidad)/3).toFixed(2) %> %
+                                    <% } else{ %> 
+                                        0%
+                                    <% } %>
+                                </h2></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Tiempo activo: <%= (disponibilidad[0].ta/60/60).toFixed(2) %> horas</h2></div>
+                                <h2>Tiempo activo: 
+                                    <!-- Si el query de disponibilidad esta empty despliega un 0 -->
+                                    <%if (disponibilidad[0]) { %>
+                                        <%= (disponibilidad[0].ta/60/60).toFixed(2) %> horas
+                                    <% } else{ %> 
+                                        0 horas
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Tiempo muerto: <%= (disponibilidad[0].tm/60/60).toFixed(2) %> hrs</h2></div>
+                                <h2>Tiempo muerto: 
+                                    <!-- Si el query de disponibilidad esta empty despliega un 0 -->
+                                    <%if (disponibilidad[0]) { %>
+                                        <%= (disponibilidad[0].tm/60/60).toFixed(2) %> hrs
+                                    <% } else{ %> 
+                                        0 horas
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs buenos: TODO kgs</h2></div>
+                                <h2>Kgs buenos: TODO</h2></div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs malos: TODO kgs</h2></div>
+                                <h2>Kgs malos: TODO</h2></div>
                         </div>
                     </div>
                 </div>

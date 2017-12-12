@@ -6,7 +6,6 @@ module.exports = {
         'host': 'localhost',
         'user': 'root',
         'password': 'FundableD0ubles'
-        //'password': 'FundableDoubles'
     },
 	'database': 'kinnil',
     'users_table': 'users'

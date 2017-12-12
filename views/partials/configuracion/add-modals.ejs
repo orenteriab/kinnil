@@ -9,6 +9,7 @@
     <form role="form" id="addPlantasForm">
         <div class="modal-body">
             <div class="form-group">
+                <!-- TODO: agregar validacion y limpieza de caracteres para no guardar en la base de datos basura -->
                 <label for="message" class="h4 ">Nombre</label>
                 <input id="nombreAddPlanta" class="form-control" rows="5" required></input>
             </div>
@@ -73,6 +74,7 @@
 <div class="modal-dialog">
     <div class="modal-content">
     <div class="modal-header">
+        <!-- TODO: verificar que mande un error cuando no se escoje un producto para la maquina -->
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">Agregar maquinas</h4>
     </div>
@@ -176,6 +178,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">Agregar un producto</h4>
     </div>
+    <!-- TODO: Agregar que se escoja un producto -->
     <form role="form" id="addProductosForm">
         <div class="modal-body">
             <div class="form-group">
