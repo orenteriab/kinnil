@@ -74,18 +74,35 @@
     <div class="jumbotron vertical-center">
         <div class="container text-center">
             <div class="panel panel-default">
-                <div class="panel-heading <%= estado[0].razon == 'activo' ? " green " : "red " %>">
+                <div class="panel-heading <%if (estado[0]) { %> <%= estado[0].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
                     <h1 class="panel-title">
-                        <%= estado[0].razon %>
+                        <%if (estado[0]) { %>
+                            <%= estado[0].razon %>
+                        <% } else { %> 
+                            Sin eventos
+                        <% } %>
+                        
                     </h1>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="top-bg">
-                                <h2>Producto: <%= estado[0].producto %></h2></div>
+                                <h2>Producto: 
+                                    <%if (estado[0]) { %>
+                                        <%= estado[0].producto %>
+                                    <% } else { %> 
+                                        Sin eventos
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-4">
                             <div class="top-bg">
-                                <h2>Maquina: <%= estado[0].maquina %></h2></div>
+                                <h2>Maquina: 
+                                    <%if (estado[0]) { %>
+                                        <%= estado[0].maquina %>
+                                    <% } else { %> 
+                                        Sin eventos
+                                    <% } %>
+                                </h2></div>
                         </div>
                         <div class="col-md-4">
                             <div class="top-bg">

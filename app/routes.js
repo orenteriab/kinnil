@@ -155,7 +155,7 @@ module.exports = function(app, passport) {
 						}
 					}
 					for (var c = 0; c<productos.length; c++){
-						producto = productos[b]
+						producto = productos[c]
 
 						if (producto.plantas_id == planta.id){
 							json.plantas[x].productos.push({"id": producto.id, "nombre": producto.nombre})
@@ -239,7 +239,7 @@ module.exports = function(app, passport) {
 						}
 					}
 					for (var c = 0; c<productos.length; c++){
-						producto = productos[b]
+						producto = productos[c]
 
 						if (producto.plantas_id == planta.id){
 							json.plantas[x].productos.push({"id": producto.id, "nombre": producto.nombre})
@@ -324,7 +324,7 @@ module.exports = function(app, passport) {
 						}
 					}
 					for (var c = 0; c<productos.length; c++){
-						producto = productos[b]
+						producto = productos[c]
 
 						if (producto.plantas_id == planta.id){
 							json.plantas[x].productos.push({"id": producto.id, "nombre": producto.nombre})
@@ -532,8 +532,9 @@ module.exports = function(app, passport) {
 				var disponibilidad = req.body.disponibilidad
 				var rendimiento = req.body.rendimiento
 				var calidad = req.body.calidad
+				var plantas_id = req.body.plantaId // TODO: Probar esta parte
 
-				var producto  = {nombre: nombre, disponibilidad: disponibilidad, rendimiento: rendimiento, calidad: calidad, activo: true};
+				var producto  = {nombre: nombre, disponibilidad: disponibilidad, rendimiento: rendimiento, calidad: calidad, activo: true, plantas_id:plantas_id};
 				promisePool.getConnection().then(function(connection) {
 						connection.query('INSERT INTO productos SET ?', producto).then(function(rows){
 							// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
@@ -795,18 +796,25 @@ module.exports = function(app, passport) {
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
 			// TODO: hay que hacer 
+			// TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
 			var d = new Date()
 			var h = d.getHours()
 			var m = d.getMinutes()
 			var s = d.getSeconds()
-			var horaActual = h + "." + m + "." + s
+			var horaActual = h + ":" + m + ":" + s
+			console.log(horaActual)
+
+
 			// TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
 			// TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
 			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
-			connection.query("SELECT * FROM turnos where inicio < STR_TO_DATE('" + horaActual + "','%H.%i.%s') and fin > STR_TO_DATE('" + horaActual + "','%H.%i.%s')").then(function(rows){
+			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
+			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
+			connection.query("SELECT * FROM turnos where inicio < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and fin > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
 				return_data.turnoActual = rows
 				
 				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
+				// TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
 				var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
 				sum(case when activo=0 then tiempo else 0 end) tm, \
 				sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \

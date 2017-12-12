@@ -243,7 +243,8 @@
                             Turnos 
                         -->
                         <h4>Turnos</h4>
-                        <button class="btn btn-primary" data-target="#addTurnosModal" data-toggle="modal" type="button"><i aria-hidden="true" class="fa fa-plus"></i> Agregar un turno</button> <%if(turnos.length>0){%>
+                        <button class="btn btn-primary" data-target="#addTurnosModal" data-toggle="modal" type="button"><i aria-hidden="true" class="fa fa-plus"></i> Agregar un turno</button> 
+                        <%if(turnos.length>0){%>
                         <p>&zwnj;</p><!-- Workaround para no utilizar css -->
                         <table border="1" class="table table-bordered" id='turnos'>
                             <thead>
@@ -263,6 +264,7 @@
                             <td>
                                 <button id="delete-turnos-<%= turnos[i].id %>" class="btn btn-danger btn-delete btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
                             </td>
+                            <!-- TODO: Ver que pedo con este else, porque no tiene un if -->
                             </tr><%} %>
                         </table><%} else {%>
                         <p class="alert alert-warning">No hay turnos</p><%} %>
@@ -282,7 +284,9 @@
                             Usuarios 
                         -->
                         <!-- Los usuarios guardados con esta opcion no tienen su password encriptado y se guardan mal -->
-                        <h4>Usuarios</h4><button class="btn btn-primary" data-target="#addUsuariosModal" data-toggle="modal" type="button"><i aria-hidden="true" class="fa fa-plus"></i> Agregar un usuario</button> <%if(users.length>0){%>
+                        <h4>Usuarios</h4><button class="btn btn-primary" data-target="#addUsuariosModal" data-toggle="modal" type="button"><i aria-hidden="true" class="fa fa-plus"></i> Agregar un usuario</button> 
+                        <%if(users.length>0){%>
+                        <p>&zwnj;</p>
                         <table border="1" class="table table-bordered" id='usuarios'>
                             <thead>
                             <tr>
