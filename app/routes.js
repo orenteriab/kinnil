@@ -7,11 +7,12 @@ var dbconfig = require('../config/database');
 var pool = mysql.createPool(dbconfig.connection);
 pool.query('USE ' + dbconfig.database);
 
+// TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
 var promiseMysql = require('promise-mysql');
 promisePool = promiseMysql.createPool({
 	host: 'localhost',
 	user: 'root',
-	password: 'root',
+	password: 'FundableD0ubles',
 	database: 'kinnil',
 	connectionLimit: 25
 });
@@ -134,7 +135,7 @@ module.exports = function(app, passport) {
 				var json = {plantas : []}
 
 				// Arma un json con las plantas las areas productos y turnos para mandarlo a la pagina.
-				// TODO: hay que checar esta funcion porque ya me dio un error TypeError: Cannot read property 'plantas_id' of undefined at c:\projects\kinnil\app\routes.js:158:19
+				// TODO: hay que checar esta funcion porque ya me dio un error TypeError: Cannot read property 'plantas_id' of undefinedat c:\projects\kinnil\app\routes.js:158:19
 				for (var x = 0; x<plantas.length; x++){
 					planta = plantas[x]
 					json.plantas.push({"id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [], "productos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)

@@ -11,11 +11,12 @@ var connection = mysql.createConnection(dbconfig.connection);
 
 connection.query('USE ' + dbconfig.database);
 
+// TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
 var promiseMysql = require('promise-mysql');
 promisePool = promiseMysql.createPool({
 	host: 'localhost',
 	user: 'root',
-	password: 'root',
+	password: 'FundableD0ubles',
 	database: 'kinnil',
 	connectionLimit: 25
 });
