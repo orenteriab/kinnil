@@ -8,6 +8,15 @@
         table, th, td {
             border: 1px solid black;
         }
+        .green {
+            background-color: green;
+            color: #ffffff;
+        }
+        .red {
+            background-color: red;
+            color: #ffffff;
+        }
+
    </style>
 </head>
 
@@ -47,11 +56,11 @@
                             
                 
                             <tr class="quote">
-                                <td>OK
+                                <td id ="conexion">
                                 </td>
-                                <td>
+                                <td id="estado" class="">
                                 </td>
-                                <td>
+                                <td id="maquina">
                                 </td>
                                 <td>
                                 </td>
@@ -71,6 +80,8 @@
                             <p class="alert alert-warning">No eventos registrados en el turno actual</p>
                         </div>
                 </div>
+                <button onclick="myFunction()">Activo</button>
+                <button onclick="myFunction2()">Operador</button>
             </div>
         </div>
         </div>
@@ -82,43 +93,48 @@
    <script src="/socket.io/socket.io.js">
    </script> 
    <script>
-       /*
-        var socket = io.connect('http://localhost:3000');
+        
+        // TODO: Esto tiene que estar con la url del servidor una vez arriba 
+        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        var socket = io.connect('localhost:3000');
 
-        socket.on('message', function(message) {
-            //alert('The server has a message for you: ' + message );
-        })
+        socket.on('estado-actual', function(message) {
+            
+            console.log(message);
+            var mensaje = JSON.parse(message);
+            $('#estado').html(mensaje.nombre);
+            
 
-        // Esta funcion de aqui es de jquery
-        $('#poke').click(function () {
-            socket.emit('inner', 'Hi server, how are you?');
-        })
-
-        // Esta funcion de aqui es de jquery
-        $('#encendido').click(function () {
-            socket.emit('evento', '{"operacion_uuid":"UUID", "maquinas_id":1, "activo":true, "razones_id":1, "tiempo":300 }');
-        })
-
-        $('#apagado').click(function () {
-            socket.emit('evento', '{"operacion_uuid":"UUID", "maquinas_id":1, "activo":false, "razones_id":2, "tiempo":300 }');
+            if (mensaje.razones_id == '1'){
+                console.log('verde');
+                $('#estado').addClass('green');
+                $('#estado').removeClass('red');
+            } else {
+                console.log('rojo');
+                $('#estado').addClass('red');
+                $('#estado').removeClass('green');
+            }
         })
         
+        socket.on('message', function(message) {
+            console.log('el server esta vivo');
+        })
+        
+        function myFunction() {
+            var obj = { "razones_id":"1"};
+            var myJSON = JSON.stringify(obj);
 
-        socket.on('update-inicio', function(message) {
-           var status = document.getElementById("status");
-           status.innerHTML = message[ message.length -1 ].estado;
-        });
+            socket.emit('evento', myJSON)
 
-        socket.on('desconectado', function(message) {
-           var status = document.getElementById("connection");
-           status.innerHTML = "Desconectado";
-        });
+        }
 
-        socket.on('conectado', function(message) {
-           var status = document.getElementById("connection");
-           status.innerHTML = "Conectado";
-        });
-        */
+        function myFunction2() {
+            var obj = { "razones_id":"2"};
+            var myJSON = JSON.stringify(obj);
+
+            socket.emit('evento', myJSON)
+            
+        }
    </script> 
    <%include ../partials/js %>
 </body>

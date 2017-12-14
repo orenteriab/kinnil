@@ -883,6 +883,19 @@ module.exports = function(app, passport) {
 		});
 
 	});
+
+
+
+	/*
+	* Monitor 2
+	*/
+	app.get('/monitor2', function(req, res) {
+		
+		res.render("pages/monitor2.ejs");
+
+	});
+
+
 };
 
 // route middleware to make sure

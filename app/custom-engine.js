@@ -80,7 +80,7 @@ module.exports = function(io) {
         
                         for (var x = 0; x<plantas.length; x++){
                             planta = plantas[x]
-                            json.plantas.push({"nombre": planta.nombre, "id": plantas.id, "areas": [], "turnos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
+                            json.plantas.push({"nombre": planta.nombre, "id": planta.id, "areas": [], "turnos": []}) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
         
                             for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
                                 area = areas[y]
@@ -130,31 +130,27 @@ module.exports = function(io) {
         socket.on('evento', function (message) {
             var evento = JSON.parse(message);
 
-            // TODO: Cambiar este codigo porque ya se necesita guardar los datos en eventos2
+            //console.log("evento")
+            //console.log(message)
 
-            var insertQuery = "INSERT INTO eventos ( operacion_uuid,maquinas_id,activo,razones_id,tiempo, fecha ) values (?,?,?,?,?,?)";
+            promisePool.getConnection().then(function(connection) {
+                
+                connection.query("select * from razones_paro where id = " + evento.razones_id).then(function(rows){
+                    evento.nombre = rows[0].nombre
 
-            created = new Date();
-            console.log(connection.escape(created));
-            //connection.query(insertQuery,[evento.operacion_uuid, evento.maquinas_id, evento.activo, evento.razones_id, evento.tiempo, STR_TO_DATE(connection.escape(created), '%m-%d-%y %h:%i:%s:%f')],function(err, result) {
-            connection.query(insertQuery,[evento.operacion_uuid, evento.maquinas_id, evento.activo, evento.razones_id, evento.tiempo, '2017-10-09 17:38:17.685'],function(err, result) {
-                if (err) throw err;
-                console.log("1 record inserted");
+                    //console.log(evento)
+                    evento = JSON.stringify(evento)
+
+                    console.log(evento)
+                    
+                    // TODO: hay que asegurarnos de que los sockets estan bien configurados
+                    // socket.broadcast.emit('broadcast', 'hello friends!');
+                    socket.broadcast.emit('estado-actual', evento)
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
             });
-
-            // TODO: emitir el UUID
-            socket.emit('evento', evento.operacion);
-
-            // Actualiza la pagina inicio con el nuevo evento
-            // TODO: Hacer que funcione con pools y promesas
-            connection.query("select e.activo 'estado', m.nombre 'maquina', p.nombre 'producto' from eventos e, maquinas m, productos p where e.maquinas_id = m.id and p.maquinas_id = m.id",function(e,r){
-                if (e)
-                    return done(err);
-                if (r.length) {
-                    socket.emit('update-inicio', r);
-                }
-            });
-            
         });
 
         // When the server receives a “config” type signal from the client   
