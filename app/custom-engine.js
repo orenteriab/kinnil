@@ -18,7 +18,7 @@ promisePool = promiseMysql.createPool({
 	user: 'root',
 	password: 'FundableD0ubles',
 	database: 'kinnil',
-	connectionLimit: 25
+	connectionLimit: 5000
 });
 promisePool.query('USE ' + dbconfig.database)
 
@@ -38,13 +38,14 @@ module.exports = function(io) {
         });
 
         // Peticion de la configuracion de cada laptop
+        // TODO: no mandarle el activo a jossie
         socket.on('config', function (message) {
             if (message == "all"){
                 
                 var return_data = {}
                 promisePool.getConnection().then(function(connection) {
-                    // TODO: hay que probar si funciona este codigo, con jossie
-                    // TODO: montar el servidor de prueba eternamente
+
+                    // TODO: Hay que agregar que se mande el metodo para reiniciar el contador
                     connection.query("select * from turnos where activo = true").then(function(rows){
                         return_data.turnos = rows
                         
@@ -63,7 +64,8 @@ module.exports = function(io) {
                     }).then(function(rows){
                         return_data.maquinas = rows
                         
-                        var result = connection.query("select * from razones_paro where active = true")
+                        // TODO: validar si funciona.
+                        var result = connection.query("select * from razones_paro where active = true and id > 1")
                         return result
                     }).then(function(rows) {
                         return_data.razones_paro = rows
@@ -126,31 +128,35 @@ module.exports = function(io) {
             }
         });
 
-        // TODO: cambiar esto para que se haga con promesas y con un pool de conexiones
+
         socket.on('evento', function (message) {
+
             var evento = JSON.parse(message);
-
-            //console.log("evento")
-            //console.log(message)
-
             promisePool.getConnection().then(function(connection) {
                 
                 connection.query("select * from razones_paro where id = " + evento.razones_id).then(function(rows){
+                    
                     evento.nombre = rows[0].nombre
 
-                    //console.log(evento)
                     evento = JSON.stringify(evento)
 
-                    console.log(evento)
-                    
+                    var result = connection.query("select * from plantas where active = true")
+                    return result
+
+                }).then(function(rows){
+
+                    //return_data.plantas = rows
+
                     // TODO: hay que asegurarnos de que los sockets estan bien configurados
                     // socket.broadcast.emit('broadcast', 'hello friends!');
-                    socket.broadcast.emit('estado-actual', evento)
+                    socket.emit('estado-actual', evento)
 
                 }).catch(function(err) {
                     console.log(err);
                 });
             });
+
+
         });
 
         // When the server receives a “config” type signal from the client   

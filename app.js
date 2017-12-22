@@ -16,9 +16,14 @@ var flash    = require('connect-flash');
 var path = require('path');
 var favicon = require('serve-favicon');
 
+// Sirve para loguear la salida a otro lado que no sea la consola
+var fs = require('fs')
+
 // Look, a performance monitor tool
 // TODO: Make this work
 //require('look').start();
+
+// TODO: Echarle un ojo a toto el codigo y hacer que cambiar todo el codigo synchrono por asynchrono
 
 // configuration ===============================================================
 // connect to our database
@@ -33,7 +38,13 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
+// create a write stream (in append mode)
+// Descomentar estas lineas para logear a un archivo
+//var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
+//app.use(morgan('combined', {stream: accessLogStream}))
+
 // set up our express application
+// Comentar esta linea para logear a un archivo
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({	extended: true })); // to support URL-encoded bodies

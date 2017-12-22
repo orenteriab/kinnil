@@ -123,7 +123,7 @@
         function myFunction() {
             var obj = { "razones_id":"1"};
             var myJSON = JSON.stringify(obj);
-
+            console.log("mande un evento");
             socket.emit('evento', myJSON)
 
         }
@@ -131,7 +131,7 @@
         function myFunction2() {
             var obj = { "razones_id":"2"};
             var myJSON = JSON.stringify(obj);
-
+            console.log("mande un evento");
             socket.emit('evento', myJSON)
             
         }

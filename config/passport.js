@@ -15,7 +15,7 @@ promisePool = promiseMysql.createPool({
 	user: 'root',
 	password: 'FundableD0ubles',
 	database: 'kinnil',
-	connectionLimit: 25
+	connectionLimit: 5000
 });
 promisePool.query('USE ' + dbconfig.database)
 
