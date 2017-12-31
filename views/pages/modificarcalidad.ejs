@@ -72,8 +72,14 @@
                             </select>
                         </div>
 
+                        <div class="form-group" id="valor">
+                            <label for="sel1">Kgs:</label>
+                            <!-- TODO: Esta tag es html5, si abren en un navegador que no lo soporte va a fallar, hay que cambiarlo -->
+                            <!-- TODO: Explicarle a Ricardo que el navegador en el que esta certificada la app es en chrome en la version mas actual (de momento) por estos detalles -->
+                            <input type="number" class="form-control" step="0.01">
+                        </div>
 
-                        <button onclick="consultar()" id="btnConsultar" type="submit" class="btn btn-primary">Consultar</button>
+                        <button onclick="guardar()" id="btnConsultar" type="submit" class="btn btn-primary">Guardar</button>
                         </form>
                               
                               
@@ -105,6 +111,10 @@
         socket.on('message', function(message) {
             console.log('el server esta vivo');
         })
+
+        function guardar() {
+            // TODO: Hacer que envie un evento atravez de un socket para guardar la informacion
+        }
         
 
    </script> 
