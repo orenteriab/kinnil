@@ -28,6 +28,9 @@
                 <li role="presentation">
                     <a aria-controls="version" data-toggle="tab" href="#version" role="tab">Version</a>
                 </li>
+                <li role="presentation">
+                    <a aria-controls="version" data-toggle="tab" href="#tz" role="tab">Timezone</a>
+                </li>
                 </ul>
                 <div class="tab-content"> 
                     <div class="tab-pane active" id="principal" role="tabpanel">
@@ -55,6 +58,18 @@
                         </select>
                      </div>
                     </div>
+                    <div class="tab-pane" id="tz" role="tabpanel">
+                        <!-- 
+                            Versiones
+                        -->
+                         <h4>Timezone</h4>
+                         <p>Actual: America/Chihuahua</p>
+
+                         <p>Cambiar:</p>
+                         <div id="map" style="width:80%"></div>
+                         <button onclick="saveTz()" class="btn btn-primary" id="savetz" type="button"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button> 
+                    </div> 
+                         
                 </div>
 
             </div>
@@ -69,10 +84,39 @@
       <!-- /#page-content-wrapper -->
    </div>
    <!-- /#wrapper -->
-   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script> 
+   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+   <!-- TODO: Cambiar esto a que se cargue localmente -->
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment-with-locales.min.js"></script>
+   <script type="text/javascript" src=" https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.4.1/moment-timezone-with-data-2010-2020.min.js"></script>
+   <script type="text/javascript" src="./js/timezone-picker.js"></script>
    <script src="/socket.io/socket.io.js"></script> 
+
    <script>
     var socket = io.connect('http://localhost:3000');
+
+    // Inicializa el timezone pricker
+    
+    $('#map').timezonePicker();
+    $('#map').data('timezonePicker').setValue('America/Chihuahua');
+
+    var tz = $('#map').data('timezonePicker').getValue();
+    
+    console.log(tz);
+    console.log(tz[0].timezone); // Obtiene el timezone actual
+        
+    function saveTz() {
+
+        var tz = $('.dropdown-toggle').data('timezonePicker').getValue();
+
+            console.log(tz[0].timezone);
+
+            
+            alert(tz[0].timezone);
+    }
+        
+
+
+    
 
     socket.on('message', function(message) {
         //alert('The server has a message for you: ' + message );

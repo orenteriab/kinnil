@@ -82,6 +82,8 @@
                 </div>
                 <button onclick="myFunction()">Activo</button>
                 <button onclick="myFunction2()">Operador</button>
+                <button onclick="hoy()">hora actual</button>
+                <button onclick="zona()">hora con timezone del cliente</button>
             </div>
         </div>
         </div>
@@ -135,6 +137,19 @@
             socket.emit('evento', myJSON)
             
         }
+
+        function hoy() {
+            socket.emit('tiempo', 'normal')
+        }
+
+        function zona() {
+            socket.emit('tiempo', 'zona')
+        }
+
+        socket.on('tiempo', function(message) {
+            console.log('se recibio un valor: ' + message);
+        })
+
    </script> 
    <%include ../partials/js %>
 </body>

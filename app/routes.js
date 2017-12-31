@@ -84,7 +84,7 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/inicio', isLoggedIn, function(req, res) {
-		
+		// TODO: Agregar todos los calculos para mostrar los datos, today
 		res.render("pages/index.ejs",{
 			user: req.user
 		})
@@ -345,6 +345,95 @@ module.exports = function(app, passport) {
 			});
 		});
 	});
+
+	// =====================================
+	// MODIFICAR CALIDAD ===================
+	// =====================================
+	// we will want this protected so you have to be logged in to visit
+	// we will use route middleware to verify this (the isLoggedIn function)
+	app.get('/modificarcalidad', isLoggedIn, function(req, res) {
+		
+				var return_data = {}
+				promisePool.getConnection().then(function(connection) {
+					// Primero obtiene el turno actual
+					// TODO: Quitar el query al turno porque aqui no es necesario
+					connection.query("select * from turnos where activo = true").then(function(rows){
+						return_data.turnos = rows
+						
+						var result = connection.query("select * from maquinas where active = true")
+						return result
+					}).then(function(rows){
+						return_data.maquinas = rows
+						
+						var result = connection.query("select * from plantas where active = true")
+						return result
+					}).then(function(rows){
+						return_data.plantas = rows
+						
+						var result = connection.query("select * from areas where active = true")
+						return result
+					}).then(function(rows){
+						return_data.areas = rows
+						
+						// Se separan los datos obtenidos de los queries.
+						var plantas = return_data.plantas
+						var areas = return_data.areas
+						var turnos = return_data.turnos
+						var maquinas = return_data.maquinas
+		
+		
+						// TODO: ver si se puede utilizar una de estas formas para hacer mas rapido este pedo y delegar las operaciones a otro modulo
+						/*https://github.com/kyleladd/node-mysql-nesting
+						http://bender.io/2013/09/22/returning-hierarchical-data-in-a-single-sql-query/
+						http://blog.tcs.de/creating-trees-from-sql-queries-in-javascript/*/
+		
+						// Objeto donde se va a guardar toda la confirguacion.
+						var json = {plantas : []}
+		
+						// Arma un json con las plantas las areas productos y turnos para mandarlo a la pagina.
+						for (var x = 0; x<plantas.length; x++){
+							planta = plantas[x]
+							json.plantas.push({ "id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [] }) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
+		
+							for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
+								area = areas[y]
+		
+								if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
+									json.plantas[x].areas.push({"id": area.id, "nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
+
+									for (var z = 0; z<maquinas.length; z++){ // Se recorren todas las maquinas
+										maquina = maquinas[z]
+				
+										if (maquina.areas_id == area.id){ // Si el maquina le pertenece a la planta en turno
+											json.plantas[x].areas[y].maquinas.push({"id": maquina.id, "nombre":maquina.nombre}) // Se agrega el area a la planta en turno (3er nivel)
+										}
+									}
+
+								}
+							}
+							for (var b = 0; b<turnos.length; b++){
+								turno = turnos[b]
+		
+								if (turno.plantas_id == planta.id){
+									json.plantas[x].turnos.push({"id": turno.id, "nombre": turno.nombre})
+								}
+							}
+						}
+		
+						res.render("pages/modificarcalidad.ejs",{
+							turnos: return_data.turnos,
+							maquinas: return_data.maquinas,
+							plantas: return_data.plantas,
+							areas: return_data.areas,
+							json: json,
+							user: req.user
+						});
+					}).catch(function(err) {
+						console.log(err);
+					});
+				});
+			});
+		
 
 	// =====================================
 	// SUPERUSUARIO ========================
@@ -895,6 +984,16 @@ module.exports = function(app, passport) {
 
 	});
 
+	/*
+	* Modificar Calidad
+	*/
+	app.get('/modificarcalidad', isLoggedIn, function(req, res) {
+
+		res.render('pages/modificarcalidad.ejs', {
+			user : req.user // get the user out of session and pass to template
+		});
+
+	});
 
 };
 

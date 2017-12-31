@@ -9,6 +9,9 @@ var mysql = require('mysql');
 var dbconfig = require('../config/database');
 var connection = mysql.createConnection(dbconfig.connection);
 
+// Para trabajar las timezones. Es importante a la hora de guardar los eventos
+var moment = require('moment-timezone');
+
 connection.query('USE ' + dbconfig.database);
 
 // TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
@@ -128,28 +131,67 @@ module.exports = function(io) {
             }
         });
 
-
+        // TODO: Hay que hacer otro evento donde se guarde la calidad (hay que hablar esto con Jossie para ver si es posible o si utilizamos es mismo)
         socket.on('evento', function (message) {
 
             var evento = JSON.parse(message);
+
+            // Se obtiene fecha y hora
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+                dd='0'+dd;
+            
+            if(mm<10) 
+                mm='0'+mm;
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            // Se cambia la sona horaria segun el tz seleccionado en las opciones.
+            // TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
+            var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); 
+            fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
+            hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+                
             promisePool.getConnection().then(function(connection) {
                 
                 connection.query("select * from razones_paro where id = " + evento.razones_id).then(function(rows){
                     
                     evento.nombre = rows[0].nombre
-
                     evento = JSON.stringify(evento)
 
-                    var result = connection.query("select * from plantas where active = true")
+                    // TODO: de momento va a estar hardcodeado el productos_id pero hay que arreglar esta parte
+                    var evento  = {
+                        operacion_uuid: evento.operacion_uuid, 
+                        activo: evento.activo, 
+                        tiempo: evento.tiempo, 
+                        fecha: fecha, 
+                        hora: hora, 
+                        plantas_id: evento.plantas_id,
+                        areas_id: evento.areas_id,
+                        productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
+                        razones_paro_id: evento.razones_paro_id,
+                        razones_calidad_id: 1
+                    };
+
+                    var result = connection.query("INSERT INTO eventos2 SET ?", evento)
+                    // TODO: Confirmar que se guardo la info ?
                     return result
 
                 }).then(function(rows){
 
                     //return_data.plantas = rows
-
-                    // TODO: hay que asegurarnos de que los sockets estan bien configurados
-                    // socket.broadcast.emit('broadcast', 'hello friends!');
-                    socket.emit('estado-actual', evento)
+                    // TODO: Aqui hay que mandar la actualizacion del pedo a todos.... Hay que hacer los queries o todo lo necesario para actualizar
+                    // o llamar a algo mas que lo haga
+                    socket.broadcast.emit('estado-actual', evento)
 
                 }).catch(function(err) {
                     console.log(err);
@@ -170,6 +212,61 @@ module.exports = function(io) {
             // TODO: Detectar quien se desconecto y dejar de mandarle cosas a el
             console.log("alguien se desconecto por " + reason);
             socket.emit('desconectado', "se desconecto una tablet")
+        });
+
+
+        // TODO: Elimiar este metodo 
+        // Pruebas para analizar y solucionar las timezones
+        socket.on('tiempo', function (message) {
+
+            var today = new Date();
+            var dd = today.getDate();
+
+            console.log(today)
+            
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+            {
+                dd='0'+dd;
+            } 
+            
+            if(mm<10) 
+            {
+                mm='0'+mm;
+            }
+            today = yyyy+'-'+mm+'-'+dd;
+            //console.log(today);
+            //today = mm+'/'+dd+'/'+yyyy;
+            //console.log(today);
+            //today = dd+'-'+mm+'-'+yyyy;
+            //console.log(today);
+            //today = dd+'/'+mm+'/'+yyyy;
+            //console.log(today);
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            if (message == 'normal'){
+
+                socket.emit('tiempo', today + " " + horaActual);
+            }
+            if (message == 'zona'){
+
+                // TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
+                var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); // TODO: Aqui hay que cambiar el "America/Chihuahua" por lo que este guardado en la DB. Y hay que poner un metodo que si falla solo mande un error y no se pueda guardar nada. (Que no crache)
+                chihuahua = moment(chihuahua).format('YYYY-MM-DD HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+
+                fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
+                hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+                
+                
+                socket.emit('tiempo', chihuahua + " " + fecha + " " + hora);
+            }
+            
         });
 
         /*

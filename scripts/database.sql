@@ -321,6 +321,18 @@ CREATE INDEX `fk_eventos2_razones_paro1_idx` ON `kinnil`.`eventos2` (`razones_pa
 CREATE INDEX `fk_eventos2_razones_calidad1_idx` ON `kinnil`.`eventos2` (`razones_calidad_id` ASC);
 
 
+-- -----------------------------------------------------
+-- Table `kinnil`.`tz`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `kinnil`.`tz` ;
+
+CREATE TABLE IF NOT EXISTS `kinnil`.`tz` (
+  `id` INT NOT NULL,
+  `actual` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
