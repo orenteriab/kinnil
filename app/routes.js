@@ -131,7 +131,7 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){ 
 				return_data.estado = rows
-				
+
 				// Rendimiento agrupado por maquina
 				var result = connection.query("select e.maquinas_id maquina, \
 				sum(e.valor) piezas, \
@@ -550,83 +550,54 @@ module.exports = function(app, passport) {
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/configuracion', isLoggedIn, function(req, res) {
 
+		var return_data = {}
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
-		///// TODO: homologar el activo active en todas las tablas, no puede estar diferente.
-		var plantasQuery = "SELECT * FROM plantas WHERE active = true";
-		var areasQuery = "SELECT a.id 'id', a.nombre 'nombre', a.notas 'notas', p.id 'p_id', p.nombre 'planta' FROM areas a INNER JOIN plantas p ON a.plantas_id = p.id and a.active=true"; // TODO: agregar el where active = true
-		var maquinasQuery = "SELECT m.id 'id', m.nombre 'nombre', m.notas 'notas', a.nombre 'area', p.id 'productos_id', p.nombre 'producto' FROM maquinas m INNER JOIN areas a ON m.areas_id = a.id INNER JOIN productos p ON m.productos_id = p.id WHERE m.active = true";
-		var razonesQuery = "SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_paro r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.active = true";
-		var calidadQuery = "SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_calidad r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.activo = true";
-		var productosQuery = "SELECT * FROM productos";
-		var turnosQuery = "SELECT t.id 'id', t.nombre 'nombre', t.inicio 'inicio', t.fin 'fin', p.nombre 'planta' FROM turnos t INNER JOIN plantas p ON t.plantas_id = p.id WHERE t.activo = true";
-		//var alertasQuery = "SELECT * FROM alertas"; ///// TODO: Esto hay que programarlo con un cron o algo asi-----
-		var usersQuery = "SELECT * FROM users";
+		promisePool.getConnection().then(function(connection) {
 
-		var return_data = {};
+			connection.query("SELECT * FROM plantas WHERE active = true").then(function(rows){
+				return_data.plantas = rows
+				
+				var result = connection.query("SELECT a.id 'id', a.nombre 'nombre', a.notas 'notas', p.id 'p_id', p.nombre 'planta' FROM areas a INNER JOIN plantas p ON a.plantas_id = p.id and a.active=true") 
+				return result
+			}).then(function(rows){
+				return_data.areas = rows
 
-		// TODO: Cambiar esta forma de conexion mysql no esta trabajando con promesas aqui
-		pool.getConnection(function (err, connection) {
-			async.parallel([
-				function(parallel_done) {
-					connection.query(plantasQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.plantas = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(areasQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.areas = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(maquinasQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.maquinas = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(razonesQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.razones = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(calidadQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.calidad = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(productosQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.productos = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(turnosQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.turnos = results;
-						parallel_done();
-					});
-				},
-				function(parallel_done) {
-					connection.query(usersQuery, {}, function(err, results) {
-						if (err) return parallel_done(err);
-						return_data.users = results;
-						parallel_done();
-					});
-				}
-			], function(err) {
-				if (err) console.log(err);
+				var result = connection.query("SELECT m.id 'id', m.nombre 'nombre', m.notas 'notas', a.nombre 'area', p.id 'productos_id', p.nombre 'producto' FROM maquinas m INNER JOIN areas a ON m.areas_id = a.id INNER JOIN productos p ON m.productos_id = p.id WHERE m.active = true") 
+					
+				return result
+			}).then(function(rows){ 
+				return_data.maquinas = rows
+				
+				var result = connection.query("SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_paro r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.active = true") 
+				return result
+			}).then(function(rows){ 
+				return_data.razones = rows
+
+				var result = connection.query("SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_calidad r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.activo = true")
+				
+				return result
+			}).then(function(rows){ 
+				return_data.calidad = rows
+
+				var result = connection.query("SELECT * FROM productos where activo = 1")
+				
+				return result
+			}).then(function(rows){ 
+				return_data.productos = rows
+
+				var result = connection.query("SELECT t.id 'id', t.nombre 'nombre', t.inicio 'inicio', t.fin 'fin', p.nombre 'planta' FROM turnos t INNER JOIN plantas p ON t.plantas_id = p.id WHERE t.activo = true")
+				
+				return result
+			}).then(function(rows){ 
+				return_data.turnos = rows
+
+				var result = connection.query("SELECT * FROM users")
 				connection.release();
-				//console.log(return_data)
+				return result
+			}).then(function(rows) {
+				return_data.users = rows
+
+				console.log(return_data)
 				res.render("pages/configuracion.ejs",{
 					plantas:return_data.plantas, 
 					areas:return_data.areas, 
@@ -634,13 +605,14 @@ module.exports = function(app, passport) {
 					productos:return_data.productos,
 					razones:return_data.razones,
 					calidad:return_data.calidad,
-					tablets:return_data.tablets,
 					turnos:return_data.turnos,
 					users:return_data.users,
-					user: req.user});
+					user: req.user
+				});
+			}).catch(function(err) {
+				console.log(err);
 			});
 		});
-
 
 	});
 
