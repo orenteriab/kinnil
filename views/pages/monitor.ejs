@@ -76,37 +76,49 @@
             <div class="panel panel-default">
                 <div class="panel-heading <%if (estado[0]) { %> <%= estado[0].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
                     <h1 class="panel-title">
+                        <span id="estado">
                         <%if (estado[0]) { %>
                             <%= estado[0].razon %>
                         <% } else { %> 
                             Sin eventos
                         <% } %>
-                        
+                        </span>
                     </h1>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="top-bg">
                                 <h2>Producto: 
+                                    <span id="producto">
                                     <%if (estado[0]) { %>
                                         <%= estado[0].producto %>
                                     <% } else { %> 
                                         Sin eventos
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <div class="top-bg">
-                                <h2>Maquina: 
+                                <h2>Maquina:
+                                    <span id="maquina">
                                     <%if (estado[0]) { %>
                                         <%= estado[0].maquina %>
                                     <% } else { %> 
                                         Sin eventos
                                     <% } %>
-                                </h2></div>
+                                    </span> 
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <div class="top-bg">
-                                <h2>Turno: <%= turnoActual[0].nombre %></h2></div>
+                                <h2>Turno: 
+                                    <span id="turno">
+                                        <%= turnoActual[0].nombre %>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,80 +128,167 @@
                             <div class="top-bg">
                                 <h2>Disponibilidad: 
                                     <!-- Si el query de disponibilidad esta empty despliega un 0 -->
+                                    <span id="disponibilidad">
                                     <%if (disponibilidad[0]) { %>
                                         <%= (disponibilidad[0].disponibilidad).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Rendimiento: 
+                                <h2>Rendimiento:
+                                    <span id="rendimiento">
                                     <%if (rendimiento[0]) { %>
                                         <%= (rendimiento[0].rendimiento).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
                                 <h2>Calidad: 
+                                    <span id="calidad">
                                     <%if (calidad[0]) { %>
                                         <%= (calidad[0].calidad).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
                                 <h2>OEE: 
+                                    <span id="oee">
                                     <%if (calidad[0] && rendimiento[0] && disponibilidad[0]) { %>
                                         <!-- TODO: verificar que esto este bien -->
                                         <%= ((calidad[0].calidad + rendimiento[0].rendimiento + disponibilidad[0].disponibilidad)/3).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="top-bg">
                                 <h2>Tiempo activo: 
+                                    <span id="ta">
                                     <!-- Si el query de disponibilidad esta empty despliega un 0 -->
                                     <%if (disponibilidad[0]) { %>
                                         <%= (disponibilidad[0].ta/60/60).toFixed(2) %> horas
                                     <% } else{ %> 
                                         0 horas
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
                                 <h2>Tiempo muerto: 
+                                    <span id="tm">
                                     <!-- Si el query de disponibilidad esta empty despliega un 0 -->
                                     <%if (disponibilidad[0]) { %>
                                         <%= (disponibilidad[0].tm/60/60).toFixed(2) %> hrs
                                     <% } else{ %> 
                                         0 horas
                                     <% } %>
-                                </h2></div>
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs buenos: TODO</h2></div>
+                                <h2>Kgs buenos: 
+                                    <span id="buenos">
+                                        TODO
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs malos: TODO</h2></div>
+                                <h2>Kgs malos: 
+                                    <span id="malos">
+                                        TODO
+                                    </span>
+                                </h2>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js">
+    </script> 
+    <script src="/socket.io/socket.io.js">
+    </script> 
+    <script>
+
+        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        var socket = io.connect('localhost:3000');
+
+        socket.on('message', function(message) {
+            console.log('el server esta vivo');
+        })
+
+        socket.on('actualizar', function(message) {
+
+            // Agrega color a la tabla que muestra el estatus
+            if (message.estado[0].razon == 'activo'){
+                 console.log('verde');
+                 $('#estado').addClass('green');
+                 $('#estado').removeClass('red');
+             } else {
+                 console.log('rojo');
+                 $('#estado').addClass('red');
+                 $('#estado').removeClass('green');
+             }
+            // TODO: Esto solo muestra info de una maquina, hay que mostrar la info de mas maquinas
+            $("#estado").html(message.estado[0].razon);
+            $("#maquina").html(message.estado[0].maquina); // TODO: no puede ser el ID de la maquina, me tiene que regresar el nombre
+            $("#producto").html(message.estado[0].producto);
+
+            // Si disponibilidad viene vacio hay que poner un 0 ( disponibilidad: [] )
+            if (message.disponibilidad.length > 0) {
+                $("#disponibilidad").html(message.disponibilidad);
+            } else {
+                $("#disponibilidad").html("0%");
+            }
+
+            // Si rendimiento viene vacio hay que poner un 0 ( rendimiento: [] )
+            if (message.rendimiento.length > 0)
+                $("#rendimiento").html(message.rendimiento);
+            else
+                $("#rendimiento").html("0%");
+
+            // Si calidad viene vacio hay que poner un 0 ( calidad: [] )
+            if (message.calidad.length > 0)
+                $("#calidad").html(message.calidad);
+            else
+                $("#calidad").html("0%");
+
+            // Calcula el OEE disponibilidad + rendimiento + calidad
+            if (message.disponibilidad.length > 0 || message.rendimiento.length > 0 || message.calidad.length > 0)
+                $("#oee").html((message.disponibilidad + message.rendimiento + message.calidad)/3 );
+            else
+                $("#oee").html("0%");
+
+            var mensaje = JSON.stringify(message);
+            console.log('se recibio un valor: ' + mensaje);
+        })
+    </script> 
 </body>
 </html>
