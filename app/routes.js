@@ -84,10 +84,95 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/inicio', isLoggedIn, function(req, res) {
-		// TODO: Agregar todos los calculos para mostrar los datos, today
-		res.render("pages/index.ejs",{
-			user: req.user
-		})
+		var return_data = {}
+		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
+		promisePool.getConnection().then(function(connection) {
+			// TODO: hay que hacer 
+			// TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
+			var d = new Date()
+			var h = d.getHours()
+			var m = d.getMinutes()
+			var s = d.getSeconds()
+			var horaActual = h + ":" + m + ":" + s
+			console.log(horaActual)
+
+
+			// TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
+			// TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
+			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
+			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
+			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
+			connection.query("SELECT * FROM turnos where inicio < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and fin > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+				return_data.turnoActual = rows
+				
+				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
+				// TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
+				var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
+				sum(case when activo=0 then tiempo else 0 end) tm, \
+				sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
+				from eventos2 e \
+				where e.fecha = CURDATE() \
+				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				group by maquinas_id") 
+				return result
+			}).then(function(rows){
+				return_data.disponibilidad = rows
+				// TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
+				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
+				var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+				from (SELECT maquinas_id, max(id) as id \
+					FROM eventos2 \
+					group by maquinas_id) as x \
+				inner join eventos2 e on x.id = e.id \
+				inner join razones_paro r on r.id = e.razones_paro_id \
+				inner join productos p on e.productos_id = p.id") 
+					
+				return result
+			}).then(function(rows){ 
+				return_data.estado = rows
+				
+				// Rendimiento agrupado por maquina
+				var result = connection.query("select e.maquinas_id maquina, \
+				sum(e.valor) piezas, \
+				sum(e.tiempo) tiempo, \
+				sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+				(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+				from eventos2 e \
+				inner join productos p on e.productos_id = p.id \
+				where e.fecha = CURDATE() \
+				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				group by e.maquinas_id") 
+				return result
+			}).then(function(rows){ 
+				return_data.rendimiento = rows
+
+				// Calidad agrupada por maquina
+				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+				from eventos2 e \
+				where e.fecha = CURDATE() \
+				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				group by e.maquinas_id")
+				connection.release();
+				return result
+			}).then(function(rows) {
+				return_data.calidad = rows
+
+				console.log(return_data)
+				res.render("pages/index.ejs",{
+					turnoActual:return_data.turnoActual,
+					estado: return_data.estado,
+					disponibilidad:return_data.disponibilidad,
+					rendimiento: return_data.rendimiento,
+					calidad: return_data.calidad,
+					user: req.user
+				});
+			}).catch(function(err) {
+				console.log(err);
+			});
+		});
 		
 	});
 
@@ -353,86 +438,86 @@ module.exports = function(app, passport) {
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/modificarcalidad', isLoggedIn, function(req, res) {
 		
-				var return_data = {}
-				promisePool.getConnection().then(function(connection) {
-					// Primero obtiene el turno actual
-					// TODO: Quitar el query al turno porque aqui no es necesario
-					connection.query("select * from turnos where activo = true").then(function(rows){
-						return_data.turnos = rows
-						
-						var result = connection.query("select * from maquinas where active = true")
-						return result
-					}).then(function(rows){
-						return_data.maquinas = rows
-						
-						var result = connection.query("select * from plantas where active = true")
-						return result
-					}).then(function(rows){
-						return_data.plantas = rows
-						
-						var result = connection.query("select * from areas where active = true")
-						return result
-					}).then(function(rows){
-						return_data.areas = rows
-						
-						// Se separan los datos obtenidos de los queries.
-						var plantas = return_data.plantas
-						var areas = return_data.areas
-						var turnos = return_data.turnos
-						var maquinas = return_data.maquinas
-		
-		
-						// TODO: ver si se puede utilizar una de estas formas para hacer mas rapido este pedo y delegar las operaciones a otro modulo
-						/*https://github.com/kyleladd/node-mysql-nesting
-						http://bender.io/2013/09/22/returning-hierarchical-data-in-a-single-sql-query/
-						http://blog.tcs.de/creating-trees-from-sql-queries-in-javascript/*/
-		
-						// Objeto donde se va a guardar toda la confirguacion.
-						var json = {plantas : []}
-		
-						// Arma un json con las plantas las areas productos y turnos para mandarlo a la pagina.
-						for (var x = 0; x<plantas.length; x++){
-							planta = plantas[x]
-							json.plantas.push({ "id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [] }) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
-		
-							for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
-								area = areas[y]
-		
-								if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
-									json.plantas[x].areas.push({"id": area.id, "nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
-
-									for (var z = 0; z<maquinas.length; z++){ // Se recorren todas las maquinas
-										maquina = maquinas[z]
+		var return_data = {}
+		promisePool.getConnection().then(function(connection) {
+			// Primero obtiene el turno actual
+			// TODO: Quitar el query al turno porque aqui no es necesario
+			connection.query("select * from turnos where activo = true").then(function(rows){
+				return_data.turnos = rows
 				
-										if (maquina.areas_id == area.id){ // Si el maquina le pertenece a la planta en turno
-											json.plantas[x].areas[y].maquinas.push({"id": maquina.id, "nombre":maquina.nombre}) // Se agrega el area a la planta en turno (3er nivel)
-										}
-									}
+				var result = connection.query("select * from maquinas where active = true")
+				return result
+			}).then(function(rows){
+				return_data.maquinas = rows
+				
+				var result = connection.query("select * from plantas where active = true")
+				return result
+			}).then(function(rows){
+				return_data.plantas = rows
+				
+				var result = connection.query("select * from areas where active = true")
+				return result
+			}).then(function(rows){
+				return_data.areas = rows
+				
+				// Se separan los datos obtenidos de los queries.
+				var plantas = return_data.plantas
+				var areas = return_data.areas
+				var turnos = return_data.turnos
+				var maquinas = return_data.maquinas
 
-								}
-							}
-							for (var b = 0; b<turnos.length; b++){
-								turno = turnos[b]
+
+				// TODO: ver si se puede utilizar una de estas formas para hacer mas rapido este pedo y delegar las operaciones a otro modulo
+				/*https://github.com/kyleladd/node-mysql-nesting
+				http://bender.io/2013/09/22/returning-hierarchical-data-in-a-single-sql-query/
+				http://blog.tcs.de/creating-trees-from-sql-queries-in-javascript/*/
+
+				// Objeto donde se va a guardar toda la confirguacion.
+				var json = {plantas : []}
+
+				// Arma un json con las plantas las areas productos y turnos para mandarlo a la pagina.
+				for (var x = 0; x<plantas.length; x++){
+					planta = plantas[x]
+					json.plantas.push({ "id": planta.id, "nombre": planta.nombre, "areas": [], "turnos": [] }) // Se agrega un objeto con el nombre de cada planta y area (2do nivel)
+
+					for (var y = 0; y<areas.length; y++){ // Se recorren todas las areas
+						area = areas[y]
+
+						if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
+							json.plantas[x].areas.push({"id": area.id, "nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
+
+							for (var z = 0; z<maquinas.length; z++){ // Se recorren todas las maquinas
+								maquina = maquinas[z]
 		
-								if (turno.plantas_id == planta.id){
-									json.plantas[x].turnos.push({"id": turno.id, "nombre": turno.nombre})
+								if (maquina.areas_id == area.id){ // Si el maquina le pertenece a la planta en turno
+									json.plantas[x].areas[y].maquinas.push({"id": maquina.id, "nombre":maquina.nombre}) // Se agrega el area a la planta en turno (3er nivel)
 								}
 							}
+
 						}
-		
-						res.render("pages/modificarcalidad.ejs",{
-							turnos: return_data.turnos,
-							maquinas: return_data.maquinas,
-							plantas: return_data.plantas,
-							areas: return_data.areas,
-							json: json,
-							user: req.user
-						});
-					}).catch(function(err) {
-						console.log(err);
-					});
+					}
+					for (var b = 0; b<turnos.length; b++){
+						turno = turnos[b]
+
+						if (turno.plantas_id == planta.id){
+							json.plantas[x].turnos.push({"id": turno.id, "nombre": turno.nombre})
+						}
+					}
+				}
+
+				res.render("pages/modificarcalidad.ejs",{
+					turnos: return_data.turnos,
+					maquinas: return_data.maquinas,
+					plantas: return_data.plantas,
+					areas: return_data.areas,
+					json: json,
+					user: req.user
 				});
+			}).catch(function(err) {
+				console.log(err);
 			});
+		});
+	});
 		
 
 	// =====================================

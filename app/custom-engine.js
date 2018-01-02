@@ -179,7 +179,7 @@ module.exports = function(io) {
                         areas_id: evento.areas_id,
                         productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
                         razones_paro_id: evento.razones_paro_id,
-                        razones_calidad_id: 1
+                        razones_calidad_id: 1 // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
                     };
 
                     var result = connection.query("INSERT INTO eventos2 SET ?", evento)
@@ -202,10 +202,98 @@ module.exports = function(io) {
         });
 
         // When the server receives a “config” type signal from the client   
+        socket.on('actualizar', function (message) {
+            
+            var return_data = {}
+            promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
+            promisePool.getConnection().then(function(connection) {
+                // TODO: hay que hacer 
+                // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
+                var d = new Date()
+                var h = d.getHours()
+                var m = d.getMinutes()
+                var s = d.getSeconds()
+                var horaActual = h + ":" + m + ":" + s
+                console.log(horaActual)
+    
+    
+                // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
+                // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
+                // Turno actual, nos va a servir para obtener la informacion del turno en cuestion
+                // TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
+                // TODO: El query tiene que ser contra turnos que esten activos. Activo = true
+                connection.query("SELECT * FROM turnos where inicio < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and fin > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+                    return_data.turnoActual = rows
+                    
+                    // TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
+                    // TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
+                    var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
+                    sum(case when activo=0 then tiempo else 0 end) tm, \
+                    sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
+                    from eventos2 e \
+                    where e.fecha = CURDATE() \
+                    and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+                    and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    group by maquinas_id") 
+                    return result
+                }).then(function(rows){
+                    return_data.disponibilidad = rows
+                    // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
+                    // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
+                    var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+                    from (SELECT maquinas_id, max(id) as id \
+                        FROM eventos2 \
+                        group by maquinas_id) as x \
+                    inner join eventos2 e on x.id = e.id \
+                    inner join razones_paro r on r.id = e.razones_paro_id \
+                    inner join productos p on e.productos_id = p.id") 
+                        
+                    return result
+                }).then(function(rows){ 
+                    return_data.estado = rows
+                    // TODO: Estos queries cuando no regresan filas en el template ejs me aparece como undefined y no se despliega un buen resultado
+                    // Rendimiento agrupado por maquina
+                    var result = connection.query("select e.maquinas_id maquina, \
+                    sum(e.valor) piezas, \
+                    sum(e.tiempo) tiempo, \
+                    sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+                    (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+                    from eventos2 e \
+                    inner join productos p on e.productos_id = p.id \
+                    where e.fecha = CURDATE() \
+                    and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+                    and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    group by e.maquinas_id") 
+                    return result
+                }).then(function(rows){ 
+                    return_data.rendimiento = rows
+    
+                    // Calidad agrupada por maquina
+                    // TODO: le falta guiarce con el turno actual. etc
+                    var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+                    from eventos2 e \
+                    where e.fecha = CURDATE() \
+                    and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+                    and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    group by e.maquinas_id")
+                    connection.release();
+                    return result
+                }).then(function(rows) {
+                    return_data.calidad = rows
+    
+                    console.log(return_data)
+                    socket.emit('actualizar', return_data);
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            });
+        });
+
+        // When the server receives a “config” type signal from the client   
         socket.on('register', function (message) {
             // TODO: Agregar el nombre del usuario que se conecto.
             socket.emit('register', 'ok');
-            console.log(message);
         });
 
         socket.on('disconnect', (reason) => {
@@ -263,10 +351,8 @@ module.exports = function(io) {
                 fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
                 hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
                 
-                
                 socket.emit('tiempo', chihuahua + " " + fecha + " " + hora);
             }
-            
         });
 
         /*
@@ -296,7 +382,6 @@ module.exports = function(io) {
                     console.log(err);
                 });
             });
-            
         });
 
         socket.on('reporte-disponibilidad', function (json) {
