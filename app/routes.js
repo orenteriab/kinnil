@@ -549,7 +549,7 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/configuracion', isLoggedIn, function(req, res) {
-
+		// TODO: Probar si esto quedo bien despues de ser cambiado a promesas
 		var return_data = {}
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
