@@ -118,10 +118,6 @@
                         </table>
                     </div>
                 </div>
-                <button onclick="myFunction()">Activo</button>
-                <button onclick="myFunction2()">Operador</button>
-                <button onclick="hoy()">hora actual</button>
-                <button onclick="zona()">hora con timezone del cliente</button>
             </div>
         </div>
         </div>
@@ -137,52 +133,10 @@
         // TODO: Esto tiene que estar con la url del servidor una vez arriba 
         //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
         var socket = io.connect('localhost:3000');
-
-        socket.on('estado-actual', function(message) {
-            
-            console.log(message);
-            var mensaje = JSON.parse(message);
-            $('#estado').html(mensaje.nombre);
-            
-
-            if (mensaje.razones_id == '1'){
-                console.log('verde');
-                $('#estado').addClass('green');
-                $('#estado').removeClass('red');
-            } else {
-                console.log('rojo');
-                $('#estado').addClass('red');
-                $('#estado').removeClass('green');
-            }
-        })
         
         socket.on('message', function(message) {
             console.log('el server esta vivo');
         })
-        
-        function myFunction() {
-            var obj = { "razones_id":"1"};
-            var myJSON = JSON.stringify(obj);
-            console.log("mande un evento");
-            socket.emit('evento', myJSON)
-
-        }
-
-        function myFunction2() {
-            var obj = { "razones_id":"2"};
-            var myJSON = JSON.stringify(obj);
-            console.log("mande un evento");
-            socket.emit('evento', myJSON)
-            
-        }
-
-        function hoy() {
-            socket.emit('actualizar', 'normal')
-        }
-
-        function zona() {
-            socket.emit('actualizar', 'zona')
-        }
 
         socket.on('actualizar', function(message) {
 

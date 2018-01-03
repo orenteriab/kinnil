@@ -36,8 +36,9 @@
                 <div class="content">
 
                     <p>Tiempo activo / Tiempo muerto</p>
-                                                <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
-                    <canvas id='tatm'></canvas> <!-- TODO: Hay que ver la manera de destruir estos elementos y reconstruirlos al actualizar -->
+                    <span id="grafico">
+                        <canvas id='tatm'></canvas> <!-- TODO: Hay que ver la manera de destruir estos elementos y reconstruirlos al actualizar -->
+                    </span>                          <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
 
                 </div>
                 </div>
@@ -47,49 +48,14 @@
                 <div class="content">
 
                     <p> Desglose de tiempo muerto</p>
-                    <canvas id='desglose'></canvas>
+                    <span id="grafico2">
+                        <canvas id='desglose'></canvas>
+                    </span>
                    
                 </div>
                 </div>
             </div>
         </div>
-
-
-            <!--
-         <div class="container-fluid" id="contenedor-maestro">
-            <h1></h1>
-            
-
-            <hr/>
-
-            <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                Tiempo activo / Tiempo muerto
-                </div>
-                <div class="panel-body">
-                <div id = "reporte1" class="canvas-wrapper">
-                    <canvas id='tatm'></canvas>
-                </div>
-                </div>
-            </div>
-            </div>
-            <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                Desglose de tiempo muerto
-                </div>
-                <div class="panel-body">
-                <div id = "reporte2" class="canvas-wrapper">
-                    <canvas id='desglose'></canvas>
-                </div>
-                </div>
-            </div>
-            </div>
-         </div>-->
-
-
-
 
       </div>
       <!-- /#page-content-wrapper -->
@@ -240,6 +206,10 @@
 
             socket.on('reporte-disponibilidad', function(data) {
                 // TODO: hacer algo para cuando los valores sean NULOS
+
+                //$("#grafico1").html("<canvas id='tatm'></canvas>");
+                //$("#grafico2").html("<canvas id='desglose'></canvas>");
+
                 var ta = data.ta[0].ta/60/60;
                 var tm = data.tm[0].tm/60/60;
 
