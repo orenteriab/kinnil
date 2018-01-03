@@ -7,6 +7,9 @@ var dbconfig = require('../config/database');
 var pool = mysql.createPool(dbconfig.connection);
 pool.query('USE ' + dbconfig.database);
 
+// Para trabajar las timezones. Es importante a la hora de guardar los eventos
+var moment = require('moment-timezone');
+
 // TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
 var promiseMysql = require('promise-mysql');
 promisePool = promiseMysql.createPool({
@@ -87,8 +90,26 @@ module.exports = function(app, passport) {
 		var return_data = {}
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
-			// TODO: hay que hacer 
-			// TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
+			
+
+			var today = new Date();
+            var dd = today.getDate();
+
+            console.log(today)
+            
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+            {
+                dd='0'+dd;
+            } 
+            
+            if(mm<10) 
+            {
+                mm='0'+mm;
+            }
+            today = yyyy+'-'+mm+'-'+dd;
+
 			var d = new Date()
 			var h = d.getHours()
 			var m = d.getMinutes()
@@ -96,13 +117,30 @@ module.exports = function(app, passport) {
 			var horaActual = h + ":" + m + ":" + s
 			console.log(horaActual)
 
+			// TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
+			var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); // TODO: Aqui hay que cambiar el "America/Chihuahua" por lo que este guardado en la DB. Y hay que poner un metodo que si falla solo mande un error y no se pueda guardar nada. (Que no crache)
+			chihuahua = moment(chihuahua).format('YYYY-MM-DD HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+
+			fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
+			hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+			
+			console.log(fecha + " " + hora)
 
 			// TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
 			// TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
 			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
 			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
 			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
-			connection.query("SELECT * FROM turnos where inicio < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and fin > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and CAST(fin as time) > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+			//TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
+			connection.query("SELECT * \
+									FROM turnos \
+									CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
+									WHERE \
+										CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
+										ELSE inicio <= evento OR fin >= evento END \
+									AND activo = 1;")
+			.then(function(rows){
 				return_data.turnoActual = rows
 				
 				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
@@ -941,8 +979,25 @@ module.exports = function(app, passport) {
 		var return_data = {}
 		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
-			// TODO: hay que hacer 
-			// TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
+
+			var today = new Date();
+            var dd = today.getDate();
+
+            console.log(today)
+            
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+            {
+                dd='0'+dd;
+            } 
+            
+            if(mm<10) 
+            {
+                mm='0'+mm;
+            }
+            today = yyyy+'-'+mm+'-'+dd;
+
 			var d = new Date()
 			var h = d.getHours()
 			var m = d.getMinutes()
@@ -950,14 +1005,32 @@ module.exports = function(app, passport) {
 			var horaActual = h + ":" + m + ":" + s
 			console.log(horaActual)
 
+			// TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
+			var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); // TODO: Aqui hay que cambiar el "America/Chihuahua" por lo que este guardado en la DB. Y hay que poner un metodo que si falla solo mande un error y no se pueda guardar nada. (Que no crache)
+			chihuahua = moment(chihuahua).format('YYYY-MM-DD HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+
+			fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
+			hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+			
+			console.log(fecha + " " + hora)
 
 			// TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
 			// TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
 			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
 			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
 			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
-			connection.query("SELECT * FROM turnos where inicio < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and fin > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and CAST(fin as time) > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+			//TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
+			connection.query("SELECT * \
+									FROM turnos \
+									CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
+									WHERE \
+										CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
+										ELSE inicio <= evento OR fin >= evento END \
+									AND activo = 1;")
+			.then(function(rows){ 
 				return_data.turnoActual = rows
+				console.log(rows)
 				
 				// TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
 				// TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
