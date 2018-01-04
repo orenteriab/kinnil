@@ -192,7 +192,9 @@ module.exports = function(io) {
                     // TODO: Aqui hay que mandar la actualizacion del pedo a todos.... Hay que hacer los queries o todo lo necesario para actualizar
                     // o llamar a algo mas que lo haga
                     // TODO: probar si funciona mandarse un evento a si mismo (server-server)
-                    socket.emit('actualizar', return_data);
+                    //socket.emit('actualizar', return_data);
+                    socket.emit('evento-done', evento.operacion_uuid);
+                    console.log("se guardo el evento");
                     //socket.broadcast.emit('estado-actual', evento)
 
                 }).catch(function(err) {
