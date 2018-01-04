@@ -131,9 +131,14 @@ module.exports = function(io) {
             }
         });
 
+        socket.on('evento2', function (message) {
+            console.log(message)
+        });
+
         // TODO: Hay que hacer otro evento donde se guarde la calidad (hay que hablar esto con Jossie para ver si es posible o si utilizamos es mismo)
         socket.on('evento', function (message) {
 
+            console.log(message)
             var evento = JSON.parse(message);
 
             // Se obtiene fecha y hora
@@ -155,34 +160,33 @@ module.exports = function(io) {
             var s = d.getSeconds()
             var horaActual = h + ":" + m + ":" + s
 
-            // Se cambia la sona horaria segun el tz seleccionado en las opciones.
-            // TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
-            var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); 
-            fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
-            hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+            fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+			hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
                 
             promisePool.getConnection().then(function(connection) {
                 
                 connection.query("select * from razones_paro where id = " + evento.razones_id).then(function(rows){
-                    
-                    evento.nombre = rows[0].nombre
-                    evento = JSON.stringify(evento)
+                    //console.log(rows)
+                    //console.log(rows[0].nombre)
+                    //evento.nombre = rows[0].nombre
+                    //evento = JSON.stringify(evento)
 
                     // TODO: de momento va a estar hardcodeado el productos_id pero hay que arreglar esta parte
-                    var evento  = {
+                    var save  = {
                         operacion_uuid: evento.operacion_uuid, 
                         activo: evento.activo, 
                         tiempo: evento.tiempo, 
                         fecha: fecha, 
                         hora: hora, 
-                        plantas_id: evento.plantas_id,
-                        areas_id: evento.areas_id,
+                        plantas_id: evento.planta_id,
+                        areas_id: evento.area_id,
+                        maquinas_id: evento.maquina_id,
                         productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
-                        razones_paro_id: evento.razones_paro_id,
+                        razones_paro_id: evento.razones_id,
                         razones_calidad_id: 1 // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
                     };
 
-                    var result = connection.query("INSERT INTO eventos2 SET ?", evento)
+                    var result = connection.query("INSERT INTO eventos2 SET ?", save)
                     // TODO: Confirmar que se guardo la info ?
                     return result
 
@@ -219,6 +223,11 @@ module.exports = function(io) {
                 var s = d.getSeconds()
                 var horaActual = h + ":" + m + ":" + s
                 console.log(horaActual)
+
+                fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+                hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                
+                console.log(fecha + " " + hora)
     
     
                 // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
@@ -226,18 +235,24 @@ module.exports = function(io) {
                 // Turno actual, nos va a servir para obtener la informacion del turno en cuestion
                 // TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
                 // TODO: El query tiene que ser contra turnos que esten activos. Activo = true
-                connection.query("SELECT * FROM turnos where inicio < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and fin > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+                connection.query("SELECT * \
+                FROM turnos \
+                CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
+                WHERE \
+                    CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
+                    ELSE inicio <= evento OR fin >= evento END \
+                AND activo = 1;").then(function(rows){
                     return_data.turnoActual = rows
                     
                     // TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
                     // TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
                     var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
                     sum(case when activo=0 then tiempo else 0 end) tm, \
-                    sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
+                    (sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
                     from eventos2 e \
-                    where e.fecha = CURDATE() \
-                    and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-                    and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    where e.fecha = CAST('" + today + "' as date) \
+                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
                     group by maquinas_id") 
                     return result
                 }).then(function(rows){
@@ -265,8 +280,8 @@ module.exports = function(io) {
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
                     where e.fecha = CURDATE() \
-                    and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-                    and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
                     group by e.maquinas_id") 
                     return result
                 }).then(function(rows){ 
@@ -277,8 +292,8 @@ module.exports = function(io) {
                     var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
                     from eventos2 e \
                     where e.fecha = CURDATE() \
-                    and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-                    and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
+                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
                     group by e.maquinas_id")
                     connection.release();
                     return result
@@ -349,14 +364,10 @@ module.exports = function(io) {
             }
             if (message == 'zona'){
 
-                // TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
-                var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); // TODO: Aqui hay que cambiar el "America/Chihuahua" por lo que este guardado en la DB. Y hay que poner un metodo que si falla solo mande un error y no se pueda guardar nada. (Que no crache)
-                chihuahua = moment(chihuahua).format('YYYY-MM-DD HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
-
-                fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
-                hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+                fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+                hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
                 
-                socket.emit('tiempo', chihuahua + " " + fecha + " " + hora);
+                socket.emit('tiempo', " " + fecha + " " + hora);
             }
         });
 

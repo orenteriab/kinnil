@@ -333,6 +333,22 @@ CREATE TABLE IF NOT EXISTS `kinnil`.`tz` (
 ENGINE = InnoDB;
 
 
+
+-- -----------------------------------------------------
+-- Table `kinnil`.`digital`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `kinnil`.`digital` ;
+
+CREATE TABLE IF NOT EXISTS `kinnil`.`digital` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `fecha` DATETIME(6) NULL,
+  `hora` TIME NULL,
+  `evento` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

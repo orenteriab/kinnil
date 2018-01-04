@@ -67,6 +67,22 @@
             background-color: #FF0000;
             border-color: #FF0000;
         }
+
+        @media (min-width: 768px) {
+        .container {
+            width: 100%;
+        }
+        }
+        @media (min-width: 992px) {
+        .container {
+            width: 100%;
+        }
+        }
+        @media (min-width: 1200px) {
+        .container {
+            width: 100%;
+        }
+        }
     </style>
 </head>
 
@@ -129,7 +145,7 @@
                                 <h2>Disponibilidad: 
                                     <!-- Si el query de disponibilidad esta empty despliega un 0 -->
                                     <span id="disponibilidad">
-                                    <%if (disponibilidad[0]) { %>
+                                    <%if (disponibilidad[0] && disponibilidad[0].disponibilidad !== null) { %>
                                         <%= (disponibilidad[0].disponibilidad).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
@@ -142,7 +158,7 @@
                             <div class="top-bg">
                                 <h2>Rendimiento:
                                     <span id="rendimiento">
-                                    <%if (rendimiento[0]) { %>
+                                    <%if (rendimiento[0] && rendimiento[0].rendimiento !== null) { %>
                                         <%= (rendimiento[0].rendimiento).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
@@ -155,7 +171,7 @@
                             <div class="top-bg">
                                 <h2>Calidad: 
                                     <span id="calidad">
-                                    <%if (calidad[0]) { %>
+                                    <%if (calidad[0] && calidad[0].calidad !== null) { %>
                                         <%= (calidad[0].calidad).toFixed(2) %> %
                                     <% } else{ %> 
                                         0%
@@ -168,7 +184,9 @@
                             <div class="top-bg">
                                 <h2>OEE: 
                                     <span id="oee">
-                                    <%if (calidad[0] && rendimiento[0] && disponibilidad[0]) { %>
+                                    
+                                    <!-- TODO -->
+                                    <%if (calidad[0] && disponibilidad[0].disponibilidad !== null && rendimiento[0] && disponibilidad[0]) { %>
                                         <!-- TODO: verificar que esto este bien -->
                                         <%= ((calidad[0].calidad + rendimiento[0].rendimiento + disponibilidad[0].disponibilidad)/3).toFixed(2) %> %
                                     <% } else{ %> 

@@ -117,12 +117,8 @@ module.exports = function(app, passport) {
 			var horaActual = h + ":" + m + ":" + s
 			console.log(horaActual)
 
-			// TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
-			var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); // TODO: Aqui hay que cambiar el "America/Chihuahua" por lo que este guardado en la DB. Y hay que poner un metodo que si falla solo mande un error y no se pueda guardar nada. (Que no crache)
-			chihuahua = moment(chihuahua).format('YYYY-MM-DD HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
-
-			fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
-			hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+			fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+			hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
 			
 			console.log(fecha + " " + hora)
 
@@ -131,7 +127,7 @@ module.exports = function(app, passport) {
 			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
 			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
 			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
-			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and CAST(fin as time) > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "' as time) and CAST(fin as time) > TIME_FORMAT('" + horaActual + "' as time)").then(function(rows){
 			//TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
 			connection.query("SELECT * \
 									FROM turnos \
@@ -147,11 +143,11 @@ module.exports = function(app, passport) {
 				// TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
 				var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
 				sum(case when activo=0 then tiempo else 0 end) tm, \
-				sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
+				(sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
 				from eventos2 e \
-				where e.fecha = CURDATE() \
-				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				where e.fecha = CAST('" + today + "' as date) \
+				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by maquinas_id") 
 				return result
 			}).then(function(rows){
@@ -178,9 +174,9 @@ module.exports = function(app, passport) {
 				(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
 				from eventos2 e \
 				inner join productos p on e.productos_id = p.id \
-				where e.fecha = CURDATE() \
-				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				where e.fecha = CAST('" + today + "' as date) \
+				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id") 
 				return result
 			}).then(function(rows){ 
@@ -189,9 +185,9 @@ module.exports = function(app, passport) {
 				// Calidad agrupada por maquina
 				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
 				from eventos2 e \
-				where e.fecha = CURDATE() \
-				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				where e.fecha = CAST('" + today + "' as date) \
+				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id")
 				connection.release();
 				return result
@@ -1005,12 +1001,12 @@ module.exports = function(app, passport) {
 			var horaActual = h + ":" + m + ":" + s
 			console.log(horaActual)
 
+			fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+			hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
 			// TODO: De momento va a estar hardcodedeato America/Chihuahua pero hay que cambiar esto para que se actualize segun lo que este guardado en la DB
-			var chihuahua    = moment.tz(today + " " + horaActual, "America/Chihuahua"); // TODO: Aqui hay que cambiar el "America/Chihuahua" por lo que este guardado en la DB. Y hay que poner un metodo que si falla solo mande un error y no se pueda guardar nada. (Que no crache)
-			chihuahua = moment(chihuahua).format('YYYY-MM-DD HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
-
-			fecha = moment(chihuahua).format('YYYY-MM-DD'); // Esta es la hora que hay que guardar en el servidor
-			hora = moment(chihuahua).format('HH:mm:ss'); // Esta es la hora que hay que guardar en el servidor
+			// TODO: hay un problema cuando 0:41:34
+			// TODO: Error Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are discouraged and will be removed in an upcoming major release. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.
+			
 			
 			console.log(fecha + " " + hora)
 
@@ -1019,7 +1015,7 @@ module.exports = function(app, passport) {
 			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
 			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
 			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
-			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "','%H:%i:%s') and CAST(fin as time) > TIME_FORMAT('" + horaActual + "','%H:%i:%s')").then(function(rows){
+			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "' as time) and CAST(fin as time) > TIME_FORMAT('" + horaActual + "' as time)").then(function(rows){
 			//TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
 			connection.query("SELECT * \
 									FROM turnos \
@@ -1036,11 +1032,11 @@ module.exports = function(app, passport) {
 				// TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
 				var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
 				sum(case when activo=0 then tiempo else 0 end) tm, \
-				sum(case when activo=1 then tiempo else 0 end) / sum(case when activo=0 then tiempo else 0 end) disponibilidad \
+				(sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
 				from eventos2 e \
-				where e.fecha = CURDATE() \
-				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				where e.fecha = CAST('" + today + "' as date) \
+				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by maquinas_id") 
 				return result
 			}).then(function(rows){
@@ -1067,9 +1063,9 @@ module.exports = function(app, passport) {
 				(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
 				from eventos2 e \
 				inner join productos p on e.productos_id = p.id \
-				where e.fecha = CURDATE() \
-				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				where e.fecha = CAST('" + today + "' as date) \
+				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id") 
 				return result
 			}).then(function(rows){ 
@@ -1079,9 +1075,9 @@ module.exports = function(app, passport) {
 				// TODO: le falta guiarce con el turno actual. etc
 				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
 				from eventos2 e \
-				where e.fecha = CURDATE() \
-				and e.hora >= STR_TO_DATE('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-				and e.hora < STR_TO_DATE('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+				where e.fecha = CAST('" + today + "' as date) \
+				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id")
 				connection.release();
 				return result

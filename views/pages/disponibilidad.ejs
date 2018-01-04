@@ -36,22 +36,19 @@
                 <div class="content">
 
                     <p>Tiempo activo / Tiempo muerto</p>
-                    <span id="grafico">
                         <canvas id='tatm'></canvas> <!-- TODO: Hay que ver la manera de destruir estos elementos y reconstruirlos al actualizar -->
-                    </span>                          <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
+                         <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
 
                 </div>
                 </div>
             </div>
             <div class="col-lg-4 col-sm-4">
                 <div class="widget widget-stats">
-                <div class="content">
+                <div class="content2">
 
                     <p> Desglose de tiempo muerto</p>
-                    <span id="grafico2">
                         <canvas id='desglose'></canvas>
-                    </span>
-                   
+
                 </div>
                 </div>
             </div>
@@ -67,6 +64,7 @@
    <script src="/socket.io/socket.io.js"></script> 
    <%include ../partials/js %>
    <script>
+      
             var fechaInicio; 
             var fechaFin;
             var tipo = "turno"; // Por default es por turno para que aparesca algo aunque el usuario no seleccione una opcion.
@@ -206,9 +204,6 @@
 
             socket.on('reporte-disponibilidad', function(data) {
                 // TODO: hacer algo para cuando los valores sean NULOS
-
-                //$("#grafico1").html("<canvas id='tatm'></canvas>");
-                //$("#grafico2").html("<canvas id='desglose'></canvas>");
 
                 var ta = data.ta[0].ta/60/60;
                 var tm = data.tm[0].tm/60/60;
@@ -368,6 +363,8 @@
                     }
                 }
             })
+
+            
         </script>
 </body>
 </html>

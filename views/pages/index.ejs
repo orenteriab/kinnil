@@ -46,9 +46,16 @@
                                 <th>Estado</th>
                                 <th>Maquina</th>
                                 <th>Producto</th>
+                                <th>Chispa</th>
+                                <th>Nudo</th>
                                 <th>Disponibilidad</th>
+                                <th>TA</th>
+                                <th>TM</th>
                                 <th>Rendimiento</th>
+                                <th>Kgs totales</th>
                                 <th>Calidad</th>
+                                <th>Kgs buenos</th>
+                                <th>Kgs malos</th>
                                 <th>OEE</th>
                             </tr>
                         </thead>
@@ -80,6 +87,8 @@
                                     Sin eventos
                                 <% } %>
                             </td>
+                            <td id="chispa"></td>
+                            <td id="nudo"></td>
                             <td id="disponibilidad">
                                 <!-- Si el query de disponibilidad esta empty despliega un i -->
                                 <%if (disponibilidad[i]) { %>
@@ -88,6 +97,8 @@
                                     0%
                                 <% } %>
                             </td>
+                            <td id="ta"></td>
+                            <td id="tm"></td>
                             <td id="rendimiento">
                                 <%if (rendimiento[i]) { %>
                                     <%= (rendimiento[i].rendimiento).toFixed(2) %> %
@@ -95,6 +106,7 @@
                                     0%
                                 <% } %>
                             </td>
+                            <td id="kgstotales"></td>
                             <td id="calidad">
                                 <%if (calidad[i]) { %>
                                     <%= (calidad[i].calidad).toFixed(2) %> %
@@ -102,6 +114,8 @@
                                     0%
                                 <% } %>
                             </td>
+                            <td id="kgsbuenos"></td>
+                            <td id="kgsmalos"></td>
                             <td id="oee">
                                 <%if (calidad[i] && rendimiento[i] && disponibilidad[i]) { %>
                                     <!-- TODO: verificar que esto este bien -->
@@ -183,6 +197,8 @@
             var mensaje = JSON.stringify(message);
             console.log('se recibio un valor: ' + mensaje);
         })
+
+        
 
    </script> 
    <%include ../partials/js %>
