@@ -89,9 +89,10 @@ module.exports = function(app, passport) {
 	app.get('/inicio', isLoggedIn, function(req, res) {
 		var return_data = {}
 		//promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
+		// TODO: ver la manera de sacar este codigo del archivo de routes y pasarlo al de models.js (si se tiene que poder pero hay que ver que no sea con callbacks)
 		promisePool.getConnection().then(function(connection) {
 			
-
+			// TODO: Hay que ver si es factible sacar el codigo de abajo fuera de la conexion para que este mas limpio todo
 			var today = new Date();
             var dd = today.getDate();
 
@@ -192,12 +193,15 @@ module.exports = function(app, passport) {
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id")
-				connection.release();
+				
 				return result
 			}).then(function(rows) {
 				return_data.calidad = rows
 
-				pool.releaseConnection(connection);
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
 
 				console.log(return_data)
 				res.render("pages/index.ejs",{
@@ -243,6 +247,11 @@ module.exports = function(app, passport) {
 			}).then(function(rows){
 				return_data.areas = rows
 				
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
+
 				// Se separan los datos obtenidos de los queries.
 				var plantas = return_data.plantas
 				var areas = return_data.areas
@@ -327,6 +336,11 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){
 				return_data.areas = rows
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
 				
 				// Se separan los datos obtenidos de los queries.
 				var plantas = return_data.plantas
@@ -412,6 +426,11 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){
 				return_data.areas = rows
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
 				
 				// Se separan los datos obtenidos de los queries.
 				var plantas = return_data.plantas
@@ -498,6 +517,11 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){
 				return_data.areas = rows
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
 				
 				// Se separan los datos obtenidos de los queries.
 				var plantas = return_data.plantas
@@ -631,10 +655,15 @@ module.exports = function(app, passport) {
 				return_data.turnos = rows
 
 				var result = connection.query("SELECT * FROM users")
-				connection.release();
+
 				return result
 			}).then(function(rows) {
 				return_data.users = rows
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
 
 				console.log(return_data)
 				res.render("pages/configuracion.ejs",{
@@ -655,10 +684,12 @@ module.exports = function(app, passport) {
 
 	});
 
+	// TODO: ver si se pueden cambiar todas estas configuraciones a promesas (mayor organizacion y estan fuera del routes.js)
 	app.post('/configuracion', isLoggedIn, function(req, res) {
 		// TODO: Agregar el que se inserten las notas donde convenga insertar
 		var tipo = req.body.tipo;
 
+		// TODO: Este codigo puede ser mejorado hay que refactorizarlo o modificarlo de plano
 		switch(tipo) {
 			case "agregarPlantas":
 				var nombre = req.body.nombre;
@@ -667,12 +698,17 @@ module.exports = function(app, passport) {
 
 				promisePool.getConnection().then(function(connection) {
 						connection.query('INSERT INTO plantas SET ?', plantas).then(function(rows){
+
+							// Suelta la conexion ejemplo: Connection 404 released
+							//connection.release();
+							// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+							promisePool.releaseConnection(connection);
+
 						//return_data.turnos = rows // Esta linea no sirve porque no se hace nada con las filas returnadas
 					}).catch(function(err) {
 						// TODO: cambiar los console.log por un buen sistema de logueo de errores
 						console.log(err);
 					});
-				connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 				});
 
 				break;
@@ -684,12 +720,17 @@ module.exports = function(app, passport) {
 
 				promisePool.getConnection().then(function(connection) {
 						connection.query('INSERT INTO areas SET ?', area).then(function(rows){
-						return_data.turnos = rows
+
+							// Suelta la conexion ejemplo: Connection 404 released
+							//connection.release();
+							// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+							promisePool.releaseConnection(connection);
+
+						//return_data.turnos = rows
 					}).catch(function(err) {
 						// TODO: cambiar los console.log por un buen sistema de logueo de errores
 						console.log(err);
 					});
-					connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 				});
 				break;
 			case "agregarMaquinas":
@@ -702,6 +743,12 @@ module.exports = function(app, passport) {
 				var maquina  = {nombre: nombre, notas: notas, areas_id: area, productos_id: producto, active: true};
 				promisePool.getConnection().then(function(connection) {
 						connection.query('INSERT INTO maquinas SET ?', maquina).then(function(rows){
+
+							// Suelta la conexion ejemplo: Connection 404 released
+							//connection.release();
+							// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+							promisePool.releaseConnection(connection);
+
 							// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 							// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 							// return_data.turnos = rows
@@ -709,7 +756,6 @@ module.exports = function(app, passport) {
 						// TODO: cambiar los console.log por un buen sistema de logueo de errores
 						console.log(err);
 					});
-					connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 				});
 				break;
 			case "agregarProductos":
@@ -722,6 +768,12 @@ module.exports = function(app, passport) {
 				var producto  = {nombre: nombre, disponibilidad: disponibilidad, rendimiento: rendimiento, calidad: calidad, activo: true, plantas_id:plantas_id};
 				promisePool.getConnection().then(function(connection) {
 						connection.query('INSERT INTO productos SET ?', producto).then(function(rows){
+
+							// Suelta la conexion ejemplo: Connection 404 released
+							//connection.release();
+							// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+							promisePool.releaseConnection(connection);
+
 							// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 							// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 							// return_data.turnos = rows
@@ -729,7 +781,6 @@ module.exports = function(app, passport) {
 						// TODO: cambiar los console.log por un buen sistema de logueo de errores
 						console.log(err);
 					});
-					connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 				});
 				break;
 			case "agregarTurnos":
@@ -740,6 +791,12 @@ module.exports = function(app, passport) {
 
 				promisePool.getConnection().then(function(connection) {
 						connection.query("INSERT INTO turnos SET nombre = '"+ nombre +"', inicio = SEC_TO_TIME("+ inicio +"), fin = SEC_TO_TIME("+ fin +"), plantas_id = "+ planta+", activo = 1").then(function(rows){
+
+							// Suelta la conexion ejemplo: Connection 404 released
+							//connection.release();
+							// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+							promisePool.releaseConnection(connection);
+
 							// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 							// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 							// return_data.turnos = rows
@@ -747,7 +804,6 @@ module.exports = function(app, passport) {
 						// TODO: cambiar los console.log por un buen sistema de logueo de errores
 						console.log(err);
 					});
-					connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 				});
 				break;
 			case "agregarUsuarios":
@@ -760,6 +816,12 @@ module.exports = function(app, passport) {
 				var usuario  = {username: username, password: password, email: email, role: role, nivel: nivel};
 				promisePool.getConnection().then(function(connection) {
 						connection.query('INSERT INTO users SET ?', usuario).then(function(rows){
+
+							// Suelta la conexion ejemplo: Connection 404 released
+							//connection.release();
+							// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+							promisePool.releaseConnection(connection);
+
 							// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 							// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 							// return_data.turnos = rows
@@ -767,7 +829,6 @@ module.exports = function(app, passport) {
 						// TODO: cambiar los console.log por un buen sistema de logueo de errores
 						console.log(err);
 					});
-					connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 				});
 				break;
 			default:
@@ -787,6 +848,12 @@ module.exports = function(app, passport) {
 					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 					// return_data.turnos = rows
+
+					// Suelta la conexion ejemplo: Connection 404 released
+					//connection.release();
+					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+					promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 				//console.log("se armo si se inserto la informacion bien");
 				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
@@ -795,7 +862,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err); // TODO: Cambiar esto para que no se logue con logs normales, tiene que haber otra opcion que sea facil
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -809,6 +875,12 @@ module.exports = function(app, passport) {
 					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 					// return_data.turnos = rows
+
+					// Suelta la conexion ejemplo: Connection 404 released
+					//connection.release();
+					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+					promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
@@ -817,7 +889,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -831,6 +902,12 @@ module.exports = function(app, passport) {
 					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 					// return_data.turnos = rows
+
+					// Suelta la conexion ejemplo: Connection 404 released
+					//connection.release();
+					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+					promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
@@ -839,7 +916,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -853,6 +929,12 @@ module.exports = function(app, passport) {
 					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
 					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
 					// return_data.turnos = rows
+
+					// Suelta la conexion ejemplo: Connection 404 released
+					//connection.release();
+					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+					promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
@@ -861,7 +943,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -874,6 +955,12 @@ module.exports = function(app, passport) {
 		
 		promisePool.getConnection().then(function(connection) {
 			connection.query('UPDATE plantas SET active = 0 where id = ' + pk).then(function(rows){
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
 			}).catch(function(err) {
@@ -881,7 +968,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -894,6 +980,12 @@ module.exports = function(app, passport) {
 		
 		promisePool.getConnection().then(function(connection) {
 			connection.query('UPDATE areas SET active = 0 where id = ' + pk).then(function(rows){
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
 			}).catch(function(err) {
@@ -901,7 +993,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -914,6 +1005,12 @@ module.exports = function(app, passport) {
 		
 		promisePool.getConnection().then(function(connection) {
 			connection.query('UPDATE maquinas SET active = 0 where id = ' + pk).then(function(rows){
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
 			}).catch(function(err) {
@@ -921,7 +1018,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -934,6 +1030,12 @@ module.exports = function(app, passport) {
 		
 		promisePool.getConnection().then(function(connection) {
 			connection.query('UPDATE productos SET activo = 0 where id = ' + pk).then(function(rows){ // TODO cambiar activo a active.!
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
 			}).catch(function(err) {
@@ -941,7 +1043,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -954,6 +1055,12 @@ module.exports = function(app, passport) {
 		
 		promisePool.getConnection().then(function(connection) {
 			connection.query('UPDATE turnos SET activo = 0 where id = ' + pk).then(function(rows){ // TODO cambiar activo a active.!
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
+
 			}).then(function(rows) {
 				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
 			}).catch(function(err) {
@@ -961,7 +1068,6 @@ module.exports = function(app, passport) {
 				res.sendStatus(400);
 				console.log(err);
 			});
-			connection.release(); // TODO: ver que el codigo si llegue a esta parte y que se cierre la conexion
 		});
 	});
 
@@ -1016,11 +1122,7 @@ module.exports = function(app, passport) {
 			console.log(fecha + " " + hora)
 
 			// TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
-			// TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
 			// Turno actual, nos va a servir para obtener la informacion del turno en cuestion
-			// TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
-			// TODO: El query tiene que ser contra turnos que esten activos. Activo = true
-			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "' as time) and CAST(fin as time) > TIME_FORMAT('" + horaActual + "' as time)").then(function(rows){
 			//TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
 			connection.query("SELECT * \
 									FROM turnos \
@@ -1085,10 +1187,15 @@ module.exports = function(app, passport) {
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id")
-				connection.release();
+				
 				return result
 			}).then(function(rows) {
 				return_data.calidad = rows
+
+				// Suelta la conexion ejemplo: Connection 404 released
+				//connection.release();
+				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+				promisePool.releaseConnection(connection);
 
 				console.log(return_data)
 				res.render("pages/monitor.ejs",{

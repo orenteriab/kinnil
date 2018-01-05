@@ -25,6 +25,25 @@ promisePool = promiseMysql.createPool({
 });
 promisePool.query('USE ' + dbconfig.database)
 
+// TODO: Hay que cambiar este codigo para que lo logue a algo especifico, (Quitar el console.log)
+// Util para cuando se crea una nueva conexion en el pool
+promisePool.on('connection', function (connection) {
+    console.log("#####      se creo una conexion al pool     #############################")
+//connection.query('SET SESSION auto_increment_increment=1') // TODO: ver si es necesario ponerle esto
+});
+
+
+// El pool emite un evento cuando una conexion es regresada al pool de conexiones para ser utilizada por otra conexion
+promisePool.on('release', function (connection) {
+    console.log('Connection %d released     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', connection.threadId);
+});
+
+// ver cuando se adquirio una connexion del pool de conexiones
+promisePool.on('acquire', function (connection) {
+    console.log('Connection %d acquired  ************************************', connection.threadId);
+});
+
+
 // define constructor function that gets `io` send to it
 module.exports = function(io) {
     // When a client connects, we note it in the console
@@ -72,6 +91,11 @@ module.exports = function(io) {
                         return result
                     }).then(function(rows) {
                         return_data.razones_paro = rows
+
+                        // Suelta la conexion ejemplo: Connection 404 released
+                        //connection.release();
+                        // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                        promisePool.releaseConnection(connection);
                         
                         // Se separan los datos obtenidos de los queries
                         var plantas = return_data.plantas
@@ -131,9 +155,11 @@ module.exports = function(io) {
             }
         });
 
-        socket.on('evento2', function (message) {
+        // TODO: hacer digital1 & 2 y contador
+        socket.on('digital1', function (message) {
             console.log(message)
         });
+
 
         // TODO: Hay que hacer otro evento donde se guarde la calidad (hay que hablar esto con Jossie para ver si es posible o si utilizamos es mismo)
         socket.on('evento', function (message) {
@@ -166,10 +192,6 @@ module.exports = function(io) {
             promisePool.getConnection().then(function(connection) {
                 
                 connection.query("select * from razones_paro where id = " + evento.razones_id).then(function(rows){
-                    //console.log(rows)
-                    //console.log(rows[0].nombre)
-                    //evento.nombre = rows[0].nombre
-                    //evento = JSON.stringify(evento)
 
                     // TODO: de momento va a estar hardcodeado el productos_id pero hay que arreglar esta parte
                     var save  = {
@@ -191,6 +213,11 @@ module.exports = function(io) {
                     return result
 
                 }).then(function(rows){
+
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
 
                     //return_data.plantas = rows
                     // TODO: Aqui hay que mandar la actualizacion del pedo a todos.... Hay que hacer los queries o todo lo necesario para actualizar
@@ -296,10 +323,15 @@ module.exports = function(io) {
                     and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
                     and e.hora < CAST('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
                     group by e.maquinas_id")
-                    connection.release();
+
                     return result
                 }).then(function(rows) {
                     return_data.calidad = rows
+
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
     
                     console.log(return_data)
                     // Boradcast emite un mensaje a todos menos al que lo mando a llamar
@@ -392,6 +424,11 @@ module.exports = function(io) {
                 }).then(function(rows) {
                     return_data.productos = rows
 
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
+
                     // TODO: Modificar este codigo para enviarselo solo al que lo pidio, estudiar mas el funcionamiento de los sockets
                     io.emit('cambio-planta', return_data); // io.emit send a message to everione connected
 
@@ -479,6 +516,11 @@ module.exports = function(io) {
                     return result
                 }).then(function(rows){
                     return_data.desglose = rows
+
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
 
                     // Emite el evento que es recibido por el cliente para graficarlo
                     io.emit('reporte-disponibilidad', return_data); // io.emit send a message to everione connected
@@ -569,6 +611,11 @@ module.exports = function(io) {
                 }).then(function(rows){
                     return_data.desglose = rows
 
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
+
                     // Emite el evento que es recibido por el cliente para graficarlo
                     io.emit('reporte-rendimiento', return_data); // io.emit send a message to everione connected
 
@@ -657,6 +704,11 @@ module.exports = function(io) {
                     return result
                 }).then(function(rows){
                     return_data.desglose = rows
+
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
 
                     // Emite el evento que es recibido por el cliente para graficarlo
                     io.emit('reporte-calidad', return_data); // io.emit send a message to everione connected
