@@ -250,7 +250,7 @@ module.exports = function(io) {
                     sum(case when activo=0 then tiempo else 0 end) tm, \
                     (sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
                     from eventos2 e \
-                    where e.fecha = CAST('" + today + "' as date) \
+                    where e.fecha = CAST('" + fecha + "' as date) \
                     and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
                     and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
                     group by maquinas_id") 
@@ -265,7 +265,10 @@ module.exports = function(io) {
                         group by maquinas_id) as x \
                     inner join eventos2 e on x.id = e.id \
                     inner join razones_paro r on r.id = e.razones_paro_id \
-                    inner join productos p on e.productos_id = p.id") 
+                    inner join productos p on e.productos_id = p.id \
+                    where e.fecha = CAST('" + fecha + "' as date) \
+                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time)") 
                         
                     return result
                 }).then(function(rows){ 
@@ -279,7 +282,7 @@ module.exports = function(io) {
                     (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
-                    where e.fecha = CURDATE() \
+                    where e.fecha = CAST('" + fecha + "' as date) \
                     and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
                     and e.hora < CAST('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
                     group by e.maquinas_id") 

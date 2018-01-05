@@ -145,13 +145,15 @@ module.exports = function(app, passport) {
 				sum(case when activo=0 then tiempo else 0 end) tm, \
 				(sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
 				from eventos2 e \
-				where e.fecha = CAST('" + today + "' as date) \
+				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by maquinas_id") 
 				return result
 			}).then(function(rows){
 				return_data.disponibilidad = rows
+
+				console.log(rows)
 				// TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
 				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
 				var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
@@ -174,7 +176,7 @@ module.exports = function(app, passport) {
 				(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
 				from eventos2 e \
 				inner join productos p on e.productos_id = p.id \
-				where e.fecha = CAST('" + today + "' as date) \
+				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id") 
@@ -185,7 +187,7 @@ module.exports = function(app, passport) {
 				// Calidad agrupada por maquina
 				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
 				from eventos2 e \
-				where e.fecha = CAST('" + today + "' as date) \
+				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id")
@@ -1034,7 +1036,7 @@ module.exports = function(app, passport) {
 				sum(case when activo=0 then tiempo else 0 end) tm, \
 				(sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
 				from eventos2 e \
-				where e.fecha = CAST('" + today + "' as date) \
+				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by maquinas_id") 
@@ -1063,7 +1065,7 @@ module.exports = function(app, passport) {
 				(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
 				from eventos2 e \
 				inner join productos p on e.productos_id = p.id \
-				where e.fecha = CAST('" + today + "' as date) \
+				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id") 
@@ -1075,7 +1077,7 @@ module.exports = function(app, passport) {
 				// TODO: le falta guiarce con el turno actual. etc
 				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
 				from eventos2 e \
-				where e.fecha = CAST('" + today + "' as date) \
+				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
 				group by e.maquinas_id")
