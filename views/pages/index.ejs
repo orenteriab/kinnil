@@ -55,10 +55,10 @@
                                 <th>TA</th>
                                 <th>TM</th>
                                 <th>Rend</th>
-                                <th>Kgs totales</th>
                                 <th>Calidad</th>
                                 <th>Kgs bien</th>
                                 <th>Kgs mal</th>
+                                <th>Total</th>
                                 <th>OEE</th>
                             </tr>
                         </thead>
@@ -125,7 +125,6 @@
                                     0%
                                 <% } %>
                             </td>
-                            <td id="kgstotales<%= i %>" data-column-id="kgstotales<%= i %>"></td>
                             <td id="calidad<%= i %>" data-column-id="calidad<%= i %>">
                                 <%if (calidad[i] && calidad[0].calidad !== null) { %>
                                     <%= (calidad[i].calidad).toFixed(2) %> %
@@ -135,6 +134,7 @@
                             </td>
                             <td id="kgsbuenos<%= i %>" data-column-id="kgsbuenos<%= i %>"></td>
                             <td id="kgsmalos<%= i %>" data-column-id="kgsmalos<%= i %>"></td>
+                            <td id="kgstotales<%= i %>" data-column-id="kgstotales<%= i %>"></td>
                             <td id="oee" data-column-id="oee<%= i %>">
                                 <!-- TODO: Agregar validaciones para cuando sea null que no pase el if -->
                                 <%if (calidad[i] && rendimiento[i] && disponibilidad[i]) { %>
