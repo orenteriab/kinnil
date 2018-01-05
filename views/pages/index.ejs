@@ -75,7 +75,7 @@
                             </td>
                             <td id="maquina">
                                 <%if (estado[i]) { %>
-                                    <%= estado[i].maquina %>
+                                    <%= estado[i].nombre %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
@@ -97,8 +97,20 @@
                                     0%
                                 <% } %>
                             </td>
-                            <td id="ta"></td>
-                            <td id="tm"></td>
+                            <td id="ta">
+                                <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
+                                    <%= (disponibilidad[i].ta /60 /60).toFixed(2) %> hrs 
+                                <% } else{ %> 
+                                    0 hrs
+                                <% } %>
+                            </td>
+                            <td id="tm">
+                                <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
+                                    <%= (disponibilidad[i].tm /60 /60).toFixed(2) %> hrs
+                                <% } else{ %> 
+                                    0 hrs
+                                <% } %>
+                            </td>
                             <td id="rendimiento">
                                 <%if (rendimiento[i] && rendimiento[0].rendimiento !== null) { %>
                                     <%= (rendimiento[i].rendimiento).toFixed(2) %> %

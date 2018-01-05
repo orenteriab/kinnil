@@ -88,7 +88,7 @@ module.exports = function(app, passport) {
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/inicio', isLoggedIn, function(req, res) {
 		var return_data = {}
-		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
+		//promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
 			
 
@@ -130,12 +130,12 @@ module.exports = function(app, passport) {
 			//connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "' as time) and CAST(fin as time) > TIME_FORMAT('" + horaActual + "' as time)").then(function(rows){
 			//TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
 			connection.query("SELECT * \
-									FROM turnos \
-									CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
-									WHERE \
-										CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
-										ELSE inicio <= evento OR fin >= evento END \
-									AND activo = 1;")
+							FROM turnos \
+							CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
+							WHERE \
+								CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
+								ELSE inicio <= evento OR fin >= evento END \
+							AND activo = 1;")
 			.then(function(rows){
 				return_data.turnoActual = rows
 				
@@ -156,13 +156,14 @@ module.exports = function(app, passport) {
 				console.log(rows)
 				// TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
 				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-				var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+				var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
 				from (SELECT maquinas_id, max(id) as id \
 					FROM eventos2 \
 					group by maquinas_id) as x \
 				inner join eventos2 e on x.id = e.id \
 				inner join razones_paro r on r.id = e.razones_paro_id \
-				inner join productos p on e.productos_id = p.id") 
+				inner join productos p on e.productos_id = p.id \
+				inner join maquinas m on e.maquinas_id = m.id") 
 					
 				return result
 			}).then(function(rows){ 
@@ -195,6 +196,8 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows) {
 				return_data.calidad = rows
+
+				pool.releaseConnection(connection);
 
 				console.log(return_data)
 				res.render("pages/index.ejs",{
@@ -1045,13 +1048,14 @@ module.exports = function(app, passport) {
 				return_data.disponibilidad = rows
 				// TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
 				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-				var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+				var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
 				from (SELECT maquinas_id, max(id) as id \
 					FROM eventos2 \
 					group by maquinas_id) as x \
 				inner join eventos2 e on x.id = e.id \
 				inner join razones_paro r on r.id = e.razones_paro_id \
-				inner join productos p on e.productos_id = p.id") 
+				inner join productos p on e.productos_id = p.id \
+				inner join maquinas m on e.maquinas_id = m.id") 
 					
 				return result
 			}).then(function(rows){ 

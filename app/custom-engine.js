@@ -21,7 +21,7 @@ promisePool = promiseMysql.createPool({
 	user: 'root',
 	password: 'FundableD0ubles',
 	database: 'kinnil',
-	connectionLimit: 5000
+	connectionLimit: 5000 // TODO: Aqui algo esta pasando raro y tambien  show variables like "max_connections"; tambien influye 151
 });
 promisePool.query('USE ' + dbconfig.database)
 
@@ -259,16 +259,14 @@ module.exports = function(io) {
                     return_data.disponibilidad = rows
                     // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
                     // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-                    var result = connection.query("select e.maquinas_id as maquina, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+                    var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
                     from (SELECT maquinas_id, max(id) as id \
                         FROM eventos2 \
                         group by maquinas_id) as x \
                     inner join eventos2 e on x.id = e.id \
                     inner join razones_paro r on r.id = e.razones_paro_id \
                     inner join productos p on e.productos_id = p.id \
-                    where e.fecha = CAST('" + fecha + "' as date) \
-                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
-                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time)") 
+                    inner join maquinas m on e.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
                         
                     return result
                 }).then(function(rows){ 
