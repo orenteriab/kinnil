@@ -40,22 +40,25 @@
                 <!-- TODO: Hay que hay que revisar si la tablet esta connectada o no para poner el status real una vez se abre la pagina -->
                 <div class="widget widget-stats">
                 <div class="content">
-                    <table border="1" class="table table-bordered" id='eventos'>
+                    <table border="1" class="table table-bordered table-condensed table-hover table-striped" id='eventos'>
                         <thead>
                             <tr>
                                 <th>Estado</th>
                                 <th>Maquina</th>
                                 <th>Producto</th>
+                                <th>PH</th>
+                                <th>Temp</th>
+                                <th>Cond</th>
                                 <th>Chispa</th>
                                 <th>Nudo</th>
-                                <th>Disponibilidad</th>
+                                <th>Disp</th>
                                 <th>TA</th>
                                 <th>TM</th>
-                                <th>Rendimiento</th>
+                                <th>Rend</th>
                                 <th>Kgs totales</th>
                                 <th>Calidad</th>
-                                <th>Kgs buenos</th>
-                                <th>Kgs malos</th>
+                                <th>Kgs bien</th>
+                                <th>Kgs mal</th>
                                 <th>OEE</th>
                             </tr>
                         </thead>
@@ -63,33 +66,37 @@
                         <!-- Agrega una fila por cada maquina que este funcionando -->
                         <!-- TODO: Hay que probar que funcione bien esto nunca se ha verificado -->
                         <!-- TODO: Hay que agregar un tiempo del ultimo evento o algo asi, porque no se ve de cuando es la ultima lectura que se tubo -->
+                        <tbody>
                         <%if (estado.length > 0) { %>
                         <% for(var i=0; i<estado.length; i++) {%>
                         <tr class="quote">
-                            <td id="estado" class="<%if (estado[i]) { %> <%= estado[i].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
+                            <td id="estado<%= i %>" data-column-id="estado<%= i %>" class="<%if (estado[i]) { %> <%= estado[i].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
                                 <%if (estado[i]) { %>
                                     <%= estado[i].razon %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
                             </td>
-                            <td id="maquina">
+                            <td id="maquina<%= i %>" data-column-id="maquina<%= i %>" >
                                 <%if (estado[i]) { %>
                                     <%= estado[i].nombre %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
                             </td>
-                            <td id="producto">
+                            <td id="producto<%= i %>" data-column-id="producto<%= i %>">
                                 <%if (estado[i]) { %>
                                     <%= estado[i].producto %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
                             </td>
-                            <td id="chispa"></td>
-                            <td id="nudo"></td>
-                            <td id="disponibilidad">
+                            <td id="ph<%= i %>"></td>
+                            <td id="temperatura<%= i %>"></td>
+                            <td id="conductividad<%= i %>"></td>
+                            <td id="chispa<%= i %>" data-column-id="chispa<%= i %>"></td>
+                            <td id="nudo<%= i %>" data-column-id="nudo<%= i %>"></td>
+                            <td id="disponibilidad<%= i %>" data-column-id="disponibilidad<%= i %>">
                                 <!-- Si el query de disponibilidad esta empty despliega un i -->
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
                                     <%= (disponibilidad[i].disponibilidad).toFixed(2) %> %
@@ -97,38 +104,38 @@
                                     0%
                                 <% } %>
                             </td>
-                            <td id="ta">
+                            <td id="ta<%= i %>" data-column-id="ta<%= i %>">
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
                                     <%= (disponibilidad[i].ta /60 /60).toFixed(2) %> hrs 
                                 <% } else{ %> 
                                     0 hrs
                                 <% } %>
                             </td>
-                            <td id="tm">
+                            <td id="tm<%= i %>" data-column-id="tm<%= i %>">
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
                                     <%= (disponibilidad[i].tm /60 /60).toFixed(2) %> hrs
                                 <% } else{ %> 
                                     0 hrs
                                 <% } %>
                             </td>
-                            <td id="rendimiento">
+                            <td id="rendimiento<%= i %>" data-column-id="rendimiento<%= i %>">
                                 <%if (rendimiento[i] && rendimiento[0].rendimiento !== null) { %>
                                     <%= (rendimiento[i].rendimiento).toFixed(2) %> %
                                 <% } else{ %> 
                                     0%
                                 <% } %>
                             </td>
-                            <td id="kgstotales"></td>
-                            <td id="calidad">
+                            <td id="kgstotales<%= i %>" data-column-id="kgstotales<%= i %>"></td>
+                            <td id="calidad<%= i %>" data-column-id="calidad<%= i %>">
                                 <%if (calidad[i] && calidad[0].calidad !== null) { %>
                                     <%= (calidad[i].calidad).toFixed(2) %> %
                                 <% } else{ %> 
                                     0%
                                 <% } %>
                             </td>
-                            <td id="kgsbuenos"></td>
-                            <td id="kgsmalos"></td>
-                            <td id="oee">
+                            <td id="kgsbuenos<%= i %>" data-column-id="kgsbuenos<%= i %>"></td>
+                            <td id="kgsmalos<%= i %>" data-column-id="kgsmalos<%= i %>"></td>
+                            <td id="oee" data-column-id="oee<%= i %>">
                                 <!-- TODO: Agregar validaciones para cuando sea null que no pase el if -->
                                 <%if (calidad[i] && rendimiento[i] && disponibilidad[i]) { %>
                                     <!-- TODO: verificar que esto este bien -->
@@ -138,6 +145,7 @@
                                 <% } %>
                             </td>
                         </tr>
+                        </tbody>
                         <% } %>
                         <% } else{ %>  
                             <p class="alert alert-warning">No eventos registrados en el turno actual</p>
@@ -156,6 +164,8 @@
    <script src="/socket.io/socket.io.js">
    </script> 
    <script>
+
+
         
         // TODO: Esto tiene que estar con la url del servidor una vez arriba 
         //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
@@ -215,5 +225,8 @@
 
    </script> 
    <%include ../partials/js %>
+   <script>
+       //$("#eventos").bootgrid();
+   </script>
 </body>
 </html>
