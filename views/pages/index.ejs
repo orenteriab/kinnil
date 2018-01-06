@@ -9,11 +9,11 @@
             border: 1px solid black;
         }
         .green {
-            background-color: green;
+            background-color: #35DA0C;
             color: #ffffff;
         }
         .red {
-            background-color: red;
+            background-color: #FD2412;
             color: #ffffff;
         }
 
@@ -56,8 +56,8 @@
                                 <th>TM</th>
                                 <th>Rend</th>
                                 <th>Calidad</th>
-                                <th>Kgs bien</th>
-                                <th>Kgs mal</th>
+                                <th>PT</th>
+                                <th>Scrap</th>
                                 <th>Total</th>
                                 <th>OEE</th>
                             </tr>
@@ -70,21 +70,21 @@
                         <%if (estado.length > 0) { %>
                         <% for(var i=0; i<estado.length; i++) {%>
                         <tr class="quote">
-                            <td id="estado<%= i %>" data-column-id="estado<%= i %>" class="<%if (estado[i]) { %> <%= estado[i].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
+                            <td id="estado" data-column-id="estado<%= i %>" class="<%if (estado[i]) { %> <%= estado[i].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
                                 <%if (estado[i]) { %>
                                     <%= estado[i].razon %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
                             </td>
-                            <td id="maquina<%= i %>" data-column-id="maquina<%= i %>" >
+                            <td id="maquina" data-column-id="maquina<%= i %>" >
                                 <%if (estado[i]) { %>
                                     <%= estado[i].nombre %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
                             </td>
-                            <td id="producto<%= i %>" data-column-id="producto<%= i %>">
+                            <td id="producto" data-column-id="producto<%= i %>">
                                 <%if (estado[i]) { %>
                                     <%= estado[i].producto %>
                                 <% } else { %> 
@@ -94,8 +94,8 @@
                             <td id="ph<%= i %>"></td>
                             <td id="temperatura<%= i %>"></td>
                             <td id="conductividad<%= i %>"></td>
-                            <td id="chispa<%= i %>" data-column-id="chispa<%= i %>"></td>
-                            <td id="nudo<%= i %>" data-column-id="nudo<%= i %>"></td>
+                            <td id="digital1" data-column-id="chispa<%= i %>"></td>
+                            <td id="digital2" data-column-id="nudo<%= i %>"></td>
                             <td id="disponibilidad<%= i %>" data-column-id="disponibilidad<%= i %>">
                                 <!-- Si el query de disponibilidad esta empty despliega un i -->
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
@@ -104,37 +104,37 @@
                                     0%
                                 <% } %>
                             </td>
-                            <td id="ta<%= i %>" data-column-id="ta<%= i %>">
+                            <td id="ta" data-column-id="ta<%= i %>">
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
                                     <%= (disponibilidad[i].ta /60 /60).toFixed(2) %> hrs 
                                 <% } else{ %> 
                                     0 hrs
                                 <% } %>
                             </td>
-                            <td id="tm<%= i %>" data-column-id="tm<%= i %>">
+                            <td id="tm" data-column-id="tm<%= i %>">
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
                                     <%= (disponibilidad[i].tm /60 /60).toFixed(2) %> hrs
                                 <% } else{ %> 
                                     0 hrs
                                 <% } %>
                             </td>
-                            <td id="rendimiento<%= i %>" data-column-id="rendimiento<%= i %>">
+                            <td id="rendimiento" data-column-id="rendimiento<%= i %>">
                                 <%if (rendimiento[i] && rendimiento[0].rendimiento !== null) { %>
                                     <%= (rendimiento[i].rendimiento).toFixed(2) %> %
                                 <% } else{ %> 
                                     0%
                                 <% } %>
                             </td>
-                            <td id="calidad<%= i %>" data-column-id="calidad<%= i %>">
+                            <td id="calidad" data-column-id="calidad<%= i %>">
                                 <%if (calidad[i] && calidad[0].calidad !== null) { %>
                                     <%= (calidad[i].calidad).toFixed(2) %> %
                                 <% } else{ %> 
                                     0%
                                 <% } %>
                             </td>
-                            <td id="kgsbuenos<%= i %>" data-column-id="kgsbuenos<%= i %>"></td>
-                            <td id="kgsmalos<%= i %>" data-column-id="kgsmalos<%= i %>"></td>
-                            <td id="kgstotales<%= i %>" data-column-id="kgstotales<%= i %>"></td>
+                            <td id="kgsbuenos" data-column-id="kgsbuenos<%= i %>"></td>
+                            <td id="kgsmalos" data-column-id="kgsmalos<%= i %>"></td>
+                            <td id="kgstotales" data-column-id="kgstotales<%= i %>"></td>
                             <td id="oee" data-column-id="oee<%= i %>">
                                 <!-- TODO: Agregar validaciones para cuando sea null que no pase el if -->
                                 <%if (calidad[i] && rendimiento[i] && disponibilidad[i]) { %>
@@ -168,8 +168,8 @@
 
         
         // TODO: Esto tiene que estar con la url del servidor una vez arriba 
-        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
-        var socket = io.connect('localhost:3000');
+        var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        //var socket = io.connect('localhost:3000');
         
         socket.on('message', function(message) {
             console.log('el server esta vivo');
@@ -177,6 +177,7 @@
 
         socket.on('actualizar', function(message) {
 
+            console.log("actualizar evento");
             // Agrega color a la tabla que muestra el estatus
             if (message.estado[0].razon == 'activo'){
                  console.log('verde');
@@ -221,7 +222,37 @@
             console.log('se recibio un valor: ' + mensaje);
         })
 
-        
+        socket.on('digital1', function(message) {
+
+            console.log("llego un evento digital1: " +message);
+            message = JSON.parse(message);
+
+            if (message.valor == 0){
+                 console.log('verde');
+                 $('#digital1').addClass('green');
+                 $('#digital1').removeClass('red');
+             } else {
+                 console.log('rojo');
+                 $('#digital1').addClass('red');
+                 $('#digital1').removeClass('green');
+             }
+        })
+
+        socket.on('digital2', function(message) {
+
+            console.log("llego un evento digital2: " +message);
+            message = JSON.parse(message);
+
+            if (message.valor == 0){
+                 console.log('verde');
+                 $('#digital2').addClass('green');
+                 $('#digital2').removeClass('red');
+             } else {
+                 console.log('rojo');
+                 $('#digital2').addClass('red');
+                 $('#digital2').removeClass('green');
+             }
+        })
 
    </script> 
    <%include ../partials/js %>

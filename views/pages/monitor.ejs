@@ -54,18 +54,18 @@
             justify-content: center;
         }
         /*.panel-default > .panel-heading {
-        background-color: #93C47D;
+        background-color: #35DA0C;
         border-color: #93C47D;
         }*/
         
         .panel-default > .green {
-            background-color: #93C47D;
-            border-color: #93C47D;
+            background-color: #35DA0C;
+            border-color: #35DA0C;
         }
         
         .panel-default > .red {
-            background-color: #FF0000;
-            border-color: #FF0000;
+            background-color: #FD2412;
+            border-color: #FD2412;
         }
 
         @media (min-width: 768px) {
@@ -89,16 +89,14 @@
 <body>
     <div class="jumbotron vertical-center">
         <div class="container text-center">
-            <div class="panel panel-default">
+            <div class="panel panel-default"  >
                 <div class="panel-heading <%if (estado[0]) { %> <%= estado[0].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
-                    <h1 class="panel-title">
-                        <span id="estado">
+                    <h1 class="panel-title" id="estado">
                         <%if (estado[0]) { %>
                             <%= estado[0].razon %>
                         <% } else { %> 
                             Sin eventos
                         <% } %>
-                        </span>
                     </h1>
                     <div class="row">
                         <div class="col-md-4">
@@ -255,8 +253,8 @@
     </script> 
     <script>
 
-        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
-        var socket = io.connect('localhost:3000');
+        var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        //var socket = io.connect('localhost:3000');
 
         socket.on('message', function(message) {
             console.log('el server esta vivo');
@@ -264,8 +262,10 @@
 
         socket.on('actualizar', function(message) {
 
+            console.log("se esta actualizando");
+            //console.log(message.estado[0].activo);
             // Agrega color a la tabla que muestra el estatus
-            if (message.estado[0].razon == 'activo'){
+            if (message.estado[0].activo == 1){
                  console.log('verde');
                  $('#estado').addClass('green');
                  $('#estado').removeClass('red');

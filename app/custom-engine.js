@@ -156,9 +156,9 @@ module.exports = function(io) {
         });
 
         // TODO: hacer digital1 & 2 y contador
-        socket.on('digital1', function (message) {
-            console.log(message)
-        });
+        //socket.on('digital1', function (message) {
+        //    console.log(message)
+        //});
 
 
         // TODO: Hay que hacer otro evento donde se guarde la calidad (hay que hablar esto con Jossie para ver si es posible o si utilizamos es mismo)
@@ -203,7 +203,7 @@ module.exports = function(io) {
                         plantas_id: evento.planta_id,
                         areas_id: evento.area_id,
                         maquinas_id: evento.maquina_id,
-                        productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
+                        productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajadoproductos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
                         razones_paro_id: evento.razones_id,
                         razones_calidad_id: 1 // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
                     };
@@ -226,6 +226,110 @@ module.exports = function(io) {
                     //socket.emit('actualizar', return_data);
                     socket.emit('evento-done', evento.operacion_uuid);
                     console.log("se guardo el evento");
+
+
+                    var return_data = {}
+                    promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
+                    promisePool.getConnection().then(function(connection) {
+                        // TODO: hay que hacer 
+                        // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
+                        var d = new Date()
+                        var h = d.getHours()
+                        var m = d.getMinutes()
+                        var s = d.getSeconds()
+                        var horaActual = h + ":" + m + ":" + s
+                        console.log(horaActual)
+        
+                        fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+                        hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                        
+                        console.log(fecha + " " + hora)
+            
+            
+                        // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
+                        // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
+                        // Turno actual, nos va a servir para obtener la informacion del turno en cuestion
+                        // TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
+                        // TODO: El query tiene que ser contra turnos que esten activos. Activo = true
+                        connection.query("SELECT * \
+                        FROM turnos \
+                        CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
+                        WHERE \
+                            CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
+                            ELSE inicio <= evento OR fin >= evento END \
+                        AND activo = 1;").then(function(rows){
+                            return_data.turnoActual = rows
+                            
+                            // TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
+                            // TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
+                            var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
+                            sum(case when activo=0 then tiempo else 0 end) tm, \
+                            (sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
+                            from eventos2 e \
+                            where e.fecha = CAST('" + fecha + "' as date) \
+                            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                            group by maquinas_id") 
+                            return result
+                        }).then(function(rows){
+                            return_data.disponibilidad = rows
+                            // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
+                            // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
+                            var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+                            from (SELECT maquinas_id, max(id) as id \
+                                FROM eventos2 \
+                                group by maquinas_id) as x \
+                            inner join eventos2 e on x.id = e.id \
+                            inner join razones_paro r on r.id = e.razones_paro_id \
+                            inner join productos p on e.productos_id = p.id \
+                            inner join maquinas m on e.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
+                                
+                            return result
+                        }).then(function(rows){ 
+                            return_data.estado = rows
+                            // TODO: Estos queries cuando no regresan filas en el template ejs me aparece como undefined y no se despliega un buen resultado
+                            // Rendimiento agrupado por maquina
+                            var result = connection.query("select e.maquinas_id maquina, \
+                            sum(e.valor) piezas, \
+                            sum(e.tiempo) tiempo, \
+                            sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+                            (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+                            from eventos2 e \
+                            inner join productos p on e.productos_id = p.id \
+                            where e.fecha = CAST('" + fecha + "' as date) \
+                            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                            group by e.maquinas_id") 
+                            return result
+                        }).then(function(rows){ 
+                            return_data.rendimiento = rows
+            
+                            // Calidad agrupada por maquina
+                            // TODO: le falta guiarce con el turno actual. etc
+                            var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+                            from eventos2 e \
+                            where e.fecha = CURDATE() \
+                            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                            group by e.maquinas_id")
+        
+                            return result
+                        }).then(function(rows) {
+                            return_data.calidad = rows
+        
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+            
+                            console.log(return_data)
+                            // Boradcast emite un mensaje a todos menos al que lo mando a llamar
+                            socket.broadcast.emit('actualizar', return_data);
+        
+                        }).catch(function(err) {
+                            console.log(err);
+                        });
+                    });
                     //socket.broadcast.emit('estado-actual', evento)
 
                 }).catch(function(err) {
@@ -308,8 +412,8 @@ module.exports = function(io) {
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
                     where e.fecha = CAST('" + fecha + "' as date) \
-                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
                     group by e.maquinas_id") 
                     return result
                 }).then(function(rows){ 
@@ -320,8 +424,8 @@ module.exports = function(io) {
                     var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
                     from eventos2 e \
                     where e.fecha = CURDATE() \
-                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"','%H:%i:%s') \
-                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"','%H:%i:%s') \
+                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
                     group by e.maquinas_id")
 
                     return result
@@ -718,8 +822,285 @@ module.exports = function(io) {
                 });
             });
         });
-        // Aqui puedo ir agregando mas sockets
+        
 
+        socket.on('digital1', function (message) {
+            console.log("digital1" + message)
+
+            console.log(message)
+            var digital = JSON.parse(message);
+
+            // Se obtiene fecha y hora
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+                dd='0'+dd;
+            
+            if(mm<10) 
+                mm='0'+mm;
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+			hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                
+            promisePool.getConnection().then(function(connection) {
+
+                var save  = {
+                    fecha: fecha, 
+                    hora: hora, 
+                    evento: " Chispa - " + digital.valor  
+                };
+                
+                connection.query("INSERT INTO digital SET ?", save).then(function(rows){
+
+                }).then(function(rows){
+
+                    promisePool.releaseConnection(connection);
+
+                    socket.broadcast.emit('digital1', message);
+                    console.log("se guardo el digital 1");
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            });
+        });
+
+        socket.on('digital2', function (message) {
+            console.log("digital2" + message)
+            
+            console.log(message)
+            var digital = JSON.parse(message);
+
+            // Se obtiene fecha y hora
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+                dd='0'+dd;
+            
+            if(mm<10) 
+                mm='0'+mm;
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+            hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                
+            promisePool.getConnection().then(function(connection) {
+
+                var save  = {
+                    fecha: fecha, 
+                    hora: hora, 
+                    evento: " Nudo - " + digital.valor  
+                };
+                
+                connection.query("INSERT INTO digital SET ?", save).then(function(rows){
+
+                }).then(function(rows){
+
+                    promisePool.releaseConnection(connection);
+
+                    socket.broadcast.emit('digital2', message);
+                    console.log("se guardo el digital 2");
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            });
+        });
+
+        socket.on('incremento1', function (message) {
+            console.log(message)
+            var evento = JSON.parse(message);
+
+            // Se obtiene fecha y hora
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+                dd='0'+dd;
+            
+            if(mm<10) 
+                mm='0'+mm;
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+			hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                
+            promisePool.getConnection().then(function(connection) {
+                
+                connection.query("select 1 from dual").then(function(rows){
+
+                    // TODO: de momento va a estar hardcodeado el productos_id pero hay que arreglar esta parte
+                    var save  = {
+                        operacion_uuid: 'incremento',  
+                        fecha: fecha, 
+                        hora: hora,
+                        valor: evento.valor,
+                        plantas_id: evento.planta_id,
+                        areas_id: evento.area_id,
+                        maquinas_id: evento.maquina_id,
+                        productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajadoproductos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
+                        razones_paro_id: 1,
+                        razones_calidad_id: 1 // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
+                    };
+
+                    var result = connection.query("INSERT INTO eventos2 SET ?", save)
+                    // TODO: Confirmar que se guardo la info ?
+                    return result
+
+                }).then(function(rows){
+
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
+
+                    //return_data.plantas = rows
+                    // TODO: Aqui hay que mandar la actualizacion del pedo a todos.... Hay que hacer los queries o todo lo necesario para actualizar
+                    // o llamar a algo mas que lo haga
+                    // TODO: probar si funciona mandarse un evento a si mismo (server-server)
+                    //socket.emit('actualizar', return_data);
+                    socket.emit('evento-done', evento.operacion_uuid);
+                    console.log("se guardo el evento");
+
+
+                    var return_data = {}
+                    promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
+                    promisePool.getConnection().then(function(connection) {
+                        // TODO: hay que hacer 
+                        // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
+                        var d = new Date()
+                        var h = d.getHours()
+                        var m = d.getMinutes()
+                        var s = d.getSeconds()
+                        var horaActual = h + ":" + m + ":" + s
+                        console.log(horaActual)
+        
+                        fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+                        hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                        
+                        console.log(fecha + " " + hora)
+            
+            
+                        // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
+                        // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
+                        // Turno actual, nos va a servir para obtener la informacion del turno en cuestion
+                        // TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
+                        // TODO: El query tiene que ser contra turnos que esten activos. Activo = true
+                        connection.query("SELECT * \
+                        FROM turnos \
+                        CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
+                        WHERE \
+                            CASE WHEN inicio <= fin THEN inicio <= evento AND fin >= evento \
+                            ELSE inicio <= evento OR fin >= evento END \
+                        AND activo = 1;").then(function(rows){
+                            return_data.turnoActual = rows
+                            
+                            // TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
+                            // TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
+                            var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
+                            sum(case when activo=0 then tiempo else 0 end) tm, \
+                            (sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
+                            from eventos2 e \
+                            where e.fecha = CAST('" + fecha + "' as date) \
+                            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                            group by maquinas_id") 
+                            return result
+                        }).then(function(rows){
+                            return_data.disponibilidad = rows
+                            // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
+                            // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
+                            var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
+                            from (SELECT maquinas_id, max(id) as id \
+                                FROM eventos2 \
+                                group by maquinas_id) as x \
+                            inner join eventos2 e on x.id = e.id \
+                            inner join razones_paro r on r.id = e.razones_paro_id \
+                            inner join productos p on e.productos_id = p.id \
+                            inner join maquinas m on e.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
+                                
+                            return result
+                        }).then(function(rows){ 
+                            return_data.estado = rows
+                            // TODO: Estos queries cuando no regresan filas en el template ejs me aparece como undefined y no se despliega un buen resultado
+                            // Rendimiento agrupado por maquina
+                            var result = connection.query("select e.maquinas_id maquina, \
+                            sum(e.valor) piezas, \
+                            sum(e.tiempo) tiempo, \
+                            sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+                            (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+                            from eventos2 e \
+                            inner join productos p on e.productos_id = p.id \
+                            where e.fecha = CAST('" + fecha + "' as date) \
+                            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                            group by e.maquinas_id") 
+                            return result
+                        }).then(function(rows){ 
+                            return_data.rendimiento = rows
+            
+                            // Calidad agrupada por maquina
+                            // TODO: le falta guiarce con el turno actual. etc
+                            var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+                            from eventos2 e \
+                            where e.fecha = CURDATE() \
+                            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+                            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                            group by e.maquinas_id")
+        
+                            return result
+                        }).then(function(rows) {
+                            return_data.calidad = rows
+        
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+            
+                            console.log(return_data)
+                            // Boradcast emite un mensaje a todos menos al que lo mando a llamar
+                            socket.broadcast.emit('actualizar', return_data);
+        
+                        }).catch(function(err) {
+                            console.log(err);
+                        });
+                    });
+                    //socket.broadcast.emit('estado-actual', evento)
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            });
+        });
+
+        // Aqui puedo ir agregando mas sockets
     });
 };
 
