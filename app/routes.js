@@ -159,7 +159,7 @@ module.exports = function(app, passport) {
 				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
 				var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
 				from (SELECT maquinas_id, max(id) as id \
-					FROM eventos2 \
+					FROM eventos2 WHERE activo IS NOT NULL \
 					group by maquinas_id) as x \
 				inner join eventos2 e on x.id = e.id \
 				inner join razones_paro r on r.id = e.razones_paro_id \
@@ -170,6 +170,8 @@ module.exports = function(app, passport) {
 			}).then(function(rows){ 
 				return_data.estado = rows
 
+				// TODO: A todos estos queries hay que hacerles lo mismo que el query de turnos, porque si no no va a mostrar bien el valor de el turno de 3ra
+				// TODO: este query solamente suma 
 				// Rendimiento agrupado por maquina
 				var result = connection.query("select e.maquinas_id maquina, \
 				sum(e.valor) piezas, \
@@ -187,12 +189,18 @@ module.exports = function(app, passport) {
 				return_data.rendimiento = rows
 
 				// Calidad agrupada por maquina
-				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+				var result = connection.query("select e.maquinas_id, \
+				sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+				sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+				sum(e.valor) total, \
+				sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+				sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
 				from eventos2 e \
+				inner join productos p on e.productos_id = p.id \
 				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-				group by e.maquinas_id")
+				group by e.maquinas_id;")
 				
 				return result
 			}).then(function(rows) {
@@ -517,6 +525,12 @@ module.exports = function(app, passport) {
 				return result
 			}).then(function(rows){
 				return_data.areas = rows
+				
+				// where id < 1 porque el primer registro de la DB es pieza buena (para efectos de mejorar y hacer mas sencillos los queries)
+				var result = connection.query("select * from razones_calidad where activo = true and id > 1")
+				return result
+			}).then(function(rows){
+				return_data.razones_calidad = rows
 
 				// Suelta la conexion ejemplo: Connection 404 released
 				//connection.release();
@@ -537,6 +551,8 @@ module.exports = function(app, passport) {
 
 				// Objeto donde se va a guardar toda la confirguacion.
 				var json = {plantas : []}
+
+				// TODO: Hay que agregar las razones de calidad, no se si sea por maquina por planta
 
 				// Arma un json con las plantas las areas productos y turnos para mandarlo a la pagina.
 				for (var x = 0; x<plantas.length; x++){
@@ -573,6 +589,7 @@ module.exports = function(app, passport) {
 					maquinas: return_data.maquinas,
 					plantas: return_data.plantas,
 					areas: return_data.areas,
+					razones_calidad: return_data.razones_calidad,
 					json: json,
 					user: req.user
 				});
@@ -1152,7 +1169,7 @@ module.exports = function(app, passport) {
 				// Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
 				var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
 				from (SELECT maquinas_id, max(id) as id \
-					FROM eventos2 \
+					FROM eventos2 WHERE activo IS NOT NULL \
 					group by maquinas_id) as x \
 				inner join eventos2 e on x.id = e.id \
 				inner join razones_paro r on r.id = e.razones_paro_id \
@@ -1180,13 +1197,18 @@ module.exports = function(app, passport) {
 				return_data.rendimiento = rows
 
 				// Calidad agrupada por maquina
-				// TODO: le falta guiarce con el turno actual. etc
-				var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+				var result = connection.query("select e.maquinas_id, \
+				sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+				sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+				sum(e.valor) total, \
+				sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+				sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
 				from eventos2 e \
+				inner join productos p on e.productos_id = p.id \
 				where e.fecha = CAST('" + fecha + "' as date) \
 				and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
 				and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-				group by e.maquinas_id")
+				group by e.maquinas_id;")
 				
 				return result
 			}).then(function(rows) {
@@ -1226,13 +1248,13 @@ module.exports = function(app, passport) {
 	/*
 	* Modificar Calidad
 	*/
-	app.get('/modificarcalidad', isLoggedIn, function(req, res) {
+	/*app.get('/modificarcalidad', isLoggedIn, function(req, res) {
 
 		res.render('pages/modificarcalidad.ejs', {
 			user : req.user // get the user out of session and pass to template
 		});
 
-	});
+	});*/
 
 };
 

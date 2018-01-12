@@ -72,14 +72,27 @@
                             </select>
                         </div>
 
-                        <div class="form-group" id="valor">
+                        <div class="form-group" id="maquinas-choice-div">
+                            <label for="sel1">Maquina:</label>
+                            <select class="form-control" id="calidad-choice">
+                            <% if(razones_calidad.length>0){%>
+                            <% for(var i=0; i<razones_calidad.length; i++) {%>
+                            <option value = "<%= razones_calidad[i].id %>"><%= razones_calidad[i].nombre %></option>
+                            <% } %>
+                            <%} else {%>
+                                <!-- TODO: Tomar las medidas necesarias para que no aparezcan errores en routes.js -->
+                                <option value = "sin-razones_calidad">No hay razones de calidad</option>
+                            <% } %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label for="sel1">Kgs:</label>
                             <!-- TODO: Esta tag es html5, si abren en un navegador que no lo soporte va a fallar, hay que cambiarlo -->
                             <!-- TODO: Explicarle a Ricardo que el navegador en el que esta certificada la app es en chrome en la version mas actual (de momento) por estos detalles -->
-                            <input type="number" class="form-control" step="0.01">
+                            <input type="number" class="form-control" id="valor" step="0.01">
                         </div>
-
-                        <button onclick="guardar()" id="btnConsultar" type="submit" class="btn btn-primary">Guardar</button>
+                        <button onclick="consultar()" id="btnConsultar" type="submit" class="btn btn-primary">Guardar</button>
                         </form>
                               
                               
@@ -103,18 +116,33 @@
         var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
         //var socket = io.connect('localhost:3000');
 
-        socket.on('estado-actual', function(message) {
-            
-            
-        })
         
         socket.on('message', function(message) {
             console.log('el server esta vivo');
         })
 
-        function guardar() {
-            // TODO: Hacer que envie un evento atravez de un socket para guardar la informacion
+        function consultar() {
+            
+            console.log("se consulto la calidad")
+            var json = {}
+
+            json.planta = $("#plantas-choice").val();
+            json.area = $("#areas-choice").val(); 
+            json.maquina = $("#maquinas-choice").val();
+            json.calidad = $("#calidad-choice").val();
+            json.valor = $("#valor").val();
+            // TODO: Agregar las validaciones
+
+            // Previene que ocurra el evento POST y se refresque la pagina asi como asi
+            event.preventDefault();
+
+            socket.emit('agregar-scrap', json);
         }
+
+        socket.on('respuesta-scrap', function(message) {
+            alert(message);
+            //location.reload();
+        })
         
 
    </script> 

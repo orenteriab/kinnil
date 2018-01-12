@@ -277,7 +277,7 @@ module.exports = function(io) {
                             // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
                             var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
                             from (SELECT maquinas_id, max(id) as id \
-                                FROM eventos2 \
+                                FROM eventos2 WHERE activo IS NOT NULL \
                                 group by maquinas_id) as x \
                             inner join eventos2 e on x.id = e.id \
                             inner join razones_paro r on r.id = e.razones_paro_id \
@@ -305,13 +305,18 @@ module.exports = function(io) {
                             return_data.rendimiento = rows
             
                             // Calidad agrupada por maquina
-                            // TODO: le falta guiarce con el turno actual. etc
-                            var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+                            var result = connection.query("select e.maquinas_id, \
+                            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+                            sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+                            sum(e.valor) total, \
+                            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+                            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
                             from eventos2 e \
-                            where e.fecha = CURDATE() \
+                            inner join productos p on e.productos_id = p.id \
+                            where e.fecha = CAST('" + fecha + "' as date) \
                             and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
                             and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-                            group by e.maquinas_id")
+                            group by e.maquinas_id;")
         
                             return result
                         }).then(function(rows) {
@@ -392,7 +397,7 @@ module.exports = function(io) {
                     // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
                     var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
                     from (SELECT maquinas_id, max(id) as id \
-                        FROM eventos2 \
+                        FROM eventos2 WHERE activo IS NOT NULL \
                         group by maquinas_id) as x \
                     inner join eventos2 e on x.id = e.id \
                     inner join razones_paro r on r.id = e.razones_paro_id \
@@ -420,13 +425,18 @@ module.exports = function(io) {
                     return_data.rendimiento = rows
     
                     // Calidad agrupada por maquina
-                    // TODO: le falta guiarce con el turno actual. etc
-                    var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+                    var result = connection.query("select e.maquinas_id, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+                    sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+                    sum(e.valor) total, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
                     from eventos2 e \
-                    where e.fecha = CURDATE() \
+                    inner join productos p on e.productos_id = p.id \
+                    where e.fecha = CAST('" + fecha + "' as date) \
                     and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
                     and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-                    group by e.maquinas_id")
+                    group by e.maquinas_id;")
 
                     return result
                 }).then(function(rows) {
@@ -779,6 +789,7 @@ module.exports = function(io) {
     
             var return_data = {} // Guarda los datos de las promesas
             promisePool.getConnection().then(function(connection) {
+                // TODO: Cambiar este query al ppal de disponibilidad
                 // Primero obtiene el turno actual
                 // TODO: Cuando se resiven muchos eventos se empiezan a encolar hasta que se traba toda la app por los sockets
                 // TODO : Poner un delay, que no puedan subir muchos sockets a la vez
@@ -805,6 +816,7 @@ module.exports = function(io) {
                     
                     // Obtiene el desglose
                     var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
+                    console.log("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
                     return result
                 }).then(function(rows){
                     return_data.desglose = rows
@@ -1039,7 +1051,7 @@ module.exports = function(io) {
                             // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
                             var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
                             from (SELECT maquinas_id, max(id) as id \
-                                FROM eventos2 \
+                                FROM eventos2 WHERE activo IS NOT NULL \
                                 group by maquinas_id) as x \
                             inner join eventos2 e on x.id = e.id \
                             inner join razones_paro r on r.id = e.razones_paro_id \
@@ -1067,13 +1079,18 @@ module.exports = function(io) {
                             return_data.rendimiento = rows
             
                             // Calidad agrupada por maquina
-                            // TODO: le falta guiarce con el turno actual. etc
-                            var result = connection.query("select e.maquinas_id id, sum(e.valor) calidad\
+                            var result = connection.query("select e.maquinas_id, \
+                            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+                            sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+                            sum(e.valor) total, \
+                            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+                            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
                             from eventos2 e \
-                            where e.fecha = CURDATE() \
+                            inner join productos p on e.productos_id = p.id \
+                            where e.fecha = CAST('" + fecha + "' as date) \
                             and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
                             and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-                            group by e.maquinas_id")
+                            group by e.maquinas_id;")
         
                             return result
                         }).then(function(rows) {
@@ -1098,6 +1115,88 @@ module.exports = function(io) {
                     console.log(err);
                 });
             });
+        });
+
+
+
+
+        socket.on('agregar-scrap', function (json) {
+            var planta = json.planta // id
+            var area = json.area // id
+            var maquina = json.maquina // id
+            var calidad = json.calidad // id
+            var valor = json.valor // id
+
+            valor = valor * 160.46213093709884467265725288832 // 6.232 = 1 km de cable
+
+            // 6.232 kgs = 1000 mts
+            // 1kgs      = 160.46213093709884467265725288832 mts
+
+            console.log(planta + " " + area + " " + maquina + " " + valor);
+
+            // Se obtiene fecha y hora
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+                dd='0'+dd;
+            
+            if(mm<10) 
+                mm='0'+mm;
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+            hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                
+            promisePool.getConnection().then(function(connection) {
+
+                var save  = {
+                    operacion_uuid: "scrap",
+                    fecha: fecha, 
+                    hora: hora, 
+                    plantas_id: planta,
+                    areas_id: area,
+                    maquinas_id: maquina,
+                    productos_id: 1, // TODO: valor hardcodeado, hay que obtener esta informacion segun lo que se este trabajando en la maquina actualmente
+                    razones_paro_id: 1, // Maquina activa.... no importa como se guarde porque no va a traer tiempo asi que no afecta en los reportes/metricas
+                    razones_calidad_id: calidad,
+                    valor: valor  
+                };
+                
+                connection.query("INSERT INTO eventos2 SET ?", save).then(function(rows){
+
+                }).then(function(rows){
+
+                    promisePool.releaseConnection(connection);
+
+                    // Mandar a actualizar la Web App
+                    socket.emit('respuesta-scrap', "Se guardo el registro correctamente")
+                    console.log("Se guardo scrap")
+
+                }).catch(function(err) {
+
+                    // TODO: Agregar que se cierre la conexion cuando halla un catch para todas las promesas a la DB y mostrar lo que paso
+                    promisePool.releaseConnection(connection)
+
+                    
+
+                    socket.emit('respuesta-scrap', "Se a producido un error, vuelve a intentar mas tarde")
+                    console.log(err)
+                });
+            });
+
+
+
+            
+            
         });
 
         // Aqui puedo ir agregando mas sockets

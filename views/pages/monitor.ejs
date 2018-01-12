@@ -90,7 +90,7 @@
     <div class="jumbotron vertical-center">
         <div class="container text-center">
             <div class="panel panel-default"  >
-                <div class="panel-heading <%if (estado[0]) { %> <%= estado[0].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
+                <div id="estado-color" class="panel-heading <%if (estado[0]) { %> <%= estado[0].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
                     <h1 class="panel-title" id="estado">
                         <%if (estado[0]) { %>
                             <%= estado[0].razon %>
@@ -226,18 +226,26 @@
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs buenos: 
-                                    <span id="buenos">
-                                        TODO
+                                <h2>Piezas terminadas: 
+                                    <span id="pt">
+                                        <%if (calidad[0] && calidad[0].calidad !== null) { %>
+                                            <%= calidad[0].pt %> mts
+                                        <% } else{ %> 
+                                            0 mts
+                                        <% } %>
                                     </span>
                                 </h2>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="top-bg">
-                                <h2>Kgs malos: 
-                                    <span id="malos">
-                                        TODO
+                                <h2>Scrap: 
+                                    <span id="scrap">
+                                        <%if (calidad[0] && calidad[0].calidad !== null) { %>
+                                            <%= (calidad[0].scrap).toFixed(2) %> mts
+                                        <% } else{ %> 
+                                            0 mts
+                                        <% } %>
                                     </span>
                                 </h2>
                             </div>
@@ -262,45 +270,54 @@
 
         socket.on('actualizar', function(message) {
 
-            console.log("se esta actualizando");
-            //console.log(message.estado[0].activo);
+            console.log("actualizar evento");
             // Agrega color a la tabla que muestra el estatus
-            if (message.estado[0].activo == 1){
+            if (message.estado[0].razon == 'activo'){
                  console.log('verde');
-                 $('#estado').addClass('green');
-                 $('#estado').removeClass('red');
+                 $('#estado-color').addClass('green');
+                 $('#estado-color').removeClass('red');
              } else {
                  console.log('rojo');
-                 $('#estado').addClass('red');
-                 $('#estado').removeClass('green');
+                 $('#estado-color').addClass('red');
+                 $('#estado-color').removeClass('green');
              }
             // TODO: Esto solo muestra info de una maquina, hay que mostrar la info de mas maquinas
             $("#estado").html(message.estado[0].razon);
-            $("#maquina").html(message.estado[0].maquina); // TODO: no puede ser el ID de la maquina, me tiene que regresar el nombre
+            $("#maquina").html(message.estado[0].nombre); // TODO: no puede ser el ID de la maquina, me tiene que regresar el nombre
             $("#producto").html(message.estado[0].producto);
 
             // Si disponibilidad viene vacio hay que poner un 0 ( disponibilidad: [] )
             if (message.disponibilidad.length > 0) {
-                $("#disponibilidad").html(message.disponibilidad);
+                $("#disponibilidad").html((message.disponibilidad[0].disponibilidad).toFixed(2) + " %");
+                $("#ta").html((message.disponibilidad[0].ta /60 /60).toFixed(2) + " hrs");
+                $("#tm").html((message.disponibilidad[0].tm /60 /60).toFixed(2) + " hrs");
             } else {
                 $("#disponibilidad").html("0%");
             }
 
             // Si rendimiento viene vacio hay que poner un 0 ( rendimiento: [] )
-            if (message.rendimiento.length > 0)
-                $("#rendimiento").html(message.rendimiento);
-            else
+            if (message.rendimiento.length > 0){
+                $("#rendimiento").html((message.rendimiento[0].rendimiento).toFixed(2) + " %");
+            }
+            else {
                 $("#rendimiento").html("0%");
+            }
 
             // Si calidad viene vacio hay que poner un 0 ( calidad: [] )
-            if (message.calidad.length > 0)
-                $("#calidad").html(message.calidad);
-            else
+            if (message.calidad.length > 0) { 
+                $("#calidad").html((message.calidad[0].calidad).toFixed(2) + " %");
+                $("#pt").html(message.calidad[0].pt + " mts"); // Pieza terminada no esta con decimales porque nunca lleva
+                $("#scrap").html((message.calidad[0].scrap).toFixed(2) + " mts");
+                //$("#total").html((message.calidad[0].total).toFixed(2) + " mts");
+            }
+            else {
                 $("#calidad").html("0%");
+            }
 
             // Calcula el OEE disponibilidad + rendimiento + calidad
-            if (message.disponibilidad.length > 0 || message.rendimiento.length > 0 || message.calidad.length > 0)
-                $("#oee").html((message.disponibilidad + message.rendimiento + message.calidad)/3 );
+            // TODO: Penzar esto un poco mas porque asi si sale un numero degativo se va a desplegar 0%
+            if (message.disponibilidad.length > 0 && message.rendimiento.length > 0 && message.calidad.length > 0)
+                $("#oee").html(((message.disponibilidad[0].disponibilidad + message.rendimiento[0].rendimiento + message.calidad[0].calidad)/3).toFixed(2)  + " %");
             else
                 $("#oee").html("0%");
 
