@@ -3,44 +3,30 @@
 * Todas las paginas pueden hacer uso de estos sockets
 */
 
-// TODO: Cambiarle el nombre a este modulo, no se puede llamar custom-engine
-// load up the user model
-var mysql = require('mysql');
-var dbconfig = require('../config/database');
-var connection = mysql.createConnection(dbconfig.connection);
-
-// Para trabajar las timezones. Es importante a la hora de guardar los eventos
 var moment = require('moment-timezone');
-
-connection.query('USE ' + dbconfig.database);
-
-// TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
+var mysql = require('mysql');
 var promiseMysql = require('promise-mysql');
-promisePool = promiseMysql.createPool({
-	host: 'localhost',
-	user: 'root',
-	password: 'FundableD0ubles',
-	database: 'kinnil',
-	connectionLimit: 5000 // TODO: Aqui algo esta pasando raro y tambien  show variables like "max_connections"; tambien influye 151
-});
-promisePool.query('USE ' + dbconfig.database)
+var dbconfig = require('../config/database');
 
-// TODO: Hay que cambiar este codigo para que lo logue a algo especifico, (Quitar el console.log)
+var promisePool = promiseMysql.createPool(dbconfig.connection);
+promisePool.query('USE ' + dbconfig.database); // TODO: provar que la base no se deseleccione, pruebas intensivas
+
+
 // Util para cuando se crea una nueva conexion en el pool
-promisePool.on('connection', function (connection) {
+promisePool.on('connection', function () {
     console.log("#####      se creo una conexion al pool     #############################")
 //connection.query('SET SESSION auto_increment_increment=1') // TODO: ver si es necesario ponerle esto
 });
 
 
 // El pool emite un evento cuando una conexion es regresada al pool de conexiones para ser utilizada por otra conexion
-promisePool.on('release', function (connection) {
-    console.log('Connection %d released     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', connection.threadId);
+promisePool.on('release', function () {
+    console.log('Connection %d released     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 });
 
 // ver cuando se adquirio una connexion del pool de conexiones
-promisePool.on('acquire', function (connection) {
-    console.log('Connection %d acquired  ************************************', connection.threadId);
+promisePool.on('acquire', function () {
+    console.log('Connection %d acquired  ************************************');
 });
 
 
@@ -229,7 +215,6 @@ module.exports = function(io) {
 
 
                     var return_data = {}
-                    promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
                     promisePool.getConnection().then(function(connection) {
                         // TODO: hay que hacer 
                         // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
@@ -349,7 +334,6 @@ module.exports = function(io) {
         socket.on('actualizar', function (message) {
             
             var return_data = {}
-            promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
             promisePool.getConnection().then(function(connection) {
                 // TODO: hay que hacer 
                 // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
@@ -1003,7 +987,6 @@ module.exports = function(io) {
 
 
                     var return_data = {}
-                    promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
                     promisePool.getConnection().then(function(connection) {
                         // TODO: hay que hacer 
                         // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)

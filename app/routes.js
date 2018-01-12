@@ -1,25 +1,15 @@
-// app/routes.js
+// app/routes.js (models)
 
-// load up the user model
+var moment = require('moment-timezone');
 var mysql = require('mysql');
-var async = require('async');
+var async = require('async'); // TODO: ver si hay que elimiar async, porque ya no lo estoy utilizando.....
+var promiseMysql = require('promise-mysql');
 var dbconfig = require('../config/database');
-var pool = mysql.createPool(dbconfig.connection);
-pool.query('USE ' + dbconfig.database);
+
+var promisePool = promiseMysql.createPool(dbconfig.connection);
+promisePool.query('USE ' + dbconfig.database); // 
 
 // Para trabajar las timezones. Es importante a la hora de guardar los eventos
-var moment = require('moment-timezone');
-
-// TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
-var promiseMysql = require('promise-mysql');
-promisePool = promiseMysql.createPool({
-	host: 'localhost',
-	user: 'root',
-	password: 'FundableD0ubles',
-	database: 'kinnil',
-	connectionLimit: 5000
-});
-promisePool.query('USE ' + dbconfig.database)
 
 module.exports = function(app, passport) {
 
@@ -88,7 +78,6 @@ module.exports = function(app, passport) {
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/inicio', isLoggedIn, function(req, res) {
 		var return_data = {}
-		//promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		// TODO: ver la manera de sacar este codigo del archivo de routes y pasarlo al de models.js (si se tiene que poder pero hay que ver que no sea con callbacks)
 		promisePool.getConnection().then(function(connection) {
 			
@@ -631,7 +620,6 @@ module.exports = function(app, passport) {
 	app.get('/configuracion', isLoggedIn, function(req, res) {
 		// TODO: Probar si esto quedo bien despues de ser cambiado a promesas
 		var return_data = {}
-		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
 
 			connection.query("SELECT * FROM plantas WHERE active = true").then(function(rows){
@@ -1101,7 +1089,6 @@ module.exports = function(app, passport) {
 	*/
 	app.get('/monitor', function(req, res) {
 		var return_data = {}
-		promisePool.query('USE ' + dbconfig.database) // Workaround al problema de no database selected
 		promisePool.getConnection().then(function(connection) {
 
 			var today = new Date();

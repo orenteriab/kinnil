@@ -1,12 +1,12 @@
 // config/database.js
-// TODO: modificar esto, se tienen las variables para logearse a mysql en varias partes, hay que ponerlas solo en un lugar
 module.exports = {
-    'connectionLimit': 5000,
     'connection': {
         'host': 'localhost',
         'user': 'root',
-        'password': 'FundableD0ubles'
+        'password': 'FundableD0ubles',
+        'connectionLimit': 5000, // TODO: hacer pruebas para ver con cual funciona bien
+        'database': 'kinnil'
     },
-	'database': 'kinnil',
-    'users_table': 'users'
+    'users_table': 'users',
 };
+
