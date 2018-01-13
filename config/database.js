@@ -8,5 +8,6 @@ module.exports = {
         'database': 'kinnil'
     },
     'users_table': 'users',
+    'database': 'kinnil'
 };
 
