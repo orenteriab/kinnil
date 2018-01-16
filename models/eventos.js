@@ -393,6 +393,316 @@ exports.getConfiguracion = function(done) {
     });
 }
 
+exports.modificarNombrePlanta = function(pk, valor, done) {
+
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE plantas SET nombre ="' + valor + '" where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.modificarNombreArea = function(pk, valor, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE areas SET nombre ="' + valor + '" where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.modificarNombreMaquina = function(pk, valor, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE maquinas SET nombre ="' + valor + '" where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.modificarProductoMaquina = function(pk, valor, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE maquinas SET productos_id ="' + valor + '" where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.deletePlanta = function(pk, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE plantas SET active = 0 where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.deleteArea = function(pk, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE areas SET active = 0 where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.deleteMaquina = function(pk, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE maquinas SET active = 0 where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.deleteProducto = function(pk, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE productos SET activo = 0 where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.deleteRazonDeParo = function(pk, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE razones_paro SET active = 0 where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+exports.deleteTurno = function(pk, done) {
+    
+    promisePool.getConnection().then(function(connection) {
+        connection.query('UPDATE turnos SET activo = 0 where id = ' + pk).then(function(rows){
+                promisePool.releaseConnection(connection);
+        }).then(function(rows) {
+            return done(null, true);
+
+        }).catch(function(err) {
+            console.log(err); 
+            return done(err)
+
+        });
+    });
+}
+
+// TODO: el siguiente codigo no funciona.
+exports.postConfiguracion = function(tipo, done) {
+        // TODO: Este codigo puede ser mejorado hay que refactorizarlo o modificarlo de plano
+        switch(tipo) {
+            case "agregarPlantas":
+                var nombre = req.body.nombre;
+                var notas = req.body.notas;
+                var plantas  = {nombre: nombre, notas: notas, active: true};
+
+                promisePool.getConnection().then(function(connection) {
+                        connection.query('INSERT INTO plantas SET ?', plantas).then(function(rows){
+
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+
+                        //return_data.turnos = rows // Esta linea no sirve porque no se hace nada con las filas returnadas
+                    }).catch(function(err) {
+                        // TODO: cambiar los console.log por un buen sistema de logueo de errores
+                        console.log(err);
+                    });
+                });
+
+                break;
+            case "agregarAreas":
+                var nombre = req.body.nombre
+                var notas = req.body.notas
+                var planta = req.body.planta
+                var area  = {nombre: nombre, notas: notas, plantas_id: planta, active: true};
+
+                promisePool.getConnection().then(function(connection) {
+                        connection.query('INSERT INTO areas SET ?', area).then(function(rows){
+
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+
+                        //return_data.turnos = rows
+                    }).catch(function(err) {
+                        // TODO: cambiar los console.log por un buen sistema de logueo de errores
+                        console.log(err);
+                    });
+                });
+                break;
+            case "agregarMaquinas":
+                var nombre = req.body.nombre
+                var notas = req.body.notas
+                var planta = req.body.planta
+                var area = req.body.area
+                var producto = req.body.producto
+
+                var maquina  = {nombre: nombre, notas: notas, areas_id: area, productos_id: producto, active: true};
+                promisePool.getConnection().then(function(connection) {
+                        connection.query('INSERT INTO maquinas SET ?', maquina).then(function(rows){
+
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+
+                            // TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
+                            // TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
+                            // return_data.turnos = rows
+                    }).catch(function(err) {
+                        // TODO: cambiar los console.log por un buen sistema de logueo de errores
+                        console.log(err);
+                    });
+                });
+                break;
+            case "agregarProductos":
+                var nombre = req.body.nombre
+                var disponibilidad = req.body.disponibilidad
+                var rendimiento = req.body.rendimiento
+                var calidad = req.body.calidad
+                var plantas_id = req.body.plantaId // TODO: Probar esta parte
+
+                var producto  = {nombre: nombre, disponibilidad: disponibilidad, rendimiento: rendimiento, calidad: calidad, activo: true, plantas_id:plantas_id};
+                promisePool.getConnection().then(function(connection) {
+                        connection.query('INSERT INTO productos SET ?', producto).then(function(rows){
+
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+
+                            // TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
+                            // TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
+                            // return_data.turnos = rows
+                    }).catch(function(err) {
+                        // TODO: cambiar los console.log por un buen sistema de logueo de errores
+                        console.log(err);
+                    });
+                });
+                break;
+            case "agregarTurnos":
+                var nombre = req.body.nombre
+                var inicio = req.body.inicio
+                var fin = req.body.fin
+                var planta = req.body.planta
+
+                promisePool.getConnection().then(function(connection) {
+                        connection.query("INSERT INTO turnos SET nombre = '"+ nombre +"', inicio = SEC_TO_TIME("+ inicio +"), fin = SEC_TO_TIME("+ fin +"), plantas_id = "+ planta+", activo = 1").then(function(rows){
+
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+
+                            // TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
+                            // TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
+                            // return_data.turnos = rows
+                    }).catch(function(err) {
+                        // TODO: cambiar los console.log por un buen sistema de logueo de errores
+                        console.log(err);
+                    });
+                });
+                break;
+            case "agregarUsuarios":
+                var username = req.body.username
+                var password = req.body.password
+                var email = req.body.email
+                var role = req.body.role
+                var nivel = req.body.nivel
+                
+                var usuario  = {username: username, password: password, email: email, role: role, nivel: nivel};
+                promisePool.getConnection().then(function(connection) {
+                        connection.query('INSERT INTO users SET ?', usuario).then(function(rows){
+
+                            // Suelta la conexion ejemplo: Connection 404 released
+                            //connection.release();
+                            // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                            promisePool.releaseConnection(connection);
+
+                            // TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
+                            // TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
+                            // return_data.turnos = rows
+                    }).catch(function(err) {
+                        // TODO: cambiar los console.log por un buen sistema de logueo de errores
+                        console.log(err);
+                    });
+                });
+                break;
+            default:
+                console.log("default");
+            
+        }
+}
+
 exports.otro = function(valor, done) {
     // cuando termine llama return done(null, return_data); o return done(err)
 }

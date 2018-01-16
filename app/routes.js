@@ -369,112 +369,52 @@ module.exports = function(app, passport) {
 	});
 
 	app.post('/configuracion/modif-plantas-nombre', isLoggedIn, function(req, res) {
-		
-		var pk = req.body.pk;
-		var value = req.body.value;
-	
-		//console.log("apenas se hiso el post")
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE plantas SET nombre ="' + value + '" where id = ' + pk).then(function(rows){
-					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
-					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
-					// return_data.turnos = rows
 
-					// Suelta la conexion ejemplo: Connection 404 released
-					//connection.release();
-					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-					promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-				//console.log("se armo si se inserto la informacion bien");
+		Eventos.modificarNombrePlanta(req.body.pk, req.body.value, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
 				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err); // TODO: Cambiar esto para que no se logue con logs normales, tiene que haber otra opcion que sea facil
-			});
-		});
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})		
 	});
 
 	app.post('/configuracion/modif-areas-nombre', isLoggedIn, function(req, res) {
-		
-		var pk = req.body.pk;
-		var value = req.body.value;
-	
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE areas SET nombre ="' + value + '" where id = ' + pk).then(function(rows){
-					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
-					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
-					// return_data.turnos = rows
 
-					// Suelta la conexion ejemplo: Connection 404 released
-					//connection.release();
-					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-					promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.modificarNombreArea(req.body.pk, req.body.value, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})	
 	});
 
 	app.post('/configuracion/modif-maquinas-nombre', isLoggedIn, function(req, res) {
 		
-		var pk = req.body.pk;
-		var value = req.body.value;
-	
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE maquinas SET nombre ="' + value + '" where id = ' + pk).then(function(rows){
-					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
-					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
-					// return_data.turnos = rows
-
-					// Suelta la conexion ejemplo: Connection 404 released
-					//connection.release();
-					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-					promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.modificarNombreMaquina(req.body.pk, req.body.value, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	app.post('/configuracion/modif-maquinas-producto', isLoggedIn, function(req, res) {
 		
-		var pk = req.body.pk;
-		var value = req.body.value;
-	
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE maquinas SET productos_id ="' + value + '" where id = ' + pk).then(function(rows){
-					// TODO: crear las razones de paro para ese producto. Insertar las en la DB, todas las que sean default. poner una area para definir las default.....!?
-					// TODO: ver si agregar un area para definir las razones de calidad, y ver si se tienen que inertar por default, preguntar a ricardo
-					// return_data.turnos = rows
-
-					// Suelta la conexion ejemplo: Connection 404 released
-					//connection.release();
-					// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-					promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		// TODO: hacer algo con el dropbox, algunas veces no funciona, checar!
+		Eventos.modificarProductoMaquina(req.body.pk, req.body.value, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	/*
@@ -482,24 +422,14 @@ module.exports = function(app, passport) {
 	*/
 	app.delete('/configuracion/plantas/:plantaId', isLoggedIn, function(req, res) {
 		
-		var pk = req.params.plantaId;
-		
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE plantas SET active = 0 where id = ' + pk).then(function(rows){
-
-				// Suelta la conexion ejemplo: Connection 404 released
-				//connection.release();
-				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-				promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.deletePlanta(req.params.plantaId, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	/*
@@ -507,24 +437,14 @@ module.exports = function(app, passport) {
 	*/
 	app.delete('/configuracion/areas/:areaId', isLoggedIn, function(req, res) {
 		
-		var pk = req.params.areaId;
-		
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE areas SET active = 0 where id = ' + pk).then(function(rows){
-
-				// Suelta la conexion ejemplo: Connection 404 released
-				//connection.release();
-				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-				promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.deleteArea(req.params.areaId, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	/*
@@ -532,24 +452,15 @@ module.exports = function(app, passport) {
 	*/
 	app.delete('/configuracion/maquinas/:maquinaId', isLoggedIn, function(req, res) {
 		
-		var pk = req.params.maquinaId;
-		
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE maquinas SET active = 0 where id = ' + pk).then(function(rows){
 
-				// Suelta la conexion ejemplo: Connection 404 released
-				//connection.release();
-				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-				promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.deleteMaquina(req.params.maquinaId, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	/*
@@ -557,24 +468,30 @@ module.exports = function(app, passport) {
 	*/
 	app.delete('/configuracion/productos/:productoId', isLoggedIn, function(req, res) {
 		
-		var pk = req.params.productoId;
+
+		Eventos.deleteProducto(req.params.productoId, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
+	});
+
+	/*
+	* Borrar razones de paro - solo las desactivamos :) (active = false in MySql)
+	*/
+	app.delete('/configuracion/razones/:razonId', isLoggedIn, function(req, res) {
 		
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE productos SET activo = 0 where id = ' + pk).then(function(rows){ // TODO cambiar activo a active.!
-
-				// Suelta la conexion ejemplo: Connection 404 released
-				//connection.release();
-				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-				promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.deleteRazonDeParo(req.params.razonId, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	/*
@@ -582,24 +499,14 @@ module.exports = function(app, passport) {
 	*/
 	app.delete('/configuracion/turnos/:turnoId', isLoggedIn, function(req, res) {
 		
-		var pk = req.params.turnoId;
-		
-		promisePool.getConnection().then(function(connection) {
-			connection.query('UPDATE turnos SET activo = 0 where id = ' + pk).then(function(rows){ // TODO cambiar activo a active.!
-
-				// Suelta la conexion ejemplo: Connection 404 released
-				//connection.release();
-				// Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-				promisePool.releaseConnection(connection);
-
-			}).then(function(rows) {
-				res.sendStatus(200); // Devuelve una respuesta 200 si si se puedo actualizar la fila
-			}).catch(function(err) {
-				// TODO: cambiar los console.log por un buen sistema de logueo de errores
-				res.sendStatus(400);
-				console.log(err);
-			});
-		});
+		Eventos.deleteTurno(req.params.turnoId, function(err, actualizado) {
+			//console.log(actualizado)
+			if (actualizado) {
+				res.sendStatus(200); // Manda una respuesta OK, si si se pudo actualizar la fila
+			} else {
+				res.sendStatus(400); // Manda no ok si hubo algun error
+			}
+		})
 	});
 
 	// =====================================
@@ -619,17 +526,6 @@ module.exports = function(app, passport) {
 		res.render("pages/monitor2.ejs");
 
 	});
-
-	/*
-	* Modificar Calidad
-	*/
-	/*app.get('/modificarcalidad', isLoggedIn, function(req, res) {
-
-		res.render('pages/modificarcalidad.ejs', {
-			user : req.user // get the user out of session and pass to template
-		});
-
-	});*/
 
 };
 

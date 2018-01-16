@@ -170,7 +170,7 @@
                             <td><%= razones[i].nombre %></td>
                             <td><%= razones[i].maquina %></td>
                             <td>
-                                <button id="" class="btn btn-danger btn-delete btn-xs"><span class="glyphicon glyphicon-trash"></span> TODO</button>
+                                <button id="delete-razones-<%= razones[i].id %>" class="btn btn-danger btn-delete btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
                             </td>
                             </tr><%} %>
                         </table><%} else {%>
@@ -695,6 +695,46 @@
                             $.ajax({
                                 type: "DELETE",
                                 url: "/configuracion/maquinas/<%= maquinas[i].id %>",
+                                success: function(text) {
+                                    //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
+                                    if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.
+                                        //alert("sea armo si se guardo"); // This is weird porque no se pone .
+                                        console.log("vamos a ver si se booro");
+                                    }
+                                }
+                            });
+                            refreshPage();
+                        }
+                    });
+    
+                });
+        </script>
+    <%} %>
+    <%} %>
+    <%if(razones.length>0){%> 
+    <%for(var i=0; i<razones.length; i++) {%> 
+        <script>
+                $(document).ready(function() {
+                    // Para refrescar la pagina una vez que se halla echo un cambio
+                    function sleep(ms) {
+                        return new Promise(resolve => setTimeout(resolve, ms));
+                    }
+    
+                    async function refreshPage() {
+                        console.log('Taking a break...');
+                        await sleep(2000);
+                        console.log('Two second later');
+                        location.reload();
+                    }
+                    
+                    $('#delete-razones-<%= razones[i].id %>').click(function(){
+                        var result = confirm("Quieres borrar: <%= razones[i].nombre %>?");
+                        if (result) {
+                            console.log("se va a borrar :(");
+    
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/configuracion/razones/<%= razones[i].id %>",
                                 success: function(text) {
                                     //console.log("si se hiso el insert"); // TODO Hay que agregar una mejor forma de login
                                     if (text == "success") { ///// TODO: Hay que ver que pedo porque este success no funciona.

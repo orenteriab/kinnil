@@ -1175,11 +1175,6 @@ module.exports = function(io) {
                     console.log(err)
                 });
             });
-
-
-
-            
-            
         });
 
         // Aqui puedo ir agregando mas sockets

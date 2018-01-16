@@ -166,11 +166,12 @@
             //
             // TODO: Refactorizar este codigo.
             // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
-            var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
-            //var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
+            //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+            var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
 
             function consultar() {
 
+                console.log("se hizo una consulta");
                 var json = {}
 
                 json.planta = $("#plantas-choice").val();
@@ -206,6 +207,7 @@
             socket.on('reporte-disponibilidad', function(data) {
                 // TODO: hacer algo para cuando los valores sean NULOS
 
+                console.log("se recibio un evento de reporte-disponibilidad")
                 var ta = data.ta[0].ta/60/60;
                 var tm = data.tm[0].tm/60/60;
 
@@ -287,6 +289,7 @@
             */
             $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas
 
+                console.log("se cambio la planta");
                 // Se obtiene el ID de la planta seleccionada
                 var $dropdown = $(this);
                 var id = $dropdown.val(); 
@@ -308,6 +311,8 @@
             * Se ejecuta cuando se recibe la respuesta del socket de cuando se cambia una planta
             */ 
             socket.on('cambio-planta', function(returnData) {
+
+                console.log("se recibio un evento de cambio planta");
                 // se vacian estos select inputs para agregar nuevos datos.
                 var $areasChoice = $("#areas-choice");
                 $areasChoice.empty();
