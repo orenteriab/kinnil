@@ -7075,3 +7075,82 @@ dl {
 .tab-content {
   padding: 0px !important;
 }
+
+
+/*
+* Imprimir el modal funcionando en chrome
+*/
+/* TODO: Documentar esto bien */
+
+@media screen {
+  #printSection {
+      display: none;
+  }
+}
+
+@media print {
+
+  html { 
+    overflow: hidden; 
+  }
+
+  body.modalprinter * {
+      visibility: hidden;
+      
+  }
+
+  body.modalprinter .modal-dialog.focused {
+      position: absolute;
+      padding: 0;
+      margin: 0;
+      left: 0;
+      top: 0;
+  }
+
+  body.modalprinter .modal-dialog.focused .modal-content {
+      border-width: 0;
+  }
+
+  body.modalprinter .modal-dialog.focused .modal-content .modal-header .modal-title,
+  body.modalprinter .modal-dialog.focused .modal-content .modal-body,
+  body.modalprinter .modal-dialog.focused .modal-content .modal-body * {
+      visibility: visible;
+      width: 100%;
+      /*display: block;*/
+      width: auto;
+      height: auto;
+      overflow: visible;
+  }
+
+  body.modalprinter .modal-dialog.focused .modal-content .modal-header,
+  body.modalprinter .modal-dialog.focused .modal-content .modal-body {
+      padding: 0;
+      width: 100%;
+  }
+
+  body.modalprinter .modal-dialog.focused .modal-content .modal-header .modal-title {
+      margin-bottom: 20px;
+  }
+
+}
+
+/*
+@media screen {
+  #printSection {
+      display: none;
+  }
+}
+@media print {
+  body * {
+      visibility:hidden;
+  }
+  #printSection, #printSection * {
+      visibility:visible;
+  }
+  #printSection {
+      position:absolute;
+      left:0;
+      top:0;
+  }
+}
+*/

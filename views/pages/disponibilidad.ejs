@@ -18,6 +18,7 @@
       <div id="page-content-wrapper">
          <%include ../partials/navbar %>
 
+
         <div class="row">
         <div class="col-lg-12 col-sm-12">
             <h2>Disponibilidad</h2> <!-- TODO: Hay que cambiar este titulo a otro lado o de plano quitarlo -->
@@ -30,29 +31,54 @@
         </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-4 col-sm-4">
-                <div class="widget widget-stats">
-                <div class="content">
 
-                    <p>Tiempo activo / Tiempo muerto</p>
-                        <canvas id='tatm'></canvas> <!-- TODO: Hay que ver la manera de destruir estos elementos y reconstruirlos al actualizar -->
-                         <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
+        <div class="modal fade bs-example-modal-lg printable" id="reporte-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Reporte disponibilidad</h4>
+                    </div>
+                    <div class="modal-body" id="printThis">
+    
+                        <div class="row" >
+                            <div class="col-lg-4 col-sm-4">
+                                <!--<div class="widget widget-stats">-->
+                                <div class="">
+                                <div class="content">
+                                    <p>Tiempo activo / Tiempo muerto</p>
+                                    <canvas id='tatm'></canvas>
+                                    <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-sm-4">
+                                <!--<div class="widget widget-stats">-->
+                                <div class="">
+                                <div class="content2">
+                                    <p>Desglose de tiempo muerto</p>
+                                    <canvas id='desglose'></canvas>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-sm-4">
+                                <!--<div class="widget widget-stats">-->
+                                <div class="">
+                                <div id = "contenedor-tabla">
 
-                </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="Print" class="btn btn-primary">Exportar a PDF</button>
                 </div>
             </div>
-            <div class="col-lg-4 col-sm-4">
-                <div class="widget widget-stats">
-                <div class="content2">
-
-                    <p> Desglose de tiempo muerto</p>
-                        <canvas id='desglose'></canvas>
-
-                </div>
-                </div>
             </div>
         </div>
+
 
       </div>
       <!-- /#page-content-wrapper -->
@@ -175,7 +201,7 @@
                 var json = {}
 
                 json.planta = $("#plantas-choice").val();
-                json.area = $("#areas-choice").val(); 
+                json.area = $("#areas-choice").val();
                 json.turno = $("#turno").val();
                 json.producto = $("#producto").val();
                 json.inicio = fechaInicio.format('YYYY-MM-DD'); // TODO: hay que ver si esta fecha siempre va a ser igual o si falla como en C#
@@ -206,6 +232,8 @@
 
             socket.on('reporte-disponibilidad', function(data) {
                 // TODO: hacer algo para cuando los valores sean NULOS
+
+                $('#reporte-modal').modal('show');
 
                 console.log("se recibio un evento de reporte-disponibilidad")
                 var ta = data.ta[0].ta/60/60;
@@ -281,6 +309,55 @@
                     options: {}
                 });
 
+                $("#contenedor-tabla").html("");
+
+                // Se crea la tabla con sus atributos
+                var table = document.createElement('table');
+                table.className = "table table-bordered";
+                table.border = '1';
+
+                // Necesitamos que la tabla tenga thead y body para poder utilizar bootgrid
+                var thead = document.createElement('thead');
+                var tbody = document.createElement('tbody');
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+
+                // Primera rutina para las columnas de la tabla
+                var tr = document.createElement('tr');
+                thead.appendChild(tr);
+
+                var th = document.createElement('th')
+                th.appendChild(document.createTextNode("Razon de paro"));
+                tr.appendChild(th);
+
+                var th2 = document.createElement('th')
+                th2.appendChild(document.createTextNode("Tiempo"));
+                tr.appendChild(th2);
+
+                console.log(data.desglose);
+                console.log(data.desglose[0].nombre);
+                console.log(data.desglose[0].tm);
+
+                // Segunda rutina que se encarga de las filas de la tabla
+                for (i = 0; i < data.desglose.length; i++) {
+                    var tr = document.createElement('tr');
+                    // Este for se encarga de extraer cada valor de data.desglose para cada celda
+                        var cell = document.createElement('td');
+                        var cellText = document.createTextNode(data.desglose[i].nombre);
+                        cell.appendChild(cellText);
+                        tr.appendChild(cell);
+
+                        var cell2 = document.createElement('td');
+                        var cellText2 = document.createTextNode(data.desglose[i].tm/60/60 + " hrs");
+                        cell2.appendChild(cellText2);
+                        tr.appendChild(cell2);
+
+                        tbody.appendChild(tr);
+                }
+
+                // Le agrega la tabla al Widget previamente creado antes de mandar el query a ejecutarse
+                document.getElementById("contenedor-tabla").appendChild(table);
 
             });
 
@@ -370,6 +447,38 @@
                 }
             })
 
+
+            $(function() {
+
+                document.getElementById("Print").onclick = function () {
+                    printElement(document.getElementById("printThis"));
+                };
+
+                function printElement(elem) {
+                    var domClone = elem.cloneNode(true);
+
+                    var $printSection = document.getElementById("printSection");
+
+                    if (!$printSection) {
+                        var $printSection = document.createElement("div");
+                        $printSection.id = "printSection";
+                        document.body.appendChild($printSection);
+                    }
+
+                    $printSection.innerHTML = "";
+                    $printSection.appendChild(domClone);
+                    window.print();
+                }
+
+                $('.modal.printable').on('shown.bs.modal', function () {
+                    $('.modal-dialog', this).addClass('focused');
+                    $('body').addClass('modalprinter');
+
+                }).on('hidden.bs.modal', function () {
+                    $('.modal-dialog', this).removeClass('focused');
+                    $('body').removeClass('modalprinter');
+                });
+            });
             
         </script>
 </body>

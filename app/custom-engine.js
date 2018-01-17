@@ -564,7 +564,7 @@ module.exports = function(io) {
             if (turno == "noturnos"){
                 turnosQuery = "select * from turnos" // Workaround por si no hay turnos
             } else {
-                turnosQuery = "select * from turnos where id =" + turno // Se agrega el turno ID al query
+                turnosQuery = "select * from turnos where id =" + turno // Se agrega el turno ID al query // TODO: Hay que hacer algo para cuando el turno no existe
             }
 
             // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
@@ -599,18 +599,27 @@ module.exports = function(io) {
 
                     // Obtiene el TA
                     var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true") // Esta es una promesa
+
+                    console.log("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true")
+
                     return result
                 }).then(function(rows){
                     return_data.ta = rows
                     
                     // Obtiene el TM
                     var result = connection.query("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
+
+                    console.log("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
+
                     return result
                 }).then(function(rows){
                     return_data.tm = rows
                     
                     // Obtiene el desglose
                     var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
+
+                    console.log("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
+
                     return result
                 }).then(function(rows){
                     return_data.desglose = rows
