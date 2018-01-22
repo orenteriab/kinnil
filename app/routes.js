@@ -510,6 +510,24 @@ module.exports = function(app, passport) {
 	});
 
 	// =====================================
+	// OEE =================================
+	// =====================================
+	// Andon de 1 pantalla
+	app.get('/oee', isLoggedIn, function(req, res) {
+		// TODO: Mostrar algun mensaje o algo si el modelo regreso un error.
+		Eventos.getReportesInfo(function(err, return_data, json) {
+			res.render("pages/oee.ejs",{
+				turnos: return_data.turnos,
+				productos: return_data.productos,
+				plantas: return_data.plantas,
+				areas: return_data.areas,
+				json: json,
+				user: req.user
+			});
+		})
+	});
+
+	// =====================================
 	// LOGOUT ==============================
 	// =====================================
 	app.get('/logout', function(req, res) {

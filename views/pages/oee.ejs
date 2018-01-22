@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
    <%include ../partials/head %>
-   <title>Disponibilidad</title>
+   <title>OEE</title>
 </head>
 
 <body>
@@ -32,53 +32,36 @@
         </div>
 
 
-        <div class="modal fade bs-example-modal-lg printable" id="reporte-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-            <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Reporte disponibilidad</h4>
-                    </div>
-                    <div class="modal-body" id="printThis">
-    
-                        <div class="row" >
-                            <div class="col-lg-4 col-sm-4">
-                                <!--<div class="widget widget-stats">-->
-                                <div class="">
-                                <div class="content">
-                                    <p>Tiempo activo / Tiempo muerto</p>
-                                    <canvas id='tatm'></canvas>
-                                    <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-sm-4">
-                                <!--<div class="widget widget-stats">-->
-                                <div class="">
-                                <div class="content2">
-                                    <p>Desglose de tiempo muerto</p>
-                                    <canvas id='desglose'></canvas>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-sm-4">
-                                <!--<div class="widget widget-stats">-->
-                                <div class="">
-                                <div id = "contenedor-tabla">
-
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    <button type="button" id="Print" class="btn btn-primary">Exportar a PDF</button>
+        <div class="row" >
+            <div class="col-lg-12 col-sm-12">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div class="content">
+                    
+                    <div id="tatm" style="width: 900px; height: 500px;"></div>
+                    <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
+                </div>
                 </div>
             </div>
+            <div class="col-lg-12 col-sm-12">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div class="content2">
+                    
+                    <div id="desglose" style="width: 900px; height: 500px;"></div>
+                </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-sm-12">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div id = "contenedor-tabla">
+
+                </div>
+                </div>
             </div>
         </div>
-
+        
 
       </div>
       <!-- /#page-content-wrapper -->
@@ -227,87 +210,87 @@
                     alert("No se puede obtener el reporte por productos, No hay productos");
                     return;
                 }
-                socket.emit('reporte-disponibilidad', json);
+                socket.emit('reporte-oee', json);
             }
 
-            socket.on('reporte-disponibilidad', function(data) {
+            socket.on('reporte-oee', function(message) {
                 // TODO: hacer algo para cuando los valores sean NULOS
 
-                $('#reporte-modal').modal('show');
+                //$('#reporte-modal').modal('show');
 
-                console.log("se recibio un evento de reporte-disponibilidad")
-                var ta = data.ta[0].ta/60/60;
-                var tm = data.tm[0].tm/60/60;
+                console.log("se recibio un evento de reporte-oee")
+                var ta = message.disponibilidad[0].ta/60/60;
+                var tm = message.disponibilidad[0].tm/60/60;
 
-                // TODO: Mejorar estas graficas
-                var ctx = document.getElementById('tatm').getContext('2d');
-                var chart = new Chart(ctx, {
-                    // The type of chart we want to create
-                    type: 'pie',
-
-                    // The data for our dataset
-                    data: {
-                        labels: ["Tiempo activo (hrs)", "Tiempo Muerto (hrs)"],
-                        datasets: [{
-                            label: "Disponibilidad",
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)',
-                                            'rgba(54, 162, 235, 0.2)'],
-                            borderColor: ['rgba(255,99,132,1)',
-                                        'rgba(54, 162, 235, 1)'],
-                            data: [ta, tm],
-                        }]
-                    },
-                    // Configuration options go here
-                    options: {
-                        legend: {
-                            display: true,
-                            position: 'right',
-                            labels: {
-                                generateLabels: function(chart) {
-                                    // TODO: ver que se puede hacer aqui
-                                    // https://stackoverflow.com/questions/39454586/pie-chart-legend-chart-js
-                                }
-                            }
-                        }
-                    }
-                });
+                // TODO: Acomodar mejor todo este codigo.... refactorizarlo!
+                // Load Charts and the corechart package.
+                google.charts.load('current', {'packages':['corechart']});
+                // Draw the pie chart for TaTm's when Charts is loaded.
+                google.charts.setOnLoadCallback(drawTaTmChart);
+                // Draw the pie chart for Desglose's when Charts is loaded.
+                google.charts.setOnLoadCallback(drawDesgloseChart);
+            
+                function drawTaTmChart() {
+            
+                    var data = google.visualization.arrayToDataTable([
+                    ['Evento', 'Horas'],
+                    ['Tiempo activo',     ta],
+                    ['Tiempo muerto',     tm]
+                    ]);
+            
+                    var options = {
+                    title: 'Disponibilidad',
+                    is3D: true,
+                    };
+            
+                    var chart = new google.visualization.PieChart(document.getElementById('tatm'));
+            
+                    chart.draw(data, options);
+                }
 
                 var labels = [];
                 var valores = [];
 
                 for (var i = 0, l  = data.desglose.length ; i < l; i += 1) {
-                    labels.push(data.desglose[i].nombre);
-                    valores.push(data.desglose[i].tm/60/60)
+                    labels.push(message.desglose[i].nombre);
+                    valores.push(message.desglose[i].tm/60/60)
                 }
 
-                // TODO: aqui agregar una tabla con los valores
+                console.log("labels y valores");
+                console.log(labels);
+                console.log(valores);
 
-                var ctx2 = document.getElementById('desglose').getContext('2d');
-                var chart = new Chart(ctx2, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: "Disponibilidad",
-                            // TODO: hay que agregar mas colores, tantos como razones de paro pueda haber.
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)',
-                                            'rgba(54, 162, 235, 0.2)',
-                                            'rgba(255, 206, 86, 0.2)',
-                                            'rgba(75, 192, 192, 0.2)',
-                                            'rgba(153, 102, 255, 0.2)',
-                                            'rgba(255, 159, 64, 0.2)'],
-                            borderColor: ['rgba(255,99,132,1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 206, 86, 1)',
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(153, 102, 255, 1)',
-                                        'rgba(255, 159, 64, 1)'],
-                            data: valores,
-                        }]
-                    },
-                    // Configuration options go here
-                    options: {}
-                });
+
+                console.log("data.desglose");
+                console.log(message.desglose);
+                function drawDesgloseChart() {
+
+                    var datosParaLaGrafica=[];
+                    var Header= ['Razon', 'Tiempo'];
+                    datosParaLaGrafica.push(Header);
+
+                    for (var i = 0; i < message.desglose.length; i++) {
+                        var temp=[];
+                        temp.push(message.desglose[i].nombre);
+                        temp.push(message.desglose[i].tm/60/60);
+
+                        datosParaLaGrafica.push(temp);
+                    }
+
+                    console.log("datos para la grafica");
+                    console.log(datosParaLaGrafica);
+
+                    var chartdata = new google.visualization.arrayToDataTable(datosParaLaGrafica);
+
+                    var chart = new google.visualization.PieChart(document.getElementById('desglose'));
+            
+                    var options = {
+                    title: 'Desglose',
+                    is3D: true,
+                    };
+            
+                    chart.draw(chartdata, options);
+                }
 
                 $("#contenedor-tabla").html("");
 
@@ -335,21 +318,21 @@
                 th2.appendChild(document.createTextNode("Tiempo"));
                 tr.appendChild(th2);
 
-                console.log(data.desglose);
-                console.log(data.desglose[0].nombre);
-                console.log(data.desglose[0].tm);
+                console.log(message.desglose);
+                console.log(message.desglose[0].nombre);
+                console.log(message.desglose[0].tm);
 
                 // Segunda rutina que se encarga de las filas de la tabla
-                for (i = 0; i < data.desglose.length; i++) {
+                for (i = 0; i < message.desglose.length; i++) {
                     var tr = document.createElement('tr');
-                    // Este for se encarga de extraer cada valor de data.desglose para cada celda
+                    // Este for se encarga de extraer cada valor de message.desglose para cada celda
                         var cell = document.createElement('td');
-                        var cellText = document.createTextNode(data.desglose[i].nombre);
+                        var cellText = document.createTextNode(message.desglose[i].nombre);
                         cell.appendChild(cellText);
                         tr.appendChild(cell);
 
                         var cell2 = document.createElement('td');
-                        var cellText2 = document.createTextNode(data.desglose[i].tm/60/60 + " hrs");
+                        var cellText2 = document.createTextNode(message.desglose[i].tm/60/60 + " hrs");
                         cell2.appendChild(cellText2);
                         tr.appendChild(cell2);
 
@@ -360,6 +343,9 @@
                 document.getElementById("contenedor-tabla").appendChild(table);
 
             });
+
+
+
 
             /*
             * Se ejecuta cuando se cambia de planta 
@@ -448,38 +434,35 @@
             })
 
 
-            $(function() {
-
-                document.getElementById("Print").onclick = function () {
-                    printElement(document.getElementById("printThis"));
+        </script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+        $(function() {
+            /*
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+        
+            function drawChart() {
+        
+                var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Work',     11],
+                ['Eat',      2],
+                ['Commute',  2],
+                ['Watch TV', 2],
+                ['Sleep',    7]
+                ]);
+        
+                var options = {
+                title: 'My Daily Activities'
                 };
-
-                function printElement(elem) {
-                    var domClone = elem.cloneNode(true);
-
-                    var $printSection = document.getElementById("printSection");
-
-                    if (!$printSection) {
-                        var $printSection = document.createElement("div");
-                        $printSection.id = "printSection";
-                        document.body.appendChild($printSection);
-                    }
-
-                    $printSection.innerHTML = "";
-                    $printSection.appendChild(domClone);
-                    window.print();
-                }
-
-                $('.modal.printable').on('shown.bs.modal', function () {
-                    $('.modal-dialog', this).addClass('focused');
-                    $('body').addClass('modalprinter');
-
-                }).on('hidden.bs.modal', function () {
-                    $('.modal-dialog', this).removeClass('focused');
-                    $('body').removeClass('modalprinter');
-                });
-            });
-            
+        
+                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        
+                chart.draw(data, options);
+            }
+            */
+        });
         </script>
 </body>
 </html>

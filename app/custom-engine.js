@@ -536,6 +536,159 @@ module.exports = function(io) {
             });
         });
 
+        socket.on('reporte-oee', function (json) {
+            var planta = json.planta // all | id
+            var area = json.area // all | id
+            var turno = json.turno // id
+            var productos = json.producto // TODO: solo recibe un producto, tiene que ser un arreglo.
+            var inicio = json.inicio // YYYY-MM-DD
+            var fin = json.fin // YYYY-MM-DD
+            var horaInicio = json.horaInicio // Este valor es recibido en segundos.
+            var horaFin = json.horaFin // Este valor es recibido en segundos.
+            var tipo = json.tipo // hora | producto | turno.
+
+            var where = " WHERE (e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "') "
+
+            // Si las planta no es "todas" se filtra tambien por planta ID
+            if (planta != "all")
+                where += "AND (e.plantas_id = " + planta + " ) "
+
+            // Si el area no es "todas" se filtra tambien por area ID
+            if (area != "all") 
+                where += "AND (e.areas_id = " + area + " ) "
+
+            var turnosQuery = ""
+            if (tipo == "turno"){
+                turnosQuery = "select * from turnos where (id = " + turno + " )" // Se agrega el turno ID al query // TODO: Hay que hacer algo para cuando el turno no existe
+            } else {
+                turnosQuery = "select * from turnos"
+            }
+
+            // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
+            if (tipo == "hora") {
+                where += "CASE WHEN CAST('" + horaInicio + "' as time) <= CAST('" + horaFin + "' as time) \
+                          THEN e.hora >= CAST('" + horaInicio + "' as time) AND e.hora < CAST('" + horaFin + "' as time) \
+                          ELSE (e.hora <= CAST('" + horaInicio + "' as time) AND e.hora <= CAST('" + horaFin + "' as time)) OR \
+                               (e.hora >= CAST('" + horaInicio + "' as time) AND e.hora >= CAST('" + horaFin + "' as time)) END "
+            }
+
+            if (tipo == "producto")
+                where += "AND (e.productos_id = " + producto + ") "
+            
+                
+            var return_data = {}
+            promisePool.getConnection().then(function(connection) {
+                
+                var today = new Date();
+                var dd = today.getDate();
+        
+                console.log(today)
+                
+                var mm = today.getMonth()+1; 
+                var yyyy = today.getFullYear();
+                if(dd<10) 
+                    dd='0'+dd;
+                
+                if(mm<10) 
+                    mm='0'+mm;
+                
+                today = yyyy+'-'+mm+'-'+dd;
+        
+                var d = new Date()
+                var h = d.getHours()
+                var m = d.getMinutes()
+                var s = d.getSeconds()
+                var horaActual = h + ":" + m + ":" + s
+                console.log(horaActual)
+        
+                fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
+                hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
+                
+                console.log(fecha + " " + hora)
+        
+                connection.query(turnosQuery)
+                .then(function(rows){
+                    return_data.turnoActual = rows
+
+                    if (tipo == "turno"){
+                        where += "CASE WHEN CAST('" + rows[0].inicio + "' as time) <= CAST('" +rows[0].fin + "' as time) \
+                        THEN e.hora >= CAST('" + rows[0].inicio + "' as time) AND e.hora < CAST('" +rows[0].fin + "' as time) \
+                        ELSE (e.hora <= CAST('" + rows[0].inicio + "' as time) AND e.hora <= CAST('" +rows[0].fin + "' as time)) OR \
+                             (e.hora >= CAST('" + rows[0].inicio + "' as time) AND e.hora >= CAST('" +rows[0].fin + "' as time)) END "
+                        
+                    }
+                    
+                    // TODO: A todos estos queries hay que agregar la opcion para que vean el turno de 3ra para que no fallen
+                    // TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
+                    // TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
+                    var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
+                    sum(case when activo=0 then tiempo else 0 end) tm, \
+                    (sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
+                    from eventos2 e " + where + " \
+                    group by maquinas_id") 
+                    return result
+                }).then(function(rows){ 
+                    return_data.disponibilidad = rows
+        
+                    // Obtiene el desglose
+                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM \
+                        eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
+
+
+                    return result
+                }).then(function(rows){
+                    return_data.desglose = rows
+
+                    // TODO: A todos estos queries hay que hacerles lo mismo que el query de turnos, porque si no no va a mostrar bien el valor de el turno de 3ra
+                    // TODO: este query solamente suma 
+                    // Rendimiento agrupado por maquina
+                    var result = connection.query("select e.maquinas_id maquina, \
+                    sum(e.valor) piezas, \
+                    sum(e.tiempo) tiempo, \
+                    sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+                    (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+                    from eventos2 e \
+                    inner join productos p on e.productos_id = p.id \
+                    where " + where + " \
+                    group by e.maquinas_id") 
+                    return result
+                }).then(function(rows){ 
+                    return_data.rendimiento = rows
+        
+                    // Calidad agrupada por maquina
+                    var result = connection.query("select e.maquinas_id, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+                    sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+                    sum(e.valor) total, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
+                    from eventos2 e \
+                    inner join productos p on e.productos_id = p.id \
+                    where " + where + " \
+                    group by e.maquinas_id;")
+                    
+                    return result
+                }).then(function(rows) {
+                    return_data.calidad = rows
+        
+                    // Suelta la conexion ejemplo: Connection 404 released
+                    //connection.release();
+                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
+                    promisePool.releaseConnection(connection);
+        
+                    console.log(return_data)
+                    // Emite el evento que es recibido por el cliente (que lo pidio?) para graficarlo TODO: Revisar esta parte del socket (quienes los reciben)
+                    io.emit('reporte-oee', return_data); // io.emit send a message to everione connected
+                    
+                    
+                }).catch(function(err) {
+                    console.log(err);
+                    // TODO: Agregar que mande un error al socket cuando no se pudo obtener el resultado o ocurrio un error
+                    
+                });
+            });
+        })
+
         socket.on('reporte-disponibilidad', function (json) {
             var planta = json.planta // all | id
             var area = json.area // all | id
@@ -629,7 +782,7 @@ module.exports = function(io) {
                     // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
                     promisePool.releaseConnection(connection);
 
-                    // Emite el evento que es recibido por el cliente para graficarlo
+                    // Emite el evento que es recibido por el cliente (que lo pidio?) para graficarlo TODO: Revisar esta parte del socket (quienes los reciben)
                     io.emit('reporte-disponibilidad', return_data); // io.emit send a message to everione connected
 
                 }).catch(function(err) {

@@ -68,6 +68,7 @@ exports.getDashboard = function(done) {
         .then(function(rows){
             return_data.turnoActual = rows
             
+            // TODO: A todos estos queries hay que agregar la opcion para que vean el turno de 3ra para que no fallen
             // TA, TM, Disponibillidad Real, Sin disponibilidad Meta. Agrupado por maquina
             // TODO: A todos los queries hay que quitar los enters y \ porque traducidos se ven asi select e.maquinas_id maquina, \t\t\t\tsum(e.valor) piezas, \t\t\t\tsum(e.tiempo) tiempo, \t\t\t\tsum(e.valor)...
             var result = connection.query("select maquinas_id, sum(case when activo=1 then tiempo else 0 end) ta, \
@@ -133,6 +134,8 @@ exports.getDashboard = function(done) {
             return result
         }).then(function(rows) {
             return_data.calidad = rows
+
+            
 
             // Suelta la conexion ejemplo: Connection 404 released
             //connection.release();
