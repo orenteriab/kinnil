@@ -566,7 +566,7 @@ module.exports = function(io) {
 
             // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
             if (tipo == "hora") {
-                where += "CASE WHEN CAST('" + horaInicio + "' as time) <= CAST('" + horaFin + "' as time) \
+                where += "AND CASE WHEN CAST('" + horaInicio + "' as time) <= CAST('" + horaFin + "' as time) \
                           THEN e.hora >= CAST('" + horaInicio + "' as time) AND e.hora < CAST('" + horaFin + "' as time) \
                           ELSE (e.hora <= CAST('" + horaInicio + "' as time) AND e.hora <= CAST('" + horaFin + "' as time)) OR \
                                (e.hora >= CAST('" + horaInicio + "' as time) AND e.hora >= CAST('" + horaFin + "' as time)) END "
@@ -611,7 +611,7 @@ module.exports = function(io) {
                     return_data.turnoActual = rows
 
                     if (tipo == "turno"){
-                        where += "CASE WHEN CAST('" + rows[0].inicio + "' as time) <= CAST('" +rows[0].fin + "' as time) \
+                        where += "AND CASE WHEN CAST('" + rows[0].inicio + "' as time) <= CAST('" +rows[0].fin + "' as time) \
                         THEN e.hora >= CAST('" + rows[0].inicio + "' as time) AND e.hora < CAST('" +rows[0].fin + "' as time) \
                         ELSE (e.hora <= CAST('" + rows[0].inicio + "' as time) AND e.hora <= CAST('" +rows[0].fin + "' as time)) OR \
                              (e.hora >= CAST('" + rows[0].inicio + "' as time) AND e.hora >= CAST('" +rows[0].fin + "' as time)) END "
@@ -649,7 +649,7 @@ module.exports = function(io) {
                     (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
-                    where " + where + " \
+                    " + where + " \
                     group by e.maquinas_id") 
                     return result
                 }).then(function(rows){ 
@@ -664,7 +664,7 @@ module.exports = function(io) {
                     sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
-                    where " + where + " \
+                    " + where + " \
                     group by e.maquinas_id;")
                     
                     return result

@@ -60,6 +60,43 @@
                 </div>
                 </div>
             </div>
+            <div class="col-lg-3 col-sm-3">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div class="content2">
+                    
+                    <div id="disponibilidad" style="width: 250px; height: 250px;"></div>
+                </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-3">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div class="content2">
+                    
+                    <div id="rendimiento" style="width: 250px; height: 250px;"></div>
+                </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-3">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div class="content2">
+                    
+                    <div id="calidad" style="width: 250px; height: 250px;"></div>
+                </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-3">
+                <!--<div class="widget widget-stats">-->
+                <div class="">
+                <div class="content2">
+                    
+                    <div id="oee" style="width: 250px; height: 250px;"></div>
+                </div>
+                </div>
+            </div>
+            
         </div>
         
 
@@ -175,8 +212,8 @@
             //
             // TODO: Refactorizar este codigo.
             // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
-            var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
-            //var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
+            //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+            var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
 
             function consultar() {
 
@@ -225,10 +262,20 @@
                 // TODO: Acomodar mejor todo este codigo.... refactorizarlo!
                 // Load Charts and the corechart package.
                 google.charts.load('current', {'packages':['corechart']});
+                google.charts.load('current', {'packages':['gauge']});
                 // Draw the pie chart for TaTm's when Charts is loaded.
                 google.charts.setOnLoadCallback(drawTaTmChart);
                 // Draw the pie chart for Desglose's when Charts is loaded.
                 google.charts.setOnLoadCallback(drawDesgloseChart);
+                // Draw the pie chart for Disponibilidad's when Charts is loaded.
+                google.charts.setOnLoadCallback(drawDisponibilidadChart);
+                // Draw the pie chart for Rendimiento's when Charts is loaded.
+                google.charts.setOnLoadCallback(drawRendimientoChart);
+                // Draw the pie chart for Calidad's when Charts is loaded.
+                google.charts.setOnLoadCallback(drawCalidadChart);
+                // Draw the pie chart for OEE's when Charts is loaded.
+                google.charts.setOnLoadCallback(drawOEEChart);
+                
             
                 function drawTaTmChart() {
             
@@ -251,7 +298,7 @@
                 var labels = [];
                 var valores = [];
 
-                for (var i = 0, l  = data.desglose.length ; i < l; i += 1) {
+                for (var i = 0, l  = message.desglose.length ; i < l; i += 1) {
                     labels.push(message.desglose[i].nombre);
                     valores.push(message.desglose[i].tm/60/60)
                 }
@@ -261,8 +308,9 @@
                 console.log(valores);
 
 
-                console.log("data.desglose");
+                console.log("message.desglose");
                 console.log(message.desglose);
+
                 function drawDesgloseChart() {
 
                     var datosParaLaGrafica=[];
@@ -342,10 +390,116 @@
                 // Le agrega la tabla al Widget previamente creado antes de mandar el query a ejecutarse
                 document.getElementById("contenedor-tabla").appendChild(table);
 
+
+                // Dibuja el disponibilidad (gauge)
+                function drawDisponibilidadChart () {
+                    var data = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['Disponibilidad', message.disponibilidad[0].disponibilidad]
+                    ]);
+
+                    var formatter = new google.visualization.NumberFormat(
+                        {suffix: '%',pattern:'#'}
+                    );
+                        formatter.format(data,1);
+
+                    var options = {
+                    width: 400, height: 120,
+                    redFrom: 1, redTo: 20,
+                    yellowFrom:20, yellowTo: 40,
+                    greenFrom: 80, greenTo: 100,
+                    height: 250,
+                    minorTicks: 5
+                    };
+
+                    var chart = new google.visualization.Gauge(document.getElementById('disponibilidad'));
+                    chart.draw(data, options);
+                }
+
+                // Dibuja el rendimiento (gauge)
+                function drawRendimientoChart () {
+                    var data = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['Rendimiento', message.rendimiento[0].rendimiento]
+                    ]);
+
+                    var formatter = new google.visualization.NumberFormat(
+                        {suffix: '%',pattern:'#'}
+                    );
+                        formatter.format(data,1);
+
+                    var options = {
+                    width: 400, height: 120,
+                    redFrom: 1, redTo: 20,
+                    yellowFrom:20, yellowTo: 40,
+                    greenFrom: 80, greenTo: 100,
+                    height: 250,
+                    minorTicks: 5
+                    };
+
+                    var chart = new google.visualization.Gauge(document.getElementById('rendimiento'));
+                    chart.draw(data, options);
+                }
+
+                // Dibuja el Calidad (gauge)
+                function drawCalidadChart () {
+                    var data = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['Calidad', message.calidad[0].calidad]
+                    ]);
+
+                    var formatter = new google.visualization.NumberFormat(
+                        {suffix: '%',pattern:'#'}
+                    );
+                        formatter.format(data,1);
+
+                    var options = {
+                    width: 400, height: 120,
+                    redFrom: 1, redTo: 20,
+                    yellowFrom:20, yellowTo: 40,
+                    greenFrom: 80, greenTo: 100,
+                    height: 250,
+                    minorTicks: 5
+                    };
+
+                    var chart = new google.visualization.Gauge(document.getElementById('calidad'));
+                    chart.draw(data, options);
+                }
+
+                function drawOEEChart() {
+                    var data = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['OEE', (message.disponibilidad[0].disponibilidad + message.rendimiento[0].rendimiento + message.calidad[0].calidad) / 3]
+                    ]);
+
+                    var formatter = new google.visualization.NumberFormat(
+                        {suffix: '%',pattern:'#'}
+                    );
+                        formatter.format(data,1);
+
+                    var options = {
+                    width: 400, height: 120,
+                    redFrom: 1, redTo: 20,
+                    yellowFrom:20, yellowTo: 40,
+                    greenFrom: 80, greenTo: 100,
+                    height: 250,
+                    minorTicks: 5
+                    };
+
+                    var chart = new google.visualization.Gauge(document.getElementById('oee'));
+                    chart.draw(data, options);
+                }
+
             });
 
-
-
+            /*$(window).resize(function(){
+                drawTaTmChart();
+                drawDesgloseChart();
+                drawDisponibilidadChart();
+                drawRendimientoChart();
+                drawCalidadChart();
+                drawDesgloseChart();
+            });*/
 
             /*
             * Se ejecuta cuando se cambia de planta 
@@ -438,30 +592,7 @@
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script type="text/javascript">
         $(function() {
-            /*
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(drawChart);
-        
-            function drawChart() {
-        
-                var data = google.visualization.arrayToDataTable([
-                ['Task', 'Hours per Day'],
-                ['Work',     11],
-                ['Eat',      2],
-                ['Commute',  2],
-                ['Watch TV', 2],
-                ['Sleep',    7]
-                ]);
-        
-                var options = {
-                title: 'My Daily Activities'
-                };
-        
-                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        
-                chart.draw(data, options);
-            }
-            */
+            
         });
         </script>
 </body>
