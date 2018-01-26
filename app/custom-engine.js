@@ -11,6 +11,9 @@ var dbconfig = require('../config/database');
 var promisePool = promiseMysql.createPool(dbconfig.connection);
 promisePool.query('USE ' + dbconfig.database); // TODO: provar que la base no se deseleccione, pruebas intensivas
 
+var fs = require('fs')
+  , Log = require('log')
+  , log = new Log('debug', fs.createWriteStream('./logs/eventos.log'));
 
 // Util para cuando se crea una nueva conexion en el pool
 promisePool.on('connection', function () {
@@ -48,6 +51,9 @@ module.exports = function(io) {
         // Peticion de la configuracion de cada laptop
         // TODO: no mandarle el activo a jossie
         socket.on('config', function (message) {
+
+            log.info('Peticion de configuración')
+
             if (message == "all"){
                 
                 var return_data = {}
@@ -133,9 +139,11 @@ module.exports = function(io) {
                     
                         // Anterior emit ---- se guarda para pruebas solamente
                         //io.emit('config', '{"plantas": [{"planta": "Planta1-Chihuahua-Nave1", "areas": [{"nombre": "area 1", "maquinas": [{"nombre": "area1-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] }, {"nombre": "area 2", "maquinas": [{"nombre": "area2-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] } ], "turnos": [{"nombre": "primera", "inicio": "06:00", "fin": "15:00"}, {"nombre": "segunda", "inicio": "15:00", "fin": "21:00"}, {"nombre": "tercera", "inicio": "21:00", "fin": "06:00"} ] }, {"planta": "Planta1-Chihuahua-Nave2", "areas": [{"nombre": "area 1", "maquinas": [{"nombre": "area1-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area1-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] }, {"nombre": "area 2", "maquinas": [{"nombre": "area2-maquina-1", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-2", "razones": ["razon 1", "razon 2", "razon 3"] }, {"nombre": "area2-maquina-3", "razones": ["razon 1", "razon 2", "razon 3"] } ] } ], "turnos": [{"nombre": "primera", "inicio": "06:00", "fin": "15:00"}, {"nombre": "segunda", "inicio": "15:00", "fin": "21:00"}, {"nombre": "tercera", "inicio": "21:00", "fin": "06:00"} ] } ] }'); // io.emit send a message to everione connected
+                        log.info('Se envio la configuración')
                         io.emit('config', JSON.stringify(json)); // se manda el contenigo a las tablets como un string
                     }).catch(function(err) {
-                        console.log(err);
+                       log.error('Error al obtener la configuración: ' + err)
+                       //log.error(err)
                     });
                 });
             }
@@ -150,7 +158,7 @@ module.exports = function(io) {
         // TODO: Hay que hacer otro evento donde se guarde la calidad (hay que hablar esto con Jossie para ver si es posible o si utilizamos es mismo)
         socket.on('evento', function (message) {
 
-            console.log(message)
+            log.info('Evento Recibido' + message)
             var evento = JSON.parse(message);
 
             // Se obtiene fecha y hora
@@ -195,9 +203,9 @@ module.exports = function(io) {
                     };
 
                     var result = connection.query("INSERT INTO eventos2 SET ?", save)
+                    
                     // TODO: Confirmar que se guardo la info ?
                     return result
-
                 }).then(function(rows){
 
                     // Suelta la conexion ejemplo: Connection 404 released
@@ -210,12 +218,14 @@ module.exports = function(io) {
                     // o llamar a algo mas que lo haga
                     // TODO: probar si funciona mandarse un evento a si mismo (server-server)
                     //socket.emit('actualizar', return_data);
+                    log.info('Se guardo el evento')
                     socket.emit('evento-done', evento.operacion_uuid);
-                    console.log("se guardo el evento");
 
 
                     var return_data = {}
                     promisePool.getConnection().then(function(connection) {
+
+                        log.info('Preparando la actualización para enviarla')
                         // TODO: hay que hacer 
                         // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
                         var d = new Date()
@@ -223,14 +233,10 @@ module.exports = function(io) {
                         var m = d.getMinutes()
                         var s = d.getSeconds()
                         var horaActual = h + ":" + m + ":" + s
-                        console.log(horaActual)
         
                         fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
                         hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
                         
-                        console.log(fecha + " " + hora)
-            
-            
                         // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
                         // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
                         // Turno actual, nos va a servir para obtener la informacion del turno en cuestion
@@ -312,18 +318,18 @@ module.exports = function(io) {
                             // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
                             promisePool.releaseConnection(connection);
             
-                            console.log(return_data)
+                            log.info('Se envio la actualización a todos los clientes conectados')
                             // Boradcast emite un mensaje a todos menos al que lo mando a llamar
                             socket.broadcast.emit('actualizar', return_data);
         
                         }).catch(function(err) {
-                            console.log(err);
+                           log.error(" Error al enviar la actualización" + err)
                         });
                     });
                     //socket.broadcast.emit('estado-actual', evento)
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error("Error al guardar el evento" + err)
                 });
             });
 
@@ -333,6 +339,7 @@ module.exports = function(io) {
         // When the server receives a “config” type signal from the client   
         socket.on('actualizar', function (message) {
             
+            log.info('Inicia peticion de actualización')
             var return_data = {}
             promisePool.getConnection().then(function(connection) {
                 // TODO: hay que hacer 
@@ -431,12 +438,12 @@ module.exports = function(io) {
                     // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
                     promisePool.releaseConnection(connection);
     
-                    console.log(return_data)
+                    log.info('Se envia la acutalización')
                     // Boradcast emite un mensaje a todos menos al que lo mando a llamar
                     socket.broadcast.emit('actualizar', return_data);
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error("Error al obtener la informacion para enviar " + err)
                 });
             });
         });
@@ -449,7 +456,6 @@ module.exports = function(io) {
 
         socket.on('disconnect', (reason) => {
             // TODO: Detectar quien se desconecto y dejar de mandarle cosas a el
-            console.log("alguien se desconecto por " + reason);
             socket.emit('desconectado', "se desconecto una tablet")
         });
 
@@ -531,7 +537,7 @@ module.exports = function(io) {
                     io.emit('cambio-planta', return_data); // io.emit send a message to everione connected
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error(err)
                 });
             });
         });
@@ -704,7 +710,7 @@ module.exports = function(io) {
                     
                     
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error(err)
                     // TODO: Agregar que mande un error al socket cuando no se pudo obtener el resultado o ocurrio un error
                     
                 });
@@ -808,7 +814,7 @@ module.exports = function(io) {
                     io.emit('reporte-disponibilidad', return_data); // io.emit send a message to everione connected
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error(err)
                 });
             });
         });
@@ -902,7 +908,7 @@ module.exports = function(io) {
                     io.emit('reporte-rendimiento', return_data); // io.emit send a message to everione connected
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error(err)
                 });
             });
         });
@@ -998,16 +1004,15 @@ module.exports = function(io) {
                     io.emit('reporte-calidad', return_data); // io.emit send a message to everione connected
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error(err)
                 });
             });
         });
         
 
         socket.on('digital1', function (message) {
-            console.log("digital1" + message)
 
-            console.log(message)
+            log.info('Digital 1 Recibido ' + message)
             var digital = JSON.parse(message);
 
             // Se obtiene fecha y hora
@@ -1047,18 +1052,18 @@ module.exports = function(io) {
                     promisePool.releaseConnection(connection);
 
                     socket.broadcast.emit('digital1', message);
-                    console.log("se guardo el digital 1");
+                    log.info('Se guardo digital 1 en la DB')
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error("error al guardar digital1 " + err)
                 });
             });
         });
 
         socket.on('digital2', function (message) {
-            console.log("digital2" + message)
-            
-            console.log(message)
+
+            log.info('Digital 2 recibido ' + message)
+
             var digital = JSON.parse(message);
 
             // Se obtiene fecha y hora
@@ -1098,16 +1103,18 @@ module.exports = function(io) {
                     promisePool.releaseConnection(connection);
 
                     socket.broadcast.emit('digital2', message);
-                    console.log("se guardo el digital 2");
+                    log.info('Se guardo el digital 2 en la DB')
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error("Error al guardar digital 2" + err)
                 });
             });
         });
 
         socket.on('incremento1', function (message) {
-            console.log(message)
+            
+            log.info('Incremento recibido: ' + message)
+
             var evento = JSON.parse(message);
 
             // Se obtiene fecha y hora
@@ -1167,7 +1174,7 @@ module.exports = function(io) {
                     // TODO: probar si funciona mandarse un evento a si mismo (server-server)
                     //socket.emit('actualizar', return_data);
                     socket.emit('evento-done', evento.operacion_uuid);
-                    console.log("se guardo el evento");
+                    log.info("Se guardo el incremento")
 
 
                     var return_data = {}
@@ -1184,8 +1191,6 @@ module.exports = function(io) {
                         fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
                         hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
                         
-                        console.log(fecha + " " + hora)
-            
             
                         // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
                         // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
@@ -1267,19 +1272,18 @@ module.exports = function(io) {
                             //connection.release();
                             // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
                             promisePool.releaseConnection(connection);
-            
-                            console.log(return_data)
+
                             // Boradcast emite un mensaje a todos menos al que lo mando a llamar
                             socket.broadcast.emit('actualizar', return_data);
         
                         }).catch(function(err) {
-                            console.log(err);
+                           log.error(err)
                         });
                     });
                     //socket.broadcast.emit('estado-actual', evento)
 
                 }).catch(function(err) {
-                    console.log(err);
+                   log.error(err)
                 });
             });
         });
@@ -1288,6 +1292,8 @@ module.exports = function(io) {
 
 
         socket.on('agregar-scrap', function (json) {
+
+            log.info("Se recibio scrap " + json)
             var planta = json.planta // id
             var area = json.area // id
             var maquina = json.maquina // id
@@ -1346,7 +1352,7 @@ module.exports = function(io) {
 
                     // Mandar a actualizar la Web App
                     socket.emit('respuesta-scrap', "Se guardo el registro correctamente")
-                    console.log("Se guardo scrap")
+                    log.info("Se guardo scrap")
 
                 }).catch(function(err) {
 
@@ -1356,7 +1362,7 @@ module.exports = function(io) {
                     
 
                     socket.emit('respuesta-scrap', "Se a producido un error, vuelve a intentar mas tarde")
-                    console.log(err)
+                    log.error("Se produjo un error al guardar el scrap " + err)
                 });
             });
         });

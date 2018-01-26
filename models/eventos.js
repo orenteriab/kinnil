@@ -12,11 +12,17 @@ var dbconfig = require('../config/database');
 var promisePool = promiseMysql.createPool(dbconfig.connection);
 promisePool.query('USE ' + dbconfig.database); // TODO: Esta linea vuelve a confirmar cual es la DB que vamos a utilizar, hay que ver si es necesaria o no
 
+var fs = require('fs')
+  , Log = require('log')
+  , log = new Log('debug', fs.createWriteStream('./logs/engine.log'));
 
 /*
 * Obtiene la informacion del dashboard y se lo manda al ruteador (Inicio y Andon).
 */
 exports.getDashboard = function(done) {
+
+    log.info(' getDashboard fucntion called')
+
     var return_data = {}
     promisePool.getConnection().then(function(connection) {
         
