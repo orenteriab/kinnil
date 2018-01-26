@@ -14,7 +14,7 @@ promisePool.query('USE ' + dbconfig.database); // TODO: Esta linea vuelve a conf
 
 var fs = require('fs')
   , Log = require('log')
-  , log = new Log('debug', fs.createWriteStream('./logs/engine.log'));
+  , log = new Log('debug', fs.createWriteStream('../logs/engine.log'));
 
 /*
 * Obtiene la informacion del dashboard y se lo manda al ruteador (Inicio y Andon).
@@ -107,17 +107,6 @@ exports.getDashboard = function(done) {
             // TODO: este query solamente suma 
             // Rendimiento agrupado por maquina
             // TODO TODO: Se queda este query como muestra de lo que se quiere lograr, por mientras se elimina la opcion de que el rendimiento sea sacada del producto para obtener el rendimiento real
-            //var result = connection.query("select e.maquinas_id maquina, \
-            //sum(e.valor) piezas, \
-            //sum(e.tiempo) tiempo, \
-            //sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
-            //(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
-            //from eventos2 e \
-            //inner join productos p on e.productos_id = p.id \
-            //where e.fecha = CAST('" + fecha + "' as date) \
-            //and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
-            //and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-            //group by e.maquinas_id") 
             
             var result = connection.query("select maquina, sum(piezas) piezas, sum(tiempo) tiempo, sum(realidad)/count(*) 'real', sum(rendimiento)/count(*) rendimiento from \
             (select e.maquinas_id maquina, p.id, \
@@ -134,20 +123,6 @@ exports.getDashboard = function(done) {
             return result
         }).then(function(rows){ 
             return_data.rendimiento = rows
-
-            // Calidad agrupada por maquina
-            /*var result = connection.query("select e.maquinas_id, \
-            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
-            sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
-            sum(e.valor) total, \
-            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
-            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
-            from eventos2 e \
-            inner join productos p on e.productos_id = p.id \
-            where e.fecha = CAST('" + fecha + "' as date) \
-            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
-            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-            group by e.maquinas_id;") */
 
             var result = connection.query("select maquina, sum(pt) pt, sum(scrap) scrap, sum(total) total, sum(calidad_real)/count(*) calidad_real, sum(calidad)/count(*) calidad from \
             (select e.maquinas_id maquina, \

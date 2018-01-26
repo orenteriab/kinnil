@@ -13,23 +13,23 @@ promisePool.query('USE ' + dbconfig.database); // TODO: provar que la base no se
 
 var fs = require('fs')
   , Log = require('log')
-  , log = new Log('debug', fs.createWriteStream('./logs/eventos.log'));
+  , log = new Log('debug', fs.createWriteStream('../logs/eventos.log'));
 
 // Util para cuando se crea una nueva conexion en el pool
 promisePool.on('connection', function () {
-    console.log("#####      se creo una conexion al pool     #############################")
+    console.log("Se creo una conexion al pool")
 //connection.query('SET SESSION auto_increment_increment=1') // TODO: ver si es necesario ponerle esto
 });
 
 
 // El pool emite un evento cuando una conexion es regresada al pool de conexiones para ser utilizada por otra conexion
 promisePool.on('release', function () {
-    console.log('Connection %d released     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    console.log('Connection released');
 });
 
 // ver cuando se adquirio una connexion del pool de conexiones
 promisePool.on('acquire', function () {
-    console.log('Connection %d acquired  ************************************');
+    console.log('Connection acquired');
 });
 
 
@@ -459,55 +459,6 @@ module.exports = function(io) {
             socket.emit('desconectado', "se desconecto una tablet")
         });
 
-
-        // TODO: Elimiar este metodo 
-        // Pruebas para analizar y solucionar las timezones
-        socket.on('tiempo', function (message) {
-
-            var today = new Date();
-            var dd = today.getDate();
-
-            console.log(today)
-            
-            var mm = today.getMonth()+1; 
-            var yyyy = today.getFullYear();
-            if(dd<10) 
-            {
-                dd='0'+dd;
-            } 
-            
-            if(mm<10) 
-            {
-                mm='0'+mm;
-            }
-            today = yyyy+'-'+mm+'-'+dd;
-            //console.log(today);
-            //today = mm+'/'+dd+'/'+yyyy;
-            //console.log(today);
-            //today = dd+'-'+mm+'-'+yyyy;
-            //console.log(today);
-            //today = dd+'/'+mm+'/'+yyyy;
-            //console.log(today);
-
-            var d = new Date()
-            var h = d.getHours()
-            var m = d.getMinutes()
-            var s = d.getSeconds()
-            var horaActual = h + ":" + m + ":" + s
-
-            if (message == 'normal'){
-
-                socket.emit('tiempo', today + " " + horaActual);
-            }
-            if (message == 'zona'){
-
-                fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
-                hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
-                
-                socket.emit('tiempo', " " + fecha + " " + hora);
-            }
-        });
-
         /*
         * Cambio de la planta seleccionada (Paginas que hacen reportes)
         */
@@ -648,13 +599,6 @@ module.exports = function(io) {
                     // TODO: A todos estos queries hay que hacerles lo mismo que el query de turnos, porque si no no va a mostrar bien el valor de el turno de 3ra
                     // TODO: este query solamente suma 
                     // Rendimiento agrupado por maquina
-                    /*var result = connection.query("select e.maquinas_id maquina, \
-                    sum(e.valor) piezas, \
-                    sum(e.tiempo) tiempo, \
-                    sum(e.valor)/(sum(e.tiempo)/60/60) 'rendimiento' \
-                    from eventos2 e \
-                    " + where + " \
-                    group by e.maquinas_id") */
 
                     var result = connection.query("select maquina, sum(piezas) piezas, sum(tiempo) tiempo, sum(realidad)/count(*) 'real', sum(rendimiento)/count(*) rendimiento from \
                     (select e.maquinas_id maquina, p.id, \
@@ -672,16 +616,6 @@ module.exports = function(io) {
                 }).then(function(rows){ 
                     return_data.rendimiento = rows
         
-                    // Calidad agrupada por maquina
-                    /*var result = connection.query("select e.maquinas_id, \
-                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
-                    sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
-                    sum(e.valor) total, \
-                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad \
-                    from eventos2 e \
-                    " + where + " \
-                    group by e.maquinas_id;")*/
-
                     var result = connection.query("select maquina, sum(pt) pt, sum(scrap) scrap, sum(total) total, sum(calidad_real)/count(*) calidad_real, sum(calidad)/count(*) calidad from \
                     (select e.maquinas_id maquina, \
                     sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
@@ -716,299 +650,6 @@ module.exports = function(io) {
                 });
             });
         })
-
-        socket.on('reporte-disponibilidad', function (json) {
-            var planta = json.planta // all | id
-            var area = json.area // all | id
-            var turno = json.turno // id
-            var productos = json.producto // TODO: solo recibe un producto, tiene que ser un arreglo.
-            var inicio = json.inicio // YYYY-MM-DD
-            var fin = json.fin // YYYY-MM-DD
-            var horaInicio = json.horaInicio // Este valor es recibido en segundos.
-            var horaFin = json.horaFin // Este valor es recibido en segundos.
-            var tipo = json.tipo // hora | producto | turno.
-
-            // Clausula where inicial, se agregan areas para poder utiilizarlo con un JOIN para el desglose.
-            // Se agrega la fecha de inicio y la fecha final, porque siempre existen estos filtros.
-            var where = " WHERE e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "' "
-
-            // Si las planta no es "todas" se filtra tambien por planta ID
-            if (planta != "all")
-                where += " AND e.plantas_id =" + planta
-
-            // Si el area no es "todas" se filtra tambien por area ID
-            if (area != "all") 
-                where += " AND e.areas_id =" + area
-            // TODO: hay que tener cuidado con el noturno y el noproductos, esto pasa cuando la planta no contiene turnos o productos
-
-            var turnosQuery = ""
-            if (turno == "noturnos"){
-                turnosQuery = "select * from turnos" // Workaround por si no hay turnos
-            } else {
-                turnosQuery = "select * from turnos where id =" + turno // Se agrega el turno ID al query // TODO: Hay que hacer algo para cuando el turno no existe
-            }
-
-            // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
-            if (tipo == "hora") 
-                where += " AND e.hora > SEC_TO_TIME(" + horaInicio + ") AND e.hora <  SEC_TO_TIME(" + horaFin + ") "
-            
-
-            // Si el reporte es por producto, se agrega el producto ID al where
-            if (tipo == "producto") {
-                // Hay que tener cuidado con el noproductos, que es cuando la planta no tiene productos---- y si quieren reportar asi que no se pueda
-                // TODO Revisar esta logica, a lo mejor hay una mejor manera de hacerlo
-                if (productos != "noproductos"){
-                    // Solo si existe un producto es que se agrega esa seccion al query.
-                    // TODO: A lo mejor cancelar el reporte y mandar una notificacion al usuario de que no se puede reportar asi
-                    where += " AND productos_id = " + productos
-                }
-            }
-    
-            var return_data = {} // Guarda los datos de las promesas
-            promisePool.getConnection().then(function(connection) {
-                // Primero obtiene el turno actual
-                // TODO: Cuando se resiven muchos eventos se empiezan a encolar hasta que se traba toda la app por los sockets
-                // TODO : Poner un delay, que no puedan subir muchos sockets a la vez
-                connection.query(turnosQuery).then(function(rows){
-                    return_data.turnos = rows
-                    
-                    if (tipo == "turno"){
-                        // Agrega la hora de inicio y fin a la clausula where (para cuando se busca por turno)
-                        where += " AND e.hora > '" + rows[0].inicio +"' AND e.hora < '" + rows[0].fin + "' "
-                        //console.log(where)
-                    }
-
-                    // Obtiene el TA
-                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true") // Esta es una promesa
-
-                    console.log("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true")
-
-                    return result
-                }).then(function(rows){
-                    return_data.ta = rows
-                    
-                    // Obtiene el TM
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
-
-                    console.log("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
-
-                    return result
-                }).then(function(rows){
-                    return_data.tm = rows
-                    
-                    // Obtiene el desglose
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
-
-                    console.log("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
-
-                    return result
-                }).then(function(rows){
-                    return_data.desglose = rows
-
-                    // Suelta la conexion ejemplo: Connection 404 released
-                    //connection.release();
-                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-                    promisePool.releaseConnection(connection);
-
-                    // Emite el evento que es recibido por el cliente (que lo pidio?) para graficarlo TODO: Revisar esta parte del socket (quienes los reciben)
-                    io.emit('reporte-disponibilidad', return_data); // io.emit send a message to everione connected
-
-                }).catch(function(err) {
-                   log.error(err)
-                });
-            });
-        });
-
-        // TODO: modificar para que nos de los resultados del rendimiento (a lo mejor tiene que ser por producto, hay que revisarlo)
-        socket.on('reporte-rendimiento', function (json) {
-            var planta = json.planta // all | id
-            var area = json.area // all | id
-            var turno = json.turno // id
-            var productos = json.producto // TODO: solo recibe un producto, tiene que ser un arreglo.
-            var inicio = json.inicio // YYYY-MM-DD
-            var fin = json.fin // YYYY-MM-DD
-            var horaInicio = json.horaInicio // Este valor es recibido en segundos.
-            var horaFin = json.horaFin // Este valor es recibido en segundos.
-            var tipo = json.tipo // hora | producto | turno.
-
-            // Clausula where inicial, se agregan areas para poder utiilizarlo con un JOIN para el desglose.
-            // Se agrega la fecha de inicio y la fecha final, porque siempre existen estos filtros.
-            var where = " WHERE e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "' "
-
-            // Si las planta no es "todas" se filtra tambien por planta ID
-            if (planta != "all")
-                where += " AND e.plantas_id =" + planta
-
-            // Si el area no es "todas" se filtra tambien por area ID
-            if (area != "all") 
-                where += " AND e.areas_id =" + area
-            // TODO: hay que tener cuidado con el noturno y el noproductos, esto pasa cuando la planta no contiene turnos o productos
-
-            var turnosQuery = ""
-            if (turno == "noturnos"){
-                turnosQuery = "select * from turnos" // Workaround por si no hay turnos
-            } else {
-                turnosQuery = "select * from turnos where id =" + turno // Se agrega el turno ID al query
-            }
-
-            // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
-            if (tipo == "hora") 
-                where += " AND e.hora > SEC_TO_TIME(" + horaInicio + ") AND e.hora <  SEC_TO_TIME(" + horaFin + ") "
-            
-
-            // Si el reporte es por producto, se agrega el producto ID al where
-            if (tipo == "producto") {
-                // Hay que tener cuidado con el noproductos, que es cuando la planta no tiene productos---- y si quieren reportar asi que no se pueda
-                // TODO Revisar esta logica, a lo mejor hay una mejor manera de hacerlo
-                if (productos != "noproductos"){
-                    // Solo si existe un producto es que se agrega esa seccion al query.
-                    // TODO: A lo mejor cancelar el reporte y mandar una notificacion al usuario de que no se puede reportar asi
-                    where += " AND productos_id = " + productos
-                }
-            }
-    
-            var return_data = {} // Guarda los datos de las promesas
-            promisePool.getConnection().then(function(connection) {
-                // Primero obtiene el turno actual
-                // TODO: Cuando se resiven muchos eventos se empiezan a encolar hasta que se traba toda la app por los sockets
-                // TODO : Poner un delay, que no puedan subir muchos sockets a la vez
-                connection.query(turnosQuery).then(function(rows){
-                    return_data.turnos = rows
-                    
-                    if (tipo == "turno"){
-                        // Agrega la hora de inicio y fin a la clausula where (para cuando se busca por turno)
-                        where += " AND e.hora > '" + rows[0].inicio +"' AND e.hora < '" + rows[0].fin + "' "
-                        //console.log(where)
-                    }
-
-                    // Obtiene el TA
-                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true") // Esta es una promesa
-                    return result
-                }).then(function(rows){
-                    return_data.ta = rows
-                    
-                    // Obtiene el TM
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
-                    return result
-                }).then(function(rows){
-                    return_data.tm = rows
-                    
-                    // Obtiene el desglose
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
-                    return result
-                }).then(function(rows){
-                    return_data.desglose = rows
-
-                    // Suelta la conexion ejemplo: Connection 404 released
-                    //connection.release();
-                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-                    promisePool.releaseConnection(connection);
-
-                    // Emite el evento que es recibido por el cliente para graficarlo
-                    io.emit('reporte-rendimiento', return_data); // io.emit send a message to everione connected
-
-                }).catch(function(err) {
-                   log.error(err)
-                });
-            });
-        });
-
-        // TODO: modificar para que nos de los resultados del calidad (a lo mejor tiene que ser por producto, hay que revisarlo)
-        socket.on('reporte-calidad', function (json) {
-            var planta = json.planta // all | id
-            var area = json.area // all | id
-            var turno = json.turno // id
-            var productos = json.producto // TODO: solo recibe un producto, tiene que ser un arreglo.
-            var inicio = json.inicio // YYYY-MM-DD
-            var fin = json.fin // YYYY-MM-DD
-            var horaInicio = json.horaInicio // Este valor es recibido en segundos.
-            var horaFin = json.horaFin // Este valor es recibido en segundos.
-            var tipo = json.tipo // hora | producto | turno.
-
-            // Clausula where inicial, se agregan areas para poder utiilizarlo con un JOIN para el desglose.
-            // Se agrega la fecha de inicio y la fecha final, porque siempre existen estos filtros.
-            var where = " WHERE e.fecha > '" + inicio + "' AND e.fecha < '" + fin + "' "
-
-            // Si las planta no es "todas" se filtra tambien por planta ID
-            if (planta != "all")
-                where += " AND e.plantas_id =" + planta
-
-            // Si el area no es "todas" se filtra tambien por area ID
-            if (area != "all") 
-                where += " AND e.areas_id =" + area
-            // TODO: hay que tener cuidado con el noturno y el noproductos, esto pasa cuando la planta no contiene turnos o productos
-
-            var turnosQuery = ""
-            if (turno == "noturnos"){
-                turnosQuery = "select * from turnos" // Workaround por si no hay turnos
-            } else {
-                turnosQuery = "select * from turnos where id =" + turno // Se agrega el turno ID al query
-            }
-
-            // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
-            if (tipo == "hora") 
-                where += " AND e.hora > SEC_TO_TIME(" + horaInicio + ") AND e.hora <  SEC_TO_TIME(" + horaFin + ") "
-            
-
-            // Si el reporte es por producto, se agrega el producto ID al where
-            if (tipo == "producto") {
-                // Hay que tener cuidado con el noproductos, que es cuando la planta no tiene productos---- y si quieren reportar asi que no se pueda
-                // TODO Revisar esta logica, a lo mejor hay una mejor manera de hacerlo
-                if (productos != "noproductos"){
-                    // Solo si existe un producto es que se agrega esa seccion al query.
-                    // TODO: A lo mejor cancelar el reporte y mandar una notificacion al usuario de que no se puede reportar asi
-                    where += " AND productos_id = " + productos
-                }
-            }
-    
-            var return_data = {} // Guarda los datos de las promesas
-            promisePool.getConnection().then(function(connection) {
-                // TODO: Cambiar este query al ppal de disponibilidad
-                // Primero obtiene el turno actual
-                // TODO: Cuando se resiven muchos eventos se empiezan a encolar hasta que se traba toda la app por los sockets
-                // TODO : Poner un delay, que no puedan subir muchos sockets a la vez
-                connection.query(turnosQuery).then(function(rows){
-                    return_data.turnos = rows
-                    
-                    if (tipo == "turno"){
-                        // Agrega la hora de inicio y fin a la clausula where (para cuando se busca por turno)
-                        where += " AND e.hora > '" + rows[0].inicio +"' AND e.hora < '" + rows[0].fin + "' "
-                        //console.log(where)
-                    }
-
-                    // Obtiene el TA
-                    var result = connection.query("SELECT sum(e.tiempo) 'ta' FROM eventos2 e " + where + "  and e.activo = true") // Esta es una promesa
-                    return result
-                }).then(function(rows){
-                    return_data.ta = rows
-                    
-                    // Obtiene el TM
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm' FROM eventos2 e " + where + "  and e.activo = false")
-                    return result
-                }).then(function(rows){
-                    return_data.tm = rows
-                    
-                    // Obtiene el desglose
-                    var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
-                    console.log("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
-                    return result
-                }).then(function(rows){
-                    return_data.desglose = rows
-
-                    // Suelta la conexion ejemplo: Connection 404 released
-                    //connection.release();
-                    // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
-                    promisePool.releaseConnection(connection);
-
-                    // Emite el evento que es recibido por el cliente para graficarlo
-                    io.emit('reporte-calidad', return_data); // io.emit send a message to everione connected
-
-                }).catch(function(err) {
-                   log.error(err)
-                });
-            });
-        });
-        
 
         socket.on('digital1', function (message) {
 
@@ -1287,9 +928,6 @@ module.exports = function(io) {
                 });
             });
         });
-
-
-
 
         socket.on('agregar-scrap', function (json) {
 
