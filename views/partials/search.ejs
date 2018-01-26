@@ -28,6 +28,20 @@
       <% } %>
     </select>
   </div>
+  <div class="form-group" id="areas-choice-div">
+    <label for="sel1">Maquina:</label>
+    <select class="form-control" id="areas-choice">
+      <% if(maquinas.length>0){%>
+        <option value = "all">Todas las maquinas</option>
+      <% for(var i=0; i<maquinas.length; i++) {%>
+      <option value = "<%= maquinas[i].id %>"><%= maquinas[i].nombre %></option>
+      <% } %>
+      <%} else {%>
+        <!-- TODO: Tomar las medidas necesarias para que no aparezcan errores en routes.js -->
+        <option value = "sin-areas">No hay areas</option>
+      <% } %>
+    </select>
+  </div>
 
   <div class="form-group">
     <label for="sel1">Rango de fechas:</label>

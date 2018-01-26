@@ -7134,23 +7134,10 @@ dl {
 
 }
 
+
+
+
 /*
-@media screen {
-  #printSection {
-      display: none;
-  }
-}
-@media print {
-  body * {
-      visibility:hidden;
-  }
-  #printSection, #printSection * {
-      visibility:visible;
-  }
-  #printSection {
-      position:absolute;
-      left:0;
-      top:0;
-  }
-}
+* Fix para bootstrap 3 para imprimir
 */
+

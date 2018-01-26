@@ -566,14 +566,14 @@ module.exports = function(io) {
 
             // Si el tipo de reporte es por hora, se agrega la hora a la clausula where
             if (tipo == "hora") {
-                where += "AND CASE WHEN CAST('" + horaInicio + "' as time) <= CAST('" + horaFin + "' as time) \
-                          THEN e.hora >= CAST('" + horaInicio + "' as time) AND e.hora < CAST('" + horaFin + "' as time) \
-                          ELSE (e.hora <= CAST('" + horaInicio + "' as time) AND e.hora <= CAST('" + horaFin + "' as time)) OR \
-                               (e.hora >= CAST('" + horaInicio + "' as time) AND e.hora >= CAST('" + horaFin + "' as time)) END "
+                where += "AND CASE WHEN SEC_TO_TIME(" + horaInicio + ") <= SEC_TO_TIME(" + horaFin + ") \
+                          THEN e.hora >= SEC_TO_TIME(" + horaInicio + ") AND e.hora < SEC_TO_TIME(" + horaFin + ") \
+                          ELSE (e.hora <= SEC_TO_TIME(" + horaInicio + ") AND e.hora <= SEC_TO_TIME(" + horaFin + ")) OR \
+                               (e.hora >= SEC_TO_TIME(" + horaInicio + ") AND e.hora >= SEC_TO_TIME(" + horaFin + ")) END "
             }
 
             if (tipo == "producto")
-                where += "AND (e.productos_id = " + producto + ") "
+                where += "AND (e.productos_id = " + productos + ") "
             
                 
             var return_data = {}
@@ -626,14 +626,14 @@ module.exports = function(io) {
                     (sum(case when activo=1 then tiempo else 0 end) * 100) / (sum(case when activo=1 then tiempo else 0 end) + sum(case when activo=0 then tiempo else 0 end)) disponibilidad  \
                     from eventos2 e " + where + " \
                     group by maquinas_id") 
+                    
                     return result
                 }).then(function(rows){ 
                     return_data.disponibilidad = rows
         
                     // Obtiene el desglose
                     var result = connection.query("SELECT sum(e.tiempo) 'tm', r.nombre 'nombre' FROM \
-                        eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre")
-
+                        eventos2 e JOIN razones_paro r ON e.razones_paro_id = r.id" + where + "  and e.activo = false GROUP BY r.nombre ORDER BY tm desc")
 
                     return result
                 }).then(function(rows){
@@ -642,21 +642,42 @@ module.exports = function(io) {
                     // TODO: A todos estos queries hay que hacerles lo mismo que el query de turnos, porque si no no va a mostrar bien el valor de el turno de 3ra
                     // TODO: este query solamente suma 
                     // Rendimiento agrupado por maquina
-                    var result = connection.query("select e.maquinas_id maquina, \
+                    /*var result = connection.query("select e.maquinas_id maquina, \
                     sum(e.valor) piezas, \
                     sum(e.tiempo) tiempo, \
-                    sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+                    sum(e.valor)/(sum(e.tiempo)/60/60) 'rendimiento' \
+                    from eventos2 e \
+                    " + where + " \
+                    group by e.maquinas_id") */
+
+                    var result = connection.query("select maquina, sum(piezas) piezas, sum(tiempo) tiempo, sum(realidad)/count(*) 'real', sum(rendimiento)/count(*) rendimiento from \
+                    (select e.maquinas_id maquina, p.id, \
+                    sum(e.valor) piezas, \
+                    sum(e.tiempo) tiempo, \
+                    sum(e.valor)/(sum(e.tiempo)/60/60) realidad, \
                     (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
                     " + where + " \
-                    group by e.maquinas_id") 
+                    group by p.id, e.maquinas_id) sub \
+                    group by maquina") 
+
                     return result
                 }).then(function(rows){ 
                     return_data.rendimiento = rows
         
                     // Calidad agrupada por maquina
-                    var result = connection.query("select e.maquinas_id, \
+                    /*var result = connection.query("select e.maquinas_id, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+                    sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+                    sum(e.valor) total, \
+                    sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad \
+                    from eventos2 e \
+                    " + where + " \
+                    group by e.maquinas_id;")*/
+
+                    var result = connection.query("select maquina, sum(pt) pt, sum(scrap) scrap, sum(total) total, sum(calidad_real)/count(*) calidad_real, sum(calidad)/count(*) calidad from \
+                    (select e.maquinas_id maquina, \
                     sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
                     sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
                     sum(e.valor) total, \
@@ -665,7 +686,8 @@ module.exports = function(io) {
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
                     " + where + " \
-                    group by e.maquinas_id;")
+                    group by p.calidad, e.maquinas_id) sub \
+                    group by maquina")
                     
                     return result
                 }).then(function(rows) {

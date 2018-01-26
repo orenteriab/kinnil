@@ -29,14 +29,11 @@ exports.getDashboard = function(done) {
         var mm = today.getMonth()+1; 
         var yyyy = today.getFullYear();
         if(dd<10) 
-        {
             dd='0'+dd;
-        } 
         
         if(mm<10) 
-        {
             mm='0'+mm;
-        }
+        
         today = yyyy+'-'+mm+'-'+dd;
 
         var d = new Date()
@@ -58,6 +55,7 @@ exports.getDashboard = function(done) {
         // TODO: El query tiene que ser contra turnos que esten activos. Activo = true
         //connection.query("SELECT * FROM turnos where CAST(inicio as time) < TIME_FORMAT('" + horaActual + "' as time) and CAST(fin as time) > TIME_FORMAT('" + horaActual + "' as time)").then(function(rows){
         //TODO: hay que revisar la logica y poner alguna advertencia o algo porque si hay 2 turnos que se entralacen en las horas pueden haber problemas
+        // TODO: probar este query en el turno de tercera para ver si nos regresa el valor correcto o regresa algo mas
         connection.query("SELECT * \
                         FROM turnos \
                         CROSS JOIN (SELECT CAST('" + hora + "' as time) AS evento) sub \
@@ -102,23 +100,37 @@ exports.getDashboard = function(done) {
             // TODO: A todos estos queries hay que hacerles lo mismo que el query de turnos, porque si no no va a mostrar bien el valor de el turno de 3ra
             // TODO: este query solamente suma 
             // Rendimiento agrupado por maquina
-            var result = connection.query("select e.maquinas_id maquina, \
+            // TODO TODO: Se queda este query como muestra de lo que se quiere lograr, por mientras se elimina la opcion de que el rendimiento sea sacada del producto para obtener el rendimiento real
+            //var result = connection.query("select e.maquinas_id maquina, \
+            //sum(e.valor) piezas, \
+            //sum(e.tiempo) tiempo, \
+            //sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+            //(sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
+            //from eventos2 e \
+            //inner join productos p on e.productos_id = p.id \
+            //where e.fecha = CAST('" + fecha + "' as date) \
+            //and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+            //and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+            //group by e.maquinas_id") 
+            
+            var result = connection.query("select maquina, sum(piezas) piezas, sum(tiempo) tiempo, sum(realidad)/count(*) 'real', sum(rendimiento)/count(*) rendimiento from \
+            (select e.maquinas_id maquina, p.id, \
             sum(e.valor) piezas, \
             sum(e.tiempo) tiempo, \
-            sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+            sum(e.valor)/(sum(e.tiempo)/60/60) realidad, \
             (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
             from eventos2 e \
             inner join productos p on e.productos_id = p.id \
             where e.fecha = CAST('" + fecha + "' as date) \
-            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
-            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-            group by e.maquinas_id") 
+            AND e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) AND e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+            group by p.id, e.maquinas_id) sub \
+            group by maquina") 
             return result
         }).then(function(rows){ 
             return_data.rendimiento = rows
 
             // Calidad agrupada por maquina
-            var result = connection.query("select e.maquinas_id, \
+            /*var result = connection.query("select e.maquinas_id, \
             sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
             sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
             sum(e.valor) total, \
@@ -129,13 +141,26 @@ exports.getDashboard = function(done) {
             where e.fecha = CAST('" + fecha + "' as date) \
             and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
             and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-            group by e.maquinas_id;")
+            group by e.maquinas_id;") */
+
+            var result = connection.query("select maquina, sum(pt) pt, sum(scrap) scrap, sum(total) total, sum(calidad_real)/count(*) calidad_real, sum(calidad)/count(*) calidad from \
+            (select e.maquinas_id maquina, \
+            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
+            sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
+            sum(e.valor) total, \
+            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) calidad_real, \
+            sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) * 100 / sum(e.valor) / p.calidad calidad \
+            from eventos2 e \
+            inner join productos p on e.productos_id = p.id \
+            where e.fecha = CAST('" + fecha + "' as date) \
+            and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
+            and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+            group by p.calidad, e.maquinas_id) sub \
+            group by maquina")
             
             return result
         }).then(function(rows) {
             return_data.calidad = rows
-
-            
 
             // Suelta la conexion ejemplo: Connection 404 released
             //connection.release();
@@ -178,6 +203,11 @@ exports.getReportesInfo = function(done) {
         }).then(function(rows){
             return_data.areas = rows
             
+            var result = connection.query("select * from maquinas where active = true")
+            return result
+        }).then(function(rows){
+            return_data.maquinas = rows
+            
             // Suelta la conexion ejemplo: Connection 404 released
             //connection.release();
             // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
@@ -188,6 +218,7 @@ exports.getReportesInfo = function(done) {
             var areas = return_data.areas
             var turnos = return_data.turnos
             var productos = return_data.productos
+            var maquinas = return_data.maquinas
 
 
             // TODO: ver si se puede utilizar una de estas formas para hacer mas rapido este pedo y delegar las operaciones a otro modulo
@@ -210,6 +241,15 @@ exports.getReportesInfo = function(done) {
 
                     if (area.plantas_id == planta.id){ // Si el area le pertenece a la planta en turno
                         json.plantas[x].areas.push({"id": area.id, "nombre":area.nombre, maquinas: []}) // Se agrega el area a la planta en turno (3er nivel)
+
+                        for (var z = 0; z<maquinas.length; z++){ // Se recorren todas las maquinas
+                            maquina = maquinas[z]
+    
+                            if (maquina.areas_id == area.id){ // Si el maquina le pertenece a la planta en turno
+                                json.plantas[x].areas[y].maquinas.push({"id": maquina.id, "nombre":maquina.nombre}) // Se agrega el area a la planta en turno (3er nivel)
+                            }
+                        }
+
                     }
                 }
                 for (var b = 0; b<turnos.length; b++){
