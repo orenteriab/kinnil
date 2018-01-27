@@ -202,11 +202,11 @@
                 return;
             }
             // TODO: hacer algo para que este socket no pueda ser llamado tantas veces. (Hace que se trave node.js).
-            socket.emit('reporte-rendimiento', json);
+            socket.emit('reporte-oee', json);
         }
     
     
-        socket.on('reporte-rendimiento', function(data) {
+        socket.on('reporte-oee', function(data) {
 
                 $('#reporte-modal').modal('show');
                 // TODO: Hacer algo con los valores nulos

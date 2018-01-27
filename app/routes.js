@@ -107,6 +107,7 @@ module.exports = function(app, passport) {
 				productos: return_data.productos,
 				plantas: return_data.plantas,
 				areas: return_data.areas,
+				maquinas: return_data.maquinas,
 				json: json,
 				user: req.user
 			});
@@ -126,6 +127,7 @@ module.exports = function(app, passport) {
 				productos: return_data.productos,
 				plantas: return_data.plantas,
 				areas: return_data.areas,
+				maquinas: return_data.maquinas,
 				json: json,
 				user: req.user
 			});
@@ -145,6 +147,7 @@ module.exports = function(app, passport) {
 				productos: return_data.productos,
 				plantas: return_data.plantas,
 				areas: return_data.areas,
+				maquinas: return_data.maquinas,
 				json: json,
 				user: req.user
 			});

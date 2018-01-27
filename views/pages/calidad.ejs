@@ -200,11 +200,11 @@
                 return;
             }
             
-            socket.emit('reporte-calidad', json);
+            socket.emit('reporte-oee', json);
         }
     
     
-        socket.on('reporte-calidad', function(data) {
+        socket.on('reporte-oee', function(data) {
                 // TODO: hacer algo para cuando los valores sean NULOS
             var ta = data.ta[0].ta/60/60;
             var tm = data.tm[0].tm/60/60;

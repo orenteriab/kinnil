@@ -14,7 +14,8 @@ promisePool.query('USE ' + dbconfig.database); // TODO: Esta linea vuelve a conf
 
 var fs = require('fs')
   , Log = require('log')
-  , log = new Log('debug', fs.createWriteStream('../logs/engine.log'));
+  , log = new Log('debug', fs.createWriteStream('../logs/eventos.log')); // Secre un archivo para loguear informacion de errores
+
 
 /*
 * Obtiene la informacion del dashboard y se lo manda al ruteador (Inicio y Andon).
@@ -47,14 +48,15 @@ exports.getDashboard = function(done) {
         var m = d.getMinutes()
         var s = d.getSeconds()
         var horaActual = h + ":" + m + ":" + s
+
         console.log(horaActual)
 
-        fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('YYYY-MM-DD')
-        hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm').tz('America/Chihuahua').format('HH:mm')
-        
-        console.log(fecha + " " + hora)
+        fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD')
+        hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('HH:mm:ss')
 
-        // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
+        console.log(fecha)
+        console.log(hora)
+
         // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
         // Turno actual, nos va a servir para obtener la informacion del turno en cuestion
         // TODO: agregar el problema con el turno de tercera, si esta de noche este query no me da resultados (empty set) y no me muestra la pagina
@@ -87,7 +89,6 @@ exports.getDashboard = function(done) {
         }).then(function(rows){
             return_data.disponibilidad = rows
 
-            console.log(rows)
             // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
             // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
             var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
@@ -148,7 +149,7 @@ exports.getDashboard = function(done) {
             // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
             promisePool.releaseConnection(connection);
 
-            console.log(return_data)
+            //console.log(return_data)
             return done(null, return_data); // Regresa la informacion solicitada
             
         }).catch(function(err) {
@@ -178,6 +179,11 @@ exports.getReportesInfo = function(done) {
             return result
         }).then(function(rows){
             return_data.plantas = rows
+            
+            var result = connection.query("select * from maquinas where active = true")
+            return result
+        }).then(function(rows){
+            return_data.maquinas = rows
             
             var result = connection.query("select * from areas where active = true")
             return result

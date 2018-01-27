@@ -227,15 +227,15 @@
                     alert("No se puede obtener el reporte por productos, No hay productos");
                     return;
                 }
-                socket.emit('reporte-disponibilidad', json);
+                socket.emit('reporte-oee', json);
             }
 
-            socket.on('reporte-disponibilidad', function(data) {
+            socket.on('reporte-oee', function(data) {
                 // TODO: hacer algo para cuando los valores sean NULOS
 
                 $('#reporte-modal').modal('show');
 
-                console.log("se recibio un evento de reporte-disponibilidad")
+                console.log("se recibio un evento de reporte-oee")
                 var ta = data.ta[0].ta/60/60;
                 var tm = data.tm[0].tm/60/60;
 
