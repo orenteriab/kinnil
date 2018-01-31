@@ -688,9 +688,10 @@ module.exports = function(io) {
             promisePool.getConnection().then(function(connection) {
 
                 var save  = {
-                    fecha: fecha, 
-                    hora: hora, 
-                    evento: " Chispa - " + digital.valor  
+                    fecha: fecha,
+                    hora: hora,
+                    activo: digital.valor, 
+                    digital: 1
                 };
                 
                 connection.query("INSERT INTO digital SET ?", save).then(function(rows){
@@ -739,9 +740,10 @@ module.exports = function(io) {
             promisePool.getConnection().then(function(connection) {
 
                 var save  = {
-                    fecha: fecha, 
-                    hora: hora, 
-                    evento: " Nudo - " + digital.valor  
+                    fecha: fecha,
+                    hora: hora,
+                    activo: digital.valor, 
+                    digital: 2
                 };
                 
                 connection.query("INSERT INTO digital SET ?", save).then(function(rows){
@@ -807,7 +809,7 @@ module.exports = function(io) {
                         razones_calidad_id: 1 // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
                     };
 
-                    log.debug(save)
+                    //log.debug(save)
 
                     var result = connection.query("INSERT INTO eventos2 SET ?", save)
                     // TODO: Confirmar que se guardo la info ?

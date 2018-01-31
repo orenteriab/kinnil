@@ -16,6 +16,10 @@
             background-color: #FD2412;
             color: #ffffff;
         }
+        .grey {
+            background-color: #757474;
+            color: #ffffff;
+        }
    </style>
 </head>
 
@@ -73,9 +77,19 @@
                         <%if (estado.length > 0) { %>
                         <% for(var i=0; i<estado.length; i++) {%>
                         <tr class="quote">
-                            <td id="estado" class="<%if (estado[i]) { %> <%= estado[i].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
+                            <td id="estado" class="
+                                    <%if (estado[i]) { %> 
+                                        <%if (estado[i].status == 'online') { %> 
+                                            <%= estado[i].razon == 'activo' ?  green  : red  %> 
+                                        <% } else { %>  grey  <% } %>
+                                    <% } else { %>  grey  <% } %>
+                                    ">
                                 <%if (estado[i]) { %>
-                                    <%= estado[i].razon %>
+                                    <%if (estado[i].status == 'online') { %>
+                                        <%= estado[i].razon %>
+                                    <% } else { %> 
+                                        Offline
+                                    <% } %>
                                 <% } else { %> 
                                     Sin eventos
                                 <% } %>
@@ -97,8 +111,12 @@
                             <td id="ph"></td>
                             <td id="temperatura"></td>
                             <td id="conductividad"></td>
-                            <td id="digital1"></td>
-                            <td id="digital2"></td>
+                            <td id="digital1" class="<%if (digital[0]) { %> <%= digital[0].activo == '0' ? " green " : "red " %> <% } %>">
+                                
+                            </td>
+                            <td id="digital2" class="<%if (digital[1]) { %> <%= digital[1].activo == '0' ? " green " : "red " %> <% } %>">
+                                
+                            </td>
                             <td id="disponibilidad">
                                 <!-- Si el query de disponibilidad esta empty despliega un i -->
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
@@ -202,10 +220,12 @@
                  console.log('verde');
                  $('#estado').addClass('green');
                  $('#estado').removeClass('red');
+                 $('#estado').removeClass('grey');
              } else {
                  console.log('rojo');
                  $('#estado').addClass('red');
                  $('#estado').removeClass('green');
+                 $('#estado').removeClass('grey');
              }
             // TODO: Esto solo muestra info de una maquina, hay que mostrar la info de mas maquinas
             $("#estado").html(message.estado[0].razon);

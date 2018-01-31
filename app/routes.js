@@ -74,6 +74,7 @@ module.exports = function(app, passport) {
 				disponibilidad:return_data.disponibilidad,
 				rendimiento: return_data.rendimiento,
 				calidad: return_data.calidad,
+				digital: return_data.digital,
 				user: req.user
 			});
 		})

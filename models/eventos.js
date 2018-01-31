@@ -91,14 +91,28 @@ exports.getDashboard = function(done) {
 
             // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
             // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-            var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
-            from (SELECT maquinas_id, max(id) as id \
-                FROM eventos2 WHERE activo IS NOT NULL \
-                group by maquinas_id) as x \
-            inner join eventos2 e on x.id = e.id \
-            inner join razones_paro r on r.id = e.razones_paro_id \
-            inner join productos p on e.productos_id = p.id \
-            inner join maquinas m on e.maquinas_id = m.id") 
+            var result = connection.query("select e1.id as id, \
+            e1.maquinas_id as maquina, \
+            m.nombre as nombre, \
+            r.nombre as razon, \
+            p.nombre as producto, \
+            e1.razones_paro_id, \
+            e1.productos_id, \
+            e1.activo, \
+            (concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora)) fecha_y_hora_evento, \
+            (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second)) fecha_y_hora_del_evento_mas_60_segundos, \
+            (CONVERT_TZ(now(),'+00:00','America/Chihuahua')) Hora_actual, \
+            (case when (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second) >= (CONVERT_TZ(now(),'+00:00','America/Chihuahua'))) then 'online' else  'offline' end) status \
+            from eventos2 as e1 \
+            INNER JOIN ( \
+              select maquinas_id, MAX(id) as id \
+              from eventos2 \
+              where activo is not NULL \
+              group by maquinas_id) as e2 \
+            on e1.id = e2.id \
+            inner join razones_paro r on e1.razones_paro_id = r.id \
+            inner join productos p on e1.productos_id = p.id \
+            inner join maquinas m on e1.maquinas_id = m.id") 
                 
             return result
         }).then(function(rows){ 
@@ -141,8 +155,20 @@ exports.getDashboard = function(done) {
             group by maquina")
             
             return result
-        }).then(function(rows) {
+        }).then(function(rows){ 
             return_data.calidad = rows
+
+            var result = connection.query("select d1.digital as digital, d1.activo as activo \
+            from digital as d1 \
+            inner join (select max(id) as id, digital \
+              from digital \
+              group by digital) as d2 \
+            on d1.id = d2.id \
+            order by d1.digital")
+            
+            return result
+        }).then(function(rows) {
+            return_data.digital = rows
 
             // Suelta la conexion ejemplo: Connection 404 released
             //connection.release();
