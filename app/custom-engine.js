@@ -79,7 +79,7 @@ module.exports = function(io) {
                         return_data.maquinas = rows
                         
                         // TODO: validar si funciona.
-                        var result = connection.query("select * from razones_paro where active = true and id > 1")
+                        var result = connection.query("select * from razones_paro where active = true and id not in (1,200,201)")
                         return result
                     }).then(function(rows) {
                         return_data.razones_paro = rows
@@ -270,14 +270,28 @@ module.exports = function(io) {
                             return_data.disponibilidad = rows
                             // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
                             // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-                            var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
-                            from (SELECT maquinas_id, max(id) as id \
-                                FROM eventos2 WHERE activo IS NOT NULL \
-                                group by maquinas_id) as x \
-                            inner join eventos2 e on x.id = e.id \
-                            inner join razones_paro r on r.id = e.razones_paro_id \
-                            inner join productos p on e.productos_id = p.id \
-                            inner join maquinas m on e.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
+                            var result = connection.query("select e1.id as id, \
+                            e1.maquinas_id as maquina, \
+                            m.nombre as nombre, \
+                            r.nombre as razon, \
+                            p.nombre as producto, \
+                            e1.razones_paro_id, \
+                            e1.productos_id, \
+                            e1.activo, \
+                            (concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora)) fecha_y_hora_evento, \
+                            (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second)) fecha_y_hora_del_evento_mas_60_segundos, \
+                            (CONVERT_TZ(now(),'+00:00','America/Chihuahua')) Hora_actual, \
+                            (case when (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second) >= (CONVERT_TZ(now(),'+00:00','America/Chihuahua'))) then 'online' else  'offline' end) status \
+                            from eventos2 as e1 \
+                            INNER JOIN ( \
+                              select maquinas_id, MAX(id) as id \
+                              from eventos2 \
+                              where activo is not NULL \
+                              group by maquinas_id) as e2 \
+                            on e1.id = e2.id \
+                            inner join razones_paro r on e1.razones_paro_id = r.id \
+                            inner join productos p on e1.productos_id = p.id \
+                            inner join maquinas m on e1.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
                                 
                             return result
                         }).then(function(rows){ 
@@ -346,23 +360,33 @@ module.exports = function(io) {
         // When the server receives a “config” type signal from the client   
         socket.on('actualizar', function (message) {
             
-            log.info('Inicia peticion de actualización')
+            log.info('Inicia - socket on actualizar')
+
+            // Se obtiene fecha y hora
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+                dd='0'+dd;
+            
+            if(mm<10) 
+                mm='0'+mm;
+
+            today = yyyy+'-'+mm+'-'+dd;
+
+            var d = new Date()
+            var h = d.getHours()
+            var m = d.getMinutes()
+            var s = d.getSeconds()
+            var horaActual = h + ":" + m + ":" + s
+
+            fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD')
+            hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('HH:mm:ss')
+
+
             var return_data = {}
             promisePool.getConnection().then(function(connection) {
-                // TODO: hay que hacer 
-                // TODO: Agregar algunas funciones para que no varie el timezone... (convertirlo)
-                var d = new Date()
-                var h = d.getHours()
-                var m = d.getMinutes()
-                var s = d.getSeconds()
-                var horaActual = h + ":" + m + ":" + s
-                console.log(horaActual)
-
-                fecha = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD')
-                hora = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('HH:mm:ss')
-                
-                console.log(fecha + " " + hora)
-    
     
                 // TODO: Si no hay turnos, todos los siguientes queries dan undefined. Hay que comprobar que el turno actual es valido antes de hacer todo esto
                 // TODO: Hacer algo!!! -> Se muestra la ultima informacion guardada en la DB (activo/inactivo) Pero de eso pudo haber pasado mucho rato si no se ha agregado un cambio nuevo (necesitare agregar algo que verifique el ultimo estatus?????)
@@ -393,37 +417,53 @@ module.exports = function(io) {
                     return_data.disponibilidad = rows
                     // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
                     // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-                    var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
-                    from (SELECT maquinas_id, max(id) as id \
-                        FROM eventos2 WHERE activo IS NOT NULL \
-                        group by maquinas_id) as x \
-                    inner join eventos2 e on x.id = e.id \
-                    inner join razones_paro r on r.id = e.razones_paro_id \
-                    inner join productos p on e.productos_id = p.id \
-                    inner join maquinas m on e.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
+                    var result = connection.query("select e1.id as id, \
+                    e1.maquinas_id as maquina, \
+                    m.nombre as nombre, \
+                    r.nombre as razon, \
+                    p.nombre as producto, \
+                    e1.razones_paro_id, \
+                    e1.productos_id, \
+                    e1.activo, \
+                    (concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora)) fecha_y_hora_evento, \
+                    (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second)) fecha_y_hora_del_evento_mas_60_segundos, \
+                    (CONVERT_TZ(now(),'+00:00','America/Chihuahua')) Hora_actual, \
+                    (case when (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second) >= (CONVERT_TZ(now(),'+00:00','America/Chihuahua'))) then 'online' else  'offline' end) status \
+                    from eventos2 as e1 \
+                    INNER JOIN ( \
+                      select maquinas_id, MAX(id) as id \
+                      from eventos2 \
+                      where activo is not NULL \
+                      group by maquinas_id) as e2 \
+                    on e1.id = e2.id \
+                    inner join razones_paro r on e1.razones_paro_id = r.id \
+                    inner join productos p on e1.productos_id = p.id \
+                    inner join maquinas m on e1.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
                         
                     return result
                 }).then(function(rows){ 
                     return_data.estado = rows
                     // TODO: Estos queries cuando no regresan filas en el template ejs me aparece como undefined y no se despliega un buen resultado
                     // Rendimiento agrupado por maquina
-                    var result = connection.query("select e.maquinas_id maquina, \
+                    var result = connection.query("select maquina, sum(piezas) piezas, sum(tiempo) tiempo, sum(realidad)/count(*) 'real', sum(rendimiento)/count(*) rendimiento from \
+                    (select e.maquinas_id maquina, p.id, \
                     sum(e.valor) piezas, \
                     sum(e.tiempo) tiempo, \
-                    sum(e.valor)/(sum(e.tiempo)/60/60) 'real', \
+                    sum(e.valor)/(sum(e.tiempo)/60/60) realidad, \
                     (sum(e.valor)/(sum(e.tiempo)/60/60))/p.rendimiento rendimiento \
                     from eventos2 e \
                     inner join productos p on e.productos_id = p.id \
                     where e.fecha = CAST('" + fecha + "' as date) \
-                    and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
-                    and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-                    group by e.maquinas_id") 
+                    AND e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) AND e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
+                    group by p.id, e.maquinas_id) sub \
+                    group by maquina") 
                     return result
                 }).then(function(rows){ 
                     return_data.rendimiento = rows
     
                     // Calidad agrupada por maquina
-                    var result = connection.query("select e.maquinas_id, \
+                    var result = connection.query("select maquina, sum(pt) pt, sum(scrap) scrap, sum(total) total, sum(calidad_real)/count(*) calidad_real, sum(calidad)/count(*) calidad from \
+                    (select e.maquinas_id maquina, \
                     sum(case when e.razones_calidad_id = 1 then e.valor else 0 end) pt, \
                     sum(case when e.razones_calidad_id > 1 then e.valor else 0 end) scrap, \
                     sum(e.valor) total, \
@@ -434,7 +474,8 @@ module.exports = function(io) {
                     where e.fecha = CAST('" + fecha + "' as date) \
                     and e.hora >= CAST('"+ return_data.turnoActual[0].inicio +"' as time) \
                     and e.hora < CAST('"+ return_data.turnoActual[0].fin +"' as time) \
-                    group by e.maquinas_id;")
+                    group by p.calidad, e.maquinas_id) sub \
+                    group by maquina")
 
                     return result
                 }).then(function(rows) {
@@ -445,12 +486,12 @@ module.exports = function(io) {
                     // Parece que funciona igual al de arriba. Hay que probarlo en desarrollo
                     promisePool.releaseConnection(connection);
     
-                    log.info('Se envia la acutalización')
+                    log.info('Termina - socket on actualizar')
                     // Boradcast emite un mensaje a todos menos al que lo mando a llamar
-                    socket.broadcast.emit('actualizar', return_data);
+                    socket.emit('actualizar', return_data);
 
                 }).catch(function(err) {
-                   log.error("Error al obtener la informacion para enviar " + err)
+                   log.error("Error - socket on actualizar " + err)
                 });
             });
         });
@@ -875,14 +916,28 @@ module.exports = function(io) {
                             return_data.disponibilidad = rows
                             // TODO: Agrer el active = 1 a todos estos queries para evitar informacion inutil
                             // Informacion agrupada por maquina (id del eventos2, activo, razon, producto, maquina)
-                            var result = connection.query("select e.maquinas_id as maquina, m.nombre as nombre, e.id as id, e.activo as activo, r.nombre as razon, p.nombre as producto \
-                            from (SELECT maquinas_id, max(id) as id \
-                                FROM eventos2 WHERE activo IS NOT NULL \
-                                group by maquinas_id) as x \
-                            inner join eventos2 e on x.id = e.id \
-                            inner join razones_paro r on r.id = e.razones_paro_id \
-                            inner join productos p on e.productos_id = p.id \
-                            inner join maquinas m on e.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
+                            var result = connection.query("select e1.id as id, \
+                            e1.maquinas_id as maquina, \
+                            m.nombre as nombre, \
+                            r.nombre as razon, \
+                            p.nombre as producto, \
+                            e1.razones_paro_id, \
+                            e1.productos_id, \
+                            e1.activo, \
+                            (concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora)) fecha_y_hora_evento, \
+                            (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second)) fecha_y_hora_del_evento_mas_60_segundos, \
+                            (CONVERT_TZ(now(),'+00:00','America/Chihuahua')) Hora_actual, \
+                            (case when (DATE_ADD(concat(DATE_FORMAT(e1.fecha, '%Y-%m-%d'),' ',e1.hora), INTERVAL 60 second) >= (CONVERT_TZ(now(),'+00:00','America/Chihuahua'))) then 'online' else  'offline' end) status \
+                            from eventos2 as e1 \
+                            INNER JOIN ( \
+                              select maquinas_id, MAX(id) as id \
+                              from eventos2 \
+                              where activo is not NULL \
+                              group by maquinas_id) as e2 \
+                            on e1.id = e2.id \
+                            inner join razones_paro r on e1.razones_paro_id = r.id \
+                            inner join productos p on e1.productos_id = p.id \
+                            inner join maquinas m on e1.maquinas_id = m.id")  // TODO: Ver si conviene agregar al query de estado una fecha y hora en el where
                                 
                             return result
                         }).then(function(rows){ 

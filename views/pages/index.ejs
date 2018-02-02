@@ -80,7 +80,7 @@
                             <td id="estado" class="
                                     <%if (estado[i]) { %> 
                                         <%if (estado[i].status == 'online') { %> 
-                                            <%= estado[i].razon == 'activo' ?  green  : red  %> 
+                                            <%= estado[i].razon == 'activo' ?  "green"  : "red"  %> 
                                         <% } else { %>  grey  <% } %>
                                     <% } else { %>  grey  <% } %>
                                     ">
@@ -212,23 +212,39 @@
             console.log('el server esta vivo');
         })
 
+        var tid = setInterval(mycode, 15000);
+        function mycode() {
+            console.log("mande a actualizar");
+            socket.emit('actualizar', "please"); // El mensaje enviado no es utilizado para la actualizacion.
+        }
+
         socket.on('actualizar', function(message) {
 
-            console.log("actualizar evento");
-            // Agrega color a la tabla que muestra el estatus
-            if (message.estado[0].razon == 'activo'){
-                 console.log('verde');
-                 $('#estado').addClass('green');
-                 $('#estado').removeClass('red');
-                 $('#estado').removeClass('grey');
-             } else {
-                 console.log('rojo');
-                 $('#estado').addClass('red');
-                 $('#estado').removeClass('green');
-                 $('#estado').removeClass('grey');
-             }
-            // TODO: Esto solo muestra info de una maquina, hay que mostrar la info de mas maquinas
-            $("#estado").html(message.estado[0].razon);
+             console.log("socket.on - Actualizar - message.estado[0].status");
+             console.log(message.estado[0].status);
+
+             // TODO: este codigo solo funciona para cuando hay una sola maquina, todabia hay que hacer que funcione para mas maquinas
+             if (message.estado[0].status == 'online') {
+                if (message.estado[0].razon == 'activo'){
+                    //console.log('verde');
+                    $('#estado').addClass('green');
+                    $('#estado').removeClass('red');
+                    $('#estado').removeClass('grey');
+                } else {
+                    //console.log('rojo');
+                    $('#estado').addClass('red');
+                    $('#estado').removeClass('green');
+                    $('#estado').removeClass('grey');
+                }
+                $("#estado").html(message.estado[0].razon);  
+            } else {
+                $('#estado').addClass('grey');
+                $('#estado').removeClass('red');
+                $('#estado').removeClass('green');
+                $("#estado").html("Offline");
+            }
+
+
             $("#maquina").html(message.estado[0].nombre); // TODO: no puede ser el ID de la maquina, me tiene que regresar el nombre
             $("#producto").html(message.estado[0].producto);
 
@@ -268,20 +284,20 @@
                 $("#oee").html("0%");
 
             var mensaje = JSON.stringify(message);
-            console.log('se recibio un valor: ' + mensaje);
+            //console.log('se recibio un valor: ' + mensaje);
         })
 
         socket.on('digital1', function(message) {
 
-            console.log("llego un evento digital1: " +message);
+            //console.log("llego un evento digital1: " +message);
             message = JSON.parse(message);
 
             if (message.valor == 0){
-                 console.log('verde');
+                 //console.log('verde');
                  $('#digital1').addClass('green');
                  $('#digital1').removeClass('red');
              } else {
-                 console.log('rojo');
+                 //console.log('rojo');
                  $('#digital1').addClass('red');
                  $('#digital1').removeClass('green');
              }
@@ -289,15 +305,15 @@
 
         socket.on('digital2', function(message) {
 
-            console.log("llego un evento digital2: " +message);
+            //console.log("llego un evento digital2: " +message);
             message = JSON.parse(message);
 
             if (message.valor == 0){
-                 console.log('verde');
+                 //console.log('verde');
                  $('#digital2').addClass('green');
                  $('#digital2').removeClass('red');
              } else {
-                 console.log('rojo');
+                 //console.log('rojo');
                  $('#digital2').addClass('red');
                  $('#digital2').removeClass('green');
              }
