@@ -31,136 +31,34 @@
         </div>
         </div>
 
-        <div class="modal fade bs-example-modal-lg printable" id="reporte-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-            <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Reporte rendimiento</h4>
-                    </div>
-                    <div class="modal-body" id="printThis">
-    
-                        <div id="gauge" class="200x160px"></div>
-
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    <button type="button" id="Print" class="btn btn-primary">Exportar a PDF</button>
+        <div id="printThis">
+            <div class="row" >
+                <div class="col-lg-6 col-sm-6 col-p-12">
+                    <div class="chart" id="tatm"></div>
+                </div>
+                <div class="col-lg-6 col-sm-6 col-p-12">
+                    <div class="chart" id="desglose" ></div>
                 </div>
             </div>
+            <div class="row" >
+                <div class="col-lg-3 col-sm-3">
+                    <div id="rendimiento" class="gauge"></div>
+                </div>
             </div>
         </div>
+            <button class="btn btn-primary hidden-print" id="Print"><span class="glyphicon glyphicon-print" aria-hidden="true"></span> Exportar a PDF</button>
+    
 
 
          </div>
       </div>
    </div>
    <!-- /#wrapper -->
-   <script type="text/javascript" src="./js/gauge.min.js"></script> <!-- Grafica para la gauge Rendimiento/Calidad/OEE -->
-   <script src="./js/raphael-2.1.4.min.js"></script>
-   <script src="./js/justgage.js"></script>
-   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script> <!-- Se carga el chart.js -->
-   <!-- <script src="path/to/chartjs/dist/Chart.js"></script> --> <!-- A lo mejor es bueno cargar desde una direccion fija TODO: revisar -->
+   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
    <script src="/socket.io/socket.io.js"></script> 
    <%include ../partials/js %>
-   
+   <%include ../partials/js-search %>
    <script>
-        var fechaInicio;
-        var fechaFin;
-        var tipo = "turno"; // Por default es por turno para que aparesca algo aunque el usuario no seleccione una opcion.
-
-        // Hace que se despliegue las opciones de los turnos
-        document.getElementById('ifTurno').style.display = 'block';
-
-        function byTurno() {
-            document.getElementById('ifTurno').style.display = 'block';
-            document.getElementById('ifProducto').style.display = 'none';
-            document.getElementById('ifHora').style.display = 'none';
-            tipo = "turno";
-        }
-        function byProducto() {
-            document.getElementById('ifTurno').style.display = 'none';
-            document.getElementById('ifProducto').style.display = 'block';
-            document.getElementById('ifHora').style.display = 'none';
-            tipo = "producto";
-        }
-        function byHora() {
-            document.getElementById('ifTurno').style.display = 'none';
-            document.getElementById('ifProducto').style.display = 'none';
-            document.getElementById('ifHora').style.display = 'block';
-            tipo = "hora";
-        }
-
-        $(document).ready(function() {
-
-        $(function() {
-        
-            $('#reportrange i').click(function() {
-                $(this).parent().find('input').click();
-            });
-
-            var start = moment().subtract(29, 'days');
-            var end = moment();
-
-            function cb(start, end) {
-                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                fechaInicio = start;
-                fechaFin = end;
-            }
-
-            $('#reportrange').daterangepicker({
-                startDate: start,
-                endDate: end,
-                ranges: {
-                'Hoy': [moment(), moment()],
-                'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Ultimos 7 Dias': [moment().subtract(6, 'days'), moment()],
-                'Ultimos 30 Dias': [moment().subtract(29, 'days'), moment()],
-                'Este mes': [moment().startOf('month'), moment().endOf('month')]
-                /*'Anterior mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]*/
-                },
-                locale: {
-                    "direction": "ltr",
-                    "format": "DD/MM/YYYY HH:mm",
-                    "separator": " - ",
-                    "applyLabel": "Apicar",
-                    "cancelLabel": "Cancelar",
-                    "fromLabel": "Desde",
-                    "toLabel": "Hasta",
-                    "customRangeLabel": "Custom",
-                    "daysOfWeek": [
-                        "Dom",
-                        "Lun",
-                        "Mar",
-                        "Mie",
-                        "jue",
-                        "Vie",
-                        "Sa"
-                    ],
-                    "monthNames": [
-                        "Enero",
-                        "Febrero",
-                        "Marzo",
-                        "Abril",
-                        "Mayo",
-                        "Junio",
-                        "Julio",
-                        "Agosto",
-                        "Septiembre",
-                        "Octubre",
-                        "Noviembre",
-                        "Diciembre"
-                    ],
-                    "firstDay": 1
-                }
-
-            }, cb);
-            
-            cb(start, end);
-        });
-    });
-    
         // Se hace la consulta segun los campos seleccionados
         // TODO: tomar en cuenta las reglas del negocio a programar
         // una planta o todas, una area a todas, un producto o varios mas 
@@ -172,10 +70,12 @@
         //var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
 
         function consultar() {
+
+            console.log("se hizo una consulta");
+
             var json = {}
-            
             json.planta = $("#plantas-choice").val();
-            json.area = $("#areas-choice").val(); 
+            json.area = $("#areas-choice").val();
             json.turno = $("#turno").val();
             json.producto = $("#producto").val();
             json.inicio = fechaInicio.format('YYYY-MM-DD'); // TODO: hay que ver si esta fecha siempre va a ser igual o si falla como en C#
@@ -184,13 +84,9 @@
             json.horaFin = $('#horaFin').val();
             json.tipo = tipo;
             // TODO: Agregar las validaciones
-            // TODO: Agregar un titulo y todo a la grafica del reporte.
-            // TODO: Agregar una tabla con el resultado del desglose
             // TODO: desplegar un mensage de que no se puede graficar si es que el reporte no regreso datos
-            // TODO: Pensar en desplegar el reporte en un modal (would be nice)
 
-            // Previene que ocurra el evento POST y se refresque la pagina asi como asi
-            event.preventDefault();
+            event.preventDefault(); // Previene que ocurra el evento POST y se refresque la pagina asi como asi
 
             // No hace POST si no hay productos o turnos seleccionados
             if (tipo == 'turno' && json.turno == 'noturnos'){
@@ -201,148 +97,162 @@
                 alert("No se puede obtener el reporte por productos, No hay productos");
                 return;
             }
-            // TODO: hacer algo para que este socket no pueda ser llamado tantas veces. (Hace que se trave node.js).
             socket.emit('reporte-oee', json);
         }
-    
-    
-        socket.on('reporte-oee', function(data) {
 
-                $('#reporte-modal').modal('show');
-                // TODO: Hacer algo con los valores nulos
-                $('#gauge').empty();
-                
-                var g = new JustGage({
-                    id: "gauge",
-                    value: 67,
-                    min: 0,
-                    max: 100,
-                    title: "Rendimiento",
-                    label: "Rendimiento",
-                    reverse: true
-                });
+        socket.on('reporte-oee', function(message) {
 
+            console.log("se recibio un evento de reporte-oee")
+            // TODO: agregar validaciones para cuando los valores sean nulos disponibilidad:[] rendimiento[] calidad[] se tiene que mostrar un mensaje al usuario o algo!
+            window.scroll({ top: 500, left: 0, behavior: 'smooth' }); // Scroll sencillo smooth
 
-            });
+            // Load Charts and the corechart package.
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.load('current', {'packages':['gauge']});
+            google.charts.load('current', {'packages':['table']});
 
-            /*
-            * Se ejecuta cuando se cambia de planta .
-            */
-            $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas.
+            // Draw the charts when Charts is loaded.
+            google.charts.setOnLoadCallback(drawRendimientoChart); // Rendimiento Gauge
+            
+            
+           
+            function drawRendimientoChart () {
+                var data = google.visualization.arrayToDataTable([
+                ['Label', 'Value'],
+                ['Rendimiento', message.rendimiento[0].rendimiento]
+                ]);
 
-                // Se obtiene el ID de la planta seleccionada.
-                var $dropdown = $(this);
-                var id = $dropdown.val(); 
+                var formatter = new google.visualization.NumberFormat(
+                    {suffix: '%',pattern:'#'}
+                );
+                    formatter.format(data,1);
 
-                // Se hace una limpieza por si el formario no estaba como valido.
-                document.getElementById("areas-choice-div").classList.remove('has-error');
-                $("#btnConsultar").removeAttr('disabled','disabled');
-                $("#btnConsultar").attr('enabled','enabled');
-
-                if (id == "all"){ 
-                    location.reload(); // Si todas las plantas estan seleccionadas se refresca la pagina para obtener los campos como al principio.
-                } else {
-                    // TODO: Hacer estos eventos aparte, porque se van a meter el pie si la gente se mete al mismo tiempo.
-                    socket.emit('cambio-planta', id); // Si se selecciona cualquier otra se manada el ID por un socket.
-                }
-
-            });
-
-            /*
-            * Se ejecuta cuando se recibe la respuesta del socket de cuando se cambia una planta.
-            */ 
-            socket.on('cambio-planta', function(returnData) {
-                // se vacian estos select inputs para agregar nuevos datos.
-                var $areasChoice = $("#areas-choice");
-                $areasChoice.empty();
-
-                var $turnosChoice = $("#turno");
-                $turnosChoice.empty();
-
-                var $productosChoice = $("#producto");
-                $productosChoice.empty();
-
-                // AREAS
-                if (returnData.areas == ""){ // Si no hay areas!
-                    
-                    // Se marca un error y se deshabhilita el boton de sumbit
-                    $areasChoice.append("<option value='noareas'> Planta sin areas, por favor seleccione otra planta </option>");
-                    document.getElementById("areas-choice-div").classList.add('has-error');
-                    $("#btnConsultar").removeAttr('enabled','enabled');
-                    $("#btnConsultar").attr('disabled','disabled');
-
-                } else {
-
-                    // Se llena el input select con todas las areas
-                    $areasChoice.append("<option value='all-areas' > Todas las areas </option>")  
-                    for (var i = 0, l = returnData.areas.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
-                        $areasChoice.append("<option value="+ returnData.areas[i].id +" >" + returnData.areas[i].nombre + "</option>")  
-                        $("#btnConsultar").removeAttr('disabled','disabled');
-                        $("#btnConsultar").attr('enabled','enabled'); // Habilita el boton por que cambiaron a una planta que si tiene areas
-                    }
-                }
-
-                // TURNOS
-                if (returnData.turnos == ""){ // Si no hay turnos!
-
-                    $turnosChoice.append("<option value='noturnos'> No hay turnos en esta planta, seleccione otra opcion </option>");
-                    
-                } else {
-
-                    // Se llena el input select con los turnos
-                    for (var i = 0, l = returnData.turnos.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
-                        $turnosChoice.append("<option value="+ returnData.turnos[i].id +" >" + returnData.turnos[i].nombre + "</option>")  
-                    }
-                }
-
-                // PRODUCTOS 
-                if (returnData.productos == ""){ // Si no hay productos
-
-                    $productosChoice.append("<option value='noproductos'> No hay productos en esta planta, seleccione otra opcion </option>");
-
-                } else {
-
-                    // Se llena el input select con los productos
-                    for (var i = 0, l = returnData.productos.length; i < l; i += 1) { 
-                        $productosChoice.append("<option value="+ returnData.productos[i].id +" >" + returnData.productos[i].nombre + "</option>")  
-                    }
-                }
-            })
-
-
-            $(function() {
-
-                document.getElementById("Print").onclick = function () {
-                    printElement(document.getElementById("printThis"));
+                var options = {
+                width: 400, height: 120,
+                redFrom: 1, redTo: 20,
+                yellowFrom:20, yellowTo: 40,
+                greenFrom: 80, greenTo: 100,
+                height: 250,
+                width: 250,
+                minorTicks: 5
                 };
 
-                function printElement(elem) {
-                    var domClone = elem.cloneNode(true);
+                var chart = new google.visualization.Gauge(document.getElementById('rendimiento'));
+                chart.draw(data, options);
+            }
 
-                    var $printSection = document.getElementById("printSection");
+          
+        });
 
-                    if (!$printSection) {
-                        var $printSection = document.createElement("div");
-                        $printSection.id = "printSection";
-                        document.body.appendChild($printSection);
-                    }
 
-                    $printSection.innerHTML = "";
-                    $printSection.appendChild(domClone);
-                    window.print();
+        $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas
+
+            var $dropdown = $(this);
+            var id = $dropdown.val();  // Se obtiene el ID de la planta seleccionada
+
+            // Se hace una limpieza por si el formario no estaba como valido
+            document.getElementById("areas-choice-div").classList.remove('has-error');
+            $("#btnConsultar").removeAttr('disabled','disabled');
+            $("#btnConsultar").attr('enabled','enabled');
+
+            if (id == "all"){ 
+                location.reload(); // Si todas las plantas estan seleccionadas se refresca la pagina para obtener los campos como al principio
+            } else {
+                socket.emit('cambio-planta', id); // Si se selecciona cualquier otra se manada el ID por un socket
+            }
+        });
+
+
+        socket.on('cambio-planta', function(returnData) {
+
+
+            // se vacian estos select inputs para agregar nuevos datos.
+            var $areasChoice = $("#areas-choice");
+            $areasChoice.empty();
+
+            var $turnosChoice = $("#turno");
+            $turnosChoice.empty();
+
+            var $productosChoice = $("#producto");
+            $productosChoice.empty();
+
+            // AREAS
+            if (returnData.areas == ""){ // Si no hay areas!
+                
+                // Se marca un error y se deshabhilita el boton de sumbit
+                $areasChoice.append("<option value='noareas'> Planta sin areas, por favor seleccione otra planta </option>");
+                document.getElementById("areas-choice-div").classList.add('has-error');
+                $("#btnConsultar").removeAttr('enabled','enabled');
+                $("#btnConsultar").attr('disabled','disabled');
+
+            } else {
+
+                // Se llena el input select con todas las areas
+                $areasChoice.append("<option value='all-areas' > Todas las areas </option>")  
+                for (var i = 0, l = returnData.areas.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
+                    $areasChoice.append("<option value="+ returnData.areas[i].id +" >" + returnData.areas[i].nombre + "</option>");
+                    $("#btnConsultar").removeAttr('disabled','disabled');
+                    $("#btnConsultar").attr('enabled','enabled'); // Habilita el boton por que cambiaron a una planta que si tiene areas
+                }
+            }
+
+            // TURNOS
+            if (returnData.turnos == ""){ // Si no hay turnos!
+
+                $turnosChoice.append("<option value='noturnos'> No hay turnos en esta planta, seleccione otra opcion </option>");
+            } else {
+
+                // Se llena el input select con los turnos
+                for (var i = 0, l = returnData.turnos.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
+                    $turnosChoice.append("<option value="+ returnData.turnos[i].id +" >" + returnData.turnos[i].nombre + "</option>");
+                }
+            }
+
+            // PRODUCTOS 
+            if (returnData.productos == ""){ // Si no hay productos
+
+                $productosChoice.append("<option value='noproductos'> No hay productos en esta planta, seleccione otra opcion </option>");
+            } else {
+
+                // Se llena el input select con los productos
+                for (var i = 0, l = returnData.productos.length; i < l; i += 1) { 
+                    $productosChoice.append("<option value="+ returnData.productos[i].id +" >" + returnData.productos[i].nombre + "</option>");
+                }
+            }
+        })
+
+        $(function() {
+
+            document.getElementById("Print").onclick = function () {
+                printElement(document.getElementById("printThis"));
+            };
+
+            function printElement(elem) {
+                var domClone = elem.cloneNode(true);
+
+                var $printSection = document.getElementById("printSection");
+
+                if (!$printSection) {
+                    var $printSection = document.createElement("div");
+                    $printSection.id = "printSection";
+                    document.body.appendChild($printSection);
                 }
 
-                $('.modal.printable').on('shown.bs.modal', function () {
-                    $('.modal-dialog', this).addClass('focused');
-                    $('body').addClass('modalprinter');
+                $printSection.innerHTML = "";
+                $printSection.appendChild(domClone);
+                window.print();
+            }
 
-                }).on('hidden.bs.modal', function () {
-                    $('.modal-dialog', this).removeClass('focused');
-                    $('body').removeClass('modalprinter');
-                });
-            });
+            /*$('.modal.printable').on('shown.bs.modal', function () {
+                $('.modal-dialog', this).addClass('focused');
+                $('body').addClass('modalprinter');
 
+            }).on('hidden.bs.modal', function () {
+                $('.modal-dialog', this).removeClass('focused');
+                $('body').removeClass('modalprinter');
+            });*/
+        });
 
-        </script>
+    </script>
 </body>
 </html>

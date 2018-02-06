@@ -80,7 +80,11 @@
                             <td id="estado" class="
                                     <%if (estado[i]) { %> 
                                         <%if (estado[i].status == 'online') { %> 
-                                            <%= estado[i].razon == 'activo' ?  "green"  : "red"  %> 
+                                            <%if (estado[i].razones_paro_id == 200 || estado[i].razones_paro_id == 201) { %> 
+                                                grey
+                                            <% } else { %>  
+                                                <%= estado[i].razon == 'activo' ?  "green"  : "red"  %> 
+                                            <% } %>
                                         <% } else { %>  grey  <% } %>
                                     <% } else { %>  grey  <% } %>
                                     ">
@@ -221,20 +225,26 @@
         socket.on('actualizar', function(message) {
 
              console.log("socket.on - Actualizar - message.estado[0].status");
-             console.log(message.estado[0].status);
+             console.log(message.estado[0].razones_paro_id);
+             console.log(message.estado[0].razon)
 
              // TODO: este codigo solo funciona para cuando hay una sola maquina, todabia hay que hacer que funcione para mas maquinas
              if (message.estado[0].status == 'online') {
                 if (message.estado[0].razon == 'activo'){
-                    //console.log('verde');
                     $('#estado').addClass('green');
                     $('#estado').removeClass('red');
                     $('#estado').removeClass('grey');
                 } else {
-                    //console.log('rojo');
-                    $('#estado').addClass('red');
-                    $('#estado').removeClass('green');
-                    $('#estado').removeClass('grey');
+                    if (message.estado[0].razones_paro_id == 200 || message.estado[0].razones_paro_id == 201){
+                        $('#estado').addClass('grey');
+                        $('#estado').removeClass('red');
+                        $('#estado').removeClass('green');
+                    } else {
+                        //console.log('rojo');
+                        $('#estado').addClass('red');
+                        $('#estado').removeClass('green');
+                        $('#estado').removeClass('grey');
+                    }
                 }
                 $("#estado").html(message.estado[0].razon);  
             } else {

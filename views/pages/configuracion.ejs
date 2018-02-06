@@ -168,7 +168,11 @@
                             </thead><%for(var i=0; i<razones.length; i++) {%>
                             <tr class="quote">
                             <td><%= razones[i].nombre %></td>
-                            <td><%= razones[i].maquina %></td>
+                            
+                            <td>
+                                <a data-pk="<%= razones[i].id %>" data-title="Cambiar el producto" data-type="select" data-url="/configuracion/modif-razones-maquina" href="#" id="editar-razones-maquina-<%= razones[i].id %>"><%= razones[i].producto %></a>
+                                <%= razones[i].maquina %>
+                            </td>
                             <td>
                                 <button id="delete-razones-<%= razones[i].id %>" class="btn btn-danger btn-delete btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
                             </td>
@@ -330,24 +334,21 @@
         var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
         //var socket = io.connect('http://localhost:3000');
 
-        socket.on('message', function(message) {
-            //alert('The server has a message for you: ' + message );
-        })
-
-        // Esta funcion de aqui es de jquery
-        $('#poke').click(function() {
-            socket.emit('message', 'Hi server, how are you?');
-        })
-
         $('#myTabs a').click(function(e) {
             e.preventDefault()
             $(this).tab('show')
         })
    </script> 
+
+   <!--
+       Modals para las altas de todo
+    -->
+
    <script type="text/javascript">
                 // this function makes that the bellow code runs after the document has finished loading.
                 $(function() {
 
+                    // Se duerme un momento luego refresca la pagina, esto para darle una mejor experiencia al usuario
                     function sleep(ms) {
                         return new Promise(resolve => setTimeout(resolve, ms));
                     }
@@ -529,6 +530,9 @@
                 });
    </script>
 
+   <!-- 
+        Editar el nombre de las plantas
+    -->
 
    <%if(plantas.length>0){%> 
    <%for(var i=0; i<plantas.length; i++) {%> 
@@ -543,6 +547,11 @@
    </script> 
    <%} %> 
    <%} %> 
+
+    <!-- 
+        Editar el nombre de las areas
+    -->
+
    <%if(areas.length>0){%> 
     <%for(var i=0; i<areas.length; i++) {%> 
     <script>
@@ -557,6 +566,11 @@
     </script> 
     <%} %> 
     <%} %>
+
+    <!-- 
+        Editar maquinas y sus productos asignados
+    -->
+
     <%if(maquinas.length>0){%> 
     <%if(productos.length>0){%> 
     <%for(var i=0; i<maquinas.length; i++) {%> 
@@ -591,6 +605,9 @@
     <%} %>
 
 
+    <!-- 
+        Borrar plantas
+    -->
     <%if(plantas.length>0){%> 
     <%for(var i=0; i<plantas.length; i++) {%> 
     <script>

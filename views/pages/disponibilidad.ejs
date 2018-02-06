@@ -4,6 +4,12 @@
 <head>
    <%include ../partials/head %>
    <title>Disponibilidad</title>
+   <style>
+    .chart {
+         width: 100%; 
+         min-height: 450px;
+     }
+    </style>
 </head>
 
 <body>
@@ -32,159 +38,39 @@
         </div>
 
 
-        <div class="modal fade bs-example-modal-lg printable" id="reporte-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-            <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Reporte disponibilidad</h4>
-                    </div>
-                    <div class="modal-body" id="printThis">
-    
-                        <div class="row" >
-                            <div class="col-lg-4 col-sm-4">
-                                <!--<div class="widget widget-stats">-->
-                                <div class="">
-                                <div class="content">
-                                    <p>Tiempo activo / Tiempo muerto</p>
-                                    <canvas id='tatm'></canvas>
-                                    <!-- TODO: Hay que ver la manera de mandarlos a imprimir, o imprimir algo de la pantalla -->
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-sm-4">
-                                <!--<div class="widget widget-stats">-->
-                                <div class="">
-                                <div class="content2">
-                                    <p>Desglose de tiempo muerto</p>
-                                    <canvas id='desglose'></canvas>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-sm-4">
-                                <!--<div class="widget widget-stats">-->
-                                <div class="">
-                                <div id = "contenedor-tabla">
-
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                    <button type="button" id="Print" class="btn btn-primary">Exportar a PDF</button>
+        <div id="printThis">
+            <div class="row" >
+                <div class="col-lg-6 col-sm-6 col-p-12">
+                    <div class="chart" id="tatm"></div>
+                </div>
+                <div class="col-lg-6 col-sm-6 col-p-12">
+                    <div class="chart" id="desglose" ></div>
                 </div>
             </div>
+            <div class="row" >
+                <div class="col-lg-3 col-sm-3">
+                    <div id="disponibilidad" class="gauge"></div>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="col-lg-12 col-sm-12">
+                    <div id = "tabla-desglose">
+                </div>
             </div>
         </div>
-
-
-      </div>
-      <!-- /#page-content-wrapper -->
-   </div>
-   <!-- /#wrapper -->
-   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script> <!-- Se carga el chart.js -->
-   <!-- <script src="path/to/chartjs/dist/Chart.js"></script> --> <!-- A lo mejor es bueno cargar desde una direccion fija TODO: revisar -->
-   <script src="/socket.io/socket.io.js"></script> 
-   <%include ../partials/js %>
-   <script>
-      
-            var fechaInicio; 
-            var fechaFin;
-            var tipo = "turno"; // Por default es por turno para que aparesca algo aunque el usuario no seleccione una opcion.
-            
-            document.getElementById('ifTurno').style.display = 'block'; // Hace que se despliegue las opciones de los turnos
-
-            function byTurno() {
-                document.getElementById('ifTurno').style.display = 'block';
-                document.getElementById('ifProducto').style.display = 'none';
-                document.getElementById('ifHora').style.display = 'none';
-                tipo = "turno";
-            }
-            function byProducto() {
-                document.getElementById('ifTurno').style.display = 'none';
-                document.getElementById('ifProducto').style.display = 'block';
-                document.getElementById('ifHora').style.display = 'none';
-                tipo = "producto";
-            }
-            function byHora() {
-                document.getElementById('ifTurno').style.display = 'none';
-                document.getElementById('ifProducto').style.display = 'none';
-                document.getElementById('ifHora').style.display = 'block';
-                tipo = "hora";
-            }
-            
-            $(document).ready(function() { // El selector de fechas se despliega hasta que toda la pagina cargo
-
-            $(function() {
-            
-                $('#reportrange i').click(function() {
-                    $(this).parent().find('input').click();
-                });
+            <button class="btn btn-primary hidden-print" id="Print"><span class="glyphicon glyphicon-print" aria-hidden="true"></span> Exportar a PDF</button>
     
-                var start = moment().subtract(29, 'days');
-                var end = moment();
     
-                function cb(start, end) {
-                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                    fechaInicio = start;
-                    fechaFin = end;
-                }
-    
-                $('#reportrange').daterangepicker({
-                    startDate: start,
-                    endDate: end,
-                    ranges: {
-                    'Hoy': [moment(), moment()],
-                    'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Ultimos 7 Dias': [moment().subtract(6, 'days'), moment()],
-                    'Ultimos 30 Dias': [moment().subtract(29, 'days'), moment()],
-                    'Este mes': [moment().startOf('month'), moment().endOf('month')]
-                    /*'Anterior mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]*/
-                    },
-                    locale: {
-                        "direction": "ltr",
-                        "format": "DD/MM/YYYY HH:mm",
-                        "separator": " - ",
-                        "applyLabel": "Apicar",
-                        "cancelLabel": "Cancelar",
-                        "fromLabel": "Desde",
-                        "toLabel": "Hasta",
-                        "customRangeLabel": "Custom",
-                        "daysOfWeek": [
-                            "Dom",
-                            "Lun",
-                            "Mar",
-                            "Mie",
-                            "jue",
-                            "Vie",
-                            "Sa"
-                        ],
-                        "monthNames": [
-                            "Enero",
-                            "Febrero",
-                            "Marzo",
-                            "Abril",
-                            "Mayo",
-                            "Junio",
-                            "Julio",
-                            "Agosto",
-                            "Septiembre",
-                            "Octubre",
-                            "Noviembre",
-                            "Diciembre"
-                        ],
-                        "firstDay": 1
-                    }
-    
-                }, cb);
-                
-                cb(start, end);
-            });
-        });
-    
+          </div>
+          <!-- /#page-content-wrapper -->
+       </div>
+       <!-- /#wrapper -->
+       <!--<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>-->
+       <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+       <script src="/socket.io/socket.io.js"></script> 
+       <%include ../partials/js %>
+       <%include ../partials/js-search %>
+       <script>
             // Se hace la consulta segun los campos seleccionados
             // TODO: tomar en cuenta las reglas del negocio a programar
             // una planta o todas, una area a todas, un producto o varios mas 
@@ -194,12 +80,12 @@
             // TODO: Tomar en cuenta que va a aparecer otro cliente conectado a los socket con esto.
             var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
             //var socket = io.connect('http://localhost:3000'); // Se entabla la conexion con el servidor
-
+    
             function consultar() {
-
+    
                 console.log("se hizo una consulta");
+    
                 var json = {}
-
                 json.planta = $("#plantas-choice").val();
                 json.area = $("#areas-choice").val();
                 json.turno = $("#turno").val();
@@ -210,14 +96,10 @@
                 json.horaFin = $('#horaFin').val();
                 json.tipo = tipo;
                 // TODO: Agregar las validaciones
-                // TODO: Agregar un titulo y todo a la grafica del reporte.
-                // TODO: Agregar una tabla con el resultado del desglose
                 // TODO: desplegar un mensage de que no se puede graficar si es que el reporte no regreso datos
-                // TODO: Pensar en desplegar el reporte en un modal (would be nice)
-
-                // Previene que ocurra el evento POST y se refresque la pagina asi como asi
-                event.preventDefault();
-
+    
+                event.preventDefault(); // Previene que ocurra el evento POST y se refresque la pagina asi como asi
+    
                 // No hace POST si no hay productos o turnos seleccionados
                 if (tipo == 'turno' && json.turno == 'noturnos'){
                     alert("No se puede obtener el reporte por turnos, No hay turnos"); 
@@ -229,177 +111,156 @@
                 }
                 socket.emit('reporte-oee', json);
             }
-
-            socket.on('reporte-oee', function(data) {
-                // TODO: hacer algo para cuando los valores sean NULOS
-
-                $('#reporte-modal').modal('show');
-
+    
+            socket.on('reporte-oee', function(message) {
+    
                 console.log("se recibio un evento de reporte-oee")
-                var ta = data.ta[0].ta/60/60;
-                var tm = data.tm[0].tm/60/60;
-
-                // TODO: Mejorar estas graficas
-                var ctx = document.getElementById('tatm').getContext('2d');
-                var chart = new Chart(ctx, {
-                    // The type of chart we want to create
-                    type: 'pie',
-
-                    // The data for our dataset
-                    data: {
-                        labels: ["Tiempo activo (hrs)", "Tiempo Muerto (hrs)"],
-                        datasets: [{
-                            label: "Disponibilidad",
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)',
-                                            'rgba(54, 162, 235, 0.2)'],
-                            borderColor: ['rgba(255,99,132,1)',
-                                        'rgba(54, 162, 235, 1)'],
-                            data: [ta, tm],
-                        }]
-                    },
-                    // Configuration options go here
-                    options: {
-                        legend: {
-                            display: true,
-                            position: 'right',
-                            labels: {
-                                generateLabels: function(chart) {
-                                    // TODO: ver que se puede hacer aqui
-                                    // https://stackoverflow.com/questions/39454586/pie-chart-legend-chart-js
-                                }
-                            }
-                        }
-                    }
-                });
-
+                // TODO: agregar validaciones para cuando los valores sean nulos disponibilidad:[] rendimiento[] calidad[] se tiene que mostrar un mensaje al usuario o algo!
+                window.scroll({ top: 500, left: 0, behavior: 'smooth' }); // Scroll sencillo smooth
+    
+                // Load Charts and the corechart package.
+                google.charts.load('current', {'packages':['corechart']});
+                google.charts.load('current', {'packages':['gauge']});
+                google.charts.load('current', {'packages':['table']});
+    
+                // Draw the charts when Charts is loaded.
+                google.charts.setOnLoadCallback(drawTaTmChart); // ta tm Pie
+                google.charts.setOnLoadCallback(drawDesgloseChart); // Desglose Pie
+                google.charts.setOnLoadCallback(drawDesgloseTable); // Deglose tabla
+                google.charts.setOnLoadCallback(drawDisponibilidadChart); // Disponibilidad Gauge
+                
+                
+                var ta = message.disponibilidad[0].ta/60/60;
+                var tm = message.disponibilidad[0].tm/60/60;
+            
+                function drawTaTmChart() {
+            
+                    var data = google.visualization.arrayToDataTable([
+                    ['Evento', 'Horas'],
+                    ['Tiempo activo',     ta],
+                    ['Tiempo muerto',     tm]
+                    ]);
+            
+                    var options = {
+                    title: 'Disponibilidad',
+                    is3D: true,
+                    };
+            
+                    var chart = new google.visualization.PieChart(document.getElementById('tatm'));
+                    chart.draw(data, options);
+                }
+    
                 var labels = [];
                 var valores = [];
-
-                for (var i = 0, l  = data.desglose.length ; i < l; i += 1) {
-                    labels.push(data.desglose[i].nombre);
-                    valores.push(data.desglose[i].tm/60/60)
+    
+                for (var i = 0, l  = message.desglose.length ; i < l; i += 1) {
+                    labels.push(message.desglose[i].nombre);
+                    valores.push(message.desglose[i].tm/60/60)
                 }
-
-                // TODO: aqui agregar una tabla con los valores
-
-                var ctx2 = document.getElementById('desglose').getContext('2d');
-                var chart = new Chart(ctx2, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: "Disponibilidad",
-                            // TODO: hay que agregar mas colores, tantos como razones de paro pueda haber.
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)',
-                                            'rgba(54, 162, 235, 0.2)',
-                                            'rgba(255, 206, 86, 0.2)',
-                                            'rgba(75, 192, 192, 0.2)',
-                                            'rgba(153, 102, 255, 0.2)',
-                                            'rgba(255, 159, 64, 0.2)'],
-                            borderColor: ['rgba(255,99,132,1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 206, 86, 1)',
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(153, 102, 255, 1)',
-                                        'rgba(255, 159, 64, 1)'],
-                            data: valores,
-                        }]
-                    },
-                    // Configuration options go here
-                    options: {}
-                });
-
-                $("#contenedor-tabla").html("");
-
-                // Se crea la tabla con sus atributos
-                var table = document.createElement('table');
-                table.className = "table table-bordered";
-                table.border = '1';
-
-                // Necesitamos que la tabla tenga thead y body para poder utilizar bootgrid
-                var thead = document.createElement('thead');
-                var tbody = document.createElement('tbody');
-
-                table.appendChild(thead);
-                table.appendChild(tbody);
-
-                // Primera rutina para las columnas de la tabla
-                var tr = document.createElement('tr');
-                thead.appendChild(tr);
-
-                var th = document.createElement('th')
-                th.appendChild(document.createTextNode("Razon de paro"));
-                tr.appendChild(th);
-
-                var th2 = document.createElement('th')
-                th2.appendChild(document.createTextNode("Tiempo"));
-                tr.appendChild(th2);
-
-                console.log(data.desglose);
-                console.log(data.desglose[0].nombre);
-                console.log(data.desglose[0].tm);
-
-                // Segunda rutina que se encarga de las filas de la tabla
-                for (i = 0; i < data.desglose.length; i++) {
-                    var tr = document.createElement('tr');
-                    // Este for se encarga de extraer cada valor de data.desglose para cada celda
-                        var cell = document.createElement('td');
-                        var cellText = document.createTextNode(data.desglose[i].nombre);
-                        cell.appendChild(cellText);
-                        tr.appendChild(cell);
-
-                        var cell2 = document.createElement('td');
-                        var cellText2 = document.createTextNode(data.desglose[i].tm/60/60 + " hrs");
-                        cell2.appendChild(cellText2);
-                        tr.appendChild(cell2);
-
-                        tbody.appendChild(tr);
+    
+                function drawDesgloseChart() {
+    
+                    var datosParaLaGrafica=[];
+                    var Header= ['Razon', 'Tiempo'];
+                    datosParaLaGrafica.push(Header);
+    
+                    for (var i = 0; i < message.desglose.length; i++) {
+                        var temp=[];
+                        temp.push(message.desglose[i].nombre);
+                        temp.push(message.desglose[i].tm/60/60);
+    
+                        datosParaLaGrafica.push(temp);
+                    }
+    
+                    var options = {
+                    title: 'Desglose',
+                    is3D: true,
+                    };
+    
+                    var chartdata = new google.visualization.arrayToDataTable(datosParaLaGrafica);
+                    var chart = new google.visualization.PieChart(document.getElementById('desglose'));
+                    chart.draw(chartdata, options);
                 }
-
-                // Le agrega la tabla al Widget previamente creado antes de mandar el query a ejecutarse
-                document.getElementById("contenedor-tabla").appendChild(table);
-
+    
+                function drawDesgloseTable () {
+                    
+                    var datosParaLaTabla=[];
+                    var Header= ['Razon', 'Tiempo en horas'];
+                    datosParaLaTabla.push(Header);
+    
+                    for (var i = 0; i < message.desglose.length; i++) {
+                        var temp=[];
+                        temp.push(message.desglose[i].nombre);
+                        temp.push(message.desglose[i].tm/60/60);
+    
+                        datosParaLaTabla.push(temp);
+                    }
+    
+                    var tabledata = new google.visualization.arrayToDataTable(datosParaLaTabla);
+                    var table = new google.visualization.Table(document.getElementById('tabla-desglose'));
+    
+                    table.draw(tabledata, {showRowNumber: true, width: '100%', height: '100%'});
+                }
+    
+                function drawDisponibilidadChart () {
+                    var data = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['Disponibilidad', message.disponibilidad[0].disponibilidad]
+                    ]);
+    
+                    var formatter = new google.visualization.NumberFormat(
+                        {suffix: '%',pattern:'#'}
+                    );
+                        formatter.format(data,1);
+    
+                    var options = {
+                    width: 400, height: 120,
+                    redFrom: 1, redTo: 20,
+                    yellowFrom:20, yellowTo: 40,
+                    greenFrom: 80, greenTo: 100,
+                    height: 250,
+                    width: 250,
+                    minorTicks: 5
+                    };
+    
+                    var chart = new google.visualization.Gauge(document.getElementById('disponibilidad'));
+                    chart.draw(data, options);
+                }
+    
             });
-
-            /*
-            * Se ejecuta cuando se cambia de planta 
-            */
+    
+    
             $("#plantas-choice").change(function() { // Cada vez que se cambie de plantas
-
-                console.log("se cambio la planta");
-                // Se obtiene el ID de la planta seleccionada
+    
                 var $dropdown = $(this);
-                var id = $dropdown.val(); 
-
+                var id = $dropdown.val();  // Se obtiene el ID de la planta seleccionada
+    
                 // Se hace una limpieza por si el formario no estaba como valido
                 document.getElementById("areas-choice-div").classList.remove('has-error');
                 $("#btnConsultar").removeAttr('disabled','disabled');
                 $("#btnConsultar").attr('enabled','enabled');
-
+    
                 if (id == "all"){ 
                     location.reload(); // Si todas las plantas estan seleccionadas se refresca la pagina para obtener los campos como al principio
                 } else {
                     socket.emit('cambio-planta', id); // Si se selecciona cualquier otra se manada el ID por un socket
                 }
-
             });
-
-            /*
-            * Se ejecuta cuando se recibe la respuesta del socket de cuando se cambia una planta
-            */ 
+    
+    
             socket.on('cambio-planta', function(returnData) {
-
-                console.log("se recibio un evento de cambio planta");
+    
+    
                 // se vacian estos select inputs para agregar nuevos datos.
                 var $areasChoice = $("#areas-choice");
                 $areasChoice.empty();
-
+    
                 var $turnosChoice = $("#turno");
                 $turnosChoice.empty();
-
+    
                 var $productosChoice = $("#producto");
                 $productosChoice.empty();
-
+    
                 // AREAS
                 if (returnData.areas == ""){ // Si no hay areas!
                     
@@ -408,78 +269,75 @@
                     document.getElementById("areas-choice-div").classList.add('has-error');
                     $("#btnConsultar").removeAttr('enabled','enabled');
                     $("#btnConsultar").attr('disabled','disabled');
-
+    
                 } else {
-
+    
                     // Se llena el input select con todas las areas
                     $areasChoice.append("<option value='all-areas' > Todas las areas </option>")  
                     for (var i = 0, l = returnData.areas.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
-                        $areasChoice.append("<option value="+ returnData.areas[i].id +" >" + returnData.areas[i].nombre + "</option>")  
+                        $areasChoice.append("<option value="+ returnData.areas[i].id +" >" + returnData.areas[i].nombre + "</option>");
                         $("#btnConsultar").removeAttr('disabled','disabled');
                         $("#btnConsultar").attr('enabled','enabled'); // Habilita el boton por que cambiaron a una planta que si tiene areas
                     }
                 }
-
+    
                 // TURNOS
                 if (returnData.turnos == ""){ // Si no hay turnos!
-
+    
                     $turnosChoice.append("<option value='noturnos'> No hay turnos en esta planta, seleccione otra opcion </option>");
-                    
                 } else {
-
+    
                     // Se llena el input select con los turnos
                     for (var i = 0, l = returnData.turnos.length; i < l; i += 1) { // TODO: medir si este loop es mas rapido que el normalito
-                        $turnosChoice.append("<option value="+ returnData.turnos[i].id +" >" + returnData.turnos[i].nombre + "</option>")  
+                        $turnosChoice.append("<option value="+ returnData.turnos[i].id +" >" + returnData.turnos[i].nombre + "</option>");
                     }
                 }
-
+    
                 // PRODUCTOS 
                 if (returnData.productos == ""){ // Si no hay productos
-
+    
                     $productosChoice.append("<option value='noproductos'> No hay productos en esta planta, seleccione otra opcion </option>");
-
                 } else {
-
+    
                     // Se llena el input select con los productos
                     for (var i = 0, l = returnData.productos.length; i < l; i += 1) { 
-                        $productosChoice.append("<option value="+ returnData.productos[i].id +" >" + returnData.productos[i].nombre + "</option>")  
+                        $productosChoice.append("<option value="+ returnData.productos[i].id +" >" + returnData.productos[i].nombre + "</option>");
                     }
                 }
             })
-
-
+    
             $(function() {
-
+    
                 document.getElementById("Print").onclick = function () {
                     printElement(document.getElementById("printThis"));
                 };
-
+    
                 function printElement(elem) {
                     var domClone = elem.cloneNode(true);
-
+    
                     var $printSection = document.getElementById("printSection");
-
+    
                     if (!$printSection) {
                         var $printSection = document.createElement("div");
                         $printSection.id = "printSection";
                         document.body.appendChild($printSection);
                     }
-
+    
                     $printSection.innerHTML = "";
                     $printSection.appendChild(domClone);
                     window.print();
                 }
-
-                $('.modal.printable').on('shown.bs.modal', function () {
+    
+                /*$('.modal.printable').on('shown.bs.modal', function () {
                     $('.modal-dialog', this).addClass('focused');
                     $('body').addClass('modalprinter');
-
+    
                 }).on('hidden.bs.modal', function () {
                     $('.modal-dialog', this).removeClass('focused');
                     $('body').removeClass('modalprinter');
-                });
+                });*/
             });
-            
+    
         </script>
-</body>
-</html>
+    </body>
+    </html>

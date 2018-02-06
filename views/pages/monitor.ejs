@@ -90,7 +90,17 @@
     <div class="jumbotron vertical-center">
         <div class="container text-center">
             <div class="panel panel-default"  >
-                <div id="estado-color" class="panel-heading <%if (estado[0]) { %> <%= estado[0].razon == 'activo' ? " green " : "red " %> <% } else { %> "green" <% } %>">
+                <div id="estado-color" class="panel-heading 
+                <%if (estado[0]) { %> 
+                    <%if (estado[0].status == 'online') { %> 
+                        <%if (estado[0].razones_paro_id == 200 || estado[0].razones_paro_id == 201) { %> 
+                            grey
+                        <% } else { %>  
+                            <%= estado[0].razon == 'activo' ?  "green"  : "red"  %> 
+                        <% } %>
+                    <% } else { %>  grey  <% } %>
+                <% } else { %>  grey  <% } %>
+                ">
                     <h1 class="panel-title" id="estado">
                         <%if (estado[0]) { %>
                             <%= estado[0].razon %>
@@ -268,11 +278,45 @@
             console.log('el server esta vivo');
         })
 
+        var tid = setInterval(mycode, 15000);
+        function mycode() {
+            console.log("mande a actualizar");
+            socket.emit('actualizar', "please"); // El mensaje enviado no es utilizado para la actualizacion.
+        }
+
         socket.on('actualizar', function(message) {
 
             console.log("actualizar evento");
             // Agrega color a la tabla que muestra el estatus
-            if (message.estado[0].razon == 'activo'){
+
+            // TODO: este codigo solo funciona para cuando hay una sola maquina, todabia hay que hacer que funcione para mas maquinas
+            if (message.estado[0].status == 'online') {
+                if (message.estado[0].razon == 'activo'){
+                    $('#estado-color').addClass('green');
+                    $('#estado-color').removeClass('red');
+                    $('#estado-color').removeClass('grey');
+                } else {
+                    if (message.estado[0].razones_paro_id == 200 || message.estado[0].razones_paro_id == 201){
+                        $('#estado-color').addClass('grey');
+                        $('#estado-color').removeClass('red');
+                        $('#estado-color').removeClass('green');
+                    } else {
+                        //console.log('rojo');
+                        $('#estado-color').addClass('red');
+                        $('#estado-color').removeClass('green');
+                        $('#estado-color').removeClass('grey');
+                    }
+                }
+                $("#estado").html(message.estado[0].razon);  
+            } else {
+                $('#estado-color').addClass('grey');
+                $('#estado-color').removeClass('red');
+                $('#estado-color').removeClass('green');
+                $("#estado-color").html("Offline"); // Se manda un status offline cuando no se han recibido status en mas de 60 segundos
+            }
+
+
+            /*if (message.estado[0].razon == 'activo'){
                  console.log('verde');
                  $('#estado-color').addClass('green');
                  $('#estado-color').removeClass('red');
@@ -280,9 +324,11 @@
                  console.log('rojo');
                  $('#estado-color').addClass('red');
                  $('#estado-color').removeClass('green');
-             }
+             }*/
+
+
             // TODO: Esto solo muestra info de una maquina, hay que mostrar la info de mas maquinas
-            $("#estado").html(message.estado[0].razon);
+            //$("#estado").html(message.estado[0].razon);
             $("#maquina").html(message.estado[0].nombre); // TODO: no puede ser el ID de la maquina, me tiene que regresar el nombre
             $("#producto").html(message.estado[0].producto);
 

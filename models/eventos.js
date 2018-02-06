@@ -397,18 +397,18 @@ exports.getConfiguracion = function(done) {
         connection.query("SELECT * FROM plantas WHERE active = true").then(function(rows){
             return_data.plantas = rows
             
-            var result = connection.query("SELECT a.id 'id', a.nombre 'nombre', a.notas 'notas', p.id 'p_id', p.nombre 'planta' FROM areas a INNER JOIN plantas p ON a.plantas_id = p.id and a.active=true") 
+            var result = connection.query("SELECT a.id 'id', a.nombre 'nombre', p.id 'p_id', p.nombre 'planta' FROM areas a INNER JOIN plantas p ON a.plantas_id = p.id and a.active=true") 
             return result
         }).then(function(rows){
             return_data.areas = rows
 
-            var result = connection.query("SELECT m.id 'id', m.nombre 'nombre', m.notas 'notas', a.nombre 'area', p.id 'productos_id', p.nombre 'producto' FROM maquinas m INNER JOIN areas a ON m.areas_id = a.id INNER JOIN productos p ON m.productos_id = p.id WHERE m.active = true") 
+            var result = connection.query("SELECT m.id 'id', m.nombre 'nombre', a.nombre 'area', p.id 'productos_id', p.nombre 'producto' FROM maquinas m INNER JOIN areas a ON m.areas_id = a.id INNER JOIN productos p ON m.productos_id = p.id WHERE m.active = true") 
                 
             return result
         }).then(function(rows){ 
             return_data.maquinas = rows
             
-            var result = connection.query("SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_paro r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.active = true") 
+            var result = connection.query("SELECT r.id 'id', r.nombre 'nombre', m.nombre 'maquina' FROM razones_paro r INNER JOIN maquinas m ON r.maquinas_id = m.id WHERE r.active = true AND r.id not in(1,200,201)") 
             return result
         }).then(function(rows){ 
             return_data.razones = rows
