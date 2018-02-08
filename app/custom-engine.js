@@ -847,7 +847,7 @@ module.exports = function(io) {
                         maquinas_id: evento.maquina_id,
                         productos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajadoproductos_id: 1, // TODO: Aqui hay que hacer un query con el Id de la maquina para saber cual es el producto que se esta trabajado
                         razones_paro_id: 1,
-                        razones_calidad_id: 1 // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
+                        razones_calidad_id: evento.razon_calidad // Se guarda 1 (Pieza buena) porque aqui vamos a medir TA/TM solamente pero el campo es not null TODO: Mejorar esto
                     };
 
                     //log.debug(save)

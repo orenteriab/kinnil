@@ -271,7 +271,8 @@
     </script> 
     <script>
 
-        var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        var socket = io.connect('http://ec2-13-58-128-66.us-east-2.compute.amazonaws.com:3000');
         //var socket = io.connect('localhost:3000');
 
         socket.on('message', function(message) {

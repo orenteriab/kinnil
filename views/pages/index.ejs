@@ -53,11 +53,11 @@
                                 <th>Estado</th>
                                 <th>Maquina</th>
                                 <th>Producto</th>
-                                <th>PH</th>
+                                <!--<th>PH</th>
                                 <th>Temp</th>
                                 <th>Cond</th>
                                 <th>Chispa</th>
-                                <th>Nudo</th>
+                                <th>Nudo</th>-->
                                 <th>Disp</th>
                                 <th>TA</th>
                                 <th>TM</th>
@@ -112,7 +112,7 @@
                                     Sin eventos
                                 <% } %>
                             </td>
-                            <td id="ph"></td>
+                            <!--<td id="ph"></td>
                             <td id="temperatura"></td>
                             <td id="conductividad"></td>
                             <td id="digital1" class="<%if (digital[0]) { %> <%= digital[0].activo == '0' ? " green " : "red " %> <% } %>">
@@ -120,7 +120,7 @@
                             </td>
                             <td id="digital2" class="<%if (digital[1]) { %> <%= digital[1].activo == '0' ? " green " : "red " %> <% } %>">
                                 
-                            </td>
+                            </td>-->
                             <td id="disponibilidad">
                                 <!-- Si el query de disponibilidad esta empty despliega un i -->
                                 <%if (disponibilidad[i] && disponibilidad[0].disponibilidad !== null) { %>
@@ -209,7 +209,8 @@
    <script>
         
         // TODO: Esto tiene que estar con la url del servidor una vez arriba 
-        var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        var socket = io.connect('http://ec2-13-58-128-66.us-east-2.compute.amazonaws.com:3000');
         //var socket = io.connect('localhost:3000');
         
         socket.on('message', function(message) {

@@ -167,10 +167,12 @@
                             </tr>
                             </thead><%for(var i=0; i<razones.length; i++) {%>
                             <tr class="quote">
-                            <td><%= razones[i].nombre %></td>
+                                <td>
+                                    <a data-pk="<%= razones[i].id %>" data-title="Cambiar el nombre" data-type="text" data-url="/configuracion/modif-razones-nombre" href="#" id="editar-razones-<%= razones[i].id %>"><%= razones[i].nombre %></a>
+                                </td>
                             
                             <td>
-                                <a data-pk="<%= razones[i].id %>" data-title="Cambiar el producto" data-type="select" data-url="/configuracion/modif-razones-maquina" href="#" id="editar-razones-maquina-<%= razones[i].id %>"><%= razones[i].producto %></a>
+                                <a data-pk="<%= razones[i].id %>" data-title="Cambiar el producto" data-type="select" data-url="/configuracion/modif-razones-maquina" href="#" id="editar-razones-maquina-<%= razones[i].id %>"><%= razones[i].maquina %></a>
                                 <%= razones[i].maquina %>
                             </td>
                             <td>
@@ -331,7 +333,8 @@
    <script src="/socket.io/socket.io.js">
    </script> 
    <script>
-        var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+        var socket = io.connect('http://ec2-13-58-128-66.us-east-2.compute.amazonaws.com:3000');
         //var socket = io.connect('http://localhost:3000');
 
         $('#myTabs a').click(function(e) {
@@ -596,6 +599,45 @@
                 
                 $('#editar-maquinas-producto-<%= maquinas[i].id %>').editable({
                     value: <%= maquinas[i].id %>,    // Muestra un error aqui en el codigo pero funciona bien a la hora de la hora. Hay que dejarlo asi
+                    source: source
+                });
+            });
+    </script> 
+    <%} %> 
+    <%} %>
+    <%} %>
+
+    <!--
+        Modificar el nombre de las razones de paro y cambiarles la maquina
+     -->
+
+    <%if(razones.length>0){%> 
+    <%if(maquinas.length>0){%> 
+    <%for(var i=0; i<razones.length; i++) {%> 
+    <script>
+            // TODO: hay que verificar esta logica, porque no se van a poder modifircar el nombre de las razones si no hay maquinas. (sera correcto?)
+            $(document).ready(function() {
+                $('#editar-razones-<%= razones[i].id %>').editable({
+                    success: function(response, newValue) {
+                        ///// TODO: Hay que agregar un refresh a la pagina cuando se actualizen siertas cosas, las que se necesite o se pueda
+                        if (response.status == 'error') return response.msg; //msg will be shown in editable form
+                    }
+                });
+
+                var source = [];
+                var source2 = [];
+                <%for(var x=0; x < maquinas.length; x++) {%> 
+                    
+                    var obj = {};
+                    obj["value"] = <%= maquinas[x].id %>;
+                    obj["text"] = "<%= maquinas[x].nombre %>";
+                    source.push(obj);
+
+                <%} %>
+
+                
+                $('#editar-razones-maquina-<%= razones[i].id %>').editable({
+                    value: <%= razones[i].maquina %>,    // Muestra un error aqui en el codigo pero funciona bien a la hora de la hora. Hay que dejarlo asi
                     source: source
                 });
             });
