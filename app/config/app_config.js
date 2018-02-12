@@ -3,16 +3,15 @@ import * as session from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
-import {passport} from './passport_config';
+import { passport } from './passport_config';
 import * as path from 'path';
-import * as favicon from 'serve-favicon';
 import * as flash from 'connect-flash';
-import * as fs from 'fs';
+import { router as apiRouter } from '../controller/api/index_controller';
 
 const sessionMiddleware = session({
-  secret: 'vidyapathaisalwaysrunning',
-  resave: true,
-  saveUninitialized: true
+    secret: 'vidyapathaisalwaysrunning',
+    resave: true,
+    saveUninitialized: true
 });
 
 const app = express();
@@ -29,6 +28,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.listen(3000, () => {
-  console.log(`Running in ${process.env.NODE_ENV}`);
+const PORT = process.env.port || 3000;
+const ENV = process.env.NODE_ENV || 'DEV';
+
+app.use('/api', apiRouter);
+
+app.listen(PORT, () => {
+    console.log(`Running in ${ENV}`);
 });
