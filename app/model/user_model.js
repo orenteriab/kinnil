@@ -1,4 +1,5 @@
-import { connectionPool } from '../config/database_config';
+
+let connectionPool = require('../config/database_config').connectionPool;
 
 exports.findUserById = (userId) => {
     let statement = 'select * from `users` `u` where `u`.`id` = ?';

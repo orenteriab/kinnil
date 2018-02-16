@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { router as usersRouter } from './user_controller';
+let Router = require('express').Router;
+let usersRouter = require('./user_controller').router;
 
 const router = Router();
 router.use('/users', usersRouter);

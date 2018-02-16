@@ -1,4 +1,4 @@
-import { createPool } from 'promise-mysql';
+let  createPool = require('promise-mysql').createPool;
 
 const mysqlPool = createPool({
     host: 'localhost',

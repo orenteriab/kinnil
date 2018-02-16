@@ -1,12 +1,14 @@
-import * as passport from 'passport';
-import {Strategy} from 'passport-local';
-import * as userService from '../service/user_service';
+let passport = require('passport');
+let Strategy = require('passport-local').Strategy;
+let userService = require('../service/user_service');
 
-const LOCAL_STRATEGY = new Strategy({
+const LOCAL_STRATEGY_PROPERTIES = {
     passwordField: 'password',
     usernameField: 'username',
     passReqToCallback: true
-});
+};
+const LOCAL_SIGNUP_STRATEGY = new Strategy(LOCAL_STRATEGY_PROPERTIES, userService.passportUserSignUp);
+const LOCAL_LOGIN_STRATEGY = new Strategy(LOCAL_STRATEGY_PROPERTIES, userService.passportUserLogin);
 
 const STRATEGY_NAMES = {
     login: 'local-login',
@@ -48,8 +50,8 @@ passport.deserializeUser((userId, done) => {
         .catch((err) => done(err));
 });
 
-passport.use(STRATEGY_NAMES.signup, LOCAL_STRATEGY, userService.passportUserSignUp);
-passport.use(STRATEGY_NAMES.login, LOCAL_STRATEGY, userService.passportUserLogin);
+passport.use(STRATEGY_NAMES.signup, LOCAL_SIGNUP_STRATEGY);
+passport.use(STRATEGY_NAMES.login, LOCAL_LOGIN_STRATEGY);
 
 exports.passport = passport;
 exports.isLoggedIn = isLoggedIn;

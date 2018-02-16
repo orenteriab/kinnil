@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import * as userService from '../../service/user_service';
+let Router = require('express').Router;
+let userService = require('../../service/user_service');
 
 const ROUTER = Router();
 

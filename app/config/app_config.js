@@ -1,12 +1,12 @@
-import * as express from 'express';
-import * as session from 'express-session';
-import * as cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser';
-import * as morgan from 'morgan';
-import { passport } from './passport_config';
-import * as path from 'path';
-import * as flash from 'connect-flash';
-import { router as apiRouter } from '../controller/api/index_controller';
+let express = require('express');
+let session = require('express-session');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+let morgan = require('morgan');
+let passport = require('./passport_config').passport;
+let path = require('path');
+let flash= require('connect-flash');
+let apiRouter = require('../controller/api/index_controller').router;
 
 const sessionMiddleware = session({
     secret: 'vidyapathaisalwaysrunning',
@@ -34,5 +34,5 @@ const ENV = process.env.NODE_ENV || 'DEV';
 app.use('/api', apiRouter);
 
 app.listen(PORT, () => {
-    console.log(`Running in ${ENV}`);
+    console.log(`Running in ${ENV} on port ${PORT}.`);
 });

@@ -1,6 +1,7 @@
-import * as userModel from '../model/user_model';
-import {hashSync, compareSync} from 'bcrypt-nodejs';
-import { passport } from '../config/passport_config';
+let userModel = require('../model/user_model');
+let bcrypt = require('bcrypt-nodejs');
+let hashSync = bcrypt.hashSync;
+let compareSync = bcrypt.compareSync;
 
 function passportUserSignUpThenHandler(passportDone, createdUser){
     return (rows) => {
