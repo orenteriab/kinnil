@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+    <title>Monitor</title>
+    <link rel="stylesheet" href="./css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        
+        .jumbotron.vertical-center {
+            margin-bottom: 0;
+        }
+        
+        .vertical-center {
+            min-height: 100%;
+            /* Fallback for vh unit */
+            min-height: 100vh;
+
+            /* Make it a flex container */
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            /* Align the bootstrap's container vertically */
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            -moz-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            /* In legacy web browsers such as Firefox 9
+            we need to specify the width of the flex container */
+            width: 100%;
+            /* Also 'margin: 0 auto' doesn't have any effect on flex items in such web browsers
+            hence the bootstrap's container won't be aligned to the center anymore.
+            Therefore, we should use the following declarations to get it centered again */
+            -webkit-box-pack: center;
+            -moz-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
+
+        
+        .panel-default > .green {
+            background-color: #93C47D;
+            border-color: #93C47D;
+        }
+        
+        .panel-default > .red {
+            background-color: #FF0000;
+            border-color: #FF0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="jumbotron vertical-center">
+        <div class="container text-center">
+            <div class="panel panel-default">
+                <!-- green red -->
+                <div class="panel-heading" id="estado-heading">
+                    <h1 class="panel-title" id="estado">
+                        Sin eventos
+                    </h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="top-bg">
+                                <h2>Producto:
+
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="top-bg">
+                                <h2>Maquina:
+                                    
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="top-bg">
+                                <h2>Turno:
+
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Disponibilidad: 
+                                    0%
+                                </h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Rendimiento: 
+                                    0%
+                                </h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Calidad: 
+                                    0%
+                                </h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>OEE: 
+                                    0%
+                                </h2></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Tiempo activo: 
+                                    0hrs
+                                </h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Tiempo muerto: 
+                                    0hrs
+                                </h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Kgs buenos:</h2></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="top-bg">
+                                <h2>Kgs malos:</h2></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js">
+    </script> 
+    <script src="/socket.io/socket.io.js">
+    </script> 
+    <script>
+         
+         // TODO: Esto tiene que estar con la url del servidor una vez arriba 
+         //var socket = io.connect('http://ec2-18-221-199-24.us-east-2.compute.amazonaws.com:3000');
+         //var socket = io.connect('localhost:3000');
+         var socket = io.connect('http://ec2-13-58-128-66.us-east-2.compute.amazonaws.com:3000');
+ 
+         socket.on('estado-actual', function(message) {
+             
+             console.log(message);
+             var mensaje = JSON.parse(message);
+             $('#estado').html(mensaje.nombre);
+             
+ 
+             if (mensaje.razones_id == '1'){
+                 console.log('verde');
+                 $('#estado-heading').addClass('green');
+                 $('#estado-heading').removeClass('red');
+             } else {
+                 console.log('rojo');
+                 $('#estado-heading').addClass('red');
+                 $('#estado-heading').removeClass('green');
+             }
+         })
+         
+         socket.on('message', function(message) {
+             console.log('el server esta vivo');
+         })
+         
+         function myFunction() {
+             var obj = { "razones_id":"1"};
+             var myJSON = JSON.stringify(obj);
+ 
+             socket.emit('evento', myJSON)
+ 
+         }
+ 
+         function myFunction2() {
+             var obj = { "razones_id":"2"};
+             var myJSON = JSON.stringify(obj);
+ 
+             socket.emit('evento', myJSON)
+             
+         }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+
+<!-- jQuery -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="./js/bootstrap.min.js"></script>
+<!-- datetime picker -->
+<script type="text/javascript" src="./js/moment.min.js"></script>
+<script type="text/javascript" src="./js/daterangepicker.js"></script>
+
+<!-- Bootstrap bootstrap-notify -->
+<!--<script src="./js/bootstrap-notify.min.js"></script>-->
+<!-- jquery bootgrid -->
+<script src="./js/jquery.bootgrid.min.js"></script>
+<!-- jquery bootgrid FA icons -->
+<script src="./js/jquery.bootgrid.fa.min.js"></script>
+<!-- lodash required for gridstack -->
+<!--<script src="./js/lodash.js"></script>-->
+
+<!-- drigstack -->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.0/jquery-ui.js"></script>
+<script src="./js/gridstack.js"></script>
+<script src="./js/gridstack.jQueryUI.js"></script>-->
+<!-- Menu Toggle Script -->
+
+<!-- X editable -->
+<script type="text/javascript" src="./js/bootstrap-editable.min.js"></script>
+
+<script>
+  /*
+  * Toggle menu 
+  */
+  const menuToggleBtn = document.getElementById('menu-toggle')
+
+  menuToggleBtn.addEventListener('click', function () {
+    $("#wrapper").toggleClass("toggled");
+
+    if (document.getElementById("toggle-btn").className.match(/(?:^|\s)fa fa-chevron-left(?!\S)/)) {
+        document.getElementById("toggle-btn").className = "fa fa-chevron-right";
+    } else {
+        document.getElementById("toggle-btn").className = "fa fa-chevron-left";
+    }
+  })
+</script>

@@ -7,6 +7,7 @@ let passport = require('./passport_config').passport;
 let path = require('path');
 let flash= require('connect-flash');
 let apiRouter = require('../controller/api/index_controller').router;
+let webRouter = require('../controller/web/index_controller').router;
 
 const sessionMiddleware = session({
     secret: 'vidyapathaisalwaysrunning',
@@ -32,6 +33,7 @@ const PORT = process.env.port || 3000;
 const ENV = process.env.NODE_ENV || 'DEV';
 
 app.use('/api', apiRouter);
+app.use('/web', webRouter);
 
 app.listen(PORT, () => {
     console.log(`Running in ${ENV} on port ${PORT}.`);

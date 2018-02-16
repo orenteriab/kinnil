@@ -1,0 +1,104 @@
+<form class = "form-horizontal">
+  <div class="form-group">
+    <label for="sel1">Planta:</label>
+    <select class="form-control" id="plantas-choice">
+        <% if(plantas.length>0){%>
+          <option value = "all">Todas las plantas</option>
+        <% for(var i=0; i<plantas.length; i++) {%>
+        <option value = "<%= plantas[i].id %>"><%= plantas[i].nombre %></option>
+        <% } %>
+        <%} else {%>
+          <!-- TODO: Tomar las medidas necesarias para que no aparezcan errores en routes.js -->
+          <option value = "sin-plantas">No hay plantas</option>
+        <% } %>
+    </select>
+  </div>
+
+  <div class="form-group" id="areas-choice-div">
+    <label for="sel1">Area:</label>
+    <select class="form-control" id="areas-choice">
+      <% if(areas.length>0){%>
+        <option value = "all">Todas las areas</option>
+      <% for(var i=0; i<areas.length; i++) {%>
+      <option value = "<%= areas[i].id %>"><%= areas[i].nombre %></option>
+      <% } %>
+      <%} else {%>
+        <!-- TODO: Tomar las medidas necesarias para que no aparezcan errores en routes.js -->
+        <option value = "sin-areas">No hay areas</option>
+      <% } %>
+    </select>
+  </div>
+  <div class="form-group" id="areas-choice-div">
+    <label for="sel1">Maquina:</label>
+    <select class="form-control" id="areas-choice">
+      <% if(maquinas.length>0){%>
+        <option value = "all">Todas las maquinas</option>
+      <% for(var i=0; i<maquinas.length; i++) {%>
+      <option value = "<%= maquinas[i].id %>"><%= maquinas[i].nombre %></option>
+      <% } %>
+      <%} else {%>
+        <!-- TODO: Tomar las medidas necesarias para que no aparezcan errores en routes.js -->
+        <option value = "sin-areas">No hay areas</option>
+      <% } %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="sel1">Rango de fechas:</label>
+     <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+       <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+       <span></span> <b class="caret"></b>
+    </div>
+  </div>
+  <br/>
+  <div class="form-group">
+    <label for="sel1">Opciones:</label>
+    <div class="">
+      <label><input type="radio" name="optradio" id="radioTurno" onclick="byTurno();" checked>Turno</label>
+        <div id="ifTurno" style="display:none">
+            <div class="">
+              <select class="form-control" id="turno">
+                  <% if(turnos.length>0){%>
+                  <% for(var i=0; i<turnos.length; i++) {%>
+                  <option value = "<%= turnos[i].id %>"><%= turnos[i].nombre %></option>
+                  <% } %>
+                  <%} else {%>
+                    <option value = "sinturno">No hay turnos.</option>
+                  <% } %>
+              </select>
+            </div>
+        </div>
+      </div>
+      <div class="">
+      <label><input type="radio" name="optradio" onclick="byProducto();">Producto</label>
+        <div id="ifProducto" style="display:none">
+              <div class="">
+                <select class="form-control" id="producto">
+                  <% if(productos.length>0){%>
+                  <% for(var i=0; i<productos.length; i++) {%>
+                  <option value = "<%= productos[i].id %>"><%= productos[i].nombre %></option>
+                  <% } %>
+                  <%} else {%>
+                    <option value = "sinproducto">No hay productos.</option>
+                  <% } %>
+                </select>
+              </div>
+          </div>
+        </div>
+      <div class="">
+      <label><input type="radio" name="optradio" onclick="byHora();">Hora</label>
+      <div id="ifHora" style="display:none">
+            <div class="">
+              <p>Inicio:</p>
+              <select id="horaInicio" class="form-control"><option value="0">12:00 AM</option><option value="1800">12:30 AM</option><option value="3600">01:00 AM</option><option value="5400">01:30 AM</option><option value="7200">02:00 AM</option><option value="9000">02:30 AM</option><option value="10800">03:00 AM</option><option value="12600">03:30 AM</option><option value="14400">04:00 AM</option><option value="16200">04:30 AM</option><option value="18000">05:00 AM</option><option value="19800">05:30 AM</option><option value="21600">06:00 AM</option><option value="23400">06:30 AM</option><option value="25200">07:00 AM</option><option value="27000">07:30 AM</option><option value="28800">08:00 AM</option><option value="30600">08:30 AM</option><option value="32400">09:00 AM</option><option value="34200">09:30 AM</option><option value="36000">10:00 AM</option><option value="37800">10:30 AM</option><option value="39600">11:00 AM</option><option value="41400">11:30 AM</option><option value="43200">12:00 PM</option><option value="45000">12:30 PM</option><option value="46800">01:00 PM</option><option value="48600">01:30 PM</option><option value="50400">02:00 PM</option><option value="52200">02:30 PM</option><option value="54000">03:00 PM</option><option value="55800">03:30 PM</option><option value="57600">04:00 PM</option><option value="59400">04:30 PM</option><option value="61200">05:00 PM</option><option value="63000">05:30 PM</option><option value="64800">06:00 PM</option><option value="66600">06:30 PM</option><option value="68400">07:00 PM</option><option value="70200">07:30 PM</option><option value="72000">08:00 PM</option><option value="73800">08:30 PM</option><option value="75600">09:00 PM</option><option value="77400">09:30 PM</option><option value="79200">10:00 PM</option><option value="81000">10:30 PM</option><option value="82800">11:00 PM</option><option value="84600">11:30 PM</option></select>
+            </div>
+            <div class="">
+              <p>Fin:</p>
+              <select id="horaFin" class="form-control"><option value="0">12:00 AM</option><option value="1800">12:30 AM</option><option value="3600">01:00 AM</option><option value="5400">01:30 AM</option><option value="7200">02:00 AM</option><option value="9000">02:30 AM</option><option value="10800">03:00 AM</option><option value="12600">03:30 AM</option><option value="14400">04:00 AM</option><option value="16200">04:30 AM</option><option value="18000">05:00 AM</option><option value="19800">05:30 AM</option><option value="21600">06:00 AM</option><option value="23400">06:30 AM</option><option value="25200">07:00 AM</option><option value="27000">07:30 AM</option><option value="28800">08:00 AM</option><option value="30600">08:30 AM</option><option value="32400">09:00 AM</option><option value="34200">09:30 AM</option><option value="36000">10:00 AM</option><option value="37800">10:30 AM</option><option value="39600">11:00 AM</option><option value="41400">11:30 AM</option><option value="43200">12:00 PM</option><option value="45000">12:30 PM</option><option value="46800">01:00 PM</option><option value="48600">01:30 PM</option><option value="50400">02:00 PM</option><option value="52200">02:30 PM</option><option value="54000">03:00 PM</option><option value="55800">03:30 PM</option><option value="57600">04:00 PM</option><option value="59400">04:30 PM</option><option value="61200">05:00 PM</option><option value="63000">05:30 PM</option><option value="64800">06:00 PM</option><option value="66600">06:30 PM</option><option value="68400">07:00 PM</option><option value="70200">07:30 PM</option><option value="72000">08:00 PM</option><option value="73800">08:30 PM</option><option value="75600">09:00 PM</option><option value="77400">09:30 PM</option><option value="79200">10:00 PM</option><option value="81000">10:30 PM</option><option value="82800">11:00 PM</option><option value="84600">11:30 PM</option></select>
+            </div>
+        </div>
+      </div>
+  </div>
+  <button onclick="consultar()" id="btnConsultar" type="submit" class="btn btn-primary">Consultar</button>
+</form>
+
