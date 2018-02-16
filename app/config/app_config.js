@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '..', 'assets')));
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
