@@ -1,0 +1,18 @@
+{
+    "dev": {
+        "_comment": "Cambia el usuario y el password como necesites, éste es el que manejo en mi computadora.",
+        "driver": "mysql",
+        "user": "root",
+        "password": "root",
+        "host": "127.0.0.1",
+        "database": "sandras"
+    },
+    "prod": {
+        "_comment": "Agrega las configuraciones aquí del ambiente de producción, Mike. Ya tú sabrás que usuarios/passwords, solamente necesitan permisos de CREATE, DROP, ALTER, SELECT, DELETE , UPDATE, INSERT",
+        "driver": "mysql",
+        "user": "",
+        "password": "",
+        "host": "",
+        "database": "sandras"
+    }
+}
