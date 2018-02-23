@@ -1,7 +1,9 @@
 let Router = require('express').Router;
 let usersRouter = require('./user_controller').router;
+let ticketRouter = require('./tickets_controller').router;
 
-const router = Router();
-router.use('/users', usersRouter);
+const ROUTER = Router();
+ROUTER.use('/users', usersRouter);
+ROUTER.use('/tickets', ticketRouter);
 
-exports.router = router;
+exports.router = ROUTER;
