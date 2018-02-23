@@ -35,6 +35,9 @@ const ENV = process.env.NODE_ENV || 'DEV';
 app.use('/api', apiRouter);
 app.use('/web', webRouter);
 
+let server = require('http').Server(app);
+require('./socket_config').init(server);
+
 app.listen(PORT, () => {
     console.log(`Running in ${ENV} on port ${PORT}.`);
 });
