@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+   <title>Inicio</title>
+</head>
+
+<body>
+
+        <%include ../partials/navbar %>
+        
+        <div class="wrapper">
+                <!-- Sidebar Holder -->
+                <%include ../partials/sidebar %>
+    
+                <!-- Page Content Holder -->
+                <div id="content">
+                    <%include ../partials/up %>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">To be Asigned</h3>
+                                    <h1>10 tms</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Work in progress</h3>
+                                    <h1>10 tms</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Completed</h3>
+                                    <h1>10 tms</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">To be invoiced</h3>
+                                    <h1>10 tms</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">To be Payrolled</h3>
+                                    <h1>10 tms</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                </div>    
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">To be Paid</h3>
+                                    <h1>10 tms</h1>
+                                </div>
+                                <div class="panel-body">
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                    <a href="#" class="text-center"><p>TMSNumber</p></a>
+                                </div>    
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                    </div>
+                        
+    
+                    
+                </div>
+            </div>
+    
+
+
+    <!-- <script src="/socket.io/socket.io.js"></script>  -->
+    <%include ../partials/js %>
+    <script>
+        //var socket = io.connect('http://localhost:3000');
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
