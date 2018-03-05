@@ -36,6 +36,14 @@
                             </p>
                         </div>
                         <div class="col-md-6">
+                            <p>Manual input
+                                <button type="button" class="btn btn-default" aria-label="Left Align"  data-toggle="modal" data-target=".manual-input-modal">
+                                    Manual
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+                            </p>
+                        </div>
+                        <!--<div class="col-md-6">
                             <form class="form-inline" id="find-ticket">
                                 <div class="form-group">
                                     <label for="exampleInputName2">Find a ticket:</label>
@@ -45,20 +53,13 @@
                                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                 </button>
                             </form>
-                        </div>
+                        </div>-->
                     </div>
 
                     <div class="row">
                         <br/>
-                        <div class="col-md-6">
-                            <p>Manual input
-                                <button type="button" class="btn btn-default" aria-label="Left Align"  data-toggle="modal" data-target=".manual-input-modal">
-                                    Manual
-                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                </button>
-                            </p>
-                        </div>
-                        <div class="col-md-6">
+                        
+                        <!--<div class="col-md-6">
                             <form class="form-inline" id="find-ticket">
                                 <div class="form-group">
                                     <label for="exampleInputName2">Find a TMS: </label>
@@ -68,49 +69,59 @@
                                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
                                 </button>
                             </form>
-                        </div>
+                        </div>-->
                     </div>
 
                     <br/>
                     <div class="row">
                         <div class="col-md-12">
-                            <table border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                            <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>TMS</th>
-                                        <th>Location</th>
-                                        <th>Facility</th>
-                                        <th>Driver</th>
-                                        <th>Product</th>
-                                        <th>Options</th>
+                                        <th data-column-id="id" data-formatter="link" data-type="numeric">#</th>
+                                        <th data-column-id="tms" data-type="numeric">TMS</th>
+                                        <th data-column-id="location">Location</th>
+                                        <th data-column-id="facility">Facility</th>
+                                        <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
+                                        <th data-column-id="products" data-formatter="products">Product</th>
+                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
+                                <%if (tickets.length > 0) { %>
                                 <tbody>
-                                    <tr class="quote">
-                                        <td id="">
+                                    <% for(var i=0; i<tickets.length; i++) {%>
+                                        <%if (tickets[i].status == 1) { %> <!-- status:1 = to be asigned -->
+                                        <tr class="quote">
+                                            <td id="">
+                                                <%= tickets[i].id %>
+                                            </td>
+                                            <td id="">
+                                                <%= tickets[i].tms %>
+                                            </td>
+                                            <td id="">
+                                                <%= tickets[i].location %>
+                                            </td>
+                                            <td id="">
+                                                <%= tickets[i].facility %>
+                                            </td>
+                                            <td id="">
+                                                
+                                            </td>
+                                            <td id="">
 
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-                                            <button type="submit" class="btn btn-default"> Assign</button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td id="">
+                                                <button type="submit" class="btn btn-default"> Assign</button>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    <% } %>
                                 </tbody>
+                                <% } else{ %>  
+                                    <tbody>
+                                        <p>No tickets in this category</p>
+                                    </tbody>
+                                <% } %>
                             </table>
                         </div>
                     </div>
@@ -119,92 +130,52 @@
             </div>
         </div>
     </div>
+    <button type="button" class="btn btn-lg btn-success" id="PincheBoton">Go</button>
     
 
-    <div class="modal fade manual-input-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+    <!-- Taken from Bootstrap's documentation -->
+    <div class="modal fade" id="ticketModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Manual input</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Modal title</h4>
             </div>
             <div class="modal-body">
-                
-                <div class="container col-md-12">
-                    <div class="row">
-                        <form>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Price:</label>
-                                <input type="text" class="form-control" id="exampleInputName2" placeholder="">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Product</label>
-                                <select class="form-control" id="exampleInputName2">
-                                    <option>1 Milles</option>
-                                    <option>2 Milles</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Dispatcher commets</label>
-                                <input type="text" class="form-control" id="exampleInputName2" placeholder="">
-                            </div>    
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Driver</label>
-                                <select class="form-control" id="exampleInputName2">
-                                    <option>Driver 1</option>
-                                    <option>Driver 2</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Client</label>
-                                <select class="form-control" id="exampleInputName2">
-                                    <option>Client 1</option>
-                                    <option>Client 2</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Address</label>
-                                <input type="text" class="form-control" id="exampleInputName2" placeholder="" disabled>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> P.O.</label>
-                                <input type="text" class="form-control" id="exampleInputName2" placeholder="">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Origin</label>
-                                <input type="text" class="form-control" id="exampleInputName2" placeholder="">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Destiny</label>
-                                <select class="form-control" id="exampleInputName2">
-                                    <option>Destiny 1</option>
-                                    <option>Destiny 2</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="exampleInputName2"> Sand type</label>
-                                <select class="form-control" id="exampleInputName2">
-                                    <option>Sand 1</option>
-                                    <option>Sand 2</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-
+              <p>One fine body&hellip;</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
             </div>
-        </div>  
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
       </div>
-    </div>
+      <!-- /.modal -->
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
+
+        <!--
+        Get ticket detail
+    -->
+    <script type="text/javascript">
+
+        var infoModal = $('#ticketModal');
+        $('#PincheBoton').on('click', function(){
+            $.getJSON('/api/dispatcher/getTicketDetail/8', function(data) {
+
+                htmlData = '<ul><li>title: '+data.ticket[0].id+'</li><li>age: '+data.ticket[0].tms+'</li></ul>';
+                console.log(htmlData);
+
+            });
+        });
+
+    </script>
+
+
     <script>
         //var socket = io.connect('http://localhost:3000');
     </script>
@@ -215,6 +186,108 @@
             });
         });
     </script>
+    <!--
+        Obtiene los drivers, trucks and trailers que estan disponibles
+    -->
+    <script type="text/javascript">
+        function callEndpoint() {
+            $.getJSON('/api/dispatcher/getUps', function(data) {
 
+                $('#trailersUp').html(data.trailersUp);
+                $('#trucksUp').html(data.trucksUp);
+                $('#driversUp').html(data.driversUp);
+
+            });
+        }
+        callEndpoint();
+    </script>
+
+
+    <!--
+        Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
+    -->
+    <script>
+        var grid = $("#grid-basic").bootgrid({
+            labels: {
+                search: "Search (TMS, Ticket, etc)"
+            },
+            formatters: {
+                "link": function(column, row)
+                {
+                    return "<a href='#' class='black-link'> " + row.id + "</a>";
+                },
+                "commands": function(column, row)
+                {
+                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
+                },
+                "drivers" :function(colum, row){
+                    return "<%if (drivers.length > 0) { %> " +
+                            "<div class='form-group'> " +
+                            "<select class='form-control' id='driverSelect'>" +
+                                "<% for(var x=0; x<drivers.length; x++) {%>" +
+                                "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
+                                "<% } %>" +
+                            "</select>" +
+                            "</div>" +
+                            "<% } else{ %> "+
+                                "No drivers available" +
+                            "<% } %>";
+                },
+                "products" :function(colum, row){
+                    return "<%if (products.length > 0) { %> " +
+                            "<div class='form-group'> " +
+                            "<select class='form-control' id='productsSelect'>" +
+                                "<% for(var x=0; x<products.length; x++) {%>" +
+                                "<option value = '<%= products[x].id %>'><%= products[x].name %></option> " +
+                                "<% } %>" +
+                            "</select>" +
+                            "</div>" +
+                            "<% } else{ %> "+
+                                "No products available" +
+                            "<% } %>";
+                }
+            }
+        }).on("loaded.rs.jquery.bootgrid", function()
+        {
+            
+            /* Executes after data is loaded and rendered */
+            grid.find(".command-edit").on("click", function(e)
+            {
+                alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+            }).end();
+        });
+    </script>
+
+
+
+
+<!-- 
+    <% if(drivers.length>0){%> 
+        <% for(var i=0; i<tickets.length; i++) {%> 
+            <% if (tickets[i].status == 1) { %>
+    <script>
+            $(document).ready(function() {
+
+                var source = [];
+                <%for(var x=0; x < drivers.length; x++) {%> 
+                    
+                    var obj = {};
+                    obj["value"] = <%= drivers[x].id %>;
+                    obj["text"] = "<%= drivers[x].name %>";
+                    source.push(obj);
+                <%} %>
+
+                console.log(source);
+                $('#assign-driver-<%= tickets[i].id %>').editable({
+                    value: 1,    
+                    source: source
+                });
+            });
+    </script>
+            <% } %>
+        <% } %> 
+    <% } %>
+
+    -->
 </body>
 </html>

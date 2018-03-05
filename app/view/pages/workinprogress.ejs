@@ -26,7 +26,7 @@
                 <div class="content">
 
                     <br/>
-                    <div class="row">
+                    <!--<div class="row">
                         <div class="col-md-6">
                             <form class="form-inline" id="find-ticket">
                                 <div class="form-group">
@@ -54,52 +54,62 @@
                                 </button>
                             </form>
                         </div>
-                    </div>
+                    </div>-->
 
                     <br/>
                     <div class="row">
                         <div class="col-md-12">
-                            <table border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                            <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>TMS</th>
-                                        <th>Location</th>
-                                        <th>Facility</th>
-                                        <th>Driver</th>
-                                        <th>Product</th>
-                                        <th>Status</th>
-                                        <th>Options</th>
+                                        <th data-column-id="id" data-formatter="link" data-type="numeric">#</th>
+                                        <th data-column-id="tms" data-type="numeric">TMS</th>
+                                        <th data-column-id="location">Location</th>
+                                        <th data-column-id="facility">Facility</th>
+                                        <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
+                                        <th data-column-id="products" data-formatter="products">Product</th>
+                                        <th data-column-id="status">Status</th> <!-- Substatus en la DB (on my way to facility, etc) -->
+                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
+                                <%if (tickets.length > 0) { %>
                                 <tbody>
+                                <% for(var i=0; i<tickets.length; i++) {%>
+                                    <%if (tickets[i].status == 2) { %> <!-- status:2 = work in progress -->
                                     <tr class="quote">
                                         <td id="">
-
+                                            <%= tickets[i].id %>
+                                        </td>
+                                        <td id="">
+                                            <%= tickets[i].tms %>
+                                        </td>
+                                        <td id="">
+                                            <%= tickets[i].location %>
+                                        </td>
+                                        <td id="">
+                                            <%= tickets[i].facility %>
+                                        </td>
+                                        <td id="">
+                                            <%= tickets[i].driver %>
+                                        </td>
+                                        <td id="">
+                                            <%= tickets[i].product %>
+                                        </td>
+                                        <td id="">
+                                            <%= tickets[i].substatus %>
                                         </td>
                                         <td id="">
 
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-
-                                        </td>
-                                        <td id="">
-                                            
-                                        </td>
-                                        <td id="">
-                                            
-                                        </td>
-                                        <td id="">
-                                            <button type="submit" class="btn btn-default"> Cancel</button>
                                         </td>
                                     </tr>
+                                    <% } %>
+                                <% } %>
+                            </tbody>
+                            <% } else{ %>  
+                                <tbody>
+                                    <p>No tickets in this category</p>
                                 </tbody>
+                            <% } %>
                             </table>
                         </div>
                     </div>
@@ -108,8 +118,31 @@
             </div>
         </div>
     </div>
-    
 
+
+    <%include ../partials/manual-input-modal %>
+    
+    <!-- Taken from Bootstrap's documentation -->
+    <div class="modal fade" id="ticketDetail">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+              <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
@@ -120,6 +153,70 @@
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
                 $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>
+    <!--
+        Obtiene los drivers, trucks and trailers que estan disponibles
+    -->
+    <script type="text/javascript">
+        function callEndpoint() {
+            $.getJSON('/api/dispatcher/getUps', function(data) {
+
+                $('#trailersUp').html(data.trailersUp);
+                $('#trucksUp').html(data.trucksUp);
+                $('#driversUp').html(data.driversUp);
+
+            });
+        }
+        callEndpoint();
+    </script>
+
+    <!--
+        Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
+    -->
+    <script>
+        var grid = $("#grid-basic").bootgrid({
+            labels: {
+                search: "Search (TMS, Ticket, etc)"
+            },
+            formatters: {
+                "link": function(column, row)
+                {
+                    return "<a href='#ticketDetail' data-toggle='modal' data-target='.modal' class='black-link'> " + row.id + "</a>";
+                },
+                "commands": function(column, row)
+                {
+                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Cancel</button> "
+                }
+            }
+        }).on("loaded.rs.jquery.bootgrid", function()
+        {
+            
+            /* Executes after data is loaded and rendered */
+            grid.find(".command-edit").on("click", function(e)
+            {
+                alert("You pressed edit on row with the Id: " + $(this).data("row-id"));
+            }).end();
+        });
+    </script>
+
+    <script>
+        var $modal = $('.modal');
+
+        // Show loader & then get content when modal is shown
+        $modal.on('show.bs.modal', function(e) {
+        var paragraphs = $(e.relatedTarget).data('paragraphs');
+
+        $(this)
+            .addClass('modal-scrollfix')
+            .find('.modal-body')
+            .html('loading...')
+            .load('https://baconipsum.com/api/?type=meat-and-filler&paras=' + paragraphs, function() {
+            // Use Bootstrap's built-in function to fix scrolling (to no avail)
+            $modal
+                .removeClass('modal-scrollfix')
+                .modal('handleUpdate');
             });
         });
     </script>
