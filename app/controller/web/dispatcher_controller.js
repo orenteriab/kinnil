@@ -17,7 +17,7 @@ router.get('/inicio', (req, res) => {
             });
         })
         .catch(function (error) {
-            console.log("something went wrong!!! " + error);
+            console.error('something went wrong!!! ', error);
         });
 });
 
@@ -36,7 +36,7 @@ router.get('/tobeassigned', (req, res) => {
             });
         })
         .catch(function (error) {
-            console.log("something went wrong!!! " + error);
+            console.error('something went wrong!!!', error);
         });
 });
 
@@ -50,7 +50,7 @@ router.get('/workinprogress', (req, res) => {
             });
         })
         .catch(function (error) {
-            console.log("something went wrong!!! " + error);
+            console.error('something went wrong!!! ', error);
         });
 });
 
@@ -64,7 +64,7 @@ router.get('/completed', (req, res) => {
             });
         })
         .catch(function (error) {
-            console.log("something went wrong!!! " + error);
+            console.error('something went wrong!!! ', error);
         });
 });
 
