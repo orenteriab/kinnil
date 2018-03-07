@@ -253,41 +253,33 @@
             /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
-                alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                //
+                // Asign ticket logic
+                //
+                $.ajax({
+                    url: '/api/dispatcher/assignTicket/',    //Your api url
+                    type: 'PUT',   //type is any HTTP method
+                    data: {
+                            ticketId: $(this).data("row-id"),
+                            hrId: $("#driverSelect").val(),
+                            product: $("#productsSelect").val()
+
+                    },      //Data as js object
+                    success: function (msj) {
+                        alert(msj.message);
+                        location.reload();
+                    },
+                    error: function(xhr) { // if error occured
+                        alert("Error occured. please try again");
+                    },
+                })
+                ;
+                
+                //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
             }).end();
         });
     </script>
 
 
-
-
-<!-- 
-    <% if(drivers.length>0){%> 
-        <% for(var i=0; i<tickets.length; i++) {%> 
-            <% if (tickets[i].status == 1) { %>
-    <script>
-            $(document).ready(function() {
-
-                var source = [];
-                <%for(var x=0; x < drivers.length; x++) {%> 
-                    
-                    var obj = {};
-                    obj["value"] = <%= drivers[x].id %>;
-                    obj["text"] = "<%= drivers[x].name %>";
-                    source.push(obj);
-                <%} %>
-
-                console.log(source);
-                $('#assign-driver-<%= tickets[i].id %>').editable({
-                    value: 1,    
-                    source: source
-                });
-            });
-    </script>
-            <% } %>
-        <% } %> 
-    <% } %>
-
-    -->
 </body>
 </html>
