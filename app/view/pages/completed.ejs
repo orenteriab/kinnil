@@ -90,10 +90,10 @@
                                             <%= tickets[i].facility %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].driver %>
+                                            <%= tickets[i].driver_name %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].product %>
+                                            <%= tickets[i].product_name %>
                                         </td>
                                         <td id="">
                                             <%= tickets[i].substatus %>
@@ -112,6 +112,7 @@
                             <% } %>
                             </table>
                         </div>
+                        <button id="validate">Validate</button>
                     </div>
 
                 </div>
@@ -164,7 +165,7 @@
                 },
                 "commands": function(column, row)
                 {
-                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
+                    return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
                 }
             }
         }).on("loaded.rs.jquery.bootgrid", function()
@@ -173,8 +174,41 @@
             /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
-                alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                
+                //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
             }).end();
+        });
+
+        $("#validate").click(function() {
+            var ticketList = [];
+                $('.validate:checkbox:checked').each(function() {
+                ticketList.push($(this).val());
+                });
+                if (ticketList != ''){
+                    //alert(ticketList)    
+                    //
+                    // Complete ticket logic
+                    //
+                    $.ajax({
+                        url: '/api/dispatcher/completeTicket/',    //Your api url
+                        type: 'PUT',   //type is any HTTP method
+                        data: {
+                                ticketId: ticketList
+
+                        },      //Data as js object
+                        success: function (msj) {
+                            alert(msj.message);
+                            location.reload();
+                        },
+                        error: function(xhr) { // if error occured
+                            alert("Error occured. please try again");
+                        },
+                    })
+                }
+                else {
+                    alert("No ticket(s) selected")
+                }
+                
         });
     </script>
 
