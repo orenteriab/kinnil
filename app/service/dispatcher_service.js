@@ -59,11 +59,6 @@ exports.getThingsUp = () => {
 };
 
 
-exports.getInicioInfo = () => {
-    return dispatcherModel
-        .getBasicTicketsList()
-};
-
 /*
 * Todos los tickets (sive a "work in progress" y a "completed")
 */
@@ -85,7 +80,7 @@ exports.getTicketDetail = (ticketId) => {
 */
 exports.getToBeAsignedInfo = () => {
     let tickets = dispatcherModel
-        .getBasicTicketsList()
+        .getTicketsList()
 
     let drivers = dispatcherModel
         .listDriversUp()

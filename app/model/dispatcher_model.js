@@ -38,7 +38,7 @@ exports.listDriversUp = () => {
 // ============
 //  Tickets
 // ============ 
-
+// TODO: Ver si se puede eliminar, porque ya no se usa
 exports.getBasicTicketsList = () => {
     let statement = "select id, tms, status, substatus, location, facility, product, clients_id from tickets" 
 
@@ -49,7 +49,7 @@ exports.getBasicTicketsList = () => {
 * Get tickets where status <=completed
 */
 exports.getTicketsList = () => {
-    let statement = "select t.*, p.name 'product_name', h.name 'driver_name' from tickets t join products p on t.products_id = p.id join hr h on t.hr_id = h.id where t.status <= 3" 
+    let statement = "select t.*, p.name 'product_name', h.name 'driver_name' from tickets t left join products p on t.products_id = p.id left join hr h on t.hr_id = h.id where t.status" 
 
     return connectionPool.query(statement)
 }
@@ -58,7 +58,7 @@ exports.getTicketsList = () => {
 * Obtiene tickets por Id
 */
 exports.getTicketById = (ticketId) => {
-    let statement = 'select t.*, c.name, h.name from tickets t inner join clients c on t.clients_id = c.id inner join hr h on t.hr_id = h.id where t.id = ?'
+    let statement = 'select t.*, c.name, h.name from tickets t left join clients c on t.clients_id = c.id left join hr h on t.hr_id = h.id where t.id = ?'
 
     return connectionPool.query(statement, [ticketId])
 }
