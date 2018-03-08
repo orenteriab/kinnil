@@ -90,10 +90,10 @@
                                             <%= tickets[i].facility %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].driver %>
+                                            <%= tickets[i].driver_name %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].product %>
+                                            <%= tickets[i].product_name %>
                                         </td>
                                         <td id="">
                                             <%= tickets[i].substatus %>
@@ -196,7 +196,25 @@
             /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
-                alert("You pressed edit on row with the Id: " + $(this).data("row-id"));
+                //
+                // Cancel ticket logic
+                //
+                $.ajax({
+                    url: '/api/dispatcher/cancelTicket/',    //Your api url
+                    type: 'PUT',   //type is any HTTP method
+                    data: {
+                            ticketId: $(this).data("row-id")
+
+                    },      //Data as js object
+                    success: function (msj) {
+                        alert(msj.message);
+                        location.reload();
+                    },
+                    error: function(xhr) { // if error occured
+                        alert("Error occured. please try again");
+                    },
+                })
+
             }).end();
         });
     </script>

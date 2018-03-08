@@ -58,8 +58,9 @@ exports.getThingsUp = () => {
     })
 };
 
+
 /*
-* Regresa los tickets sobre los que se va o se esta trabajando (INICIO)
+* Todos los tickets (sive a "work in progress" y a "completed")
 */
 exports.getTicketsInfo = () => {
     return dispatcherModel
@@ -67,7 +68,7 @@ exports.getTicketsInfo = () => {
 };
 
 /*
-* Regresa El detalle de un solo ticket
+* Un solo ticket por Id
 */
 exports.getTicketDetail = (ticketId) => {
     return dispatcherModel
@@ -75,7 +76,7 @@ exports.getTicketDetail = (ticketId) => {
 };
 
 /*
-* TO BE ASIGN info
+* Sirve a "to be asign" solamente
 */
 exports.getToBeAsignedInfo = () => {
     let tickets = dispatcherModel
@@ -97,3 +98,19 @@ exports.getToBeAsignedInfo = () => {
         return return_data
     })
 };
+
+exports.assignTicket = (hrId, product, ticketId) => {
+    return dispatcherModel
+        .assignTicket(hrId, product, ticketId)
+}
+
+exports.cancelTicket = (ticketId) => {
+    return dispatcherModel
+        .cancelTicket(ticketId)
+}
+
+// Uno o muchos tickets a la vez en un arreglo []
+exports.completeTicket = (ticketId) => {
+    return dispatcherModel
+        .completeTicket(ticketId)
+}
