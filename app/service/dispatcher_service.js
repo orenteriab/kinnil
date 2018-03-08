@@ -58,6 +58,12 @@ exports.getThingsUp = () => {
     })
 };
 
+
+exports.getInicioInfo = () => {
+    return dispatcherModel
+        .getBasicTicketsList()
+};
+
 /*
 * Todos los tickets (sive a "work in progress" y a "completed")
 */
@@ -75,7 +81,7 @@ exports.getTicketDetail = (ticketId) => {
 };
 
 /*
-* Sive a "to be asign" solamente
+* Sirve a "to be asign" solamente
 */
 exports.getToBeAsignedInfo = () => {
     let tickets = dispatcherModel
@@ -108,7 +114,7 @@ exports.cancelTicket = (ticketId) => {
         .cancelTicket(ticketId)
 }
 
-// Uno o muchos tickets a la vez
+// Uno o muchos tickets a la vez en un arreglo []
 exports.completeTicket = (ticketId) => {
     return dispatcherModel
         .completeTicket(ticketId)

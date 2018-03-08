@@ -9,7 +9,7 @@ const router = Router();
 router.get('/inicio', (req, res) => {
 
     dispatcherService
-        .getTicketsInfo()
+        .getInicioInfo()
         .then((return_data) => {
             res.render('pages/inicio.ejs', { 
                 message: '',
