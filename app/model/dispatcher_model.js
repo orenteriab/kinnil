@@ -39,13 +39,17 @@ exports.listDriversUp = () => {
 //  Tickets
 // ============ 
 
+exports.getBasicTicketsList = () => {
+    let statement = "select id, tms, status, substatus, location, facility, product, clients_id from tickets" 
+
+    return connectionPool.query(statement)
+}
 
 /*
-* Obtiene los tickets de la DB (lista de tickets totales, TODO: hay que hacer un filtro para que no sean tan pesados los queries al final)
+* Get tickets where status <=completed
 */
 exports.getTicketsList = () => {
-    // TODO: Hay que agregar clausula where, esta depende de las reglas del negocio
-    let statement = "select id, tms, status, substatus, location, facility, product, clients_id from tickets" 
+    let statement = "select t.*, p.name 'product_name', h.name 'driver_name' from tickets t join products p on t.products_id = p.id join hr h on t.hr_id = h.id where t.status <= 3" 
 
     return connectionPool.query(statement)
 }
@@ -61,7 +65,7 @@ exports.getTicketById = (ticketId) => {
 
 
 exports.assignTicket = (hrId, product, ticketId) => {
-    let statement = "update tickets set hr_id = ?, product = ?, status = 2 where id = ?"
+    let statement = "update tickets set hr_id = ?, products_id = ?, status = 2 where id = ?"
 
     return connectionPool.query(statement, [hrId, product, ticketId]);
 }

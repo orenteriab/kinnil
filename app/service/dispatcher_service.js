@@ -79,7 +79,7 @@ exports.getTicketDetail = (ticketId) => {
 */
 exports.getToBeAsignedInfo = () => {
     let tickets = dispatcherModel
-        .getTicketsList()
+        .getBasicTicketsList()
 
     let drivers = dispatcherModel
         .listDriversUp()
