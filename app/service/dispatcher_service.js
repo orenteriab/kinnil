@@ -75,6 +75,11 @@ exports.getTicketDetail = (ticketId) => {
         .getTicketById(ticketId)
 };
 
+exports.getEvents = (ticketId) => {
+    return dispatcherModel
+        .getEvents(ticketId)
+};
+
 /*
 * Sirve a "to be asign" solamente
 */
@@ -86,7 +91,7 @@ exports.getToBeAsignedInfo = () => {
         .listDriversUp()
 
     let products = dispatcherModel
-        .listProducts(1) // El cliente es 1 HALLIBURTON (por el momento el sistema solo tendra un cliente)
+        .listProducts(1) // El cliente es 1 HALLIBURTON (por el momento el sistema solo tendra un cliente y lo quieren harcodedado)
 
     var return_data = {}
     return Promise.all([tickets,drivers,products]).then((data) => {
@@ -114,3 +119,4 @@ exports.completeTicket = (ticketId) => {
     return dispatcherModel
         .completeTicket(ticketId)
 }
+

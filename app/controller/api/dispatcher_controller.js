@@ -37,18 +37,34 @@ ROUTER.get('/getTicketDetail/:ticketId', (req, res) => {
     dispatcherService
         .getTicketDetail(req.params.ticketId)
         .then((return_data) => {
-
-            console.log(return_data);
-
             res.status(200);
             res.contentType('application/json');
-            res.send(JSON.stringify({ 
-                                    ticket: return_data
-                                    }));
+            res.send(JSON.stringify({ ticket: return_data }));
         })
         .catch(function (err) {
             
-            console.log('[Api/dispatcher_controller.js][/getUps] Error cuando obtenemos los drivers, trucks y trailers disponibles: ', err);
+            console.log('[Api/dispatcher_controller.js][/getTicketDetail/:ticketId] Error cuando obtenemos el detalle de un ticket: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: error }));
+        });
+});
+
+/*
+* Obtiene los eventos del ticket por Id del ticket
+*/
+ROUTER.get('/getEventsDetail/:ticketId', (req, res) => {
+
+    dispatcherService
+        .getEvents(req.params.ticketId)
+        .then((return_data) => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ events: return_data }));
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/dispatcher_controller.js][/getUps] Error cuando obtenemos los eventos de un ticket: ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: error }));
@@ -82,7 +98,6 @@ ROUTER.put('/assignTicket/', (req, res) => {
 */
 ROUTER.put('/cancelTicket/', (req, res) => {
 
-    console.log(req.body.ticketId)
     dispatcherService
         .cancelTicket(req.body.ticketId)
         .then(() => {
@@ -104,7 +119,6 @@ ROUTER.put('/cancelTicket/', (req, res) => {
 */
 ROUTER.put('/completeTicket/', (req, res) => {
 
-    console.log(req.body.ticketId)
     dispatcherService
         .completeTicket(req.body.ticketId)
         .then(() => {
@@ -120,5 +134,7 @@ ROUTER.put('/completeTicket/', (req, res) => {
             res.send(JSON.stringify({ message: 'Ticket(s) couldn\'t be completed. Please retry.' }));
         });
 });
+
+
 
 exports.router = ROUTER;

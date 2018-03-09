@@ -46,7 +46,7 @@ exports.getBasicTicketsList = () => {
 }
 
 /*
-* Get tickets where status <=completed
+* Get tickets where status
 */
 exports.getTicketsList = () => {
     let statement = "select t.*, p.name 'product_name', h.name 'driver_name' from tickets t left join products p on t.products_id = p.id left join hr h on t.hr_id = h.id where t.status" 
@@ -105,7 +105,7 @@ exports.listProducts = (clientId) => {
 /*
 * Obtiene los eventos por ticket
 */
-exports.getEventos = (ticketId) => {
+exports.getEvents = (ticketId) => {
     let statement = 'select * from eventos where tickets_id = ?'
 
     return connectionPool.query(statement, [ticketId])
