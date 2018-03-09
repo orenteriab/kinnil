@@ -18,7 +18,7 @@
                         <p>Product <span id="product"> </span></p>
                         <p>Base <span id="base"> </span></p>
                         <p>Silo <span id="silo"> </span></p>
-                        <p>Dispatcher Coments <span id="comments"> </span></p>
+                        <p>Coments <span id="comments"> </span></p>
                         
                     </div>
                     <div class="col-md-6">
@@ -83,6 +83,9 @@
                     
                 </div>
                 <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h4>Driver - Truck - Millage</h4>
+                    </div>
                     <div class="col-md-6">
                         <p>Driver <span id="driver"> </span></p>
                         <p>Crew <span id="crew"> </span></p>
@@ -99,6 +102,27 @@
                         <p>Date <span id="date"> </span></p>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h4>Timeline Events</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
+                            <thead>
+                                <tr>
+                                    <th data-column-id="no">No.</th>
+                                    <th data-column-id="evento">evento</th>
+                                    <!--<th data-column-id="date">date</th>-->
+                                    <th data-column-id="longitude">longitude</th>
+                                    <th data-column-id="latitude">latitude</th>
+                                    <th data-column-id="notes">notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timeline">
+                                
+                            </tbody>
+                        </table>
+                    </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -117,21 +141,27 @@
 
                 var $trigger = $(e.relatedTarget);
                 
-                //console.log("ticket id: " + $trigger.data('ticket') );
-    
+                // Obtiene el detalle del ticket
                 $.getJSON('/api/dispatcher/getTicketDetail/' + $trigger.data('ticket'), function(data) {
     
                     //console.log(data);
                     $('#ticketId').html('<strong>' + data.ticket[0].id + '</strong>');
                     $('#price').html('<strong>' + data.ticket[0].price + '</strong>');
                     $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
-                    $('#base').html('<strong>' + data.ticket[0].base + '</strong>');
-                    $('#silo').html('<strong>' + data.ticket[0].silo + '</strong>');
+                    $('#base').html(
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update base\" "+
+                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
+                        "href=\"#\" id=\"update-base\" >"+data.ticket[0].base+"</a></strong>"    
+                    );
+                    $('#silo').html(
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update silo\" "+
+                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
+                        "href=\"#\" id=\"update-silo\" >"+data.ticket[0].silo+"</a></strong>"
+                    );
                     $('#comments').html(
                         "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update comments\" "+
-                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
+                        "data-type=\"textarea\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
                         "href=\"#\" id=\"update-comments\" >"+data.ticket[0].notes+"</a></strong>"
-                        
                     );
                     $('#tms').html('<strong>' + data.ticket[0].tms + '</strong>');
                     $('#client').html('<strong>' + data.ticket[0].client_name +'</strong>') //TODO: Aqui hay que mostar el nombre del clien te
@@ -139,9 +169,17 @@
                     $('#po').html('<strong>' + data.ticket[0].po + '</strong>');
                     $('#origin').html('<strong>' + data.ticket[0].location + '</strong>');
                     $('#destination').html('<strong>' + data.ticket[0].facility + '</strong>');
-                    $('#bol').html('<strong>' + data.ticket[0].bol + '</strong>');
+                    $('#bol').html(
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update B.O.L.\" "+
+                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
+                        "href=\"#\" id=\"update-bol\" >"+data.ticket[0].bol+"</a></strong>"
+                    );
                     $('#sand').html('<strong>' + data.ticket[0].sand_type + '</strong>');
-                    $('#weight').html('<strong>' + data.ticket[0].weight + '</strong>');
+                    $('#weight').html(
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update weight\" "+
+                        "data-type=\"number\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
+                        "href=\"#\" id=\"update-weight\" >"+data.ticket[0].weight+"</a></strong>"
+                    );
                     $('#assigned').html('<strong>' + data.ticket[0].assign_date + '</strong>');
                     $('#workInProgress').html('<strong>' + "" + '</strong>'); // TODO: hay que ver de donde sacar este da to
                     $('#completed').html('<strong>' + data.ticket[0].completed_date + '</strong>');
@@ -181,12 +219,36 @@
                     });
     
                     // x-editable
-                    $('#update-comments').editable({
+                    $('#update-comments, #update-silo, #update-base, #update-bol, #update-weight').editable({
                         success: function(response, newValue) {
                             if (response.status == 'error') return response.msg; //msg will be shown in editable form
                         }
                     });
 
+                });
+
+                // obtiene los eventos del ticket
+                $.getJSON('/api/dispatcher/getEventsDetail/' + $trigger.data('ticket'), function(data) {
+                    
+                    if(data.events.length === undefined || 
+                        data.events.length === null ||
+                        typeof data.events.length !== 'number' ||
+                        data.events.length < 1) {
+                            return 0
+                        }
+                    else {
+                        for (var x = 0; x < data.events.length; x++) {
+                            var number = x+1;
+                            var evento = "<tr>"
+                            evento += "<td>"+number+"</td>";
+                            evento += "<td>"+data.events[x].evento+"</td>";
+                            evento += "<td>"+data.events[x].longitude+"</td>";
+                            evento += "<td>"+data.events[x].latitude+"</td>";
+                            evento += "<td>"+data.events[x].notes+"</td>";
+                            evento += "</tr>";
+                            $("#timeline").append(evento);
+                        }
+                    }
                 });
             })
     
@@ -201,6 +263,8 @@
                 $(".bs-wizard-step").each(function (index,element) {
                     $(this).addClass("disabled");
                 });
+
+                $("#timeline").html("");
             });
         });
         </script>
