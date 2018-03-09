@@ -28,7 +28,7 @@
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
                                             <%if (tickets[i].status == 1) { %>
-                                                <a href="#" class="text-center"><p><%= tickets[i].tms %></p></a>
+                                                <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
@@ -47,7 +47,7 @@
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
                                             <%if (tickets[i].status == 2) { %>
-                                                <a href="#" class="text-center"><p><%= tickets[i].tms %></p></a>
+                                                <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
@@ -66,7 +66,7 @@
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
                                             <%if (tickets[i].status == 3) { %>
-                                                <a href="#" class="text-center"><p><%= tickets[i].tms %></p></a>
+                                                <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
@@ -85,7 +85,7 @@
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
                                             <%if (tickets[i].status == 4) { %>
-                                                <a href="#" class="text-center"><p><%= tickets[i].tms %></p></a>
+                                                <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
@@ -104,7 +104,7 @@
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
                                             <%if (tickets[i].status == 5) { %>
-                                                <a href="#" class="text-center"><p><%= tickets[i].tms %></p></a>
+                                                <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
@@ -123,7 +123,7 @@
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
                                             <%if (tickets[i].status == 6) { %>
-                                                <a href="#" class="text-center"><p><%= tickets[i].tms %></p></a>
+                                                <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
@@ -137,19 +137,16 @@
                     <div class="row">
 
                     </div>
-                        
-    
-                    
                 </div>
             </div>
-    
 
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
-    <script>
-        //var socket = io.connect('http://localhost:3000');
-    </script>
+    
+    <!-- Ticket detail modal  -->
+    <%include ../partials/ticket-detail %>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -157,6 +154,8 @@
             });
         });
     </script>
+
+    
     
     <!--
         Obtiene los drivers, trucks and trailers que estan disponibles

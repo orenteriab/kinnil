@@ -130,33 +130,12 @@
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-lg btn-success" id="PincheBoton">Go</button>
-    
-
-    <!-- Taken from Bootstrap's documentation -->
-    <div class="modal fade" id="ticketModal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Modal title</h4>
-            </div>
-            <div class="modal-body">
-              <p>One fine body&hellip;</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
-      <!-- /.modal -->
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
+
+    <!-- Ticket detail modal  -->
+    <%include ../partials/ticket-detail %>
 
         <!--
         Get ticket detail
@@ -214,7 +193,8 @@
             formatters: {
                 "link": function(column, row)
                 {
-                    return "<a href='#' class='black-link'> " + row.id + "</a>";
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
+                            
                 },
                 "commands": function(column, row)
                 {
@@ -272,11 +252,12 @@
                     error: function(xhr) { // if error occured
                         alert("Error occured. please try again");
                     },
-                })
-                ;
-                
-                //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
-            }).end();
+                });
+
+            }).end().find(".show-ticket").on("click", function(e)
+            {
+                $($(this).attr("href")).modal("show", $(this));
+            });
         });
     </script>
 

@@ -58,7 +58,7 @@ exports.getTicketsList = () => {
 * Obtiene tickets por Id
 */
 exports.getTicketById = (ticketId) => {
-    let statement = 'select t.*, c.name, h.name from tickets t left join clients c on t.clients_id = c.id left join hr h on t.hr_id = h.id where t.id = ?'
+    let statement = 'select t.*, c.name client_name, c.address client_address, h.name driver_name, h.shift shift, h.crew crew from tickets t left join clients c on t.clients_id = c.id left join hr h on t.hr_id = h.id where t.id = ?'
 
     return connectionPool.query(statement, [ticketId])
 }

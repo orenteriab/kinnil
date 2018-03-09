@@ -124,6 +124,9 @@
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
+
+    <!-- Ticket detail modal  -->
+    <%include ../partials/ticket-detail %>
     <script>
         //var socket = io.connect('http://localhost:3000');
     </script>
@@ -161,7 +164,7 @@
             formatters: {
                 "link": function(column, row)
                 {
-                    return "<a href='#' class='black-link'> " + row.id + "</a>";
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
                 },
                 "commands": function(column, row)
                 {
@@ -176,7 +179,9 @@
             {
                 
                 //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
-            }).end();
+            }).end().find(".show-ticket").on("click", function(e) {
+                $($(this).attr("href")).modal("show", $(this));
+            });
         });
 
         $("#validate").click(function() {

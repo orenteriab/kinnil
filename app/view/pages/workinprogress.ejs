@@ -146,6 +146,10 @@
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
+
+    <!-- Ticket detail modal  -->
+    <%include ../partials/ticket-detail %>
+
     <script>
         //var socket = io.connect('http://localhost:3000');
     </script>
@@ -183,7 +187,7 @@
             formatters: {
                 "link": function(column, row)
                 {
-                    return "<a href='#ticketDetail' data-toggle='modal' data-target='.modal' class='black-link'> " + row.id + "</a>";
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
                 },
                 "commands": function(column, row)
                 {
@@ -215,29 +219,12 @@
                     },
                 })
 
-            }).end();
-        });
-    </script>
-
-    <script>
-        var $modal = $('.modal');
-
-        // Show loader & then get content when modal is shown
-        $modal.on('show.bs.modal', function(e) {
-        var paragraphs = $(e.relatedTarget).data('paragraphs');
-
-        $(this)
-            .addClass('modal-scrollfix')
-            .find('.modal-body')
-            .html('loading...')
-            .load('https://baconipsum.com/api/?type=meat-and-filler&paras=' + paragraphs, function() {
-            // Use Bootstrap's built-in function to fix scrolling (to no avail)
-            $modal
-                .removeClass('modal-scrollfix')
-                .modal('handleUpdate');
+            }).end().find(".show-ticket").on("click", function(e) {
+                $($(this).attr("href")).modal("show", $(this));
             });
         });
     </script>
+
 
 </body>
 </html>

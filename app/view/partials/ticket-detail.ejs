@@ -1,0 +1,206 @@
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+    
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4>Ticket detail</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Ticket No.  <span id="ticketId"> </span></p>
+                        <p>Job Born on <span id=""> </span></p>
+                        <p>Compleated on <span id=""> </span></p>
+                        <p>Price <span id="price"> </span></p>
+                        <p>Product <span id="product"> </span></p>
+                        <p>Base <span id="base"> </span></p>
+                        <p>Silo <span id="silo"> </span></p>
+                        <p>Dispatcher Coments <span id="comments"> </span></p>
+                        
+                    </div>
+                    <div class="col-md-6">
+                        <p>TMS No. <span id="tms"> </span></p>
+                        <p>Client <span id="client"> </span></p>
+                        <p>Address <span id="address"> </span></p>
+                        <p>P.O. <span id="po"> </span></p>
+                        <p>Origin <span id="origin"> </span></p>
+                        <p>Destination <span id="destination"> </span></p>
+                        <p>B.O.L. <span id="bol"> </span></p>
+                        <p>Sand Type <span id="sand"> </span></p>
+                        <p>Weight <span id="weight"> </span></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class = "container col-md-12">
+                    <div class="row bs-wizard" style="border-bottom:0;">
+                
+                        <div id="step1" class="col-xs-2 bs-wizard-step disabled">
+                            <div class="text-center bs-wizard-stepnum">To be Assinged </div>
+                            <div class="progress"><div class="progress-bar"></div></div>
+                            <a href="#" class="bs-wizard-dot"></a>
+                            <div class="bs-wizard-info text-center"> <span id="assigned"></span></div>
+                        </div>
+                        
+                        <div id="step2" class="col-xs-2 bs-wizard-step disabled"><!-- complete -->
+                            <div class="text-center bs-wizard-stepnum">Work in Process</div>
+                            <div class="progress"><div class="progress-bar"></div></div>
+                            <a href="#" class="bs-wizard-dot"></a>
+                            <div class="bs-wizard-info text-center"> <span id="workInProgress"></span></div>
+                        </div>
+                        
+                        <div id="step3" class="col-xs-2 bs-wizard-step disabled"><!-- complete -->
+                            <div class="text-center bs-wizard-stepnum">Completed</div>
+                            <div class="progress"><div class="progress-bar"></div></div>
+                            <a href="#" class="bs-wizard-dot"></a>
+                            <div class="bs-wizard-info text-center"> <span id="completed"></span></div>
+                        </div>
+                        
+                        <div id="step4" class="col-xs-2 bs-wizard-step disabled"><!-- active -->
+                            <div class="text-center bs-wizard-stepnum">Invoiced</div>
+                            <div class="progress"><div class="progress-bar"></div></div>
+                            <a href="#" class="bs-wizard-dot"></a>
+                            <div class="bs-wizard-info text-center"> <span id="invoiced"></span></div>
+                        </div>
+    
+                        <div id="step5" class="col-xs-2 bs-wizard-step disabled"><!-- active -->
+                            <div class="text-center bs-wizard-stepnum">Payrolled</div>
+                            <div class="progress"><div class="progress-bar"></div></div>
+                            <a href="#" class="bs-wizard-dot"></a>
+                            <div class="bs-wizard-info text-center"> <span id="payrolled"></span></div>
+                        </div>
+    
+                        <div id="step6" class="col-xs-2 bs-wizard-step disabled"><!-- active -->
+                            <div class="text-center bs-wizard-stepnum">Paid</div>
+                            <div class="progress"><div class="progress-bar"></div></div>
+                            <a href="#" class="bs-wizard-dot"></a>
+                            <div class="bs-wizard-info text-center"> <span id="paid"></span></div>
+                        </div>
+                    </div>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Driver <span id="driver"> </span></p>
+                        <p>Crew <span id="crew"> </span></p>
+                        <p>Shift <span id="shift"> </span></p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>Truck <span id="truck"> </span></p>
+                        <p>Trailer <span id="trailer"> </span></p>
+                        <p>Amount Payrolled <span id="amountPayrolled"> </span></p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>Starting Milles <span id="starttingMilles"> </span></p>
+                        <p>Ending Milles <span id="endingMilles"> </span></p>
+                        <p>Date <span id="date"> </span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" data-dismiss="modal">Download</button>
+            </div>
+          </div>
+        </div>
+    </div> 
+        
+        <!-- 
+            Consultar un ticket por Id y cargarlos en el modal
+        -->
+        <script>
+            $( document ).ready(function() {
+            $('#myModal').on('shown.bs.modal', function (e) {
+
+                var $trigger = $(e.relatedTarget);
+                
+                //console.log("ticket id: " + $trigger.data('ticket') );
+    
+                $.getJSON('/api/dispatcher/getTicketDetail/' + $trigger.data('ticket'), function(data) {
+    
+                    //console.log(data);
+                    $('#ticketId').html('<strong>' + data.ticket[0].id + '</strong>');
+                    $('#price').html('<strong>' + data.ticket[0].price + '</strong>');
+                    $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
+                    $('#base').html('<strong>' + data.ticket[0].base + '</strong>');
+                    $('#silo').html('<strong>' + data.ticket[0].silo + '</strong>');
+                    $('#comments').html(
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update comments\" "+
+                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
+                        "href=\"#\" id=\"update-comments\" >"+data.ticket[0].notes+"</a></strong>"
+                        
+                    );
+                    $('#tms').html('<strong>' + data.ticket[0].tms + '</strong>');
+                    $('#client').html('<strong>' + data.ticket[0].client_name +'</strong>') //TODO: Aqui hay que mostar el nombre del clien te
+                    $('#address').html('<strong>' + data.ticket[0].client_address +'</strong>'); //TODO: hay que mostrar lso datos del clien te
+                    $('#po').html('<strong>' + data.ticket[0].po + '</strong>');
+                    $('#origin').html('<strong>' + data.ticket[0].location + '</strong>');
+                    $('#destination').html('<strong>' + data.ticket[0].facility + '</strong>');
+                    $('#bol').html('<strong>' + data.ticket[0].bol + '</strong>');
+                    $('#sand').html('<strong>' + data.ticket[0].sand_type + '</strong>');
+                    $('#weight').html('<strong>' + data.ticket[0].weight + '</strong>');
+                    $('#assigned').html('<strong>' + data.ticket[0].assign_date + '</strong>');
+                    $('#workInProgress').html('<strong>' + "" + '</strong>'); // TODO: hay que ver de donde sacar este da to
+                    $('#completed').html('<strong>' + data.ticket[0].completed_date + '</strong>');
+                    $('#invoiced').html('<strong>' + data.ticket[0].invoice_date + '</strong>');
+                    $('#payrolled').html('<strong>' + data.ticket[0].payrolled_date + '</strong>');
+                    $('#paid').html('<strong>' + ""); // TODO: hay que ver de donde sacar este da + '</strong>'to
+                    $('#driver').html('<strong>' + data.ticket[0].driver_name + '</strong>');
+                    $('#crew').html('<strong>' + data.ticket[0].crew + '</strong>');
+                    $('#shift').html('<strong>' + data.ticket[0].shift + '</strong>');
+                    $('#truck').html('<strong>' + "" + '</strong>'); // TODO: hay que ver de donde sacar este da to
+                    $('#trailer').html('<strong>' + "" + '</strong>'); // TODO: hay que ver de donde sacar este da to
+                    $('#amountPayrolled').html('<strong>' + "" + '</strong>'); // TODO: hay que ver de donde sacar este dat o;
+                    $('#starttingMilles').html('<strong>' + data.ticket[0].starting_mi + '</strong>');
+                    $('#endingMilles').html('<strong>' + data.ticket[0].end_mi + '</strong>');
+                    $('#date').html('<strong>' + data.ticket[0].assign_date + '</strong>');
+    
+                    // las 3 opciones para el process step
+                    //complete
+                    //active
+                    //disabled
+    
+                    $(".bs-wizard-step").each(function (index,element) {
+                        
+                        var status = data.ticket[0].status;
+                        if (status <= 4) {
+                            status +1;
+                        }
+    
+                        if (index+1 == status){
+                            $(this).removeClass("disabled");
+                            $(this).addClass("active");
+                        }
+                        if (index+1 < status){
+                            $(this).removeClass("disabled");
+                            $(this).addClass("complete");
+                        }
+                    });
+    
+                    // x-editable
+                    $('#update-comments').editable({
+                        success: function(response, newValue) {
+                            if (response.status == 'error') return response.msg; //msg will be shown in editable form
+                        }
+                    });
+
+                });
+            })
+    
+            // Limpia los steps y les asigna la clase disabled
+            $('#myModal').on('hide.bs.modal', function (e) {
+                $(".bs-wizard-step").each(function (index,element) {
+                    $(this).removeClass("complete");
+                    $(this).removeClass("active");
+                    $(this).removeClass("disabled");
+                });
+    
+                $(".bs-wizard-step").each(function (index,element) {
+                    $(this).addClass("disabled");
+                });
+            });
+        });
+        </script>
