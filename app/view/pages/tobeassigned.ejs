@@ -291,11 +291,7 @@
                 PINCHE_BOTON: function(){
                     var infoModal = $('#ticketModal');
                     $('#PincheBoton').on('click', function(){
-                        APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL(8)
-                        $.getJSON('/api/dispatcher/getTicketDetail/8', function(data) {
-                            htmlData = '<ul><li>title: '+data.ticket[0].id+'</li><li>age: '+data.ticket[0].tms+'</li></ul>';
-                            console.log(htmlData);
-                        });
+                        APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL(8);
                     });
                 },
                 INIT: function(){
