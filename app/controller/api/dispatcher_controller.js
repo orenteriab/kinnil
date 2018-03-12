@@ -14,18 +14,21 @@ ROUTER.get('/getUps', (req, res) => {
 
             res.status(200);
             res.contentType('application/json');
-            res.send(JSON.stringify({ message: '', 
-                                        driversUp: return_data.driversUp,
-                                        trucksUp: return_data.trucksUp,
-                                        trailersUp: return_data.trailersUp
-                                    }));
+            res.send(
+                JSON.stringify({ 
+                    message: '', 
+                    driversUp: return_data.driversUp,
+                    trucksUp: return_data.trucksUp,
+                    trailersUp: return_data.trailersUp
+                })
+            );
         })
         .catch(function (err) {
             
             console.log('[Api/dispatcher_controller.js][/getUps] Error cuando obtenemos los drivers, trucks y trailers disponibles: ', err);
             res.status(404);
             res.contentType('application/json');
-            res.send(JSON.stringify({ message: error }));
+            res.send(JSON.stringify({ message: err }));
         });
 });
 
@@ -46,7 +49,7 @@ ROUTER.get('/getTicketDetail/:ticketId', (req, res) => {
             console.log('[Api/dispatcher_controller.js][/getTicketDetail/:ticketId] Error cuando obtenemos el detalle de un ticket: ', err);
             res.status(404);
             res.contentType('application/json');
-            res.send(JSON.stringify({ message: error }));
+            res.send(JSON.stringify({ message: err }));
         });
 });
 
@@ -67,7 +70,7 @@ ROUTER.get('/getEventsDetail/:ticketId', (req, res) => {
             console.log('[Api/dispatcher_controller.js][/getUps] Error cuando obtenemos los eventos de un ticket: ', err);
             res.status(404);
             res.contentType('application/json');
-            res.send(JSON.stringify({ message: error }));
+            res.send(JSON.stringify({ message: err }));
         });
 });
 
@@ -85,7 +88,7 @@ ROUTER.put('/assignTicket/', (req, res) => {
             res.send(JSON.stringify({ message: 'Ticket has been assigned successfully.' }));
         })
         .catch((err) => {
-            console.error('[Api/dispatcher_controller.js][/assignTicket/' + ticketId + ']Error when updating ticket: ', err);
+            console.error('[Api/dispatcher_controller.js][/assignTicket/' + req.body.ticketId + ']Error when updating ticket: ', err);
 
             res.status(500);
             res.contentType('application/json');
@@ -106,7 +109,7 @@ ROUTER.put('/cancelTicket/', (req, res) => {
             res.send(JSON.stringify({ message: 'Ticket has been cancelled successfully.' }));
         })
         .catch((err) => {
-            console.error('[Api/dispatcher_controller.js][/cancelTicket/' + ticketId + ']Error when updating ticket: ', err);
+            console.error('[Api/dispatcher_controller.js][/cancelTicket/' + req.body.ticketId + ']Error when updating ticket: ', err);
 
             res.status(500);
             res.contentType('application/json');
@@ -127,14 +130,12 @@ ROUTER.put('/completeTicket/', (req, res) => {
             res.send(JSON.stringify({ message: 'Ticket(s) has been completed successfully.' }));
         })
         .catch((err) => {
-            console.error('[Api/dispatcher_controller.js][/completeTicket/' + ticketId + ']Error when updating ticket(s): ', err);
+            console.error('[Api/dispatcher_controller.js][/completeTicket/' + req.body.ticketId + ']Error when updating ticket(s): ', err);
 
             res.status(500);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: 'Ticket(s) couldn\'t be completed. Please retry.' }));
         });
 });
-
-
 
 exports.router = ROUTER;
