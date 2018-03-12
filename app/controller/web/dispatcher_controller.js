@@ -17,7 +17,9 @@ router.get('/inicio', (req, res) => {
             });
         })
         .catch(function (error) {
-            console.error('something went wrong!!! ', error);
+            console.error('Error when querying: \n', error);
+            res.status(500);
+            res.send(JSON.stringify({ error: 'Unable to retrieve data from datbase.' }));
         });
 });
 

@@ -21,6 +21,6 @@ CREATE TABLE `' + dbconfig.database + '`.`' + dbconfig.users_table + '` ( \
     UNIQUE INDEX `username_UNIQUE` (`username` ASC) \
 )');
 
-console.log('Success: Database Created!')
+console.log('Success: Database Created!');
 
 connection.end();

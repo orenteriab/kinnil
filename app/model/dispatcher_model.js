@@ -49,7 +49,7 @@ exports.getBasicTicketsList = () => {
 * Get tickets where status
 */
 exports.getTicketsList = () => {
-    let statement = 'select t.*, p.name \'product_name\', h.name \'driver_name\' from tickets t left join products p on t.products_id = p.id left join hr h on t.hr_id = h.id where t.status';
+    let statement = 'select t.*, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id where t.status';
 
     return connectionPool.query(statement);
 };
