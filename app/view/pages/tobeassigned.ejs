@@ -29,7 +29,7 @@
                         <br/>
                         <div class="col-md-6">
                             <p>Import Jobs 
-                                <button type="button" class="btn btn-default" aria-label="Left Align">
+                                <button id="btn_load_csv" type="button" class="btn btn-default" aria-label="Left Align">
                                     csv.
                                     <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>
                                 </button>
@@ -137,128 +137,177 @@
     <!-- Ticket detail modal  -->
     <%include ../partials/ticket-detail %>
 
-        <!--
-        Get ticket detail
-    -->
-    <script type="text/javascript">
-
-        var infoModal = $('#ticketModal');
-        $('#PincheBoton').on('click', function(){
-            $.getJSON('/api/dispatcher/getTicketDetail/8', function(data) {
-
-                htmlData = '<ul><li>title: '+data.ticket[0].id+'</li><li>age: '+data.ticket[0].tms+'</li></ul>';
-                console.log(htmlData);
-
-            });
-        });
-
-    </script>
-
-
-    <script>
-        //var socket = io.connect('http://localhost:3000');
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
-            });
-        });
-    </script>
-    <!--
-        Obtiene los drivers, trucks and trailers que estan disponibles
-    -->
-    <script type="text/javascript">
-        function callEndpoint() {
-            $.getJSON('/api/dispatcher/getUps', function(data) {
-
-                $('#trailersUp').html(data.trailersUp);
-                $('#trucksUp').html(data.trucksUp);
-                $('#driversUp').html(data.driversUp);
-
-            });
-        }
-        callEndpoint();
-    </script>
-
 
     <!--
         Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
     -->
     <script>
-        var grid = $("#grid-basic").bootgrid({
-            labels: {
-                search: "Search (TMS, Ticket, etc)"
-            },
-            formatters: {
-                "link": function(column, row)
-                {
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
-                            
-                },
-                "commands": function(column, row)
-                {
-                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
-                },
-                "drivers" :function(colum, row){
-                    return "<%if (drivers.length > 0) { %> " +
-                            "<div class='form-group'> " +
-                            "<select class='form-control' id='driverSelect'>" +
-                                "<% for(var x=0; x<drivers.length; x++) {%>" +
-                                "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
-                                "<% } %>" +
-                            "</select>" +
-                            "</div>" +
-                            "<% } else{ %> "+
-                                "No drivers available" +
-                            "<% } %>";
-                },
-                "products" :function(colum, row){
-                    return "<%if (products.length > 0) { %> " +
-                            "<div class='form-group'> " +
-                            "<select class='form-control' id='productsSelect'>" +
-                                "<% for(var x=0; x<products.length; x++) {%>" +
-                                "<option value = '<%= products[x].id %>'><%= products[x].name %></option> " +
-                                "<% } %>" +
-                            "</select>" +
-                            "</div>" +
-                            "<% } else{ %> "+
-                                "No products available" +
-                            "<% } %>";
-                }
-            }
-        }).on("loaded.rs.jquery.bootgrid", function()
-        {
-            
-            /* Executes after data is loaded and rendered */
-            grid.find(".command-edit").on("click", function(e)
-            {
-                //
-                // Asign ticket logic
-                //
-                $.ajax({
-                    url: '/api/dispatcher/assignTicket/',    //Your api url
-                    type: 'PUT',   //type is any HTTP method
-                    data: {
-                            ticketId: $(this).data("row-id"),
-                            hrId: $("#driverSelect").val(),
-                            product: $("#productsSelect").val()
+        (function(APP){
+            APP.SERVICE = APP.SERVICE || {};
 
-                    },      //Data as js object
+            APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
+            
+            APP.SERVICE.DISPATCHER.GET_UPS = APP.SERVICE.DISPATCHER.GET_UPS || function(){
+                $.ajax({
+                    cache: false,
+                    method: 'GET',
+                    url: '/api/dispatcher/getUps',
+                    success: function(data){
+                        $('#trailersUp').html(data.trailersUp);
+                        $('#trucksUp').html(data.trucksUp);
+                        $('#driversUp').html(data.driversUp);
+                    },
+                    error: function(e){
+                        console.error(e);
+                        alert('Couldn\'t load data for trailers up, drivers up, and trucks up.');
+                    }
+                });
+            };
+
+            APP.SERVICE.DISPATCHER.ASSIGN_TICKET = APP.SERVICE.DISPATCHER.ASSIGN_TICKET || function(){
+                $.ajax({
+                    cache: false,
+                    url: '/api/dispatcher/assignTicket/',
+                    type: 'PUT',
+                    data: {
+                        ticketId: $(this).data("row-id"),
+                        hrId: $("#driverSelect").val(),
+                        product: $("#productsSelect").val()
+                    },
                     success: function (msj) {
                         alert(msj.message);
                         location.reload();
                     },
-                    error: function(xhr) { // if error occured
-                        alert("Error occured. please try again");
+                    error: function(xhr) {
+                        alert('Couldn\'t assign ticket. Try again, please.');
                     },
                 });
+            };
 
-            }).end().find(".show-ticket").on("click", function(e)
-            {
-                $($(this).attr("href")).modal("show", $(this));
-            });
-        });
+            APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL = APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL || function(ticketId){
+                var url = "/api/dispatcher/getTicketDetail/" + ticketId;
+                $.ajax({
+                    cache: false,
+                    method: 'GET',
+                    url: url,
+                    dataType: 'application/json',
+                    success: function(data){
+                        $('#trailersUp').html(data.trailersUp);
+                        $('#trucksUp').html(data.trucksUp);
+                        $('#driversUp').html(data.driversUp);
+                    },
+                    error: function(err){
+                        console.error(err);
+                        alert('Couldn\'t load data for ticket ' + ticketId);
+                    }
+                });
+            };
+
+            APP.LOAD = APP.LOAD || {};
+
+            //page load functionality first!
+            APP.LOAD.SIDE_BAR = APP.LOAD.SIDE_BAR || function () {
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
+                });
+            };
+
+            //Obtiene los drivers, trucks and trailers que estan disponibles
+            APP.LOAD.UPS = APP.LOAD.UPS || function(){
+                APP.SERVICE.DISPATCHER.GET_UPS();
+            };
+
+            APP.LOAD.GRID = APP.LOAD.GRID || function(){
+                var linkFormatter = function(column, row){
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
+                };
+
+                var commandsFormatter = function(column, row) {
+                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
+                };
+
+                var driversFormatter = function(colum, row){
+                    return "<%if (drivers.length > 0) { %> " +
+                                "<div class='form-group'> " +
+                                    "<select class='form-control' id='driverSelect'>" +
+                                        "<% for(var x=0; x<drivers.length; x++) {%>" +
+                                        "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
+                                        "<% } %>" +
+                                    "</select>" +
+                                "</div>" +
+                            "<% } else{ %> "+
+                                "No drivers available" +
+                            "<% } %>";
+                };
+
+                var productsFormatter = function(colum, row){
+                    return  "<%if (products.length > 0) { %> " +
+                                "<div class='form-group'> " +
+                                    "<select class='form-control' id='productsSelect'>" +
+                                        "<% for(var x=0; x<products.length; x++) {%>" +
+                                        "<option value = '<%= products[x].id %>'><%= products[x].name %></option> " +
+                                        "<% } %>" +
+                                    "</select>" +
+                                "</div>" +
+                            "<% } else{ %> "+
+                                "No products available" +
+                            "<% } %>";
+                };
+
+                var loadedRsJQueryBootgrid = function(){
+                    /* Executes after data is loaded and rendered */
+                    var onClickEdit = function(e){
+                        APP.SERVICE.DISPATCHER.ASSIGN_TICKET();
+                    };
+
+                    var onClickShow = function(e){
+                        $($(this).attr("href")).modal("show", $(this));
+                    };
+
+                    $("#grid-basic")
+                        .find(".command-edit")
+                        .on("click", onClickEdit)
+                        .end()
+                        .find(".show-ticket")
+                        .on("click", onClickShow);
+                };
+
+                $("#grid-basic")
+                    .bootgrid({
+                        labels: {
+                            search: "Search (TMS, Ticket, etc)"
+                        },
+                        formatters: {
+                            "link": linkFormatter,
+                            "commands": commandsFormatter,
+                            "drivers" : driversFormatter,
+                            "products" : productsFormatter
+                        }
+                    })
+                    .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+            };
+
+            APP.EVENTS = APP.EVENTS || {
+                PINCHE_BOTON: function(){
+                    var infoModal = $('#ticketModal');
+                    $('#PincheBoton').on('click', function(){
+                        APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL(8)
+                        $.getJSON('/api/dispatcher/getTicketDetail/8', function(data) {
+                            htmlData = '<ul><li>title: '+data.ticket[0].id+'</li><li>age: '+data.ticket[0].tms+'</li></ul>';
+                            console.log(htmlData);
+                        });
+                    });
+                },
+                INIT: function(){
+                    APP.EVENTS.PINCHE_BOTON();
+                }
+            };
+            
+            APP.LOAD.SIDE_BAR();
+            APP.LOAD.UPS();
+            APP.LOAD.GRID();
+            APP.EVENTS.INIT();
+        })(window);
     </script>
 
 
