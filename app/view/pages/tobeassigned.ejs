@@ -170,7 +170,7 @@
                     url: '/api/dispatcher/assignTicket/',
                     type: 'PUT',
                     data: {
-                        ticketId: $(this).data("row-id"),
+                        ticketId: $(this).data("row-id"), // undefined
                         hrId: $("#driverSelect").val(),
                         product: $("#productsSelect").val()
                     },
@@ -229,7 +229,7 @@
                 var driversFormatter = function(colum, row){
                     return "<%if (drivers.length > 0) { %> " +
                                 "<div class='form-group'> " +
-                                    "<select class='form-control' id='driverSelect'>" +
+                                    "<select class='form-control' id='driverSelect" + row.id + "'>" +
                                         "<% for(var x=0; x<drivers.length; x++) {%>" +
                                         "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
                                         "<% } %>" +
@@ -243,7 +243,7 @@
                 var productsFormatter = function(colum, row){
                     return  "<%if (products.length > 0) { %> " +
                                 "<div class='form-group'> " +
-                                    "<select class='form-control' id='productsSelect'>" +
+                                    "<select class='form-control' id='productsSelect" + row.id + "'>" +
                                         "<% for(var x=0; x<products.length; x++) {%>" +
                                         "<option value = '<%= products[x].id %>'><%= products[x].name %></option> " +
                                         "<% } %>" +
@@ -257,7 +257,27 @@
                 var loadedRsJQueryBootgrid = function(){
                     /* Executes after data is loaded and rendered */
                     var onClickEdit = function(e){
-                        APP.SERVICE.DISPATCHER.ASSIGN_TICKET();
+                        //APP.SERVICE.DISPATCHER.ASSIGN_TICKET(this);
+
+                        $.ajax({
+                            url: '/api/dispatcher/assignTicket/',    //Your api url
+                            type: 'PUT',   //type is any HTTP method
+                            data: {
+                                    ticketId: $(this).data("row-id"),
+                                    //hrId: $(this).data("row-driver").value(),
+                                    //product: $(this).data("row-product").value(),
+                                    hrId: $("#driverSelect"+$(this).data("row-id")).val(),
+                                    product: $("#productsSelect"+$(this).data("row-id")).val()
+
+                            },      //Data as js object
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
                     };
 
                     var onClickShow = function(e){
