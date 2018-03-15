@@ -223,21 +223,24 @@
 
             APP.SERVICE.TICKETS = {};
 
-            APP.SERVICE.TICKETS.UPLOAD_CSV = APP.SERVICE.TICKETS.UPLOAD_CSV || function(file){
-                $.ajax({
-                    method: 'POST',
-                    url: '/api/tickets/upload/csv',
-                    dataType: 'application/json',
-                    data: {
-                        file: file
-                    },
-                    success: function(data){
-                        alert(data.message);
-                    },
-                    error: function(){
-                        alert('Error when uploading file, try again.');
-                    }
-                });
+            APP.SERVICE.TICKETS.UPLOAD_CSV = APP.SERVICE.TICKETS.UPLOAD_CSV || function(csvArray){
+                for(var i = 0; i < csvArray.length; i++){
+                    console.log(JSON.stringify(csvArray[i]));
+                    $.ajax({
+                        method: 'POST',
+                        url: '/api/tickets/upload/csv',
+                        dataType: 'application/json; charset=utf-8',
+                        data: {
+                            record: csvArray[i]
+                        },
+                        success: function(data){
+                            console.log(data);
+                        },
+                        error: function(e, d, f){
+                            console.error(f);
+                        }
+                    });
+                }
             }
 
             APP.LOAD = APP.LOAD || {};
@@ -389,10 +392,11 @@
                             };
 
                             fileReader.onload = function(evt){
-                                APP.SERVICE.TICKETS.UPLOAD_CSV(evt.target.result);
+                                var jsonObjects = $.csv.toObjects(evt.target.result);
+                                APP.SERVICE.TICKETS.UPLOAD_CSV(jsonObjects);
                             };
 
-                            fileReader.readAsDataURL($('#fl_csv')[0].files[0]);
+                            fileReader.readAsText($('#fl_csv')[0].files[0]);
                         }
 
                     });
