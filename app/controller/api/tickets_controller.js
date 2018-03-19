@@ -1,10 +1,17 @@
 const ROUTER = require('express').Router();
-//const MULTER = require('multer');
-//const STORAGE = MULTER.memoryStorage();
-//const UPLOAD_HANDLER = MULTER({ storage: STORAGE });
+const SERVICE = require('../../service/tickets_service');
 
 ROUTER.post('/upload/csv', (req, res) => {
-    res.json({ message: `${req.body.record['TMS Load #']} received!` });
+    SERVICE
+        .create(req.body.record)
+        .then(() => {
+            res.status(201);
+            res.json({ message: `${req.body.record['TMS Load #']} received!` });
+        })
+        .catch((e) => {
+            res.status(400);
+            res.json({ message: `${req.body.record['TMS Load #']} was impossible to store. Please verify its information is correct.` });
+        });
 });
 
 exports.router = ROUTER;
