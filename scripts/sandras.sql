@@ -341,20 +341,77 @@ CREATE TABLE IF NOT EXISTS `sandras`.`table1` (
 )
 ENGINE = InnoDB;
 
-USE `sandras` ;
-
--- -----------------------------------------------------
--- Placeholder table for view `sandras`.`view1`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sandras`.`view1` (`id` INT);
-
--- -----------------------------------------------------
--- View `sandras`.`view1`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `sandras`.`view1`;
 USE `sandras`;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+INSERT INTO `sandras`.`hr`
+(`id`,
+`name`,
+`address`,
+`civil_status`,
+`tel`,
+`email`,
+`contact1`,
+`contact2`,
+`birthdate`,
+`over25`,
+`labor_status`,
+`position`,
+`type`,
+`shift`,
+`crew`,
+`rate`,
+`username`,
+`password`,
+`medical_card`,
+`mc_exp`,
+`drug_test`,
+`dt_exp`,
+`training`,
+`training_exp`,
+`license`,
+`license_exp`,
+`state`,
+`years_working`,
+`ssn`,
+`dependants`,
+`up`,
+`clients_id`)
+VALUES
+(1,
+'Efra',
+'Callejita Chida 3201',
+'Casadote',
+'4130101',
+'orenteriab@gmail.com',
+'pa que quiere saber eso, jaja saludos',
+'',
+'1989-09-05',
+'Y',
+'Employed',
+'Universe Lord',
+'Sir',
+'Midnight',
+1,
+12.50,
+'erenteria',
+PASSWORD('bienlocote'),
+'sanisimo',
+'2018-01-01 23:59:59',
+'IMPOLUTED',
+'2018-01-01 23:59:59',
+'NOT NEEDED',
+'2018-01-01 23:59:59',
+'M4M4L0N4',
+'2218-01-01 23:59:59',
+'TX',
+'1989-09-05 09:01:23',
+'S3GUR0M4M4L0N',
+2,
+1,
+1);
+
