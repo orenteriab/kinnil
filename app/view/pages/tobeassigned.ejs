@@ -159,7 +159,7 @@
     <!--
         Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
     -->
-    <script>
+    <script type="text/javascript">
         (function(APP){
             APP.SERVICE = APP.SERVICE || {};
 
@@ -229,7 +229,7 @@
                     $.ajax({
                         method: 'POST',
                         url: '/api/tickets/upload/csv',
-                        dataType: 'application/json; charset=utf-8',
+                        dataType: 'json',
                         data: {
                             record: csvArray[i]
                         },
