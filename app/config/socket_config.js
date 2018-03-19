@@ -1,58 +1,49 @@
 const SOCKET_BROKER = require('socket.io');
-
-function SocketEventEmitter(label, payload){
-    this.label = label;
-    this.payload = payload;
-
-    return this;
-}
-
-function SocketEventReceiver(label, socket, handler){
-    this.label = label;
-    this.handler = handler;
-    this.socket = socket;
-
-    return this;
-}
-
-function isDataEmpty(data){
-    return data === undefined || data === null || String(data).trim().length == 0;
-}
-
-const EVENTS = {
-    emitted: {
-        connection: new SocketEventEmitter('connection', { message: 'Connection established.'}),
-        invalidData: new SocketEventEmitter('invalid_data', { message: 'The data you sent is not formatted and/or valid.' }),
-
-    },
-    received: {
-        updateLocation: (socket) => {
-            return new SocketEventReceiver('update_location', socket, (data) => {
-                if(isDataEmpty(data)){
-                    let eventToEmit = new SocketEventEmitter(
-                        'invalid_update_location_data', 
-                        { message: 'The data you sent to update location is not valid.' }
-                    );
-
-                    socket.emit(eventToEmit.label, eventToEmit.payload);
-                }else{
-                    socket.emit();
-                }
-            });
-        }
-    }
-};
+const SOCKETS_CONNECT_EVENT_RECEIVER = require('../socket/receive/sockets/connection_socket_event_receiver').receiver;
 
 exports.init = (server) => {
     const IO = SOCKET_BROKER(server);
 
-    IO
-        .of('/socket')
-        .on('connection', (socket) => {
-            socket.emit(EVENTS.emitted.connection.label, EVENTS.emitted.connection.payload);
+    /**********************************************************
+     ****************Explicación de los sockets****************
+     **********************************************************
+    Estos son para sockets genéricos
+    podemos dividirlos entre "canales", 
+    el canal por defecto estará en /sockets
+    por eso la carpeta en /app/socket tiene 
+    dos directorios:
+      emit: Que en ese directorio van a vivir 
+            todas las señales que enviaremos
+      receive: Que en ese directorio van a 
+               vivir todas las señales que 
+               recibiremos, además los 
+               emitters solo serían llamados 
+               desde un receiver. De esa 
+               manera, tendremos una cadenita:
+                  mensaje_del_cliente -> 
+                      socket_receiver -> 
+                          socket_emitter -> 
+                              service -> 
+                                  model
+    Dentro de esos directorios de receive y 
+    emit tenemos un directorio que se llama
+    "sockets", ese es el nombre del "canal"
+    por canal crearemos un directorio para 
+    tenerlo todo bien organizado.
+    Aquí nomas vamos a poner cuales receivers van a existir.
+    **********************************************************
+    ****************Explicación de los sockets****************
+    **********************************************************/
+    IO.of('/sockets')
+        .on(SOCKETS_CONNECT_EVENT_RECEIVER.label, SOCKETS_CONNECT_EVENT_RECEIVER.handle);
 
-            const partialUpdateLocationEmitter = EVENTS.received.updateLocation(socket);
-            socket.on(partialUpdateLocationEmitter.label, partialUpdateLocationEmitter.handler);
-
-        });
+    /*
+    Para abrir otro canal podríamos tener:
+    IO.of('/drivers')
+        .on(SOCKETS_DRIVER_CANCEL_TRIP.label, SOCKETS_DRIVER_CANCEL_TRIP.handle);
+    
+    Solo es un ejemplo. Y pues en 
+    app/socket/emit y app/socket/receive 
+    tendríamos otro directorio "drivers"
+    */
 };
