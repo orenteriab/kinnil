@@ -224,23 +224,44 @@
             APP.SERVICE.TICKETS = {};
 
             APP.SERVICE.TICKETS.UPLOAD_CSV = APP.SERVICE.TICKETS.UPLOAD_CSV || function(csvArray){
+                var ajaxRequests = [];
                 for(var i = 0; i < csvArray.length; i++){
-                    console.log(JSON.stringify(csvArray[i]));
-                    $.ajax({
-                        method: 'POST',
-                        url: '/api/tickets/upload/csv',
-                        dataType: 'json',
-                        data: {
-                            record: csvArray[i]
-                        },
-                        success: function(data){
-                            console.log(data);
-                        },
-                        error: function(e, d, f){
-                            console.error(f);
-                        }
-                    });
+                    ajaxRequests.push(
+                        $.ajax({
+                            method: 'POST',
+                            url: '/api/tickets/upload/csv',
+                            dataType: 'json',
+                            data: {
+                                record: csvArray[i]
+                            },
+                            success: function(data){
+                                console.log(data);
+                            },
+                            error: function(e, d, f){
+                                console.error(f);
+                            }
+                        })
+                    );
                 }
+                $.when
+                    .apply(undefined, ajaxRequests).then(function(){
+                        var failed = [];
+
+                        for(var i = 0; i < ajaxRequests.length; i++){
+                            var requestStatus = parseInt(ajaxRequests[i].status);
+                            if(requestStatus < 200 || requestStatus > 299){
+                                failed.push(ajaxRequests[i].textStatus);
+                            }
+                        }
+
+                        if(failed.length > 0){
+                            alert("Some records couldn't be saved:\n" + failed.join(" | "));
+                        }else{
+                            alert("All records were saved successfully!");
+                        }
+
+                        APP.location.reload();
+                    });
             }
 
             APP.LOAD = APP.LOAD || {};
