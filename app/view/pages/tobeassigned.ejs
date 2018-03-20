@@ -18,9 +18,9 @@
         <div id="content">
             <%include ../partials/up %>
             <ul class="nav nav-tabs">
-                    <li role="presentation"><a href="../dispatcher/tobeassigned#">To be Asigned</a></li>
+                    <li role="presentation" class="active"><a href="../dispatcher/tobeassigned#">To be Asigned</a></li>
                 <li role="presentation"><a href="../dispatcher/workinprogress">Work in progress</a></li>
-                <li role="presentation" class="active"><a href="../dispatcher/completed">Completed</a></li>
+                <li role="presentation"><a href="../dispatcher/completed">Completed</a></li>
             </ul>
             <div class="tab-content"> 
                 <div class="content">
@@ -238,19 +238,20 @@
                                 console.log(data);
                             },
                             error: function(e, d, f){
+                                console.error(e);
                                 console.error(f);
                             }
                         })
                     );
                 }
                 $.when
-                    .apply(undefined, ajaxRequests).then(function(){
+                    .apply(undefined, ajaxRequests).always(function(){
                         var failed = [];
 
                         for(var i = 0; i < ajaxRequests.length; i++){
                             var requestStatus = parseInt(ajaxRequests[i].status);
                             if(requestStatus < 200 || requestStatus > 299){
-                                failed.push(ajaxRequests[i].textStatus);
+                                failed.push(ajaxRequests[i].responseText);
                             }
                         }
 
@@ -435,7 +436,7 @@
             APP.EVENTS.INIT();
         })(window);
     </script>
-
+    <script src="/assets/js/socket.io/socket.io.js"></script>
 
 </body>
 </html>
