@@ -1,3 +1,3 @@
 exports.emitter = (socket) => {
-    socket.send('connected', { message: 'Connection established'});
+    socket.emit('connected', { message: 'Connection established'});
 };
