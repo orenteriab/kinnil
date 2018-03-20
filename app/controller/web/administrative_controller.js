@@ -77,4 +77,22 @@ router.get('/hr', (req, res) => {
         });
 });
 
+router.get('/drivers', (req, res) => {
+
+    administrativeService
+        .getDrivers()
+        .then((return_data) => {
+            res.render('pages/drivers.ejs', { 
+                message: '',
+                drivers: return_data.drivers,
+                onlineOffile: return_data.onlineOffline
+            });
+        })
+        .catch(function (err) {
+            console.error('[Web/administrative_controller.js][/hr] Error cuando obtenemos el detalle de un hr: ', err);
+            res.status(500);
+            res.send(JSON.stringify({ err: 'Unable to retrieve data from datbase.' }));
+        });
+});
+
 exports.router = router;

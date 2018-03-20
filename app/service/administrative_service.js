@@ -68,3 +68,20 @@ exports.getHr = () => {
         .getHr();
 };
 
+exports.getDrivers = () => {
+    let drivers = administrativeModel
+        .getDrivers();
+
+    let onlineOffline = administrativeModel
+        .getOnlineOffline();
+
+    var return_data = {};
+    return Promise.all([drivers, onlineOffline]).then((data) => {
+
+        return_data.drivers = data[0];
+        return_data.onlineOffline = data[1];
+
+        return return_data;
+    });
+};
+

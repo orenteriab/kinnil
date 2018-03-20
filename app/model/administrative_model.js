@@ -61,3 +61,15 @@ exports.getLocationById = (locationId) => {
 
     return connectionPool.query(statement, [locationId]);
 }
+
+exports.getDrivers = () => {
+    let statement = 'select * from hr where position = "DRIVER"';
+
+    return connectionPool.query(statement);
+}
+
+exports.getOnlineOffline = () => {
+    let statement = "select (select count(*) from hr where up = 1) drivers_online, (select count(*) from hr where up = 0) drivers_offline, (select count(*) from assets where type = 'TRUCK' and up = 1) trucks_online, (select count(*) from assets where type = 'TRUCK' and up = 0) trucks_offline, (select count(*) from assets where type = 'TRAILER' and up = 1) trailers_online, (select count(*) from assets where type = 'TRAILER' and up = 0) trailers_offline"
+
+    return connectionPool.query(statement);
+}
