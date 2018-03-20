@@ -16,7 +16,6 @@
 
         <!-- Page Content Holder -->
         <div id="content">
-            <%include ../partials/up %>
             <ul class="nav nav-tabs">
                     <li role="presentation" class="active"><a href="../administrative/clients">Clients</a></li>
                     <li role="presentation"><a href="../administrative/hr">Human resources</a></li>
@@ -28,21 +27,6 @@
                     <div class="row">
                     </div>
 
-                    <div class="row">
-                        <br/>
-                        
-                        <!--<div class="col-md-6">
-                            <form class="form-inline" id="find-ticket">
-                                <div class="form-group">
-                                    <label for="exampleInputName2">Find a TMS: </label>
-                                    <input type="text" class="form-control" id="tms-number" placeholder="#">
-                                </div>
-                                <button type="submit" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                </button>
-                            </form>
-                        </div>-->
-                    </div>
 
                     <br/>
                     <div class="row">
@@ -50,8 +34,8 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-formatter="link" data-type="numeric">#</th>
-                                        <th data-column-id="name" data-type="numeric">Name</th>
+                                        <th data-column-id="id" data-type="numeric" data-formatter ="link">#</th>
+                                        <th data-column-id="name">Name</th>
                                         <th data-column-id="address">Address</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
@@ -70,14 +54,15 @@
                                                 <%= clients[i].address %>
                                             </td>
                                             <td id="">
-                                                <button type="submit" class="btn btn-default"> Assign</button>
+                                                <!--<button type="submit" class="btn btn-default"> Edit</button>
+                                                <button type="submit" class="btn btn-default"> Delete</button>-->
                                             </td>
                                         </tr>
                                     <% } %>
                                 </tbody>
                                 <% } else{ %>  
                                     <tbody>
-                                        <p>No clients in this category</p>
+                                        <p>No clients</p>
                                     </tbody>
                                 <% } %>
                             </table>
@@ -92,9 +77,6 @@
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
 
-    <!-- Ticket detail modal  -->
-    <%include ../partials/ticket-detail %>
-
 
     <!--
         Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
@@ -104,9 +86,6 @@
             APP.SERVICE = APP.SERVICE || {};
 
             APP.SERVICE.ADMINISTRATIVE = APP.SERVICE.ADMINISTRATIVE || {};
-            
-
-
 
             APP.LOAD = APP.LOAD || {};
 
@@ -117,8 +96,66 @@
                 });
             };
 
+            APP.LOAD.GRID = APP.LOAD.GRID || function(){
+
+                var linkFormatter = function(column, row){
+                    return "<a href='../administrative/clients/"+ row.id +"' class='text-center black-link'>" + row.id + "</a>";
+                };
+
+                var commandsFormatter = function(column, row) {
+                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
+                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
+                };
+
+                var loadedRsJQueryBootgrid = function(){
+                    /* Executes after data is loaded and rendered */
+                    var onClickEdit = function(e){
+
+                        alert("edit");
+                    };
+
+                    var onClickDelete = function(e){
+                        $.ajax({
+                            url: '/api/administrative/delete/',    //Your api url
+                            type: 'PUT',   //type is any HTTP method
+                            data: {
+                                    clientId: $(this).data("row-id")
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
+                        alert("delete");
+                    };
+
+                    $("#grid-basic")
+                        .find(".command-edit")
+                        .on("click", onClickEdit)
+                        .end()
+                        .find(".command-delete")
+                        .on("click", onClickDelete);
+                };
+
+                $("#grid-basic")
+                    .bootgrid({
+                        labels: {
+                            search: "Search"
+                        },
+                        formatters: {
+                            "link": linkFormatter,
+                            "commands": commandsFormatter
+                        }
+                    })
+                    .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+            };
+
             
             APP.LOAD.SIDE_BAR();
+            APP.LOAD.GRID();
         })(window);
     </script>
 
