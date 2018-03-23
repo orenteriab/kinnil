@@ -10,7 +10,7 @@ ROUTER.get('/clients/delete/:clientId', (req, res) => {
 
     administrativeService
         .deleteClients(req.params.clientId)
-        .then((return_data) => {
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
@@ -31,7 +31,7 @@ ROUTER.post('/addsand/', (req, res) => {
 
     administrativeService
         .addSand(req.body.name, 1)
-        .then((return_data) => {
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
@@ -52,7 +52,7 @@ ROUTER.post('/addproduct/', (req, res) => {
 
     administrativeService
         .addProduct(req.body.name, 1)
-        .then((return_data) => {
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
@@ -73,7 +73,7 @@ ROUTER.post('/addfacilitie/', (req, res) => {
 
     administrativeService
         .addFacilitie(req.body.name, 1)
-        .then((return_data) => {
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
@@ -94,7 +94,7 @@ ROUTER.post('/addlocation/', (req, res) => {
 
     administrativeService
         .addLocation(req.body.name, 'ON GOING', req.body.geolocation ,req.body.startDate, req.body.endDate, 1)
-        .then((return_data) => {
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
@@ -113,28 +113,28 @@ ROUTER.post('/addlocation/', (req, res) => {
 
 ROUTER.post('/addhr/', (req, res) => {
 
-    console.log("administrative add HR")
+    console.log('administrative add HR');
     administrativeService
         .addHr(req.body.name,
-                        req.body.address,
-                        req.body.tel,
-                        req.body.civilStatus,
-                        req.body.dependent,
-                        req.body.email,
-                        req.body.contact1,
-                        req.body.contact2,
-                        req.body.birth,
-                        req.body.over25,
-                        req.body.laborStatus,
-                        req.body.position,
-                        req.body.dllsHr,
-                        req.body.medicalCard,
-                        req.body.mcExp,
-                        req.body.drugTest,
-                        req.body.dtExp,
-                        req.body.ssn,
-                        1) // 1 el default siempre es 1 porque en esta version solo hay un cliente (HALLIBURTON)
-        .then((return_data) => {
+            req.body.address,
+            req.body.tel,
+            req.body.civilStatus,
+            req.body.dependent,
+            req.body.email,
+            req.body.contact1,
+            req.body.contact2,
+            req.body.birth,
+            req.body.over25,
+            req.body.laborStatus,
+            req.body.position,
+            req.body.dllsHr,
+            req.body.medicalCard,
+            req.body.mcExp,
+            req.body.drugTest,
+            req.body.dtExp,
+            req.body.ssn,
+            1) // 1 el default siempre es 1 porque en esta version solo hay un cliente (HALLIBURTON)
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
