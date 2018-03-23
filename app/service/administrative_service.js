@@ -85,3 +85,30 @@ exports.getDrivers = () => {
     });
 };
 
+
+exports.addSand = (name, clientId) => {
+    return administrativeModel
+        .addSand(name, clientId);
+};
+
+exports.addProduct = (name, clientId) => {
+    return administrativeModel
+        .addProduct(name, clientId);
+};
+
+exports.addFacilitie = (name, clientId) => {
+    return administrativeModel
+        .addFacilitie(name, clientId);
+};
+
+exports.addLocation = (name, status, geolocation, startDate, endDate, clientId) => {
+    return administrativeModel
+        .addLocation(name, status, geolocation, startDate, endDate, clientId);
+};
+
+exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id) => {
+    return administrativeModel
+        .addHr(name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id);
+}
+
+

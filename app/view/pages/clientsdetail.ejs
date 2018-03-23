@@ -38,6 +38,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Locations</h4>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal"> Add Location </button>
                             <table id='grid-locations' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
@@ -72,6 +73,7 @@
                     <div class="row">
                             <div class="col-md-12">
                                 <h4>Facilities</h4>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addFacilitieModal"> Add Facilitie </button>
                                 <table id='grid-facilities' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                     <thead>
                                         <tr>
@@ -100,6 +102,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Products</h4>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"> Add Product </button>
                             <table id='grid-products' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
@@ -128,6 +131,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Sands</h4>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSandModal"> Add Sand </button>
                             <table id='grid-sands' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
@@ -158,6 +162,114 @@
             </div>
         </div>
     </div>
+
+
+
+<!-- Add Sand -->
+<div class="modal fade" id="addSandModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add Sand</h4>
+        </div>
+        <form role="form" id="addSandForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <!-- TODO: agregar validacion y limpieza de caracteres para no guardar en la base de datos basura -->
+                    <label for="sandName" class="h4 ">Name</label>
+                    <input id="sandName" class="form-control" rows="5" required></input>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save changes</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Add Product -->
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add Product</h4>
+        </div>
+        <form role="form" id="addProductForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <!-- TODO: agregar validacion y limpieza de caracteres para no guardar en la base de datos basura -->
+                    <label for="productName" class="h4 ">Name</label>
+                    <input id="productName" class="form-control" rows="5" required></input>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save changes</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Add Facilitie -->
+<div class="modal fade" id="addFacilitieModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add Facilitie</h4>
+        </div>
+        <form role="form" id="addFacilitieForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <!-- TODO: agregar validacion y limpieza de caracteres para no guardar en la base de datos basura -->
+                    <label for="facilitieName" class="h4 ">Name</label>
+                    <input id="facilitieName" class="form-control" rows="5" required></input>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save changes</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Add Location -->
+<div class="modal fade" id="addLocationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add Location</h4>
+        </div>
+        <form role="form" id="addLocationForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <!-- TODO: agregar validacion y limpieza de caracteres para no guardar en la base de datos basura -->
+                    <label for="locationName" class="h4 ">Name</label>
+                    <input id="locationName" class="form-control" rows="5" required></input>
+                    <label for="locationGeo" class="h4 ">Geolocation</label>
+                    <input id="locationGeo" class="form-control" rows="5" required></input>
+                    <label for="locationStartDate" class="h4 ">Start date</label>
+                    <input id="locationStartDate" class="form-control" rows="5" required type="date"></input>
+                    <label for="locationEndDate" class="h4 ">End date</label>
+                    <input id="locationEndDate" class="form-control" rows="5" required type="date"></input>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save changes</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
@@ -336,12 +448,118 @@
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
             };
+
+            APP.EVENTS = APP.EVENTS || {
+                MODALS_SUBMIT: function(){
+
+                    // Add Sand
+                    $("#addSandForm").submit(function(event) {
+
+                        event.preventDefault(); // cancels the form submission
+                        $.ajax({
+                            cache: false,
+                            url: '/api/administrative/addsand/',
+                            type: 'POST',
+                            data: {
+                                name: $("#sandName").val()
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload(); // Recarga la pagina para ver el cambio
+                            },
+                            error: function(xhr) {
+                                alert('Couldn\'t insert in the database. Try again, please.');
+                            },
+                        });
+
+                        $('#addSandModal').modal('hide');
+                        refreshPage();
+                    });
+
+                    // Add product
+                    $("#addProductForm").submit(function(event) { 
+                        event.preventDefault(); // cancels the form submission
+                        $.ajax({
+                            cache: false,
+                            url: '/api/administrative/addproduct/',
+                            type: 'POST',
+                            data: {
+                                name: $("#productName").val()
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload(); // Recarga la pagina para ver el cambio
+                            },
+                            error: function(xhr) {
+                                alert('Couldn\'t insert in the database. Try again, please.');
+                            },
+                        });
+
+                        $('#addProductModal').modal('hide');
+                        refreshPage();
+                    });
+
+                    // Add facilitie
+                    $("#addFacilitieForm").submit(function(event) { 
+                        event.preventDefault(); // cancels the form submission
+                        $.ajax({
+                            cache: false,
+                            url: '/api/administrative/addfacilitie/',
+                            type: 'POST',
+                            data: {
+                                name: $("#facilitieName").val()
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload(); // Recarga la pagina para ver el cambio
+                            },
+                            error: function(xhr) {
+                                alert('Couldn\'t insert in the database. Try again, please.');
+                            },
+                        });
+
+                        $('#addFacilitieModal').modal('hide');
+                        refreshPage();
+                    });
+
+                    // Add location
+                    $("#addLocationForm").submit(function(event) { 
+                        event.preventDefault(); // cancels the form submission
+                        $.ajax({
+                            cache: false,
+                            url: '/api/administrative/addlocation/',
+                            type: 'POST',
+                            data: {
+                                name: $("#locationName").val(),
+                                geolocation: $("#locationGeo").val(),
+                                startDate: $("#locationStartDate").val(),
+                                endDate: $("#locationEndDate").val()
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload(); // Recarga la pagina para ver el cambio
+                            },
+                            error: function(xhr) {
+                                alert('Couldn\'t insert in the database. Try again, please.');
+                            },
+                        });
+
+                        $('#addLocationModal').modal('hide');
+                        refreshPage();
+                    });
+
+                },
+                INIT: function(){
+                    APP.EVENTS.MODALS_SUBMIT();
+                }
+            };
              
             APP.LOAD.SIDE_BAR();
             APP.LOAD.GRID_LOCATIONS();
             APP.LOAD.GRID_PRODUCTS();
             APP.LOAD.GRID_FACILITIES();
             APP.LOAD.GRID_SANDS();
+            APP.EVENTS.INIT();
         })(window);
     </script>
 

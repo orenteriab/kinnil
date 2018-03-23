@@ -25,12 +25,9 @@
                 <div class="content">
                     
                     <div class="row">
-                    </div>
-
-
-                    <br/>
-                    <div class="row">
                         <div class="col-md-12">
+                            <h4>Employees</h4>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addHrModal">Add employee</button>
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
@@ -78,6 +75,94 @@
             </div>
         </div>
     </div>
+
+<!-- Add HR -->
+<div class="modal fade" id="addHrModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add employee</h4>
+        </div>
+        <form role="form" id="addHrForm">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="name" class="h4 ">Name</label>
+                        <input id="name" class="form-control" required></input>
+                        <label for="address" class="h4 ">Address</label>
+                        <input id="address" class="form-control" required></input>
+                        <label for="tel" class="h4 ">Tel</label>
+                        <input id="tel" class="form-control" required type="tel"></input>
+                        <label for="civilStatus" class="h4 ">Civil status</label>
+                        <select id="civilStatus" class="form-control">
+                            <option value="SINGLE">Single</option>
+                            <option value="MARRIED">Married</option>
+                            <option value="DIVORCED">Divorced</option>
+                            <option value="SEPARATED">Separated</option>
+                            <option value="WIDOWED">Widowed</option>
+                        </select>
+                        <label for="dependent" class="h4 ">Dependent</label>
+                        <input id="dependent" class="form-control" value='0' required type="number"></input>
+                        <label for="email" class="h4 ">email</label>
+                        <input id="email" class="form-control" required type="email"></input>
+                        <label for="contact1" class="h4 ">Emergency contact 1</label>
+                        <input id="contacta1" class="form-control" type="tel"></input>
+                        <label for="contacta2" class="h4 ">Emergency contact 1</label>
+                        <input id="contacta2" class="form-control" type="tel"></input>
+                        <label for="birth" class="h4 ">Date bith</label>
+                        <input id="birth" class="form-control" required type="date"></input>
+                        <label for="over25" class="h4 ">Over 25</label>
+                        <select id="over25" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="laborStatus" class="h4 ">Labor status</label>
+                        <select id="laborStatus" class="form-control">
+                            <option value="WORKING WITH US">Working with us</option>
+                            <option value="NOT WORKING WITH US">Not Working with us</option>
+                        </select>
+                        <label for="position" class="h4 ">Position</label>
+                        <select id="position" class="form-control">
+                            <option value="FIELD CREW SUPERVISOR">Field Crew Supervisor</option>
+                            <option value="FIELD CREW MANAGER">Field Crew Manager</option>
+                            <option value="FIELD CREW OPERATOR">Field Crew Operator</option>
+                            <option value="OPERATIONS">Operation</option>
+                            <option value="MECHANICS">Mechanics</option>
+                            <option value="OFFICE">Office</option>
+                        </select>
+                        <label for="dllsHr" class="h4 ">Dlls/hr</label>
+                        <input id="dllsHr" class="form-control" step='0.01' value='0.00' required type="number"></input>
+                        <label for="medicalCard" class="h4 ">Medical card</label>
+                        <select id="medicalCard" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="mcExp" class="h4 ">Medical card expiration date</label>
+                        <input id="mcExp" class="form-control" required type="date"></input>
+                        <label for="drugTest" class="h4 ">Drug test</label>
+                        <select id="drugTest" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="dtExp" class="h4 ">Drug test expiration date</label>
+                        <input id="dtExp" class="form-control" required type="date"></input>
+                        <label for="ssn" class="h4 ">SSN</label>
+                        <input id="ssn" class="form-control" required></input>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save changes</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
@@ -179,37 +264,58 @@
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
             };
 
-            APP.SERVICE.ADMINISTRATIVE.CHANGE_LABOR_STATUS = APP.SERVICE.ADMINISTRATIVE.CHANGE_LABOR_STATUS || function(){
+            APP.EVENTS = APP.EVENTS || {
+                MODALS_SUBMIT: function(){
 
-                var source = [];
-                var obj = {};
-                obj["value"] = 'WORKING WITH US'; // Se almacenan en la DB en mayusculas por si se necesita indexar el campo mas delante
-                obj["text"] = 'Working with us';
-                source.push(obj);
-                obj["value"] = 'NOT WORKING WITH US';
-                obj["text"] = 'Not working with us';
-                source.push(obj);
+                    // Add HR
+                    $("#addHrForm").submit(function(event) {
 
-                // IMPORTANTE
-                // IMPORTANTE: el codigo de EJS esta entrecomillado para que no despliegue error VS Code, a la hora de mostrarlo funciona como si no estubiera con comillas
-                //<%if (hr.length > 0) { %>
-                //<%for(var i=0; i<hr.length; i++) {%> 
-                
-                $('#edit-workingstatus-<%= hr[i].id %>').editable({
-                    source: source,
-                    value: "<%= hr[i].labor_status %>",
-                    success: function(response, newValue) {
-                        ///// TODO: Hay que agregar un refresh a la pagina cuando se actualizen siertas cosas, las que se necesite o se pueda
-                        if (response.status == 'error') return response.msg; //msg will be shown in editable form
-                    }
-                });
-                //<% }%>
-                //<% }%>
-            }
+                        event.preventDefault(); // cancels the form submission
+                        $.ajax({
+                            cache: false,
+                            url: '/api/administrative/addhr/',
+                            type: 'POST',
+                            data: {
+                                name: $("#name").val(),
+                                address: $("#address").val(),
+                                tel: $("#tel").val(),
+                                civilStatus: $("#civilStatus").val(),
+                                dependent: $("#dependent").val(),
+                                email: $("#email").val(),
+                                contac1: $("#contacta1").val(),
+                                contact2: $("#contacta2").val(),
+                                birth: $("#birth").val(),
+                                over25: $("#over25").val(),
+                                laborStatus: $("#laborStatus").val(),
+                                position: $("#position").val(),
+                                hllsHr: $("#dllsHr").val(),
+                                medicalCard: $("#medicalCard").val(),
+                                mcExp: $("#mcExp").val(),
+                                drugTest: $("#drugTest").val(),
+                                dtExp: $("#dtExp").val(),
+                                ssn: $("#ssn").val()
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload(); // Recarga la pagina para ver el cambio
+                            },
+                            error: function(xhr) {
+                                alert('Couldn\'t insert in the database. Try again, please.');
+                            },
+                        });
+
+                        $('#addSandModal').modal('hide');
+                        refreshPage();
+                    });
+                },
+                INIT: function(){
+                    APP.EVENTS.MODALS_SUBMIT();
+                }
+            };
             
             APP.LOAD.SIDE_BAR();
             APP.LOAD.GRID();
-            APP.SERVICE.ADMINISTRATIVE.CHANGE_LABOR_STATUS();
+            APP.EVENTS.INIT();
         })(window);
     </script>
 

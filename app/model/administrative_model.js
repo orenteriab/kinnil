@@ -45,7 +45,7 @@ exports.getSands = (clientId) => {
 };
 
 exports.getHr = () => {
-    let statement = 'select * from hr';
+    let statement = 'select * from hr where position <> "DRIVER"';
 
     return connectionPool.query(statement);
 };
@@ -72,4 +72,41 @@ exports.getOnlineOffline = () => {
     let statement = "select (select count(*) from hr where up = 1) drivers_online, (select count(*) from hr where up = 0) drivers_offline, (select count(*) from assets where type = 'TRUCK' and up = 1) trucks_online, (select count(*) from assets where type = 'TRUCK' and up = 0) trucks_offline, (select count(*) from assets where type = 'TRAILER' and up = 1) trailers_online, (select count(*) from assets where type = 'TRAILER' and up = 0) trailers_offline"
 
     return connectionPool.query(statement);
+}
+
+
+exports.addSand = (name, clientId) => {
+    let statement = "insert into sand (name, clients_id, active) values (?, ?, 1)"
+
+    return connectionPool.query(statement, [name, clientId]);
+}
+
+exports.addProduct = (name, clientId) => {
+    let statement = "insert into products (name, clients_id, active) values (?, ?, 1)"
+
+    return connectionPool.query(statement, [name, clientId]);
+}
+
+exports.addProduct = (name, clientId) => {
+    let statement = "insert into products (name, clients_id, active) values (?, ?, 1)"
+
+    return connectionPool.query(statement, [name, clientId]);
+}
+
+exports.addFacilitie = (name, clientId) => {
+    let statement = "insert into facilities (name, clients_id, active) values (?, ?, 1)"
+
+    return connectionPool.query(statement, [name, clientId]);
+}
+
+exports.addLocation = (name, status, geolocation, startDate, endDate, clientId) => {
+    let statement = "insert into locations (name, status, geolocation, start_date, end_date, clients_id, active) values (?, ?, ?, ?, ?, ?, 1)"
+
+    return connectionPool.query(statement, [name, status, geolocation, startDate, endDate, clientId]);
+}
+
+exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id) => {
+    let statement = "insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, clients_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+    return connectionPool.query(statement, [name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id]);
 }

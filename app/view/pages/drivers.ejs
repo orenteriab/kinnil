@@ -26,14 +26,14 @@
 
                     <br/>
                     <div class="row">
-                        <div class="col-md-4">Trucks Available: <%= onlineOffile[0].trucks_online %></div>
-                        <div class="col-md-4">Trailers Available: <%= onlineOffile[0].trailers_online %></div>
-                        <div class="col-md-4">Drivers Online: <%= onlineOffile[0].drivers_online %></div>
+                        <div class="col-md-4">Trucks Available: <span class="badge"> <%= onlineOffile[0].trucks_online %> </span></div>
+                        <div class="col-md-4">Trailers Available: <span class="badge"> <%= onlineOffile[0].trailers_online %> </span></div>
+                        <div class="col-md-4">Drivers Online: <span class="badge"> <%= onlineOffile[0].drivers_online %> </span></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">Trucks Unavailable: <%= onlineOffile[0].trucks_offline %></div>
-                        <div class="col-md-4">Trailers Unavailable: <%= onlineOffile[0].trailers_offline %></div>
-                        <div class="col-md-4">Drivers Offline: <%= onlineOffile[0].drivers_offline %></div>
+                        <div class="col-md-4">Trucks Unavailable: <span class="badge"> <%= onlineOffile[0].trucks_offline %> </span></div>
+                        <div class="col-md-4">Trailers Unavailable: <span class="badge"> <%= onlineOffile[0].trailers_offline %> </span></div>
+                        <div class="col-md-4">Drivers Offline: <span class="badge"> <%= onlineOffile[0].drivers_offline %> </span></div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -45,8 +45,8 @@
                                         <th data-column-id="name">Name</th>
                                         <th data-column-id="shift">Shift</th>
                                         <th data-column-id="type">Type</th>
-                                        <th data-column-id="status" data-formatter="laborstatus">Status</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="status">Status</th>
+                                        <th data-column-id="options" data-formatter="link" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (drivers.length > 0) { %>
@@ -81,10 +81,8 @@
         </div>
     </div>
 
-
-
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
-    <%include ../partials/js %>
+    <% include ../partials/js %>
 
     <!--
         Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
@@ -106,8 +104,12 @@
             
             APP.LOAD.GRID = APP.LOAD.GRID || function(){
 
-                var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> ";
+                var linkFormatter = function(column, row){
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">Edit</a>";
+                };
+
+                var commandsFormatter = function(column, row) {    
+                    //return "<a href='#myModal' data-toggle='modal' data-ticket='" + row.id + "' class='text-center black-link'><p><span class='fa fa-pencil'></p></span></a>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
@@ -129,8 +131,10 @@
                             search: "Search"
                         },
                         formatters: {
-                            "commands": commandsFormatter
-                        }
+                            "commands": commandsFormatter,
+                            "link": linkFormatter
+                        },
+                        caseSensitive: false
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
             };
@@ -139,6 +143,8 @@
             APP.LOAD.GRID();
         })(window);
     </script>
+
+    <% include ../partials/drivers-detail %>
 
 
 </body>
