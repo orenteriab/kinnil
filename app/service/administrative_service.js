@@ -111,4 +111,17 @@ exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, co
         .addHr(name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id);
 }
 
+exports.addDriver = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id) => {
+    return administrativeModel
+        .addDriver(name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id);
+}
 
+exports.getHrDetail = (hrId) => {
+    return administrativeModel
+        .getHrDetail(hrId);
+};
+
+exports.updateHr = (name, value, pk) => {
+    return administrativeModel
+    .updateHr(name, value, pk);
+};

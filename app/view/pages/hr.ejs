@@ -31,7 +31,7 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="id" data-type="numeric" data-formatter="link">#</th>
                                         <th data-column-id="name">Name</th>
                                         <th data-column-id="tel">Telephone</th>
                                         <th data-column-id="licence">License</th>
@@ -164,6 +164,54 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="editHrModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4>Ticket detail</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Name <span id="editName"> </span></p>
+                    <p>Address <span id="editAddress"> </span></p>
+                    <p>Tel <span id="editTel"> </span></p>
+                    <p>Civil status <span id="editCivilStatus"> </span></p>
+                    <p>Dependent <span id="editDependent"> </span></p>
+                    <p>email <span id="editEmail"> </span></p>
+                    <p>Emergency contact 1 <span id="editContact1"> </span></p>
+                    <p>Emergency contact 1 <span id="editContact2"> </span></p>
+                    <p>Date bith <span id="editBrith"> </span></p>
+                    <p>Over 25 <span id="editOver25"> </span></p>
+
+                </div>
+                <div class="col-md-6">
+                    <p>Labor status <span id="editLaborStatus"> </span></p>
+                    <p>Position <span id="editPosition"> </span></p>
+                    <p>Dlls/hr <span id="editDllsHr"> </span></p>
+                    <p>Medical card <span id="editMc"> </span></p>
+                    <p>Medical card expiration date <span id="editMcExp"> </span></p>
+                    <p>Drug test <span id="editDt"> </span></p>
+                    <p>Drug test expiration date <span id="editDtExp"> </span></p>
+                    <p>SSN <span id="editSsn"> </span></p>
+
+                </div>
+            </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <!--<button type="button" class="btn btn-success" data-dismiss="modal">Download</button>-->
+        </div>
+        </div>
+    </div>
+</div> 
+
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
 
@@ -188,8 +236,12 @@
             
             APP.LOAD.GRID = APP.LOAD.GRID || function(){
 
+                var linkFormatter = function(column, row){
+                    return "<a href=\"#editHrModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link show-edit-hr\">" + row.id + "</a>";
+                };
+
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
+                    return "<button href=\"#editHrModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
                             "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
                 };
 
@@ -212,7 +264,6 @@
                 var loadedRsJQueryBootgrid = function(){
                     /* Executes after data is loaded and rendered */
                     var onClickEdit = function(e){
-
                         alert("edit");
                     };
 
@@ -243,12 +294,19 @@
                         alert("delete");
                     };
 
+                    var onEditHrShow = function(e){
+                        $($(this).attr("href")).modal("show", $(this));
+                    };
+
                     $("#grid-basic")
                         .find(".command-edit")
                         .on("click", onClickEdit)
                         .end()
                         .find(".command-delete")
-                        .on("click", onClickDelete);
+                        .on("click", onClickDelete)
+                        .end()
+                        .find(".show-edit-hr")
+                        .on("click", onEditHrShow);
                 };
 
                 $("#grid-basic")
@@ -257,6 +315,7 @@
                             search: "Search"
                         },
                         formatters: {
+                            "link": linkFormatter,
                             "commands": commandsFormatter,
                             //"laborstatus": laborstatusFormatter
                         }
@@ -318,6 +377,129 @@
             APP.EVENTS.INIT();
         })(window);
     </script>
+
+    <script>
+        $( document ).ready(function() {
+            $('#editHrModal').on('shown.bs.modal', function (e) {
+
+                var $trigger = $(e.relatedTarget);
+                
+                // Obtiene el detalle del ticket
+                $.getJSON('/api/administrative/getHrDetail/' + $trigger.data('hr'), function(data) {
+    
+
+                    $('#editName').html(
+                        "<strong><a id='updateName' data-pk='" + data.hr[0].id + "' data-title='Update name' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='name'>"+data.hr[0].name+"</a></strong>"    
+                    );
+
+                    $('#editAddress').html(
+                        "<strong><a id='updateAddress' data-pk='" + data.hr[0].id + "' data-title='Update address' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='address'>"+data.hr[0].address+"</a></strong>"
+                    );
+                    $('#editTel').html(
+                        "<strong><a id='updateTel' data-pk='" + data.hr[0].id + "' data-title='Update tel' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='tel'>"+data.hr[0].tel+"</a></strong>"
+                    );
+                    $('#editCivilStatus').html(
+                        "<strong><a id='updateCivilStatus' data-pk='" + data.hr[0].id + "' data-title='Update civil status' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='civil_status'>"+data.hr[0].civil_status+"</a></strong>"
+                    );
+                    $('#editDependent').html(
+                        "<strong><a id='updateDependent' data-pk='" + data.hr[0].id + "' data-title='Update dependents' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='dependants'>"+data.hr[0].dependants+"</a></strong>"
+                    );
+                    $('#editEmail').html(
+                        "<strong><a id='updateEmail' data-pk='" + data.hr[0].id + "' data-title='Update email' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='email'>"+data.hr[0].email+"</a></strong>"
+                    );
+                    $('#editContact1').html(
+                        "<strong><a id='updateContact1' data-pk='" + data.hr[0].id + "' data-title='Update contact 1' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='contact1'>"+data.hr[0].contact1+"</a></strong>"
+                    );
+                    $('#editContact2').html(
+                        "<strong><a id='updateContact2' data-pk='" + data.hr[0].id + "' data-title='Update contact2' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='contact2'>"+data.hr[0].contact2+"</a></strong>"
+                    );
+                    $('#editBrith').html(
+                        "<strong><a id='updateBirth' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
+                    );
+                    $('#editOver25').html(
+                        "<strong><a id='updateOver25' data-pk='" + data.hr[0].id + "' data-title='Update over25' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='over25'>"+data.hr[0].over25+"</a></strong>"
+                    );
+                    $('#editLaborStatus').html(
+                        "<strong><a id='updateLaborStatus' data-pk='" + data.hr[0].id + "' data-title='Update name' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='labor_status'>"+data.hr[0].name+"</a></strong>"
+                    );
+                    $('#editPosition').html(
+                        "<strong><a id='updatePosition' data-pk='" + data.hr[0].id + "' data-title='Update labor status' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='position'>"+data.hr[0].labor_status+"</a></strong>"
+                    );
+                    $('#editDllsHr').html(
+                        "<strong><a id='updateDllsHr' data-pk='" + data.hr[0].id + "' data-title='Update dlls/hr' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='rate'>"+data.hr[0].rate+"</a></strong>"
+                    );
+                    $('#editMc').html(
+                        "<strong><a id='updateMc' data-pk='" + data.hr[0].id + "' data-title='Update medical card' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='medical_card'>"+data.hr[0].medical_card+"</a></strong>"
+                    );
+                    $('#editMcExp').html(
+                        "<strong><a id='updateMcExp' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='mc_exp'>"+data.hr[0].mc_exp+"</a></strong>"
+                    );
+                    $('#editDt').html(
+                        "<strong><a id='updateDt' data-pk='" + data.hr[0].id + "' data-title='Update drug test' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='drug_test'>"+data.hr[0].drug_test+"</a></strong>"
+                    );
+                    $('#editDtExp').html(
+                        "<strong><a id='updateDtExp' data-pk='" + data.hr[0].id + "' data-title='Update drug test expiration date' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='dt_exp'>"+data.hr[0].dt_exp+"</a></strong>"
+                    );
+                    $('#editSsn').html(
+                        "<strong><a id='updateSsn' data-pk='" + data.hr[0].id + "' data-title='Update ssn' "+
+                        "data-type='text' class='black-link' data-url='/api/administrative/updatehr/' "+
+                        "href='#' data-name='ssn'>"+data.hr[0].ssn+"</a></strong>"
+                    );
+    
+                    // x-editable
+                    $('#updateName, #updateAddress, #updateTel, #updateCivilStatus, #updateDependent, #updateEmail, #updateContact1, #updateContact2, #updateBrith, #updateOver25, #updateLaborStatus, #updatePosition, #updateDllsHr, #updateMc, #updateMcExp, #updateDt, #updateDtExp, #updateSsn').editable({
+                        url: '/api/administrative/updatehr/',
+                        send: 'always',
+                        success: function(response, newValue) {
+                            if (response.status == 'error') 
+                                return response.msg; //msg will be shown in editable form
+                        }
+                    });
+
+                });
+
+            })
+            
+            // Recarga la pagina para que se vean los cambios
+            $('#editHrModal').on('hide.bs.modal', function (e) {
+                location.reload();
+            });
+        });
+        </script>
 
 
 </body>
