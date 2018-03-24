@@ -1,7 +1,5 @@
 let userModel = require('../model/user_model');
 let bcrypt = require('bcrypt-nodejs');
-let hashSync = bcrypt.hashSync;
-let compareSync = bcrypt.compareSync;
 
 function passportUserSignUpThenHandler(passportDone, createdUser){
     return (rows) => {
@@ -31,16 +29,16 @@ exports.passportUserSignUp = (passportRequest, username, password, passportDone)
               rows.length !== null &&
               typeof rows.length === 'number' &&
               rows.length > 0){
-                passportDone(null, false, passportRequest.flash('signupMessage', 'That username is already taken.'));
+                passportDone(null, false, passportRequest.flash('message', 'That username is already taken.'));
             }else{
-                let cryptedPassword = hashSync(password, null);
+                let cryptedPassword = bcrypt.hashSync(password, null);
                 let userToCreate = {
                     username: username,
                     password: cryptedPassword
                 };
 
                 userModel
-                    .createUser(username, cryptedPassword)
+                    .createUser(username, cryptedPassword, passportRequest.body.role, passportRequest.body.email)
                     .then(passportUserSignUpThenHandler(passportDone, userToCreate))
                     .catch((err) => passportDone(err));
             }
@@ -55,9 +53,9 @@ exports.passportUserLogin = (passportRequest, username, password, passportDone) 
                 rows.length === null ||
                 typeof rows.length !== 'number' ||
                 rows.length < 1){
-                passportDone(null, false, passportRequest.flash('loginMessage', 'Invalid user and/or password.'));
-            }else if(!compareSync(password, rows[0].password)){
-                passportDone(null, false, passportRequest.flash('loginMessage', 'Invalid user and/or password.'));
+                passportDone(null, false, passportRequest.flash('message', 'Invalid user and/or password.'));
+            }else if(!bcrypt.compareSync(password, rows[0].password)){
+                passportDone(null, false, passportRequest.flash('message', 'Invalid user and/or password.'));
             }else{
                 passportDone(null, rows[0]);
             }
@@ -66,12 +64,12 @@ exports.passportUserLogin = (passportRequest, username, password, passportDone) 
 
 exports.createUser = (username, password) => {
     return userModel
-        .createUser(username, hashSync(password, null));
+        .createUser(username, bcrypt.hashSync(password, null));
 };
 
 exports.updateUser = (userId, username, password) => {
     return userModel
-        .updateUser(userId, username, hashSync(password, null));
+        .updateUser(userId, username, bcrypt.hashSync(password, null));
 };
 
 exports.deleteuser = (userId) => {
