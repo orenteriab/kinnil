@@ -6,7 +6,7 @@ const router = Router();
 /*
 * Pagina de inicio
 */
-router.get('/inicio', (req, res) => {
+router.get('/home', (req, res) => {
 
     dispatcherService
         .getTicketsInfo()
