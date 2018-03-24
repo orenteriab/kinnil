@@ -7,6 +7,7 @@ const LOCAL_STRATEGY_PROPERTIES = {
     usernameField: 'username',
     passReqToCallback: true
 };
+
 const LOCAL_SIGNUP_STRATEGY = new Strategy(LOCAL_STRATEGY_PROPERTIES, userService.passportUserSignUp);
 const LOCAL_LOGIN_STRATEGY = new Strategy(LOCAL_STRATEGY_PROPERTIES, userService.passportUserLogin);
 
@@ -16,8 +17,8 @@ const STRATEGY_NAMES = {
 };
 
 const AUTHENTICATE_PROCESS = {
-    successRedirect: '/home',
-    failureRedirect: '/',
+    successRedirect: '/web/dispatcher/home',
+    failureRedirect: '/web/login',
     failureFlash: true
 };
 
@@ -25,27 +26,17 @@ function isLoggedIn(req, res, next){
     if(req !== undefined && req !== null && req.isAuthenticated()){
         next();
     }else{
-        res.redirect('/');
+        res.redirect('/web/login');
     }
-}
-
-function loginCallback(request, response){
-    if(request.body.remember){
-        request.session.cookie.maxAge = 180000;
-    }else{
-        request.session.cookie.expires = false;
-    }
-
-    response.redirect('/');
 }
 
 passport.serializeUser((user, done) => {
     done(null, user);
 });
 
-passport.deserializeUser((userId, done) => {
+passport.deserializeUser((user, done) => {
     userService
-        .findUserById(userId)
+        .findUserById(user.id)
         .then((rows) => done(null, rows[0]))
         .catch((err) => done(err));
 });
@@ -55,5 +46,5 @@ passport.use(STRATEGY_NAMES.login, LOCAL_LOGIN_STRATEGY);
 
 exports.passport = passport;
 exports.isLoggedIn = isLoggedIn;
-exports.loginAuthenticator = passport.authenticate(STRATEGY_NAMES.login, AUTHENTICATE_PROCESS, loginCallback);
+exports.loginAuthenticator = passport.authenticate(STRATEGY_NAMES.login, AUTHENTICATE_PROCESS);
 exports.signUpAuthenticator = passport.authenticate(STRATEGY_NAMES.signup, AUTHENTICATE_PROCESS);
