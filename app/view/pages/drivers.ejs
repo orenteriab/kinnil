@@ -38,6 +38,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Drivers</h4>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDriverModal">Add driver</button>
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
@@ -80,6 +81,133 @@
             </div>
         </div>
     </div>
+
+
+<!-- Add Driver -->
+<div class="modal fade" id="addDriverModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add employee</h4>
+        </div>
+        <form role="form" id="addHrForm">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="name" class="h4 ">Name</label>
+                        <input id="name" class="form-control" required></input>
+                        <label for="address" class="h4 ">Address</label>
+                        <input id="address" class="form-control" required></input>
+                        <label for="tel" class="h4 ">Tel</label>
+                        <input id="tel" class="form-control" required type="tel"></input>
+                        <label for="civilStatus" class="h4 ">Civil status</label>
+                        <select id="civilStatus" class="form-control">
+                            <option value="SINGLE">Single</option>
+                            <option value="MARRIED">Married</option>
+                            <option value="DIVORCED">Divorced</option>
+                            <option value="SEPARATED">Separated</option>
+                            <option value="WIDOWED">Widowed</option>
+                        </select>
+                        <label for="dependent" class="h4 ">Dependent</label>
+                        <input id="dependent" class="form-control" value='0' required type="number"></input>
+                        <label for="email" class="h4 ">email</label>
+                        <input id="email" class="form-control" required type="email"></input>
+                        <label for="contact1" class="h4 ">Emergency contact 1</label>
+                        <input id="contacta1" class="form-control" type="tel"></input>
+                        <label for="contacta2" class="h4 ">Emergency contact 1</label>
+                        <input id="contacta2" class="form-control" type="tel"></input>
+                        <label for="birth" class="h4 ">Date bith</label>
+                        <input id="birth" class="form-control" required type="date"></input>
+                        <label for="over25" class="h4 ">Over 25</label>
+                        <select id="over25" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="laborStatus" class="h4 ">Labor status</label>
+                        <select id="laborStatus" class="form-control">
+                            <option value="WORKING WITH US">Working with us</option>
+                            <option value="NOT WORKING WITH US">Not Working with us</option>
+                        </select>
+                        <label for="type" class="h4 ">Type</label>
+                        <select id="type" class="form-control">
+                            <option value="DRIVER">Driver</option>
+                            <option value="HELPER TRUCK">Helper Truck</option>
+                            <option value="OWNER OPERATOR">Owner Operator</option>
+                        </select>
+                        <label for="crew" class="h4 ">Crew</label>
+                        <select id="crew" class="form-control">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="position" class="h4 ">Position</label>
+                        <input id="position" class="form-control" type="hidden" value="DRIVER"></input> <!-- Se agrego la posicion como hidden input value DRIVER -->
+                        <label for="rate" class="h4 ">Rate</label>
+                        <select id="rate" class="form-control">
+                            <option value=".15">15 %</option>
+                            <option value=".20">20 %</option>
+                            <option value=".25">25 %</option>
+                        </select>
+                        <label for="user" class="h4 ">user</label>
+                        <input id="user" class="form-control" required></input>
+                        <label for="password" class="h4 ">Password</label>
+                        <input id="password" class="form-control" required></input>
+                        <label for="medicalCard" class="h4 ">Medical card</label>
+                        <select id="medicalCard" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="mcExp" class="h4 ">Medical card expiration date</label>
+                        <input id="mcExp" class="form-control" required type="date"></input>
+                        <label for="drugTest" class="h4 ">Drug test</label>
+                        <select id="drugTest" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="dtExp" class="h4 ">Drug test expiration date</label>
+                        <input id="dtExp" class="form-control" required type="date"></input>
+                        <label for="training" class="h4 ">Training</label>
+                        <select id="training" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="trainingExp" class="h4 ">Training expiration date</label>
+                        <input id="trainingExp" class="form-control" required type="date"></input>
+                        <label for="licence" class="h4 ">Licence</label>
+                        <select id="licence" class="form-control">
+                            <option value="YES">Yes</option>
+                            <option value="NO">No</option>
+                        </select>
+                        <label for="licenseExp" class="h4 ">License expiration date</label>
+                        <input id="licenseExp" class="form-control" required type="date"></input>
+                        <label for="state" class="h4 ">State</label>
+                        <input id="state" class="form-control" required></input>
+                        <label for="yearsWorking" class="h4 ">Years working</label>
+                        <input id="yearsWorking" class="form-control" required type="date"></input>
+                        <label for="ssn" class="h4 ">SSN</label>
+                        <input id="ssn" class="form-control" required></input>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save changes</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->    
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <% include ../partials/js %>
@@ -138,9 +266,69 @@
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
             };
+
+            APP.EVENTS = APP.EVENTS || {
+                MODALS_SUBMIT: function(){
+
+                    // Add HR
+                    $("#addHrForm").submit(function(event) {
+
+                        event.preventDefault(); // cancels the form submission
+                        $.ajax({
+                            cache: false,
+                            url: '/api/administrative/adddriver/',
+                            type: 'POST',
+                            data: {
+                                name: $("#name").val(),
+                                address: $("#address").val(),
+                                tel: $("#tel").val(),
+                                civilStatus: $("#civilStatus").val(),
+                                dependent: $("#dependent").val(),
+                                email: $("#email").val(),
+                                contac1: $("#contacta1").val(),
+                                contact2: $("#contacta2").val(),
+                                birth: $("#birth").val(),
+                                over25: $("#over25").val(),
+                                laborStatus: $("#laborStatus").val(),
+                                position: $("#position").val(),
+                                rate: $("#rate").val(),
+                                medicalCard: $("#medicalCard").val(),
+                                mcExp: $("#mcExp").val(),
+                                drugTest: $("#drugTest").val(),
+                                dtExp: $("#dtExp").val(),
+                                ssn: $("#ssn").val(),
+                                type: $("#type").val(),
+                                crew: $("#crew").val(),
+                                user: $("#user").val(),
+                                password: $("#password").val(),
+                                training: $("#training").val(),
+                                trainingExp: $("#trainingExp").val(),
+                                license: $("#licence").val(),
+                                licenseExp: $("#licenseExp").val(),
+                                state: $("#state").val(),
+                                yearsWorking: $("#yearsWorking").val()
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload(); // Recarga la pagina para ver el cambio
+                            },
+                            error: function(xhr) {
+                                alert('Couldn\'t insert in the database. Try again, please.');
+                            },
+                        });
+
+                        $('#addSandModal').modal('hide');
+                        refreshPage();
+                    });
+                },
+                INIT: function(){
+                    APP.EVENTS.MODALS_SUBMIT();
+                }
+            };
             
             APP.LOAD.SIDE_BAR();
             APP.LOAD.GRID();
+            APP.EVENTS.INIT();
         })(window);
     </script>
 
