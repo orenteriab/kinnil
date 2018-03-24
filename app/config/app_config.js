@@ -40,3 +40,7 @@ let server = app.listen(PORT, () => {
 });
 
 require('./socket_config').init(server);
+
+/**
+ * https://gist.github.com/orenteriab/f4a8ff83758c3e43ec710415b64d27ec
+ */
