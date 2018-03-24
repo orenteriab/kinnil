@@ -2,21 +2,21 @@
 let connectionPool = require('../config/database_config').connectionPool;
 
 exports.findUserById = (userId) => {
-    let statement = 'select * from `users` `u` where `u`.`id` = ?';
+    let statement = 'select * from `usuarios` `u` where `u`.`id` = ?';
 
     return connectionPool.query(statement, [userId]);
 };
 
 exports.findUserByUserName = (username) => {
-    let statement = 'select * from `users` `u` where `u`.`username` = ?';
+    let statement = 'select * from `usuarios` `u` where `u`.`username` = ?';
 
     return connectionPool.query(statement, [username]);
 };
 
-exports.createUser = (username, password) => {
-    let statement = 'insert into `users`(`username`, `password`) values (?, ?)';
+exports.createUser = (username, password, role, email) => {
+    let statement = 'insert into `usuarios`(`username`, `password`, `role`, `email`) values (?, ?, ?, ?)';
 
-    return connectionPool.query(statement, [username, password]);
+    return connectionPool.query(statement, [username, password, role, email]);
 };
 
 exports.findUsers = (size, page) => {
@@ -30,19 +30,19 @@ exports.findUsers = (size, page) => {
 
     let offset = (defPage - 1) * defSize;
 
-    let statement = 'select * from `users` `u` limit ?, ?';
+    let statement = 'select * from `usuarios` `u` limit ?, ?';
 
     return connectionPool.query(statement, [offset, defSize]);
 };
 
 exports.updateUser = (userId, username, password) => {
-    let statement = 'update `user` set `username` = ?, password = ? where `id` = ?';
+    let statement = 'update `usuarios` set `username` = ?, `password` = ? where `id` = ?';
 
     return connectionPool.query(statement, [username, password, userId]);
 };
 
 exports.deleteUser = (userId) => {
-    let statement = 'delete from `user` where `id` = ?';
+    let statement = 'delete from `usuarios` where `id` = ?';
 
     return connectionPool.query(statement, [userId]);
 };
