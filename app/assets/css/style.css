@@ -222,3 +222,26 @@ a.article, a.article:hover {
 .bs-wizard > .bs-wizard-step:last-child  > .progress {width: 50%;}
 .bs-wizard > .bs-wizard-step.disabled a.bs-wizard-dot{ pointer-events: none; }
 /*END Form Wizard*/
+
+
+/*
+* Modal vertical position center
+*/
+.modal {
+    text-align: center;
+    padding: 0!important;
+  }
+  
+  .modal:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -4px;
+  }
+  
+  .modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+  }
