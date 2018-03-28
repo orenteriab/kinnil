@@ -36,7 +36,6 @@
                                         <th data-column-id="tel">Telephone</th>
                                         <th data-column-id="licence">License</th>
                                         <th data-column-id="laborstatus" data-formatter="laborstatus">Labor Status</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (hr.length > 0) { %>
@@ -47,18 +46,7 @@
                                             <td id=""> <%= hr[i].name %> </td>
                                             <td id=""> <%= hr[i].tel %> </td>
                                             <td id=""> <%= hr[i].license %> </td>
-                                            <td id=""> 
-                                                <a data-pk="<%= hr[i].id %>" 
-                                                    data-xedit="true"
-                                                    data-title="Change working status" 
-                                                    data-type="select" 
-                                                    data-url="/" 
-                                                    href="#" 
-                                                    class="black-link"
-                                                    id="edit-workingstatus-<%= hr[i].id %>"><%= hr[i].labor_status %>
-                                                </a>
-                                            </td>
-                                            <td id=""> </td>
+                                            <td id=""> <%= hr[i].labor_status %> </td>
                                         </tr>
                                     <% } %>
                                 </tbody>
@@ -240,84 +228,21 @@
                     return "<a href=\"#editHrModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link show-edit-hr\">" + row.id + "</a>";
                 };
 
-                var commandsFormatter = function(column, row) {
-                    return "<button href=\"#editHrModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
-                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
-                };
-
-                var laborstatusFormatter = function(column, row) {
-                    return "<%if (hr.length > 0) { %>" +
-                            "<%for(var i=0; i<hr.length; i++) {%> " +
-                            "<a data-pk='<%= hr[i].id %>' " +
-                                "data-title='Change working status' " +
-                                "data-type='select' " +
-                                "data-url='/' " +
-                                "href='#' " +
-                                "class='black-link' " +
-                                "id=¿edit-workingstatus-<%= hr[i].id %>¿><%= hr[i].labor_status %>" +
-                            "</a>" +
-                            "<% }%>" +
-                            "<% }%>"
-
-                };
-
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-                        alert("edit");
-                    };
-
-                    $('[data-xedit]').each(function(entry){    
-                        entry.editable({
-                        type: 'text',
-                        name: 'score',
-                        url: "...someurl",      
-                        title: 'Enter score'
-                        });
-                    })
-
-                    var onClickDelete = function(e){
-                        $.ajax({
-                            url: '/api/administrative/delete/',    //Your api url
-                            type: 'PUT',   //type is any HTTP method
-                            data: {
-                                    clientId: $(this).data("row-id")
-                            },
-                            success: function (msj) {
-                                alert(msj.message);
-                                location.reload();
-                            },
-                            error: function(xhr) { // if error occured
-                                alert("Error occured. please try again");
-                            },
-                        });
-                        alert("delete");
-                    };
 
                     var onEditHrShow = function(e){
                         $($(this).attr("href")).modal("show", $(this));
                     };
 
                     $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
-                        .find(".command-delete")
-                        .on("click", onClickDelete)
-                        .end()
                         .find(".show-edit-hr")
                         .on("click", onEditHrShow);
                 };
 
                 $("#grid-basic")
                     .bootgrid({
-                        labels: {
-                            search: "Search"
-                        },
                         formatters: {
-                            "link": linkFormatter,
-                            "commands": commandsFormatter,
-                            //"laborstatus": laborstatusFormatter
+                            "link": linkFormatter
                         }
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
