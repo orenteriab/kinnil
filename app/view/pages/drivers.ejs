@@ -47,7 +47,6 @@
                                         <th data-column-id="shift">Shift</th>
                                         <th data-column-id="type">Type</th>
                                         <th data-column-id="status">Status</th>
-                                        <th data-column-id="options" data-formatter="link" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (drivers.length > 0) { %>
@@ -68,7 +67,6 @@
                                             </td>
                                             <td id=""> </a>
                                             </td>
-                                            <td id=""> </td>
                                         </tr>
                                     <% } %>
                                 </tbody>
@@ -292,25 +290,13 @@
                     return "<a href=\"#editDriverModal\" data-toggle=\"modal\" data-driver=\"" + row.id +  "\" class=\"text-center black-link show-edit-driver\">" + row.id + "</a>";
                 };
 
-                var commandsFormatter = function(column, row) {    
-                    //return "<a href='#myModal' data-toggle='modal' data-ticket='" + row.id + "' class='text-center black-link'><p><span class='fa fa-pencil'></p></span></a>";
-                };
-
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-
-                        alert("edit");
-                    };
 
                     var onEditHrShow = function(e){
                         $($(this).attr("href")).modal("show", $(this));
                     };
 
                     $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
                         .find(".show-edit-driver")
                         .on("click", onEditHrShow);
                         
@@ -318,11 +304,7 @@
 
                 $("#grid-basic")
                     .bootgrid({
-                        labels: {
-                            search: "Search"
-                        },
                         formatters: {
-                            "commands": commandsFormatter,
                             "link": linkFormatter
                         },
                         caseSensitive: false
