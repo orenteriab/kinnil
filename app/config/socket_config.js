@@ -1,5 +1,6 @@
 const SOCKET_BROKER = require('socket.io');
-const SOCKETS_CONNECT_EVENT_RECEIVER = require('../socket/receive/sockets/connection_socket_event_receiver').receiver;
+const defaultSocketEvents = require('../socket/events/default/events');
+const userSocketEvents = require('../socket/events/users/events');
 
 exports.init = (server) => {
     const IO = SOCKET_BROKER(server);
@@ -7,35 +8,26 @@ exports.init = (server) => {
     /**********************************************************
      ****************Explicación de los sockets****************
      **********************************************************
-    Estos son para sockets genéricos
-    podemos dividirlos entre "canales", 
-    el canal por defecto estará en /sockets
-    por eso la carpeta en /app/socket tiene 
-    dos directorios:
-      emit: Que en ese directorio van a vivir 
-            todas las señales que enviaremos
-      receive: Que en ese directorio van a 
-               vivir todas las señales que 
-               recibiremos, además los 
-               emitters solo serían llamados 
-               desde un receiver. De esa 
-               manera, tendremos una cadenita:
-                  mensaje_del_cliente -> 
-                      socket_receiver -> 
-                          socket_emitter -> 
-                              service -> 
-                                  model
-    Dentro de esos directorios de receive y 
-    emit tenemos un directorio que se llama
-    "sockets", ese es el nombre del "canal"
-    por canal crearemos un directorio para 
-    tenerlo todo bien organizado.
-    Aquí nomas vamos a poner cuales receivers van a existir.
+    Aquí se declaran los sockets, y las conexiones que se harán
+    a los módulos de los sockets, en este caso, tenemos /sockets
+    y /users
     **********************************************************
     ****************Explicación de los sockets****************
     **********************************************************/
-    IO.of('/sockets')
-        .on(SOCKETS_CONNECT_EVENT_RECEIVER.label, SOCKETS_CONNECT_EVENT_RECEIVER.handle);
+
+    //Aquí declaramos el módulo "sockets", en donde irán los sockets
+    //genéricos, ahorita no hay, entonces, un mensaje simple de
+    //conexión existosa y ya. Abre el archivo kinnil/app/socket/events/default/events.js
+    //para ver que sigue.
+    IO.of('/sockets').on(defaultSocketEvents.in.connection.name, defaultSocketEvents.in.connection.handler);
+
+
+    //Aquí declaramos el módulo "users", en donde irán los sockets
+    //referentes a los eventos de usuario. De momento crearemos un
+    //evento de getUser que solo responderá "{message: 'Alive!'}".
+    //Abre el archivo kinnil/app/socket/events/users/events.js
+    //para ver que sigue.
+    IO.of('/users').on(userSocketEvents.in.connection.name, userSocketEvents.in.connection.handler);
 
     /*
     Para abrir otro canal podríamos tener:
