@@ -184,7 +184,7 @@ ROUTER.post('/adddriver/', (req, res) => {
             req.body.state,
             req.body.yearsWorking,
             1) // 1 el default siempre es 1 porque en esta version solo hay un cliente (HALLIBURTON)
-        .then((return_data) => {
+        .then(() => {
 
             res.status(200);
             res.contentType('application/json');
@@ -228,7 +228,7 @@ ROUTER.get('/getHrDetail/:HrId', (req, res) => {
 // Aunque tenga que ser un PUT x-editable necesita que sea un POST
 ROUTER.post('/updatehr/', (req, res) => {
 
-    console.log(req.body)
+    console.log(req.body);
     administrativeService
         .updateHr(req.body.name, req.body.value, req.body.pk)
         .then(() => {
