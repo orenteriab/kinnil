@@ -29,7 +29,7 @@ exports.getAssetsUp = (type) => {
 * Obtiene el detalle de los drivers que esta UP, de momento solo se necesita el nombre
 */
 exports.listDriversUp = () => {
-    let statement = 'select id, name from hr where up = true';
+    let statement = 'select id, name from hr where up = TRUE and assigned = false';
 
     return connectionPool.query(statement);
 };
@@ -65,11 +65,12 @@ exports.getTicketById = (ticketId) => {
 
 
 exports.assignTicket = (hrId, product, ticketId) => {
-    let statement = 'update tickets set hr_id = ?, products_id = ?, status = 2 where id = ?';
+    let statement = 'update tickets set hr_id = ?, products_id = ?, status = 2, on_curse = TRUE where id = ?';
+
+    // TODO: Hacer el codigo para que cuando se asigne un ticket se cambie la columna hr.assigned a TRUE
 
     return connectionPool.query(statement, [hrId, product, ticketId]);
 };
-
 
 exports.cancelTicket = (ticketId) => {
     let statement = 'update tickets set status = 1 where id = ?';
@@ -120,3 +121,52 @@ exports.createEvento = (ticketId, evento, notes, longitud, latitud) => {
 
     return connectionPool.query(statement, [evento, notes, longitud, latitud, ticketId]);
 };
+
+
+
+// ==============================
+// Peticiones de los sockets TODO: hay que ver si los dejamos aqui o se crea un model para los sockets
+// ==============================
+
+exports.getUsersAndPassword = () => {
+    let statement = 'select id, username, password from hr where position = "DRIVER"';
+
+    return connectionPool.query(statement);
+}
+
+exports.getAvailableAssets = () => {
+    let statement = 'select * from assets where type in ("TRAILER","TRUCK") and up = TRUE'; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
+
+    return connectionPool.query(statement);
+}
+
+exports.selectedAsset = (truck, trailer, ticketId) => {
+    let statement = 'update tickets set truck = ?, trailer = ? where id = ? '; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
+
+    return connectionPool.query(statement , [truck, trailer, ticketId]);
+}
+
+exports.active = (hrId) => {
+    let statement = "update hr set up = TRUE where id = ?"
+
+    return connectionPool.query(statement, [hrId])
+}
+
+exports.inactive = (hrId) => {
+    let statement = "update hr set up = false where id = ?"
+
+    return connectionPool.query(statement, [hrId])
+}
+
+exports.tms = (hrId) => {
+    let statement = "select * from tickets where on_curse = TRUE and hr_id = ?"
+    // TODO: Cuando un driver termine un TMS hay que poder el TMS como on_curse = false para que no aparesca en este select
+
+    return connectionPool.query(statement, [hrId])
+}
+
+exports.addEvent = (data) => {
+    let statement = "insert into eventos () values ()"
+
+    return connectionPool.query(statement, [data.ticket_id])
+}

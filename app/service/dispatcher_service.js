@@ -116,3 +116,95 @@ exports.completeTicket = (ticketId) => {
     return dispatcherModel
         .completeTicket(ticketId);
 };
+
+
+// ==============================
+// Servicio de sockets TODO: hay que ver si los dejamos aqui o se crea un service, model para los sockets solamente
+// ==============================
+exports.getUsersAndPassword = () => {
+    return dispatcherModel
+        .getUsersAndPassword()
+        .then((data) => {
+            var json = {users : []}
+
+            for (var x = 0; x < data.length; x++){
+                var user = data[x]
+                json.users.push({"id": user.id, "name": user.username, "password": user.password}) 
+            }
+            console.log(json)
+            return json
+        })
+        .catch(function (err) {
+            console.error('Error when querying: \n', err);
+            return 'Error when querying: \n' + err
+        });
+};
+
+exports.getAvailableAssets = () => {
+    return dispatcherModel
+        .getAvailableAssets()
+        .then((data) => {
+            var json = {trucks : [], trailers: []}
+
+            for (var x = 0; x < data.length; x++){
+                var asset = data[x]
+                if (asset.type == "TRAILER") {
+                    json.trailers.push({"id": asset.id, "name": asset.name}) 
+                } else if (asset.type == "TRUCK") {
+                    json.trucks.push({"id": asset.id, "name": asset.name}) 
+                }
+            }
+
+            return json
+        })
+        .catch(function (err) {
+            console.error('Error when querying: \n', err);
+            return 'Error when querying: \n' + err
+        });
+};
+
+exports.selectedAsset = (truck, trailer, ticketId) => {
+    return dispatcherModel
+        .selectedAsset(truck, trailer, ticketId)
+        .then((data) => {
+            return true
+        })
+        .catch(function (err) {
+            console.error('Error when insert: \n', err);
+            return false
+        });
+};
+
+exports.active = (hrId) => {
+    return dispatcherModel
+        .active(hrId);
+}
+
+exports.inactive = (hrId) => {
+    return dispatcherModel
+        .inactive(hrId);
+}
+
+exports.tms = (hrId) => {
+    return dispatcherModel
+        .tms(hrId)
+        .then((return_data) => {
+            return return_data
+        })
+        .catch(function (err) {
+            console.error('Error when querying: \n', err);
+            return 'Error when querying: \n' + err
+        });
+};
+
+exports.addEvent = (data) => {
+    return dispatcherModel
+        .addEvent(data)
+        .then((return_data) => {
+            return return_data
+        })
+        .catch(function (err) {
+            console.error('Error when querying: \n', err);
+            return 'Error when querying: \n' + err
+        });
+};
