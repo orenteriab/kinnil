@@ -123,14 +123,60 @@ exports.deleteLocation = (locationId) => {
     return connectionPool.query(statement, [locationId]);
 };
 
-exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id) => {
+exports.addHr = (name, 
+                address, 
+                tel, 
+                civilStatus, 
+                dependent, 
+                email, 
+                contact1, 
+                contact2, 
+                birth, 
+                over25, 
+                laborStatus, 
+                position, 
+                dllsHr, 
+                medicalCard, 
+                mcExp, 
+                drugTest, 
+                dtExp, 
+                ssn, 
+                clients_id) => {
     let statement = "insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, clients_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
     return connectionPool.query(statement, [name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id]);
 }
 
-exports.addDriver = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id) => {
-    let statement = "insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, type, crew, username, password, training, training_exp, license, license_exp, state, years_working, clients_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+exports.addDriver = (name, 
+                    address, 
+                    tel, 
+                    civilStatus, 
+                    dependent, 
+                    email, 
+                    contact1, 
+                    contact2, 
+                    birth, 
+                    over25, 
+                    laborStatus, 
+                    position, 
+                    rate, 
+                    medicalCard, 
+                    mcExp, 
+                    drugTest, 
+                    dtExp, 
+                    ssn, 
+                    type, 
+                    crew, 
+                    user, 
+                    password, 
+                    training, 
+                    trainingExp, 
+                    license, 
+                    licenseExp, 
+                    state, 
+                    yearsWorking, 
+                    clients_id) => {
+    let statement = "insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, type, crew, username, password, training, training_exp, license, license_exp, state, years_working, clients_id, assigned) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)"
 
     return connectionPool.query(statement, [name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id]);
 }
