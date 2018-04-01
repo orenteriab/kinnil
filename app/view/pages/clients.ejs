@@ -41,19 +41,10 @@
                                 <tbody>
                                     <% for(var i=0; i<clients.length; i++) {%>
                                         <tr class="quote">
-                                            <td id="">
-                                                <%= clients[i].id %>
-                                            </td>
-                                            <td id="">
-                                                <%= clients[i].name %>
-                                            </td>
-                                            <td id="">
-                                                <%= clients[i].address %>
-                                            </td>
-                                            <td id="">
-                                                <!--<button type="submit" class="btn btn-default"> Edit</button>
-                                                <button type="submit" class="btn btn-default"> Delete</button>-->
-                                            </td>
+                                            <td id=""> <%= clients[i].id %> </td>
+                                            <td id=""> <%= clients[i].name %> </td>
+                                            <td id=""> <%= clients[i].address %> </td>
+                                            <td id=""></td>
                                         </tr>
                                     <% } %>
                                 </tbody>
@@ -100,21 +91,15 @@
                 };
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
-                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
+                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-
-                        alert("edit");
-                    };
 
                     var onClickDelete = function(e){
                         $.ajax({
-                            url: '/api/administrative/delete/',    //Your api url
-                            type: 'PUT',   //type is any HTTP method
+                            url: '/api/administrative/clients/delete/' + $(this).data("row-id"),
+                            type: 'PUT', //type is any HTTP method
                             data: {
                                     clientId: $(this).data("row-id")
                             },
@@ -126,22 +111,16 @@
                                 alert("Error occured. please try again");
                             },
                         });
-                        alert("delete");
                     };
 
                     $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
                         .find(".command-delete")
                         .on("click", onClickDelete);
                 };
 
                 $("#grid-basic")
                     .bootgrid({
-                        labels: {
-                            search: "Search"
-                        },
+                        caseSensitive: false,
                         formatters: {
                             "link": linkFormatter,
                             "commands": commandsFormatter
@@ -149,7 +128,6 @@
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
             };
-
             
             APP.LOAD.SIDE_BAR();
             APP.LOAD.GRID();

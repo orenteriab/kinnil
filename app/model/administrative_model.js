@@ -81,10 +81,10 @@ exports.addSand = (name, clientId) => {
     return connectionPool.query(statement, [name, clientId]);
 }
 
-exports.addProduct = (name, clientId) => {
-    let statement = "insert into products (name, clients_id, active) values (?, ?, 1)"
-
-    return connectionPool.query(statement, [name, clientId]);
+exports.deleteSand = (sandId) => {
+    let statement = "update sand set active = 0 where id = ?"
+    console.log(sandId);
+    return connectionPool.query(statement, [sandId]);
 }
 
 exports.addProduct = (name, clientId) => {
@@ -92,6 +92,12 @@ exports.addProduct = (name, clientId) => {
 
     return connectionPool.query(statement, [name, clientId]);
 }
+
+exports.deleteProduct = (productId) => {
+    let statement = 'update products set active = 0 where id = ?';
+
+    return connectionPool.query(statement, [productId]);
+};
 
 exports.addFacilitie = (name, clientId) => {
     let statement = "insert into facilities (name, clients_id, active) values (?, ?, 1)"
@@ -99,11 +105,23 @@ exports.addFacilitie = (name, clientId) => {
     return connectionPool.query(statement, [name, clientId]);
 }
 
+exports.deleteFacility = (facilityId) => {
+    let statement = 'update facilities set active = 0 where id = ?';
+
+    return connectionPool.query(statement, [facilityId]);
+};
+
 exports.addLocation = (name, status, geolocation, startDate, endDate, clientId) => {
     let statement = "insert into locations (name, status, geolocation, start_date, end_date, clients_id, active) values (?, ?, ?, ?, ?, ?, 1)"
 
     return connectionPool.query(statement, [name, status, geolocation, startDate, endDate, clientId]);
 }
+
+exports.deleteLocation = (locationId) => {
+    let statement = 'update locations set active = 0 where id = ?';
+
+    return connectionPool.query(statement, [locationId]);
+};
 
 exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id) => {
     let statement = "insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, clients_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"

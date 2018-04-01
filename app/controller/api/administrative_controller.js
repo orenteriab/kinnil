@@ -3,19 +3,17 @@ let administrativeService = require('../../service/administrative_service');
 
 const ROUTER = Router();
 
-/*
-* 
-*/
-ROUTER.get('/clients/delete/:clientId', (req, res) => {
+
+ROUTER.put('/clients/delete/:clientId', (req, res) => {
 
     administrativeService
-        .deleteClients(req.params.clientId)
+        .deleteClient(req.params.clientId)
         .then(() => {
 
             res.status(200);
             res.contentType('application/json');
             res.send(
-                JSON.stringify({ message: 'client has been deleted successfully.' })
+                JSON.stringify({ message: 'Client has been deleted successfully.' })
             );
         })
         .catch(function (err) {
@@ -30,7 +28,7 @@ ROUTER.get('/clients/delete/:clientId', (req, res) => {
 ROUTER.post('/addsand/', (req, res) => {
 
     administrativeService
-        .addSand(req.body.name, 1)
+        .addSand(req.body.name, 1) // 1 El cliente es halliburton por default
         .then(() => {
 
             res.status(200);
@@ -48,6 +46,28 @@ ROUTER.post('/addsand/', (req, res) => {
         });
 });
 
+ROUTER.put('/deletesand/', (req, res) => {
+
+    administrativeService
+        .deleteSand(req.body.sandId)
+        .then(() => {
+
+            res.status(200);
+            res.contentType('application/json');
+            res.send(
+                JSON.stringify({ message: 'sand has been deleted successfully.' })
+            );
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/administrative_controller.js][/deletesand/'+ req.body.sandId +'] Error: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
+
 ROUTER.post('/addproduct/', (req, res) => {
 
     administrativeService
@@ -63,6 +83,27 @@ ROUTER.post('/addproduct/', (req, res) => {
         .catch(function (err) {
             
             console.log('[Api/administrative_controller.js][/addproduct/'+ req.body.name +'] Error: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
+ROUTER.put('/deleteproduct/', (req, res) => {
+
+    administrativeService
+        .deleteProduct(req.body.productId)
+        .then(() => {
+
+            res.status(200);
+            res.contentType('application/json');
+            res.send(
+                JSON.stringify({ message: 'product has been deleted successfully.' })
+            );
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/administrative_controller.js][/deleteproduct/'+ req.body.productId +'] Error: ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: err }));
@@ -90,6 +131,27 @@ ROUTER.post('/addfacilitie/', (req, res) => {
         });
 });
 
+ROUTER.put('/deletefacility/', (req, res) => {
+
+    administrativeService
+        .deleteFacility(req.body.facilityId)
+        .then(() => {
+
+            res.status(200);
+            res.contentType('application/json');
+            res.send(
+                JSON.stringify({ message: 'facility has been deleted successfully.' })
+            );
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/administrative_controller.js][/deletefacility/'+ req.body.facilityId +'] Error: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
 ROUTER.post('/addlocation/', (req, res) => {
 
     administrativeService
@@ -111,9 +173,29 @@ ROUTER.post('/addlocation/', (req, res) => {
         });
 });
 
+ROUTER.put('/deletelocation/', (req, res) => {
+
+    administrativeService
+        .deleteLocation(req.body.locationId)
+        .then(() => {
+
+            res.status(200);
+            res.contentType('application/json');
+            res.send(
+                JSON.stringify({ message: 'location has been deleted successfully.' })
+            );
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/administrative_controller.js][/deletelocation/'+ req.body.locationId +'] Error: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
 ROUTER.post('/addhr/', (req, res) => {
 
-    console.log('administrative add HR');
     administrativeService
         .addHr(req.body.name,
             req.body.address,
@@ -184,7 +266,7 @@ ROUTER.post('/adddriver/', (req, res) => {
             req.body.state,
             req.body.yearsWorking,
             1) // 1 el default siempre es 1 porque en esta version solo hay un cliente (HALLIBURTON)
-        .then(() => {
+        .then((return_data) => {
 
             res.status(200);
             res.contentType('application/json');
@@ -201,6 +283,7 @@ ROUTER.post('/adddriver/', (req, res) => {
         });
 });
 
+// Es para ver el detalle del HR o del Driver
 ROUTER.get('/getHrDetail/:HrId', (req, res) => {
 
     administrativeService
@@ -226,9 +309,10 @@ ROUTER.get('/getHrDetail/:HrId', (req, res) => {
 });
 
 // Aunque tenga que ser un PUT x-editable necesita que sea un POST
+// Sirve para HRs y Drivers
 ROUTER.post('/updatehr/', (req, res) => {
 
-    console.log(req.body);
+    console.log(req.body)
     administrativeService
         .updateHr(req.body.name, req.body.value, req.body.pk)
         .then(() => {
@@ -246,3 +330,5 @@ ROUTER.post('/updatehr/', (req, res) => {
 });
 
 exports.router = ROUTER;
+
+

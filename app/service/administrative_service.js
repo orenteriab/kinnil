@@ -8,9 +8,12 @@ exports.getClients = () => {
         .getClients();
 };
 
-exports.deleteClients = (clientId) => {
+/*
+* Elimina clientes (Se utiliza desde -> /web/administrative/clients para borrar los clientes con el boton de delete)
+*/
+exports.deleteClient = (clientId) => {
     return administrativeModel
-        .deleteClients(clientId);
+        .deleteClient(clientId);
 };
 
 exports.getClientDetail = (clientId) => {
@@ -91,9 +94,19 @@ exports.addSand = (name, clientId) => {
         .addSand(name, clientId);
 };
 
+exports.deleteSand = (sandId) => {
+    return administrativeModel
+        .deleteSand(sandId);
+};
+
 exports.addProduct = (name, clientId) => {
     return administrativeModel
         .addProduct(name, clientId);
+};
+
+exports.deleteProduct = (productId) => {
+    return administrativeModel
+        .deleteProduct(productId);
 };
 
 exports.addFacilitie = (name, clientId) => {
@@ -101,9 +114,19 @@ exports.addFacilitie = (name, clientId) => {
         .addFacilitie(name, clientId);
 };
 
+exports.deleteFacility = (facilityId) => {
+    return administrativeModel
+        .deleteFacility(facilityId);
+};
+
 exports.addLocation = (name, status, geolocation, startDate, endDate, clientId) => {
     return administrativeModel
         .addLocation(name, status, geolocation, startDate, endDate, clientId);
+};
+
+exports.deleteLocation = (locationId) => {
+    return administrativeModel
+        .deleteLocation(locationId);
 };
 
 exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id) => {

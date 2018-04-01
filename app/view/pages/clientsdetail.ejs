@@ -54,7 +54,7 @@
                                 <tbody>
                                     <% for(var i=0; i<locations.length; i++) {%>
                                         <tr class="quote">
-                                            <td id=""> <%= i+1 %> </td>
+                                            <td id=""> <%= locations[i].id %> </td>
                                             <td id=""> <%= locations[i].name %> </td>
                                             <td id=""> <%= locations[i].status %> </td>
                                             <td id=""> <%= locations[i].start_date %> </td>
@@ -86,7 +86,7 @@
                                     <tbody>
                                         <% for(var i=0; i<facilities.length; i++) {%>
                                             <tr class="quote">
-                                                <td id=""> <%= i+1 %> </td>
+                                                <td id=""> <%= facilities[i].id %> </td>
                                                 <td id=""> <%= facilities[i].name %> </td>
                                             </tr>
                                         <% } %>
@@ -115,7 +115,7 @@
                                 <tbody>
                                     <% for(var i=0; i<products.length; i++) {%>
                                         <tr class="quote">
-                                            <td id=""> <%= i+1 %> </td>
+                                            <td id=""> <%= products[i].id %> </td>
                                             <td id=""> <%= products[i].name %> </td>
                                         </tr>
                                     <% } %>
@@ -144,7 +144,7 @@
                                 <tbody>
                                     <% for(var i=0; i<sands.length; i++) {%>
                                         <tr class="quote">
-                                            <td id=""> <%= i+1 %> </td>
+                                            <td id=""> <%= sands[i].id %> </td>
                                             <td id=""> <%= sands[i].name %> </td>
                                         </tr>
                                     <% } %>
@@ -303,36 +303,39 @@
                 };  
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
-                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
+                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-                        alert("edit");
-                    };
 
                     var onClickDelete = function(e){
-                        alert("delete");
+                        $.ajax({
+                            url: '/api/administrative/deletelocation/',
+                            type: 'PUT', //type is any HTTP method
+                            data: {
+                                locationId: $(this).data("row-id")
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
                     };
 
-                    $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
+                    $("#grid-locations")
                         .find(".command-delete")
                         .on("click", onClickDelete);
                 };
 
                 $("#grid-locations")
                     .bootgrid({
+                        caseSensitive: false,
                         formatters: {
                             "link": linkFormatter,
                             "commands": commandsFormatter
-                        },
-                        templates: {
-                            search: ""
                         }
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
@@ -341,35 +344,38 @@
             APP.LOAD.GRID_PRODUCTS = APP.LOAD.GRID_PRODUCTS || function(){
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
-                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
+                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-                        alert("edit");
-                    };
 
                     var onClickDelete = function(e){
-                        alert("delete");
+                        $.ajax({
+                            url: '/api/administrative/deleteproduct/',
+                            type: 'PUT', //type is any HTTP method
+                            data: {
+                                productId: $(this).data("row-id")
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
                     };
 
-                    $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
+                    $("#grid-products")
                         .find(".command-delete")
                         .on("click", onClickDelete);
                 };
 
                 $("#grid-products")
                     .bootgrid({
+                        caseSensitive: false,
                         formatters: {
                             "commands": commandsFormatter
-                        },
-                        templates: {
-                            search: ""
                         }
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
@@ -378,35 +384,38 @@
             APP.LOAD.GRID_FACILITIES = APP.LOAD.GRID_FACILITIES || function(){
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
-                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
+                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-                        alert("edit");
-                    };
 
                     var onClickDelete = function(e){
-                        alert("delete");
+                        $.ajax({
+                            url: '/api/administrative/deletefacility/',
+                            type: 'PUT', //type is any HTTP method
+                            data: {
+                                facilityId: $(this).data("row-id")
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
                     };
 
-                    $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
+                    $("#grid-facilities")
                         .find(".command-delete")
                         .on("click", onClickDelete);
                 };
 
                 $("#grid-facilities")
                     .bootgrid({
+                        caseSensitive: false,
                         formatters: {
                             "commands": commandsFormatter
-                        },
-                        templates: {
-                            search: ""
                         }
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
@@ -415,35 +424,38 @@
             APP.LOAD.GRID_SANDS = APP.LOAD.GRID_SANDS || function(){
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button> " + 
-                            "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
+                    return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span></button>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-                        alert("edit");
-                    };
 
                     var onClickDelete = function(e){
-                        alert("delete");
+                        $.ajax({
+                            url: '/api/administrative/deletesand/',
+                            type: 'PUT', //type is any HTTP method
+                            data: {
+                                    sandId: $(this).data("row-id")
+                            },
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
                     };
 
-                    $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
+                    $("#grid-sands")
                         .find(".command-delete")
                         .on("click", onClickDelete);
                 };
 
                 $("#grid-sands")
                     .bootgrid({
+                        caseSensitive: false,
                         formatters: {
                             "commands": commandsFormatter
-                        },
-                        templates: {
-                            search: ""
                         }
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
