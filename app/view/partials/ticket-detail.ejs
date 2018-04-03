@@ -45,7 +45,7 @@
                         </div>
                         
                         <div id="step2" class="col-xs-2 bs-wizard-step disabled"><!-- complete -->
-                            <div class="text-center bs-wizard-stepnum">Work in Process</div>
+                            <div class="text-center bs-wizard-stepnum">Work in progress</div>
                             <div class="progress"><div class="progress-bar"></div></div>
                             <a href="#" class="bs-wizard-dot"></a>
                             <div class="bs-wizard-info text-center"> <span id="workInProgress"></span></div>
@@ -59,21 +59,21 @@
                         </div>
                         
                         <div id="step4" class="col-xs-2 bs-wizard-step disabled"><!-- active -->
-                            <div class="text-center bs-wizard-stepnum">Invoiced</div>
+                            <div class="text-center bs-wizard-stepnum">To be invoiced</div>
                             <div class="progress"><div class="progress-bar"></div></div>
                             <a href="#" class="bs-wizard-dot"></a>
                             <div class="bs-wizard-info text-center"> <span id="invoiced"></span></div>
                         </div>
     
                         <div id="step5" class="col-xs-2 bs-wizard-step disabled"><!-- active -->
-                            <div class="text-center bs-wizard-stepnum">Payrolled</div>
+                            <div class="text-center bs-wizard-stepnum">To be Payrolled</div>
                             <div class="progress"><div class="progress-bar"></div></div>
                             <a href="#" class="bs-wizard-dot"></a>
                             <div class="bs-wizard-info text-center"> <span id="payrolled"></span></div>
                         </div>
     
                         <div id="step6" class="col-xs-2 bs-wizard-step disabled"><!-- active -->
-                            <div class="text-center bs-wizard-stepnum">Paid</div>
+                            <div class="text-center bs-wizard-stepnum">To be Paid</div>
                             <div class="progress"><div class="progress-bar"></div></div>
                             <a href="#" class="bs-wizard-dot"></a>
                             <div class="bs-wizard-info text-center"> <span id="paid"></span></div>
@@ -149,19 +149,19 @@
                     $('#price').html('<strong>' + data.ticket[0].price + '</strong>');
                     $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
                     $('#base').html(
-                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update base\" "+
-                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
-                        "href=\"#\" id=\"update-base\" >"+data.ticket[0].base+"</a></strong>"    
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update base' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-base' data-name='base'>"+data.ticket[0].base+"</a></strong>"    
                     );
                     $('#silo').html(
-                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update silo\" "+
-                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
-                        "href=\"#\" id=\"update-silo\" >"+data.ticket[0].silo+"</a></strong>"
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update silo' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo' data-name='silo' >"+data.ticket[0].silo+"</a></strong>"
                     );
                     $('#comments').html(
-                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update comments\" "+
-                        "data-type=\"textarea\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
-                        "href=\"#\" id=\"update-comments\" >"+data.ticket[0].notes+"</a></strong>"
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update comments' "+
+                        "data-type='textarea' class='black-link' "+
+                        "href='#' id='update-comments' data-name='notes'>"+data.ticket[0].notes+"</a></strong>"
                     );
                     $('#tms').html('<strong>' + data.ticket[0].tms + '</strong>');
                     $('#client').html('<strong>' + data.ticket[0].client_name +'</strong>') //TODO: Aqui hay que mostar el nombre del clien te
@@ -170,15 +170,15 @@
                     $('#origin').html('<strong>' + data.ticket[0].location + '</strong>');
                     $('#destination').html('<strong>' + data.ticket[0].facility + '</strong>');
                     $('#bol').html(
-                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update B.O.L.\" "+
-                        "data-type=\"text\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
-                        "href=\"#\" id=\"update-bol\" >"+data.ticket[0].bol+"</a></strong>"
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update B.O.L.' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-bol' data-name='bol'>"+data.ticket[0].bol+"</a></strong>"
                     );
                     $('#sand').html('<strong>' + data.ticket[0].sand_type + '</strong>');
                     $('#weight').html(
-                        "<strong><a data-pk=" + data.ticket[0].id + " data-title=\"Update weight\" "+
-                        "data-type=\"number\" class=\"black-link\" data-url=\"/test/todo/changeit\" "+
-                        "href=\"#\" id=\"update-weight\" >"+data.ticket[0].weight+"</a></strong>"
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update weight' "+
+                        "data-type='number' class='black-link' "+
+                        "href='#' id='update-weight' data-name='weight'>"+data.ticket[0].weight+"</a></strong>"
                     );
                     $('#assigned').html('<strong>' + data.ticket[0].assign_date + '</strong>');
                     $('#workInProgress').html('<strong>' + "" + '</strong>'); // TODO: hay que ver de donde sacar este da to
@@ -220,6 +220,8 @@
     
                     // x-editable
                     $('#update-comments, #update-silo, #update-base, #update-bol, #update-weight').editable({
+                        url: '/api/administrative/updateticket/',
+                        send: 'always',
                         success: function(response, newValue) {
                             if (response.status == 'error') return response.msg; //msg will be shown in editable form
                         }

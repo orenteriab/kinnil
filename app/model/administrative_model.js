@@ -192,3 +192,9 @@ exports.updateHr = (name, value, pk) => {
 
     return connectionPool.query(statement, [value, pk]);
 };
+
+exports.updateTicket = (name, value, pk) => {
+    let statement = 'update tickets set '+name+' = ? where id = ?';
+
+    return connectionPool.query(statement, [value, pk]);
+};

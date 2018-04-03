@@ -329,6 +329,26 @@ ROUTER.post('/updatehr/', (req, res) => {
         });
 });
 
+// Aunque tenga que ser un PUT x-editable necesita que sea un POST
+ROUTER.post('/updateticket/', (req, res) => {
+
+    console.log(req.body)
+    administrativeService
+        .updateTicket(req.body.name, req.body.value, req.body.pk)
+        .then(() => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({status: 'success', msg: 'Record Updated' }));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/cancelTicket/' + req.body.ticketId + ']Error when updating ticket: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ status: 'error', msg: 'field cannot be empty!' }));
+        });
+});
+
 exports.router = ROUTER;
 
 

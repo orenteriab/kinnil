@@ -148,3 +148,8 @@ exports.updateHr = (name, value, pk) => {
     return administrativeModel
     .updateHr(name, value, pk);
 };
+
+exports.updateTicket = (name, value, pk) => {
+    return administrativeModel
+    .updateTicket(name, value, pk);
+};
