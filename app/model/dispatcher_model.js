@@ -159,7 +159,7 @@ exports.inactive = (hrId) => {
 }
 
 exports.tms = (hrId) => {
-    let statement = "select * from tickets where on_curse = TRUE and hr_id = ?"
+    let statement = "select t.*, c.name 'client' from tickets t join clients c on t.clients_id = c.id where t.on_curse = TRUE and t.hr_id = ?"
     // TODO: Cuando un driver termine un TMS hay que poder el TMS como on_curse = false para que no aparesca en este select
 
     return connectionPool.query(statement, [hrId])
