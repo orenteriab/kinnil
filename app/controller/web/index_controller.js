@@ -4,6 +4,7 @@ let dispatcherRouter = require('./dispatcher_controller').router;
 let administrativeRouter = require('./administrative_controller').router;
 let loginRouter = require('./login_controller').router;
 let passportVerification = require('../../config/passport_config').isLoggedIn;
+let asssetsRouter = require('./assets_controller').router;
 
 const router = Router();
 
@@ -11,5 +12,6 @@ router.use('/login', loginRouter);
 router.use('/users', passportVerification, userRouter);
 router.use('/dispatcher', passportVerification, dispatcherRouter);
 router.use('/administrative', passportVerification, administrativeRouter);
+router.use('/assets', passportVerification, asssetsRouter)
 
 exports.router = router;
