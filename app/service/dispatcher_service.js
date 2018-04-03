@@ -129,7 +129,7 @@ exports.getUsersAndPassword = () => {
 
             for (var x = 0; x < data.length; x++){
                 var user = data[x]
-                json.users.push({"id": user.id, "name": user.username, "password": user.password}) 
+                json.users.push({"id": user.id, "name": user.username, "password": user.password, "type": user.type}) 
             }
             console.log(json)
             return json

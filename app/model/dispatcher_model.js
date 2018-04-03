@@ -129,7 +129,7 @@ exports.createEvento = (ticketId, evento, notes, longitud, latitud) => {
 // ==============================
 
 exports.getUsersAndPassword = () => {
-    let statement = 'select id, username, password from hr where position = "DRIVER"';
+    let statement = 'select id, username, password, type from hr where position = "DRIVER"';
 
     return connectionPool.query(statement);
 }
