@@ -16,4 +16,21 @@ router.post('/create', (req, res) => {
         })
 })
 
+router.get('/:id', (req, res) => {
+    assetsService
+        .findById(req.params.id)
+        .then((asset) => {
+            res.status(200)
+            res.json(asset);
+        });
+})
+
+router.delete('/:id', (req, res) => {
+    assetsService
+        .deleteAsset(req.params.id)
+        .then(() => {
+            res.sendStatus(202);
+        });
+})
+
 exports.router = router;
