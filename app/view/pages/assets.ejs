@@ -17,21 +17,8 @@
 
                 <!-- Page Content Holder -->
                 <div id="content">
-                    <%include ../partials/up %>
-                        <ul class="nav nav-tabs">
-                            <li role="presentation">
-                                <a href="../dispatcher/tobeassigned#">To be Asigned</a>
-                            </li>
-                            <li role="presentation">
-                                <a href="../dispatcher/workinprogress">Work in progress</a>
-                            </li>
-                            <li role="presentation">
-                                <a href="../dispatcher/completed">Completed</a>
-                            </li>
-                        </ul>
                         <div class="tab-content">
                             <div class="content">
-
                                 <div class="row">
                                     <br/>
                                     <div class="col-md-6">
@@ -56,55 +43,54 @@
                                         <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th data-column-id="id" data-formatter="link" data-type="numeric">Id</th>
-                                                    <th data-column-id="name" data-type="numeric">Name</th>
+                                                    <th data-column-id="id" data-type="numeric">Id</th>
+                                                    <th data-column-id="name">Name</th>
                                                     <th data-column-id="type">Type</th>
                                                     <th data-column-id="plate">Plate</th>
-                                                    <th data-column-id="status" data-formatter="drivers">Status</th>
-                                                    <th data-column-id="mi" data-formatter="products">Miles</th>
-                                                    <th data-column-id="miLastService" data-formatter="commands" data-sortable="false">Miles of Last Service</th>
+                                                    <th data-column-id="status">Status</th>
+                                                    <th data-column-id="mi">Miles</th>
+                                                    <th data-column-id="miLastService">Miles of Last Service</th>
+                                                    <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                                 </tr>
                                             </thead>
-                                            <%if (tickets.length > 0) { %>
-                                                <tbody>
-                                                    <% for(var i=0; i<tickets.length; i++) {%>
-                                                        <%if (tickets[i].status == 1) { %>
-                                                            <!-- status:1 = to be asigned -->
-                                                            <tr class="quote">
-                                                                <td id="">
-                                                                    <%= tickets[i].id %>
-                                                                </td>
-                                                                <td id="">
-                                                                    <%= tickets[i].tms %>
-                                                                </td>
-                                                                <td id="">
-                                                                    <%= tickets[i].location %>
-                                                                </td>
-                                                                <td id="">
-                                                                    <%= tickets[i].facility %>
-                                                                </td>
-                                                                <td id="">
-
-                                                                </td>
-                                                                <td id="">
-
-                                                                </td>
-                                                                <td id="">
-                                                                    <button type="submit" class="btn btn-default"> Assign</button>
-                                                                </td>
-                                                            </tr>
-                                                            <% } %>
-                                                                <% } %>
-                                                </tbody>
-                                                <% } else{ %>
-                                                    <tbody>
-                                                        <p>No assets in this category</p>
-                                                    </tbody>
-                                                    <% } %>
+                                            <tbody>
+                                                <% if(!assets || !assets.length || assets.length == 0){ %>
+                                                    <tr>
+                                                        <td>
+                                                            <span>No assets found</span>
+                                                        </td>
+                                                    </tr>
+                                                <% } else { %>
+                                                    <% assets.forEach((asset) => { %>
+                                                        <tr>
+                                                            <td>
+                                                                <span><%= asset.id %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.name || 'Name not available' %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.type || 'Type not available' %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.plate || 'Plate not available' %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.status || 'Status not available' %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.mi || 'Miles not available' %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.mi_last_service || 'Miles last service not available' %></span>
+                                                            </td>
+                                                        </tr>
+                                                    <% }) %>
+                                                <% } %>
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                 </div>
@@ -183,6 +169,18 @@
                         APP.SERVICE = APP.SERVICE || {};
 
                         APP.SERVICE.ASSETS = APP.SERVICE.ASSETS || {};
+                        APP.SERVICE.ASSETS.GET_ASSETS = APP.SERVICE.ASSETS.GET_ASSETS || function(){
+                            $.ajax({
+                                url: '/api/assets/' + id,
+                                method: 'GET',
+                                success: function(data){
+                                    callback(data);
+                                },
+                                error: function(){
+                                    alert('It seems this asset is not available anymore.');
+                                }
+                            });
+                        };
                         APP.SERVICE.ASSETS.CREATE = APP.SERVICE.ASSETS.CREATE || function(){
                             $('#frm_csv').attr('disabled', 'disabled');
 
@@ -211,6 +209,31 @@
                                 }
                             });
                         };
+                        APP.SERVICE.ASSETS.FIND_BY_ID = APP.SERVICE.ASSETS.FIND_BY_ID || function(id, callback){
+                            $.ajax({
+                                url: '/api/assets/' + id,
+                                method: 'GET',
+                                success: function(data){
+                                    callback(data);
+                                },
+                                error: function(){
+                                    alert('It seems this asset is not available anymore.');
+                                }
+                            });
+                        };
+                        APP.SERVICE.ASSETS.DELETE = APP.SERVICE.ASSETS.DELETE || function(id){
+                            $.ajax({
+                                url: '/api/assets/' + id,
+                                method: 'DELETE',
+                                success: function(data){
+                                    alert('Asset removed successfully.');
+                                    location.reload();
+                                },
+                                error: function(){
+                                    alert('This asset couldn\'t be deleted. It seems someone did it before you or that asset didn\'t even exist.');
+                                }
+                            });
+                        };
 
                         APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
 
@@ -228,26 +251,6 @@
                                     console.error(e);
                                     alert('Couldn\'t load data for trailers up, drivers up, and trucks up.');
                                 }
-                            });
-                        };
-
-                        APP.SERVICE.DISPATCHER.ASSIGN_TICKET = APP.SERVICE.DISPATCHER.ASSIGN_TICKET || function () {
-                            $.ajax({
-                                cache: false,
-                                url: '/api/dispatcher/assignTicket/',
-                                type: 'PUT',
-                                data: {
-                                    ticketId: $(this).data("row-id"), // undefined
-                                    hrId: $("#driverSelect").val(),
-                                    product: $("#productsSelect").val()
-                                },
-                                success: function (msj) {
-                                    alert(msj.message);
-                                    location.reload();
-                                },
-                                error: function (xhr) {
-                                    alert('Couldn\'t assign ticket. Try again, please.');
-                                },
                             });
                         };
 
@@ -329,65 +332,16 @@
                         };
 
                         APP.LOAD.GRID = APP.LOAD.GRID || function () {
-                            var linkFormatter = function (column, row) {
-                                return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id + "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
-                            };
-
                             var commandsFormatter = function (column, row) {
-                                return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
-                            };
-
-                            var driversFormatter = function (colum, row) {
-                                return "<%if (drivers.length > 0) { %> " +
-                                    "<div class='form-group'> " +
-                                    "<select class='form-control' id='driverSelect" + row.id + "'>" +
-                                    "<% for(var x=0; x<drivers.length; x++) {%>" +
-                                    "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
-                                    "<% } %>" +
-                                    "</select>" +
-                                    "</div>" +
-                                    "<% } else{ %> " +
-                                    "No drivers available" +
-                                    "<% } %>";
-                            };
-
-                            var productsFormatter = function (colum, row) {
-                                return "<%if (products.length > 0) { %> " +
-                                    "<div class='form-group'> " +
-                                    "<select class='form-control' id='productsSelect" + row.id + "'>" +
-                                    "<% for(var x=0; x<products.length; x++) {%>" +
-                                    "<option value = '<%= products[x].id %>'><%= products[x].name %></option> " +
-                                    "<% } %>" +
-                                    "</select>" +
-                                    "</div>" +
-                                    "<% } else{ %> " +
-                                    "No products available" +
-                                    "<% } %>";
+                                return "<button type=\"button\" class=\"btn btn-md btn-default command-delete-asset\" data-row-id=\"" + row.id + "\">Delete</button> "
                             };
 
                             var loadedRsJQueryBootgrid = function () {
-                                /* Executes after data is loaded and rendered */
                                 var onClickEdit = function (e) {
-                                    //APP.SERVICE.DISPATCHER.ASSIGN_TICKET(this);
-
-                                    $.ajax({
-                                        url: '/api/dispatcher/assignTicket/',    //Your api url
-                                        type: 'PUT',   //type is any HTTP method
-                                        data: {
-                                            ticketId: $(this).data("row-id"),
-                                            //hrId: $(this).data("row-driver").value(),
-                                            //product: $(this).data("row-product").value(),
-                                            hrId: $("#driverSelect" + $(this).data("row-id")).val(),
-                                            product: $("#productsSelect" + $(this).data("row-id")).val()
-
-                                        },      //Data as js object
-                                        success: function (msj) {
-                                            alert(msj.message);
-                                            location.reload();
-                                        },
-                                        error: function (xhr) { // if error occured
-                                            alert("Error occured. please try again");
-                                        },
+                                    APP.SERVICE.ASSETS.FIND_BY_ID($(this).attr('data-row-id'), function (asset) {
+                                        if(confirm('Are you sure you want to delete the asset [' + asset[0].id + '] ' + asset[0].name + '?')){
+                                            APP.SERVICE.ASSETS.DELETE(asset[0].id);
+                                        }
                                     });
                                 };
 
@@ -396,7 +350,7 @@
                                 };
 
                                 $("#grid-basic")
-                                    .find(".command-edit")
+                                    .find(".command-delete-asset")
                                     .on("click", onClickEdit)
                                     .end()
                                     .find(".show-ticket")
@@ -406,70 +360,20 @@
                             $("#grid-basic")
                                 .bootgrid({
                                     labels: {
-                                        search: "Search (TMS, Ticket, etc)"
+                                        search: "Search (Name, Type, Plate, etc.)"
                                     },
                                     formatters: {
-                                        "link": linkFormatter,
-                                        "commands": commandsFormatter,
-                                        "drivers": driversFormatter,
-                                        "products": productsFormatter
+                                        "commands": commandsFormatter
                                     }
                                 })
                                 .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
                         };
 
                         APP.EVENTS = APP.EVENTS || {
-                            PINCHE_BOTON: function () {
-                                var infoModal = $('#ticketModal');
-                                $('#PincheBoton').on('click', function () {
-                                    APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL(8);
-                                });
-                            },
                             FRM_CSV: function () {
                                 $('#frm_csv').on('submit', function (evt) {
                                     evt.preventDefault();
                                     return false;
-                                });
-                            },
-                            FL_CSV: function () {
-                                $('label').on('click', function (evt) {
-                                    if ($(this).attr('disabled') == 'disabled') {
-                                        evt.preventDefault();
-                                        return false;
-                                    }
-                                });
-
-                                $('#fl_csv').on('change', function () {
-                                    var filename = $(this).val();
-
-                                    if (confirm('Are you sure you want to upload the file ' + filename + '?')) {
-                                        $('#sp_fl_csv')
-                                            .parent()
-                                            .attr('disabled', 'disabled');
-
-                                        $('#sp_fl_csv')
-                                            .text('Uploading file...');
-
-                                        var fileReader = new FileReader();
-
-                                        fileReader.onerror = function (err) {
-                                            alert('Error when loading file. Please try again.');
-                                            $('#sp_fl_csv')
-                                                .parent()
-                                                .removeAttr('disabled');
-
-                                            $('#sp_fl_csv')
-                                                .text('Search file');
-                                        };
-
-                                        fileReader.onload = function (evt) {
-                                            var jsonObjects = $.csv.toObjects(evt.target.result);
-                                            APP.SERVICE.TICKETS.UPLOAD_CSV(jsonObjects);
-                                        };
-
-                                        fileReader.readAsText($('#fl_csv')[0].files[0]);
-                                    }
-
                                 });
                             },
                             BTN_CREATE_ASSET: function(){
@@ -489,12 +393,10 @@
                                 });
                             },
                             INIT: function () {
-                                APP.EVENTS.PINCHE_BOTON();
-                                APP.EVENTS.FRM_CSV();
-                                APP.EVENTS.FL_CSV();
                                 APP.EVENTS.BTN_CREATE_ASSET();
                                 APP.EVENTS.BTN_CANCEL_ASSET();
                                 APP.EVENTS.BTN_SAVE_ASSET();
+                                APP.EVENTS.FRM_CSV();
                                 $('li.active').removeClass('active');
                                 $('#AssetsSubmenu').parent().attr('class', 'active');
                             }
