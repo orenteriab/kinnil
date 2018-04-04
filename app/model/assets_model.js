@@ -57,3 +57,15 @@ exports.updateAsset = (id, name, type, plate, status, mi, miLastService, mttoLas
 
     return connectionPool.query(sql [name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, 1, up, id]);
 };
+
+exports.pullPageAsset = (offset, size) => {
+    let sql = 'select `id`, `name`, `type`, `plate`, `status`, `mi`, `mi_last_service` from `sandras`.`assets` limit ? offset ?';
+
+    return connectionPool.query(sql, [size, offset]);
+};
+
+exports.deleteAsset = (id) => {
+    let sql = 'delete from `sandras`.`assets` where `id` = ?'
+
+    return connectionPool.query(sql, [id])
+};
