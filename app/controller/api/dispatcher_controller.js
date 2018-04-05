@@ -138,4 +138,23 @@ ROUTER.put('/completeTicket/', (req, res) => {
         });
 });
 
+ROUTER.get('/gettmscounter/', (req, res) => {
+
+    dispatcherService
+        .tmscounter()
+        .then((return_data) => {
+            console.log(JSON.stringify(return_data[0]))
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify(return_data));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/completeTicket/' + req.body.ticketId + ']Error when updating ticket(s): ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: 'Ticket(s) couldn\'t be completed. Please retry.' }));
+        });
+});
+
 exports.router = ROUTER;

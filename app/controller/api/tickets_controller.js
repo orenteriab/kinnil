@@ -8,8 +8,9 @@ ROUTER.post('/upload/csv', (req, res) => {
             res.status(201);
             res.json({ message: `${req.body.record['TMS Load #']} received!` });
         })
-        .catch((e) => {
+        .catch((err) => {
             res.status(400);
+            console.log(err)
             res.json({ message: `${req.body.record['TMS Load #']} was impossible to store. Please verify its information is correct.` });
         });
 });

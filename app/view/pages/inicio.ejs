@@ -22,7 +22,9 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be Asigned</h3>
-                                    <h1>10 tms</h1>
+                                    <h1>
+                                        <span id="one"></span> <small>TMS</small>
+                                    </h1>
                                 </div>
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
@@ -41,7 +43,9 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Work in progress</h3>
-                                    <h1>10 tms</h1>
+                                    <h1>
+                                        <span id="two"></span> <small>TMS</small>
+                                    </h1>
                                 </div>
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
@@ -60,7 +64,9 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Completed</h3>
-                                    <h1>10 tms</h1>
+                                    <h1>
+                                        <span id="three"></span> <small>TMS</small>
+                                    </h1>
                                 </div>
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
@@ -79,7 +85,9 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be invoiced</h3>
-                                    <h1>10 tms</h1>
+                                    <h1>
+                                        <span id="four"></span> <small>TMS</small>
+                                    </h1>
                                 </div>
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
@@ -98,7 +106,9 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be Payrolled</h3>
-                                    <h1>10 tms</h1>
+                                    <h1>
+                                        <span id="five"></span> <small>TMS</small>
+                                    </h1>
                                 </div>
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
@@ -117,7 +127,9 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be Paid</h3>
-                                    <h1>10 tms</h1>
+                                    <h1>
+                                        <span id="six"></span> <small>TMS</small>
+                                    </h1>
                                 </div>
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
@@ -140,7 +152,11 @@
                 </div>
             </div>
 
-
+            Only for tests: 
+            <button id="myDiv" type="button" class="btn">Basic</button>
+            <button id="up" type="button" class="btn">active</button>
+            <button id="down" type="button" class="btn">inactive</button>
+            <button id="tms" type="button" class="btn">tms</button>
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
     
@@ -156,7 +172,80 @@
     </script>
 
     
+<script src="/socket.io/socket.io.js"></script> 
+
+<script>
+
+    var defaultSocket = io('/dispatcher');
+    defaultSocket.on('connected', function(data){
+        //console.log(data);
+    });
+
     
+
+    defaultSocket.on('accounts', function(data){
+        //console.log(data);
+    });
+
+    
+
+    //var socket = io.connect('localhost:3000');
+    var socket = io.connect('http://159.65.98.225:3000');
+
+    socket.on('message', function(message) {
+        console.log('el server esta vivo ' + message);
+    })
+
+    $('#myDiv').click(function(){
+        //defaultSocket.emit('accounts', "hola");
+        socket.emit('accounts', "hola");
+        socket.emit('assets', "hola");
+        socket.emit('selected-asset', '{"id": 9, "truck": "toca 1", "trailer": "trailer 2" }');
+    });
+
+    $('#up').click(function(){
+        socket.emit('active', '{"id": 1, "active": true }');
+    });
+
+    $('#down').click(function(){
+        socket.emit('inactive', '{"id": 1, "active": false }');
+    });
+
+    $('#tms').click(function(){
+        socket.emit('tms', '1');
+    });
+
+    socket.on('accounts', function(data){
+        console.log("accounts ", data);
+    });
+
+    socket.on('assets', function(data){
+        console.log("assets ", data);
+    });
+
+    socket.on('selected-asset', function(data){
+        console.log("selected-asset ", data);
+    });
+
+    socket.on('active', function(data){
+        console.log("assets ", data);
+    });
+
+    socket.on('inactive', function(data){
+        console.log("assets ", data);
+    });
+
+    socket.on('tms', function(data){
+        console.log(data);
+    });
+
+    
+
+
+
+</script>
+
+
     <!--
         Obtiene los drivers, trucks and trailers que estan disponibles
     -->
@@ -170,8 +259,24 @@
 
             });
         }
+
+        function callEndpointTMSCounter() {
+            $.getJSON('/api/dispatcher/gettmscounter', function(data) {
+
+                $('#one').html(data[0].one);
+                $('#two').html(data[0].two);
+                $('#three').html(data[0].three);
+                $('#four').html(data[0].four);
+                $('#five').html(data[0].five);
+                $('#six').html(data[0].six);
+
+            });
+        }
         callEndpoint();
+        callEndpointTMSCounter();
     </script>
+
+
 
 </body>
 </html>

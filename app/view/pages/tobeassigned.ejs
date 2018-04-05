@@ -15,10 +15,10 @@
         <%include ../partials/sidebar %>
 
         <!-- Page Content Holder -->
-        <div id="content">
+        <div id="content" class="main-content">
             <%include ../partials/up %>
             <ul class="nav nav-tabs">
-                    <li role="presentation" class="active"><a href="../dispatcher/tobeassigned#">To be Asigned</a></li>
+                    <li role="presentation" class="active"><a href="../dispatcher/tobeassigned">To be Asigned</a></li>
                 <li role="presentation"><a href="../dispatcher/workinprogress">Work in progress</a></li>
                 <li role="presentation"><a href="../dispatcher/completed">Completed</a></li>
             </ul>
@@ -43,36 +43,9 @@
                                 </button>
                             </p>
                         </div>
-                        <!--<div class="col-md-6">
-                            <form class="form-inline" id="find-ticket">
-                                <div class="form-group">
-                                    <label for="exampleInputName2">Find a ticket:</label>
-                                    <input type="text" class="form-control" id="ticket-number" placeholder="#">
-                                </div>
-                                <button type="submit" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                </button>
-                            </form>
-                        </div>-->
                     </div>
 
-                    <div class="row">
-                        <br/>
-                        
-                        <!--<div class="col-md-6">
-                            <form class="form-inline" id="find-ticket">
-                                <div class="form-group">
-                                    <label for="exampleInputName2">Find a TMS: </label>
-                                    <input type="text" class="form-control" id="tms-number" placeholder="#">
-                                </div>
-                                <button type="submit" class="btn btn-default">
-                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                </button>
-                            </form>
-                        </div>-->
-                    </div>
 
-                    <br/>
                     <div class="row">
                         <div class="col-md-12">
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
@@ -83,7 +56,6 @@
                                         <th data-column-id="location">Location</th>
                                         <th data-column-id="facility">Facility</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
-                                        <th data-column-id="products" data-formatter="products">Product</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
@@ -106,9 +78,6 @@
                                             </td>
                                             <td id="">
                                                 
-                                            </td>
-                                            <td id="">
-
                                             </td>
                                             <td id="">
                                                 <button type="submit" class="btn btn-default"> Assign</button>
@@ -356,9 +325,7 @@
 
                 $("#grid-basic")
                     .bootgrid({
-                        labels: {
-                            search: "Search (TMS, Ticket, etc)"
-                        },
+                        caseSensitive: false,
                         formatters: {
                             "link": linkFormatter,
                             "commands": commandsFormatter,

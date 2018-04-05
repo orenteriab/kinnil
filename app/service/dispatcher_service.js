@@ -121,6 +121,7 @@ exports.completeTicket = (ticketId) => {
 // ==============================
 // Servicio de sockets TODO: hay que ver si los dejamos aqui o se crea un service, model para los sockets solamente
 // ==============================
+
 exports.getUsersAndPassword = () => {
     return dispatcherModel
         .getUsersAndPassword()
@@ -149,9 +150,9 @@ exports.getAvailableAssets = () => {
             for (var x = 0; x < data.length; x++){
                 var asset = data[x]
                 if (asset.type == "TRAILER") {
-                    json.trailers.push({"id": asset.id, "name": asset.name}) 
+                    json.trailers.push({"id": asset.id, "name": asset.name, "mi": asset.mi}) 
                 } else if (asset.type == "TRUCK") {
-                    json.trucks.push({"id": asset.id, "name": asset.name}) 
+                    json.trucks.push({"id": asset.id, "name": asset.name, "mi": asset.mi}) 
                 }
             }
 
@@ -198,6 +199,7 @@ exports.tms = (hrId) => {
 };
 
 exports.addEvent = (data) => {
+
     return dispatcherModel
         .addEvent(data)
         .then((return_data) => {
@@ -208,3 +210,9 @@ exports.addEvent = (data) => {
             return 'Error when querying: \n' + err
         });
 };
+
+// Contador que despliega el numero de TMSs segun su status
+exports.tmscounter = () => {
+    return dispatcherModel
+        .tmscounter()
+}

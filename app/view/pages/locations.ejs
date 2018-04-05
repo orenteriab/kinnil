@@ -15,7 +15,7 @@
         <%include ../partials/sidebar %>
 
         <!-- Page Content Holder -->
-        <div id="content">
+        <div id="content" class="main-content">
             <ul class="nav nav-tabs">
                     <li role="presentation" class="active"><a href="../clients">Clients</a></li>
                     <li role="presentation"><a href="../hr">Human resources</a></li>
@@ -24,10 +24,6 @@
             <div class="tab-content"> 
                 <div class="content">
                     
-                    <div class="row">
-                    </div>
-
-
                     <br/>
                     <div class="row">
                         <div class="col-md-12">
@@ -137,9 +133,7 @@
 
                 $("#grid-basic")
                     .bootgrid({
-                        labels: {
-                            search: "Search"
-                        },
+                        caseSensitive: false,
                         formatters: {
                             //"link": linkFormatter,
                             //"commands": commandsFormatter
