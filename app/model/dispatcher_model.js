@@ -165,10 +165,10 @@ exports.tms = (hrId) => {
     return connectionPool.query(statement, [hrId])
 }
 
-exports.addEvent = () => {
-    let statement = "insert into eventos (evento, longitude, latitude, tickets_id) values (?,?,?,?)"
+exports.addEvent = (substatus, latitude, longitude, id) => {
+    let statement = "insert into eventos (evento, latitude, longitude, tickets_id) values (?,?,?,?)"
 
-    return connectionPool.query(statement, [data.ticket_id])
+    return connectionPool.query(statement, [substatus, latitude, longitude, id])
 }
 
 exports.tmscounter = () => {

@@ -2,7 +2,7 @@ let Router = require('express').Router
 let router = Router();
 let assetsService = require('../../service/assets_service');
 
-router.get('/', (req, res) => {
+router.get('/home', (req, res) => {
     assetsService.pullPageAsset().then((value) => {
         res.render('pages/assets.ejs', { message: '', assets: value })
     }, (error) => {

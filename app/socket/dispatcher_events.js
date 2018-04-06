@@ -104,7 +104,7 @@ const onStatus = (socket) => {
     return new SocketEvent('status', (message) => {
         let jsonPayload = JSON.parse(message);
         dispatcherService
-            .addEvent(jsonPayload)
+            .addEvent(jsonPayload.substatus, jsonPayload.latitude, jsonPayload.longitude, jsonPayload.id)
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })

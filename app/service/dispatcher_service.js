@@ -198,10 +198,28 @@ exports.tms = (hrId) => {
         });
 };
 
-exports.addEvent = (data) => {
+exports.addEvent = (substatus, latitude, longitude, id) => {
+
+    if (substatus == "0") {
+        substatus = "TMS ACCEPTED"
+    } else if (substatus == "1") {
+        substatus = "ON MY WAY TO FACILITY"
+    } else if (substatus == "2") {
+        substatus = "ARRIVED TO FACILITY"
+    } else if (substatus == "3") {
+        substatus = "LOADING"
+    } else if (substatus == "4") {
+        substatus = "ON MY WAY TO LOCATION"
+    } else if (substatus == "5") {
+        substatus = "ARRIVED TO LOCATION"
+    } else if (substatus == "6") {
+        substatus = "UNLOADING"
+    } else if (substatus == "7") {
+        substatus = "FINISHED"
+    }
 
     return dispatcherModel
-        .addEvent(data)
+        .addEvent(substatus, latitude, longitude, id)
         .then((return_data) => {
             return return_data
         })
