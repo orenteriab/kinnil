@@ -46,16 +46,16 @@ exports.updateAsset = (id, name, type, plate, status, mi, miLastService, mttoLas
     sql += '    ,`plate`  = ? ';
     sql += '    ,`status`  = ? ';
     sql += '    ,`mi`  = ? ';
-    sql += '    ,`miLastService`  = ? ';
-    sql += '    ,`mttoLast`  = ? ';
-    sql += '    ,`mttoNext`  = ? ';
+    sql += '    ,`mi_last_service`  = ? ';
+    sql += '    ,`mtto_last`  = ? ';
+    sql += '    ,`mtto_next`  = ? ';
     sql += '    ,`notes`  = ? ';
-    sql += '    ,`clientsId`  = ? ';
+    sql += '    ,`clients_id`  = ? ';
     sql += '    ,`up` = ? ';
     sql += 'where ';
     sql += '    id = ?';
 
-    return connectionPool.query(sql [name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, 1, up, id]);
+    return connectionPool.query(sql, [name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, 1, up, id]);
 };
 
 exports.pullPageAsset = (offset, size) => {
