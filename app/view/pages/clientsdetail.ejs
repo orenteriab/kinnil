@@ -42,8 +42,8 @@
                             <table id='grid-locations' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric" data-formatter="link">#</th>
-                                        <th data-column-id="name">Name</th>
+                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="name" data-formatter="link">Name</th>
                                         <th data-column-id="status">Status</th>
                                         <th data-column-id="start">Start Date</th>
                                         <th data-column-id="end">End Date</th>
@@ -299,7 +299,7 @@
             APP.LOAD.GRID_LOCATIONS = APP.LOAD.GRID_LOCATIONS || function(){
 
                 var linkFormatter = function(column, row){
-                    return "<a href='../locations/"+ row.id +"' class='text-center black-link'>" + row.id + "</a>";
+                    return "<a href='../locations/"+ row.id +"' class='text-center black-link'>" + row.name + "</a>";
                 };  
 
                 var commandsFormatter = function(column, row) {

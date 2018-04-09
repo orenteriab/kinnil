@@ -31,8 +31,8 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric" data-formatter ="link">#</th>
-                                        <th data-column-id="name">Name</th>
+                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="name" data-formatter ="link">Name</th>
                                         <th data-column-id="address">Address</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
@@ -87,7 +87,7 @@
             APP.LOAD.GRID = APP.LOAD.GRID || function(){
 
                 var linkFormatter = function(column, row){
-                    return "<a href='../administrative/clients/"+ row.id +"' class='text-center black-link'>" + row.id + "</a>";
+                    return "<a href='../administrative/clients/"+ row.id +"' class='text-center black-link'>" + row.name + "</a>";
                 };
 
                 var commandsFormatter = function(column, row) {

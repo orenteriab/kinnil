@@ -9,7 +9,7 @@ const onMessage = (socket) => {
 };
 
 const onAccounts = (socket) => {
-    return new SocketEvent('account', () => {
+    return new SocketEvent('accounts', () => {
         dispatcherService
             .getUsersAndPassword()
             .then((returnData) => {
@@ -39,9 +39,10 @@ const onAssets = (socket) => {
 const onSelectedAsset = (socket) => {
     return new SocketEvent('selected-asset', (message) => {
         let jsonPayload = JSON.parse(message);
+        console.log(jsonPayload)
 
         dispatcherService
-            .selectedAsset(jsonPayload.truck, jsonPayload.trailer, jsonPayload.id)
+            .selectedAsset(jsonPayload.truck_id, jsonPayload.trailer_id, jsonPayload.id)
             .then(() => {
                 socket.emit('selected-asset', JSON.stringify({ resivido: true }));
             })
@@ -91,7 +92,12 @@ const onTms = (socket) => {
         dispatcherService
             .tms(hrId)
             .then((returnData) => {
-                socket.emit('tms', JSON.stringify(returnData));
+                // Validamos si vamos a mandar null esto se hace porque el desarrollador de android no puede hacer la comparación si es null o no y le crashea su app :v
+                if (JSON.stringify(returnData[0]) == null){
+                    socket.emit('tms', '{}');
+                } else {
+                    socket.emit('tms', JSON.stringify(returnData[0]));
+                }
             })
             .catch(function (err) {
                 console.error('[/app/socket/Events.js][/tms/]Error when querying: ', err);
@@ -103,8 +109,16 @@ const onTms = (socket) => {
 const onStatus = (socket) => {
     return new SocketEvent('status', (message) => {
         let jsonPayload = JSON.parse(message);
-        dispatcherService
-            .addEvent(jsonPayload.substatus, jsonPayload.latitude, jsonPayload.longitude, jsonPayload.id)
+        console.log(jsonPayload)
+        dispatcherService //(substatus, latitude, longitude, ticketId, base, silo, weight, bol)
+            .addEvent(jsonPayload.substatus, 
+                        jsonPayload.latitude, 
+                        jsonPayload.longitude, 
+                        jsonPayload.id, 
+                        jsonPayload.base, 
+                        jsonPayload.silo,
+                        jsonPayload.weight,
+                        jsonPayload.bol)
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })
