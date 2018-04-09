@@ -42,8 +42,8 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric" data-formatter="link">#</th>
-                                        <th data-column-id="name">Name</th>
+                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="name" data-formatter="link">Name</th>
                                         <th data-column-id="shift">Shift</th>
                                         <th data-column-id="type">Type</th>
                                         <th data-column-id="status">Status</th>
@@ -97,7 +97,7 @@
                         <input id="name" class="form-control" required></input>
                         <label for="address" class="h4 ">Address</label>
                         <input id="address" class="form-control" required></input>
-                        <label for="tel" class="h4 ">Tel</label>
+                        <label for="tel" class="h4 ">Phone</label>
                         <input id="tel" class="form-control" required type="tel"></input>
                         <label for="civilStatus" class="h4 ">Civil status</label>
                         <select id="civilStatus" class="form-control">
@@ -115,7 +115,7 @@
                         <input id="contacta1" class="form-control" type="tel"></input>
                         <label for="contacta2" class="h4 ">Emergency contact 1</label>
                         <input id="contacta2" class="form-control" type="tel"></input>
-                        <label for="birth" class="h4 ">Date bith</label>
+                        <label for="birth" class="h4 ">Date of birth</label>
                         <input id="birth" class="form-control" required type="date"></input>
                         <label for="over25" class="h4 ">Over 25</label>
                         <select id="over25" class="form-control">
@@ -145,6 +145,11 @@
                             <option value="8">8</option>
                             <option value="9">9</option>
                             <option value="10">10</option>
+                        </select>
+                        <label for="crew" class="h4 ">Shift</label>
+                        <select id="crew" class="form-control">
+                            <option value="AM">am</option>
+                            <option value="PM">pm</option>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -190,7 +195,7 @@
                         <input id="licenseExp" class="form-control" required type="date"></input>
                         <label for="state" class="h4 ">State</label>
                         <input id="state" class="form-control" required></input>
-                        <label for="yearsWorking" class="h4 ">Years working</label>
+                        <label for="yearsWorking" class="h4 ">Hire date</label>
                         <input id="yearsWorking" class="form-control" required type="date"></input>
                         <label for="ssn" class="h4 ">SSN</label>
                         <input id="ssn" class="form-control" required></input>
@@ -218,17 +223,18 @@
             <h4>Driver detail</h4>
         </div>
         <div class="modal-body">
+        <div id="to-print">
             <div class="row">
                 <div class="col-md-6">
                     <p>Name <span id="editName"> </span></p>
                     <p>Address <span id="editAddress"> </span></p>
-                    <p>Tel <span id="editTel"> </span></p>
+                    <p>Phone <span id="editTel"> </span></p>
                     <p>Civil status <span id="editCivilStatus"> </span></p>
                     <p>Dependent <span id="editDependent"> </span></p>
                     <p>email <span id="editEmail"> </span></p>
                     <p>Emergency contact 1 <span id="editContact1"> </span></p>
                     <p>Emergency contact 1 <span id="editContact2"> </span></p>
-                    <p>Date bith <span id="editBrith"> </span></p>
+                    <p>Date of birth <span id="editBrith"> </span></p>
                     <p>Over 25 <span id="editOver25"> </span></p>
                     <p>Labor status <span id="editLaborStatus"> </span></p>
                     <p>Type <span id="editType"> </span></p>
@@ -249,14 +255,15 @@
                     <p>License <span id="editLicense"> </span></p>
                     <p>License expiration date <span id="editLicenseExp"> </span></p>
                     <p>State <span id="editState"> </span></p>
-                    <p>Years Working <span id="editYearsWorking"> </span></p>
+                    <p>Hire date <span id="editHireDate"> </span></p>
                     <p>SSN <span id="editSsn"> </span></p>
 
                 </div>
             </div>
+        </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <!--<button type="button" class="btn btn-success" data-dismiss="modal">Download</button>-->
+            <button id="hr-to-pdf" type="button" class="btn btn-success" >Download</button>
         </div>
         </div>
     </div>
@@ -287,7 +294,7 @@
             APP.LOAD.GRID = APP.LOAD.GRID || function(){
 
                 var linkFormatter = function(column, row){
-                    return "<a href=\"#editDriverModal\" data-toggle=\"modal\" data-driver=\"" + row.id +  "\" class=\"text-center black-link show-edit-driver\">" + row.id + "</a>";
+                    return "<a href=\"#editDriverModal\" data-toggle=\"modal\" data-driver=\"" + row.id +  "\" class=\"text-center black-link show-edit-driver\">" + row.name + "</a>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
@@ -459,16 +466,16 @@
                     $('#editRate').html(
                         "<strong><a id='updateRate' data-pk='" + data.hr[0].id + "' data-title='Update rate' "+
                         "data-type='select' step='0.01' value='0.00' class='black-link' "+
-                        "href='#' data-name='rate'>"+data.hr[0].rate+"</a></strong>"
+                        "href='#' data-name='rate'>"+ data.hr[0].rate*100 +" %</a></strong>" // El rate en los drivers es un porcentage asi que le damos formato
                     );
                     $('#editUser').html(
                         "<strong><a id='updateUser' data-pk='" + data.hr[0].id + "' data-title='Update user' "+
-                        "data-type='select' class='black-link' "+
+                        "data-type='text' class='black-link' "+
                         "href='#' data-name='username'>"+data.hr[0].username+"</a></strong>"
                     );
                     $('#editPassword').html(
                         "<strong><a id='updatePassword' data-pk='" + data.hr[0].id + "' data-title='Update password' "+
-                        "data-type='select' class='black-link' "+
+                        "data-type='text' class='black-link' "+
                         "href='#' data-name='password'>"+data.hr[0].password+"</a></strong>"
                     );
                     $('#editMc').html(
@@ -516,10 +523,10 @@
                         "data-type='select' class='black-link' "+
                         "href='#' data-name='state'>"+data.hr[0].state+"</a></strong>"
                     );
-                    $('#editYeasWorking').html(
-                        "<strong><a id='updateYeasWorking' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='years_working'>"+data.hr[0].years_working+"</a></strong>"
+                    $('#editHireDate').html(
+                        "<strong><a id='updateHireDate' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
+                        "data-type='date' class='black-link' "+
+                        "href='#' data-name='hire_date'>"+data.hr[0].hire_date+"</a></strong>"
                     );
                     $('#editSsn').html(
                         "<strong><a id='updateSsn' data-pk='" + data.hr[0].id + "' data-title='Update ssn' "+
@@ -528,7 +535,7 @@
                     );
     
                     // x-editable
-                    $('#updateName, #updateAddress, #updateTel, #updateDependent, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn').editable({
+                    $('#updateName, #updateAddress, #updateTel, #updateDependent, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         success: function(response, newValue) {
@@ -603,11 +610,11 @@
                         },
                     });
 
-                    $('#updateBrith, #updateMcExp, #updateDtExp, #updateTrainingExp, #updateLicenseExp').editable({
+                    $('#updateBrith, #updateMcExp, #updateDtExp, #updateTrainingExp, #updateLicenseExp, #updateHireDate').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         format: 'yyyy-mm-dd',    
-                        viewformat: 'yyyy-mm-dd',    
+                        viewformat: 'mm-dd-yyyy',    
                         datepicker: {
                                 weekStart: 1
                         },
@@ -650,6 +657,26 @@
             // Recarga la pagina para que se vean los cambios
             $('#editDriverModal').on('hide.bs.modal', function (e) {
                 location.reload();
+            });
+
+            $('#hr-to-pdf').on('click', function(){
+                /*
+                * Por las prisas se genera este PDF con addHTML. Hay que ver si no la hacen de pedo por la calidad de la imagen
+                * Aqui esta un ejemplo que hay que estudiar, parece que tiene todo lo que necesitamos https://codepen.io/LittleViolette/pen/begBbe
+                */
+                var pdf = new jsPDF('p', 'pt', 'letter');
+
+                var options = {
+                    pagesplit: true,
+                    background: '#ffffff',
+                    pagesplit: true
+                }
+
+                var nombre = $('#editName').text()
+                
+                pdf.addHTML($('#to-print')[0], 40, 40, options, function () {
+                    pdf.save(nombre + '.pdf');
+                });
             });
         });
     </script>

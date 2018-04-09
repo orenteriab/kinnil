@@ -29,7 +29,7 @@ exports.getAssetsUp = (type) => {
 * Obtiene el detalle de los drivers que esta UP, de momento solo se necesita el nombre
 */
 exports.listDriversUp = () => {
-    let statement = 'select id, name from hr where up = TRUE and assigned = false';
+    let statement = 'select id, name from hr where up = TRUE';
 
     return connectionPool.query(statement);
 };
@@ -58,14 +58,14 @@ exports.getTicketsList = () => {
 * Obtiene tickets por Id
 */
 exports.getTicketById = (ticketId) => {
-    let statement = 'select t.*, c.name client_name, c.address client_address, h.name driver_name, h.shift shift, h.crew crew from tickets t left join clients c on t.clients_id = c.id left join hr h on t.hr_id = h.id where t.id = ?';
+    let statement = 'select t.id, t.tms, t.status, t.substatus, t.price, t.currency, t.product, t.base, t.silo, t.po, t.facility, t.location, t.bol, t.sand_type, t.weight, DATE_FORMAT(t.assign_date, "%m-%d-%Y") assign_date, DATE_FORMAT(t.completed_date, "%m-%d-%Y") completed_date, DATE_FORMAT(t.invoice_date, "%m-%d-%Y") invoice_date, DATE_FORMAT(t.payrolled_date, "%m-%d-%Y") payrolled_date, t.starting_mi, t.end_mi, t.pick_date, t.drop_date, t.pro, t.equipment, t.notes, t.sr, t.hr_id, t.products_id, t.clients_id, t.on_curse, t.truck, t.trailer, t.load_rate, t.load_rate_currency, DATE_FORMAT(t.born_date, "%m-%d-%Y") born_date, c.name client_name, c.address client_address, h.name driver_name, h.shift shift, h.crew crew from tickets t left join clients c on t.clients_id = c.id left join hr h on t.hr_id = h.id where t.id = ?';
 
     return connectionPool.query(statement, [ticketId]);
 };
 
 
 exports.assignTicket = (hrId, product, ticketId) => {
-    let statement = 'update tickets set hr_id = ?, products_id = ?, status = 2, on_curse = TRUE where id = ?';
+    let statement = 'update tickets set hr_id = ?, status = 2, on_curse = TRUE where id = ?';
 
     // TODO: Hacer el codigo para que cuando se asigne un ticket se cambie la columna hr.assigned a TRUE
 
@@ -73,7 +73,7 @@ exports.assignTicket = (hrId, product, ticketId) => {
 };
 
 exports.cancelTicket = (ticketId) => {
-    let statement = 'update tickets set status = 1 where id = ?';
+    let statement = 'update tickets set status = 1, on_curse = FALSE where id = ?';
 
     return connectionPool.query(statement, [ticketId]);
 };
@@ -107,7 +107,7 @@ exports.listProducts = (clientId) => {
 * Obtiene los eventos por ticket
 */
 exports.getEvents = (ticketId) => {
-    let statement = 'select * from eventos where tickets_id = ?';
+    let statement = 'select evento, DATE_FORMAT(date, "%m-%d-%Y %H:%i:%s") date, longitude, latitude, notes from eventos where tickets_id = ?';
 
     return connectionPool.query(statement, [ticketId]);
 };
@@ -141,6 +141,8 @@ exports.getAvailableAssets = () => {
 }
 
 exports.selectedAsset = (truck, trailer, ticketId) => {
+
+    console.log(truck, trailer, ticketId)
     let statement = 'update tickets set truck = ?, trailer = ? where id = ? '; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
 
     return connectionPool.query(statement , [truck, trailer, ticketId]);
@@ -165,14 +167,43 @@ exports.tms = (hrId) => {
     return connectionPool.query(statement, [hrId])
 }
 
-exports.addEvent = (substatus, latitude, longitude, id) => {
-    let statement = "insert into eventos (evento, latitude, longitude, tickets_id) values (?,?,?,?)"
+exports.addEvent = (substatus, timestamp, latitude, longitude, id) => {
+    let statement = "insert into eventos (evento, date, latitude, longitude, tickets_id) values (?,?,?,?,?)"
 
-    return connectionPool.query(statement, [substatus, latitude, longitude, id])
+    return connectionPool.query(statement, [substatus, timestamp, latitude, longitude, id])
 }
 
 exports.tmscounter = () => {
     let statement = "select (select count(*) from tickets where status = 1) one, (select count(*) from tickets where status = 2) two, (select count(*) from tickets where status = 3) three, (select count(*) from tickets where status = 4) four, (select count(*) from tickets where status = 5) five, (select count(*) from tickets where status = 6) six"
 
     return connectionPool.query(statement)
+}
+
+/*
+* Para actualizar el ticket con la informacion que me manda la app de android
+*/
+
+// substatus aqui es un numero (0,1,2,3,4,5,6 o 7)
+exports.updateSubstatus = (sustatus , ticketId) => {
+    let statement = "update tickets set substatus = ? where id = ?"
+
+    return connectionPool.query(statement, [sustatus , ticketId])
+}
+
+exports.updateBaseAndSilo = (base, silo, ticketId) => {
+    let statement = "update tickets set base = ?, silo = ? where id = ?"
+
+    return connectionPool.query(statement, [base, silo, ticketId])
+}
+
+exports.updateWeightAndBol = (weight, bol, ticketId) => {
+    let statement = "update tickets set weight = ?, bol = ? where id = ?"
+
+    return connectionPool.query(statement, [weight, bol, ticketId])
+}
+
+exports.finishTicket = (ticketId) => {
+    let statement = "update tickets set on_curse = FALSE, status = 3 where id = ?"
+
+    return connectionPool.query(statement, [ticketId])
 }

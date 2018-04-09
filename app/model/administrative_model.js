@@ -182,7 +182,7 @@ exports.addDriver = (name,
 };
 
 exports.getHrDetail = (hrId) => {
-    let statement = 'select * from hr where id = ?';
+    let statement = 'select id, name, address, civil_status, tel, email, contact1, contact2, DATE_FORMAT(birthdate, "%m-%d-%Y") birthdate, over25, labor_status, position, type, shift, crew, rate, username, password, medical_card, DATE_FORMAT(mc_exp, "%m-%d-%Y") mc_exp, drug_test, DATE_FORMAT(dt_exp, "%m-%d-%Y") dt_exp, training, DATE_FORMAT(training_exp, "%m-%d-%Y") training_exp, license, DATE_FORMAT(license_exp, "%m-%d-%Y") license_exp, state, DATE_FORMAT(hire_date, "%m-%d-%Y") hire_date, ssn, dependants, up, clients_id, assigned from hr where id = ?';
 
     return connectionPool.query(statement, [hrId]);
 };
