@@ -207,7 +207,10 @@
                             <br>
                             <label for="tx_edit_up">Up:</label>
                             <br>
-                            <input class="form-control" placeholder="up" name="up" type="number" id="tx_edit_up" />
+                            <select class="form-control" placeholder="up" name="up" type="number" id="tx_edit_up" >
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
                             <br>
                         </form>
                     </div>
@@ -455,8 +458,15 @@
                                         $("#tx_edit_status").val(asset.status);
                                         $("#tx_edit_mi").val(asset.mi);
                                         $("#tx_edit_miLastService").val(asset.mi_last_service);
-                                        $("#tx_edit_mttoLast").val(asset.mtto_last);
-                                        $("#tx_edit_mttoNext").val(asset.mtto_next);
+
+                                        if(asset.mtto_last != null || asset.mtto_last != undefined){
+                                            $("#tx_edit_mttoLast").val(asset.mtto_last.split('T')[0]);
+                                        }
+                                        
+                                        if(asset.mtto_next != null || asset.mtto_next != undefined){
+                                            $("#tx_edit_mttoNext").val(asset.mtto_next.split('T')[0]);
+                                        }
+                                        
                                         $("#tx_edit_notes").val(asset.notes);
                                         $("#tx_edit_up").val(asset.up);
                                         $("#btn_save_edit_asset").attr('data-id', asset.id);

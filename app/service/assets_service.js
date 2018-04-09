@@ -5,8 +5,8 @@ exports.create = (name, type, plate, status, mi, miLastService, mttoLast, mttoNe
     return model.createAsset(name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, clientsId);
 }
 
-exports.update = (id, name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, clientsId) => {
-    return model.updateAsset(id, name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, clientsId)
+exports.update = (id, name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, clientsId, up) => {
+    return model.updateAsset(id, name, type, plate, status, mi, miLastService, mttoLast, mttoNext, notes, clientsId, up)
 }
 
 exports.findById = (id) => {

@@ -35,7 +35,7 @@ router.delete('/:id', (req, res) => {
 
 router.put('/update/:id', (req, res) => {
     assetsService
-        .update(req.param('id'), req.body.name, req.body.type, req.body.plate, req.body.status, req.body.mi, req.body.miLastService, req.body.mttoLast, req.body.mttoNext, req.body.notes, 1)
+        .update(req.param('id'), req.body.name, req.body.type, req.body.plate, req.body.status, req.body.mi, req.body.miLastService, req.body.mttoLast, req.body.mttoNext, req.body.notes, 1, req.body.up)
         .then(() => {
             res.status(200)
             res.json({ message: 'Asset '+ req.param('id') +' updated succesfully!'})
