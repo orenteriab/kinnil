@@ -33,4 +33,18 @@ router.delete('/:id', (req, res) => {
         });
 })
 
+router.put('/update/:id', (req, res) => {
+    assetsService
+        .update(req.param('id'), req.body.name, req.body.type, req.body.plate, req.body.status, req.body.mi, req.body.miLastService, req.body.mttoLast, req.body.mttoNext, req.body.notes, 1)
+        .then(() => {
+            res.status(200)
+            res.json({ message: 'Asset '+ req.param('id') +' updated succesfully!'})
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500)
+            res.json({ error: 'Error when updating asset ' + req.param('id') + ', please try again.' })
+        })
+})
+
 exports.router = router;
