@@ -153,6 +153,64 @@
                 </div>
             </div>
         </div>
+        <div id="dv_edit_asset" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4>Add new asset</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="frm_edit_csv">
+                            <label for="tx_edit_name">Name:</label> 
+                            <br>
+                            <input class="form-control" placeholder="name" name="name" type="text" id="tx_edit_name" />
+                            <br>
+                            <label for="tx_edit_type">Type:</label>
+                            <br>
+                            <input class="form-control" placeholder="type" name="type" type="text" id="tx_edit_type" />
+                            <br>
+                            <label for="tx_edit_plate">Plate:</label>
+                            <br>
+                            <input class="form-control" placeholder="plate" name="plate" type="text" id="tx_edit_plate" />
+                            <br>
+                            <label for="tx_edit_status">Status:</label>
+                            <br>
+                            <input class="form-control" placeholder="status" name="status" type="text" id="tx_edit_status" />
+                            <br>
+                            <label for="tx_edit_mi">Miles:</label>
+                            <br>
+                            <input class="form-control" placeholder="mi" name="mi" type="number" id="tx_edit_mi" />
+                            <br>
+                            <label for="tx_edit_miLastService">Miles of last service:</label>
+                            <br>
+                            <input class="form-control" placeholder="miLastService" name="miLastService" type="number" id="tx_edit_miLastService" />
+                            <br>
+                            <label for="tx_edit_mttoLast">Mtto. Last:</label>
+                            <br>
+                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="date" id="tx_edit_mttoLast" />
+                            <br>
+                            <label for="tx_edit_mttoNext">Mtto. Next:</label>
+                            <br>
+                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="date" id="tx_edit_mttoNext" />
+                            <br>
+                            <label for="tx_edit_notes">Notes:</label>
+                            <br>
+                            <input class="form-control" placeholder="notes" name="notes" type="text" id="tx_edit_notes" />
+                            <br>
+                            <label for="tx_edit_up">Up:</label>
+                            <br>
+                            <input class="form-control" placeholder="up" name="up" type="number" id="tx_edit_up" />
+                            <br>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn_save_edit_asset" type="button" class="btn btn-primary">Save asset</button>
+                        <button id="btn_cancel_edit_asset" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- <script src="/socket.io/socket.io.js"></script>  -->
         <%include ../partials/js %>
@@ -185,16 +243,16 @@
                             $('#frm_csv').attr('disabled', 'disabled');
 
                             var postData = {
-                                name: $("#tx_name").val(),
-                                type: $("#tx_type").val(),
-                                plate: $("#tx_plate").val(),
-                                status: $("#tx_status").val(),
-                                mi: $("#tx_mi").val(),
-                                miLastService: $("#tx_miLastService").val(),
-                                mttoLast: $("#tx_mttoLast").val(),
-                                mttoNext: $("#tx_mttoNext").val(),
-                                notes: $("#tx_notes").val(),
-                                up: $("#tx_up").val()
+                                name:           $("#tx_name").val(),
+                                type:           $("#tx_type").val(),
+                                plate:          $("#tx_plate").val(),
+                                status:         $("#tx_status").val(),
+                                mi:             $("#tx_mi").val(),
+                                miLastService:  $("#tx_miLastService").val(),
+                                mttoLast:       $("#tx_mttoLast").val(),
+                                mttoNext:       $("#tx_mttoNext").val(),
+                                notes:          $("#tx_notes").val(),
+                                up:             $("#tx_up").val()
                             };
                             
                             $.ajax({
@@ -231,6 +289,39 @@
                                 },
                                 error: function(){
                                     alert('This asset couldn\'t be deleted. It seems someone did it before you or that asset didn\'t even exist.');
+                                }
+                            });
+                        };
+                        APP.SERVICE.ASSETS.UPDATE = APP.SERVICE.ASSETS.UPDATE || function(id){
+                            $('#frm_edit_csv').attr('disabled', 'disabled');
+
+                            var postData = {
+                                name:           $("#tx_edit_name").val(),
+                                type:           $("#tx_edit_type").val(),
+                                plate:          $("#tx_edit_plate").val(),
+                                status:         $("#tx_edit_status").val(),
+                                mi:             $("#tx_edit_mi").val(),
+                                miLastService:  $("#tx_edit_miLastService").val(),
+                                mttoLast:       $("#tx_edit_mttoLast").val(),
+                                mttoNext:       $("#tx_edit_mttoNext").val(),
+                                notes:          $("#tx_edit_notes").val(),
+                                up:             $("#tx_edit_up").val()
+                            };
+                            
+                            $.ajax({
+                                url: '/api/assets/update/' + id,
+                                method: 'PUT',
+                                data: postData,
+                                success: function(data){
+                                    alert(data.message);
+                                    document.getElementById('frm_edit_csv').reset();
+                                    $('#frm_edit_csv').removeAttr('disabled');
+                                    $('#dv_edit_asset').modal('toggle');
+                                    $('#btn_save_edit_asset').removeAttr('data-id');
+                                },
+                                error: function(){
+                                    alert('Error when updating asset. Please try again.');
+                                    $('#frm_edit_csv').removeAttr('disabled');
                                 }
                             });
                         };
@@ -333,15 +424,35 @@
 
                         APP.LOAD.GRID = APP.LOAD.GRID || function () {
                             var commandsFormatter = function (column, row) {
-                                return "<button type=\"button\" class=\"btn btn-md btn-default command-delete-asset\" data-row-id=\"" + row.id + "\">Delete</button> "
+                                return "<button type=\"button\" class=\"btn btn-md btn-default command-edit-asset\" data-row-id=\"" + row.id + "\">Edit</button>" +
+                                    "<button type=\"button\" class=\"btn btn-md btn-default command-delete-asset\" data-row-id=\"" + row.id + "\">Delete</button> ";
                             };
 
                             var loadedRsJQueryBootgrid = function () {
-                                var onClickEdit = function (e) {
+                                var onClickDelete = function (e) {
                                     APP.SERVICE.ASSETS.FIND_BY_ID($(this).attr('data-row-id'), function (asset) {
                                         if(confirm('Are you sure you want to delete the asset [' + asset[0].id + '] ' + asset[0].name + '?')){
                                             APP.SERVICE.ASSETS.DELETE(asset[0].id);
                                         }
+                                    });
+                                };
+
+                                var onClickEdit = function(e) {
+                                    APP.SERVICE.ASSETS.FIND_BY_ID($(this).attr('data-row-id'), function (asset) {
+                                        asset = asset[0];
+                                        $("#dv_edit_asset").modal('show',  $("#dv_edit_asset"));
+
+                                        $("#tx_edit_name").val(asset.name);
+                                        $("#tx_edit_type").val(asset.type);
+                                        $("#tx_edit_plate").val(asset.plate);
+                                        $("#tx_edit_status").val(asset.status);
+                                        $("#tx_edit_mi").val(asset.mi);
+                                        $("#tx_edit_miLastService").val(asset.mi_last_service);
+                                        $("#tx_edit_mttoLast").val(asset.mtto_last);
+                                        $("#tx_edit_mttoNext").val(asset.mtto_next);
+                                        $("#tx_edit_notes").val(asset.notes);
+                                        $("#tx_edit_up").val(asset.up);
+                                        $("#btn_save_edit_asset").attr('data-id', asset.id);
                                     });
                                 };
 
@@ -351,10 +462,13 @@
 
                                 $("#grid-basic")
                                     .find(".command-delete-asset")
-                                    .on("click", onClickEdit)
+                                        .on("click", onClickDelete)
+                                    .end()
+                                    .find(".command-edit-asset")
+                                        .on("click", onClickEdit)
                                     .end()
                                     .find(".show-ticket")
-                                    .on("click", onClickShow);
+                                        .on("click", onClickShow);
                             };
 
                             $("#grid-basic")
@@ -392,10 +506,16 @@
                                     APP.SERVICE.ASSETS.CREATE();
                                 });
                             },
+                            BTN_SAVE_EDIT_ASSET: function() {
+                                $('#btn_save_edit_asset').on('click', function(){
+                                    APP.SERVICE.ASSETS.UPDATE($(this).attr('data-id'));
+                                });
+                            },
                             INIT: function () {
                                 APP.EVENTS.BTN_CREATE_ASSET();
                                 APP.EVENTS.BTN_CANCEL_ASSET();
                                 APP.EVENTS.BTN_SAVE_ASSET();
+                                APP.EVENTS.BTN_SAVE_EDIT_ASSET();
                                 APP.EVENTS.FRM_CSV();
                                 $('li.active').removeClass('active');
                                 $('#AssetsSubmenu').parent().attr('class', 'active');
