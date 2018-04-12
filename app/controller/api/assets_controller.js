@@ -4,7 +4,7 @@ let router = Router();
 
 router.post('/create', (req, res) => {
     assetsService
-        .create(req.body.name, req.body.type, req.body.plate, req.body.status, req.body.mi, req.body.miLastService, req.body.mttoLast, req.body.mttoNext, req.body.notes, 1)
+        .create(req.body.name, req.body.type, req.body.plate, req.body.status, req.body.mi, req.body.miLastService, req.body.mttoLast, req.body.mttoNext, req.body.notes, 1, req.body.up)
         .then(() => {
             res.status(201)
             res.json({ message: 'Asset created succesfully!'})
