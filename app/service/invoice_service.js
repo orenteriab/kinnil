@@ -1,0 +1,1 @@
+let invoiceModel = require('../model/invoice_model');
