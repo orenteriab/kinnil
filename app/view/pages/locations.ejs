@@ -12,8 +12,48 @@
 
 <div class="wrapper">
         <!-- Sidebar Holder -->
-        <%include ../partials/sidebar %>
-
+        <nav id="sidebar">
+                <!--<div class="sidebar-header">
+                    <h3>Bootstrap Sidebar</h3>
+                </div>-->
+            
+                <ul class="list-unstyled components">
+                    <!--
+                        TODO: hay que hacer que la clase active se ponga segun la pagina que estan viendo actualmente
+                    -->
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Dispatch</a>
+                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                            <li><a href="../../dispatcher/tobeassigned">To be asigned</a></li>
+                            <li><a href="../../dispatcher/workinprogress">Work in Progress</a></li>
+                            <li><a href="../../dispatcher/completed">Completed</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#administrativeSubmenu" data-toggle="collapse" aria-expanded="false">Administrative</a>
+                        <ul class="collapse list-unstyled" id="administrativeSubmenu">
+                            <li><a href="../../administrative/clients">Clients</a></li>
+                            <li><a href="../../administrative/drivers">Drivers</a></li>
+                            <li><a href="../../administrative/hr">Human resources</a></li>
+                            <li><a href="../../administrative/clockin">Clock in</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <li><a href="../../assets/home">Assets</a></li>
+                    </li>
+                    <li><a href="payroll">Payroll</a></li>
+                    <li><a href="invoice">Invoice</a></li>
+                    <li><a href="mtto">Mtto</a></li>
+                </ul>
+            
+                <!--
+                <ul class="list-unstyled CTAs">
+                    <li><a href="https://bootstrapious.com/tutorial/files/sidebar.zip" class="download">Download source</a></li>
+                    <li><a href="https://bootstrapious.com/p/bootstrap-sidebar" class="article">Back to article</a></li>
+                </ul>
+            -->
+            </nav>
+            
         <!-- Page Content Holder -->
         <div id="content" class="main-content">
             <ul class="nav nav-tabs">
