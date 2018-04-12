@@ -30,9 +30,9 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-formatter="link" data-type="numeric">#</th>
-                                        <th data-column-id="tms" data-type="numeric">TMS</th>
-                                        <th data-column-id="location">Location</th>
+                                        <th data-column-id="id" data-type="numeric" data-width="5%">#</th>
+                                        <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
+                                        <th data-column-id="location"  data-width="25%">Location</th>
                                         <th data-column-id="facility">Facility</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="products" data-formatter="products">Product</th>
@@ -61,10 +61,26 @@
                                             <%= tickets[i].driver_name %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].product_name %>
+                                            <%= tickets[i].product %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].substatus %>
+                                            <%if (tickets[i].substatus == 0) { %>
+                                                ASSIGNED
+                                            <% } else if(tickets[i].substatus == 1) { %>
+                                                ON MY WAY TO FACILITY
+                                            <% } else if(tickets[i].substatus == 2) { %>
+                                                ARRIVED TO FACILITY
+                                            <% } else if(tickets[i].substatus == 3) { %>
+                                                LOADING
+                                            <% } else if(tickets[i].substatus == 4) { %>
+                                                ON MY WAY TO LOCATION
+                                            <% } else if(tickets[i].substatus == 5) { %>
+                                                ARRIVED TO LOCATION
+                                            <% } else if(tickets[i].substatus == 6) { %>
+                                                UNLOADING
+                                            <% } else if(tickets[i].substatus == 7) { %>
+                                                FINISHED
+                                            <% } %>
                                         </td>
                                         <td id="">
 
@@ -153,7 +169,7 @@
             formatters: {
                 "link": function(column, row)
                 {
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
                 },
                 "commands": function(column, row)
                 {

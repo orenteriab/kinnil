@@ -37,7 +37,7 @@
                         </div>
                         <div class="col-md-6">
                             <p>Manual input
-                            <button type="button" class="btn btn-default" aria-label="Left Align" data-toggle="modal" href="#dv_manual_load">
+                                <button type="button" class="btn btn-default" aria-label="Left Align" data-toggle="modal" href="#dv_manual_load">
                                     Manual
                                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                                 </button>
@@ -51,9 +51,9 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-formatter="link" data-type="numeric">#</th>
-                                        <th data-column-id="tms" data-type="numeric">TMS</th>
-                                        <th data-column-id="location">Location</th>
+                                        <th data-column-id="id" data-type="numeric" data-width="5%">#</th>
+                                        <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
+                                        <th data-column-id="location" data-width="25%">Location</th>
                                         <th data-column-id="facility">Facility</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
@@ -117,68 +117,67 @@
             </div>
         </div>
     </div>
-        <div id="dv_manual_load" class="modal fade" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4>Create ticket</h4>
-                    </div>
-                    <div id="dv_create_ticket_modal_body" class="modal-body row">
-                        <form id="frm_ticket">
-                            <div class="col-md-6">
-                                <label for="tx_tms_load">TMS Load #</label>
-                                <br/>
-                                <input class="form-control" type="text" id="tx_tms_load"/>
-                                <br/>
-                                <label for="tx_rate_invoice">Rate Invoice</label>
-                                <br/>
-                                <input class="form-control" type="number" min="0.01" step="0.01" id="tx_rate_invoice"/>
-                                <br/>
-                                <label for="tx_currency">Currency</label>
-                                <br/>
-                                <input class="form-control" type="text" id="tx_currency"/>
-                                <br/>
-                                <label for="tx_load_rate">Load Rate</label>
-                                <br/>
-                                <input class="form-control" type="number" min="0.01" step="0.01" id="tx_load_rate"/>
-                                <br/>
-                                <label for="tx_miles">Miles</label>
-                                <br/>
-                                <input class="form-control" type="number" min="0.01" step="0.01" id="tx_miles"/>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="tx_origin">Origin</label>
-                                <br/>
-                                <input class="form-control" type="text" id="tx_origin"/>
-                                <br/>
-                                <label for="tx_destination">Destination</label>
-                                <br/>
-                                <input class="form-control" type="text" id="tx_destination"/>
-                                <br/>
-                                <label for="tx_sand_type">Sand Type</label>
-                                <br/>
-                                <input class="form-control" type="text" id="tx_sand_type"/>
-                                <br/>
-                                <label for="tx_pick_date">Pick Date</label>
-                                <br/>
-                                <input class="form-control" type="datetime-local" id="tx_pick_date"/>
-                                <br/>
-                                <label for="tx_drop_date">Drop Date</label>
-                                <br/>
-                                <input class="form-control" type="datetime-local" id="tx_drop_date"/>
-                                <br/>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="btn_save_ticket" type="button" class="btn btn-primary">Save</button>
-                        <button id="btn_cancel_ticket" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    </div>
+    <div id="dv_manual_load" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4>Create ticket</h4>
+                </div>
+                <div id="dv_create_ticket_modal_body" class="modal-body row">
+                    <form id="frm_ticket">
+                        <div class="col-md-6">
+                            <label for="tx_tms_load">Load No.</label>
+                            <br/>
+                            <input class="form-control" type="text" id="tx_tms_load"/>
+                            <br/>
+                            <label for="tx_rate_invoice">Rate Invoice</label>
+                            <br/>
+                            <input class="form-control" type="number" min="0.01" step="0.01" id="tx_rate_invoice"/>
+                            <br/>
+                            <label for="tx_currency">Currency</label>
+                            <br/>
+                            <input class="form-control" type="text" id="tx_currency"/>
+                            <br/>
+                            <label for="tx_load_rate">Load Rate</label>
+                            <br/>
+                            <input class="form-control" type="number" min="0.01" step="0.01" id="tx_load_rate"/>
+                            <br/>
+                            <label for="tx_miles">Miles</label>
+                            <br/>
+                            <input class="form-control" type="number" min="0.01" step="0.01" id="tx_miles"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="tx_origin">Origin</label>
+                            <br/>
+                            <input class="form-control" type="text" id="tx_origin"/>
+                            <br/>
+                            <label for="tx_destination">Destination</label>
+                            <br/>
+                            <input class="form-control" type="text" id="tx_destination"/>
+                            <br/>
+                            <label for="tx_sand_type">Sand Type</label>
+                            <br/>
+                            <input class="form-control" type="text" id="tx_sand_type"/>
+                            <br/>
+                            <label for="tx_pick_date">Pick Date</label>
+                            <br/>
+                            <input class="form-control" type="datetime-local" id="tx_pick_date"/>
+                            <br/>
+                            <label for="tx_drop_date">Drop Date</label>
+                            <br/>
+                            <input class="form-control" type="datetime-local" id="tx_drop_date"/>
+                            <br/>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn_save_ticket" type="button" class="btn btn-primary">Save</button>
+                    <button id="btn_cancel_ticket" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
-
+    </div>
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
 
@@ -191,7 +190,6 @@
     -->
     <script type="text/javascript">
         (function(APP){
-            
             APP.SERVICE = APP.SERVICE || {};
 
             APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
@@ -400,7 +398,7 @@
                     .append(statement);
 
                 $('#dv_create_ticket_modal_body').parent().append(elem);
-            }; 
+            };
 
             APP.LOAD = APP.LOAD || {};
 
@@ -418,7 +416,7 @@
 
             APP.LOAD.GRID = APP.LOAD.GRID || function(){
                 var linkFormatter = function(column, row){
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.id + "</a>";
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
                 };
 
                 var commandsFormatter = function(column, row) {

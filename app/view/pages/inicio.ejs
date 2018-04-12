@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
    <%include ../partials/head %>
-   <title>Inicio</title>
+   <title>Cedar - Home</title>
 </head>
 
 <body>
@@ -23,7 +23,7 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be Asigned</h3>
                                     <h1>
-                                        <span id="one"></span> <small>TMS</small>
+                                        <span id="one"></span> <small>Loads</small>
                                     </h1>
                                 </div>
                                 <div class="panel-body">
@@ -34,7 +34,7 @@
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
-                                        <p class="alert alert-warning">No TMS for category</p>
+                                        <p class="alert alert-warning">No Loads for category</p>
                                     <% } %>
                                 </div>    
                             </div>
@@ -44,7 +44,7 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Work in progress</h3>
                                     <h1>
-                                        <span id="two"></span> <small>TMS</small>
+                                        <span id="two"></span> <small>Loads</small>
                                     </h1>
                                 </div>
                                 <div class="panel-body">
@@ -55,7 +55,7 @@
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
-                                        <p class="alert alert-warning">No TMS for category</p>
+                                        <p class="alert alert-warning">No Loads for category</p>
                                     <% } %>
                                 </div>    
                             </div>
@@ -65,7 +65,7 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">Completed</h3>
                                     <h1>
-                                        <span id="three"></span> <small>TMS</small>
+                                        <span id="three"></span> <small>Loads</small>
                                     </h1>
                                 </div>
                                 <div class="panel-body">
@@ -76,7 +76,7 @@
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
-                                        <p class="alert alert-warning">No TMS for category</p>
+                                        <p class="alert alert-warning">No Loads for category</p>
                                     <% } %>
                                 </div>    
                             </div>
@@ -86,7 +86,7 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be invoiced</h3>
                                     <h1>
-                                        <span id="four"></span> <small>TMS</small>
+                                        <span id="four"></span> <small>Loads</small>
                                     </h1>
                                 </div>
                                 <div class="panel-body">
@@ -97,7 +97,7 @@
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
-                                        <p class="alert alert-warning">No TMS for category</p>
+                                        <p class="alert alert-warning">No Loads for category</p>
                                     <% } %>
                                 </div>    
                             </div>
@@ -107,7 +107,7 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be Payrolled</h3>
                                     <h1>
-                                        <span id="five"></span> <small>TMS</small>
+                                        <span id="five"></span> <small>Loads</small>
                                     </h1>
                                 </div>
                                 <div class="panel-body">
@@ -118,7 +118,7 @@
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
-                                        <p class="alert alert-warning">No TMS for category</p>
+                                        <p class="alert alert-warning">No Loads for category</p>
                                     <% } %>
                                 </div>    
                             </div>
@@ -128,7 +128,7 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title">To be Paid</h3>
                                     <h1>
-                                        <span id="six"></span> <small>TMS</small>
+                                        <span id="six"></span> <small>Loads</small>
                                     </h1>
                                 </div>
                                 <div class="panel-body">
@@ -139,7 +139,7 @@
                                             <% } %>
                                         <% } %>
                                     <% } else{ %>  
-                                        <p class="alert alert-warning">No TMS for category</p>
+                                        <p class="alert alert-warning">No Loads for category</p>
                                     <% } %>
                                 </div>    
                             </div>
@@ -151,12 +151,22 @@
                     </div>
                 </div>
             </div>
-
+            <!--
             Only for tests: 
             <button id="myDiv" type="button" class="btn">Basic</button>
             <button id="up" type="button" class="btn">active</button>
             <button id="down" type="button" class="btn">inactive</button>
             <button id="tms" type="button" class="btn">tms</button>
+            <button id="status0" type="button" class="btn">status 0</button>
+            <button id="status1" type="button" class="btn">status 1</button>
+            <button id="status2" type="button" class="btn">status 2</button>
+            <button id="status3" type="button" class="btn">status 3</button>
+            <button id="status4" type="button" class="btn">status 4</button>
+            <button id="status5" type="button" class="btn">status 5</button>
+            <button id="status6" type="button" class="btn">status 6</button>
+            <button id="status7" type="button" class="btn">status 7</button>
+            <button id="selected-asset" type="button" class="btn">select asset</button>
+            -->
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
     
@@ -189,8 +199,8 @@
 
     
 
-    //var socket = io.connect('localhost:3000');
-    var socket = io.connect('http://159.65.98.225:3000');
+    var socket = io.connect('localhost:3000');
+    //var socket = io.connect('http://159.65.98.225:3000');
 
     socket.on('message', function(message) {
         console.log('el server esta vivo ' + message);
@@ -203,6 +213,44 @@
         socket.emit('selected-asset', '{"id": 9, "truck": "toca 1", "trailer": "trailer 2" }');
     });
 
+    /*
+    
+    
+    * */
+    // Acepted
+    $('#status0').click(function(){
+        socket.emit('status', '{"id":8,"substatus":0,"latitude":28.6372902,"longitude":-106.0974389}');
+    });
+    // On my way to facility
+    $('#status1').click(function(){
+        socket.emit('status', '{"id":8,"substatus":1,"latitude":28.6372902,"longitude":-106.0974389}');
+    });
+    // On facility
+    $('#status2').click(function(){
+        socket.emit('status', '{"id":8,"substatus":2,"latitude":28.6372902,"longitude":-106.0974389}');
+    });
+    // Loading
+    $('#status3').click(function(){
+        socket.emit('status', '{"id":8,"substatus":3,"latitude":28.6372902,"longitude":-106.0974389,"weight":100000,"bol":"36"}');
+    });
+    // On my way to location
+    $('#status4').click(function(){
+        socket.emit('status', '{"id":8,"substatus":4,"latitude":28.6372902,"longitude":-106.0974389}');
+    });
+    // On location
+    $('#status5').click(function(){
+        socket.emit('status', '{"id":8,"substatus":5,"latitude":28.6372902,"longitude":-106.0974389}');
+    });
+    // Unloading
+    $('#status6').click(function(){
+        socket.emit('status', '{"id":8,"substatus":6,"latitude":28.6372902,"longitude":-106.0974389,"base":"2","silo":"4"}');
+    });
+    //Finished
+    $('#status7').click(function(){
+        socket.emit('status', '{"id":8,"substatus":7,"latitude":28.6372902,"longitude":-106.0974389}');
+    });
+
+
     $('#up').click(function(){
         socket.emit('active', '{"id": 1, "active": true }');
     });
@@ -212,7 +260,7 @@
     });
 
     $('#tms').click(function(){
-        socket.emit('tms', '1');
+        socket.emit('tms', '6');
     });
 
     socket.on('accounts', function(data){
@@ -236,6 +284,10 @@
     });
 
     socket.on('tms', function(data){
+        console.log(data);
+    });
+
+    socket.on('status', function(data){
         console.log(data);
     });
 

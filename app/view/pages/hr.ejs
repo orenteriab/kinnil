@@ -31,9 +31,9 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric" data-formatter="link">#</th>
-                                        <th data-column-id="name">Name</th>
-                                        <th data-column-id="tel">Telephone</th>
+                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="name" data-formatter="link">Name</th>
+                                        <th data-column-id="tel">Phone</th>
                                         <th data-column-id="licence">License</th>
                                         <th data-column-id="laborstatus" data-formatter="laborstatus">Labor Status</th>
                                     </tr>
@@ -80,7 +80,7 @@
                         <input id="name" class="form-control" required></input>
                         <label for="address" class="h4 ">Address</label>
                         <input id="address" class="form-control" required></input>
-                        <label for="tel" class="h4 ">Tel</label>
+                        <label for="tel" class="h4 ">Phone</label>
                         <input id="tel" class="form-control" required type="tel"></input>
                         <label for="civilStatus" class="h4 ">Civil status</label>
                         <select id="civilStatus" class="form-control">
@@ -96,9 +96,9 @@
                         <input id="email" class="form-control" required type="email"></input>
                         <label for="contact1" class="h4 ">Emergency contact 1</label>
                         <input id="contacta1" class="form-control" type="tel"></input>
-                        <label for="contacta2" class="h4 ">Emergency contact 1</label>
+                        <label for="contacta2" class="h4 ">Emergency contact 2</label>
                         <input id="contacta2" class="form-control" type="tel"></input>
-                        <label for="birth" class="h4 ">Date bith</label>
+                        <label for="birth" class="h4 ">Date of birth</label>
                         <input id="birth" class="form-control" required type="date"></input>
                         <label for="over25" class="h4 ">Over 25</label>
                         <select id="over25" class="form-control">
@@ -166,17 +166,18 @@
             <h4>Employee detail</h4>
         </div>
         <div class="modal-body">
+        <div id="to-print">
             <div class="row">
                 <div class="col-md-6">
                     <p>Name <span id="editName"> </span></p>
                     <p>Address <span id="editAddress"> </span></p>
-                    <p>Tel <span id="editTel"> </span></p>
+                    <p>Phone <span id="editTel"> </span></p>
                     <p>Civil status <span id="editCivilStatus"> </span></p>
                     <p>Dependent <span id="editDependent"> </span></p>
                     <p>email <span id="editEmail"> </span></p>
                     <p>Emergency contact 1 <span id="editContact1"> </span></p>
-                    <p>Emergency contact 1 <span id="editContact2"> </span></p>
-                    <p>Date bith <span id="editBrith"> </span></p>
+                    <p>Emergency contact 2 <span id="editContact2"> </span></p>
+                    <p>Date of birth <span id="editBrith"> </span></p>
                     <p>Over 25 <span id="editOver25"> </span></p>
 
                 </div>
@@ -192,9 +193,10 @@
 
                 </div>
             </div>
+        </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <!--<button type="button" class="btn btn-success" data-dismiss="modal">Download</button>-->
+            <button id="hr-to-pdf" type="button" class="btn btn-success" >Download</button>
         </div>
         </div>
     </div>
@@ -225,7 +227,7 @@
             APP.LOAD.GRID = APP.LOAD.GRID || function(){
 
                 var linkFormatter = function(column, row){
-                    return "<a href=\"#editHrModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link show-edit-hr\">" + row.id + "</a>";
+                    return "<a href=\"#editHrModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link show-edit-hr\">" + row.name + "</a>";
                 };
 
                 var loadedRsJQueryBootgrid = function(){
@@ -461,7 +463,7 @@
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         format: 'yyyy-mm-dd',    
-                        viewformat: 'yyyy-mm-dd',    
+                        viewformat: 'mm-dd-yyyy',    
                         datepicker: {
                                 weekStart: 1
                         },
@@ -507,6 +509,26 @@
             // Recarga la pagina para que se vean los cambios
             $('#editHrModal').on('hide.bs.modal', function (e) {
                 location.reload();
+            });
+
+            $('#hr-to-pdf').on('click', function(){
+                /*
+                * Por las prisas se genera este PDF con addHTML. Hay que ver si no la hacen de pedo por la calidad de la imagen
+                * Aqui esta un ejemplo que hay que estudiar, parece que tiene todo lo que necesitamos https://codepen.io/LittleViolette/pen/begBbe
+                */
+                var pdf = new jsPDF('p', 'pt', 'letter');
+
+                var options = {
+                    pagesplit: true,
+                    background: '#ffffff',
+                    pagesplit: true
+                }
+
+                var nombre = $('#editName').text()
+                
+                pdf.addHTML($('#to-print')[0], 40, 40, options, function () {
+                    pdf.save(nombre + '.pdf');
+                });
             });
         });
         </script>

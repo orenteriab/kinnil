@@ -8,11 +8,12 @@
               <button type="button" class="close" data-dismiss="modal">&times;</button>
               <h4>Ticket detail</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="background-color:#ffffff">
+                <div id="to-print" >
                 <div class="row">
                     <div class="col-md-6">
                         <p>Ticket No.  <span id="ticketId"> </span></p>
-                        <p>Job Born on <span id=""> </span></p>
+                        <p>Job Born on <span id="born_date"> </span></p>
                         <p>Completed on <span id=""> </span></p>
                         <p>Price <span id="price"> </span></p>
                         <p>Product <span id="product"> </span></p>
@@ -22,7 +23,7 @@
                         
                     </div>
                     <div class="col-md-6">
-                        <p>TMS No. <span id="tms"> </span></p>
+                        <p>Load No. <span id="tmsNo"> </span></p>
                         <p>Client <span id="client"> </span></p>
                         <p>Address <span id="address"> </span></p>
                         <p>P.O. <span id="po"> </span></p>
@@ -112,7 +113,7 @@
                                 <tr>
                                     <th data-column-id="no">No.</th>
                                     <th data-column-id="evento">evento</th>
-                                    <!--<th data-column-id="date">date</th>-->
+                                    <th data-column-id="date">Timestamp</th>
                                     <th data-column-id="longitude">longitude</th>
                                     <th data-column-id="latitude">latitude</th>
                                     <th data-column-id="notes">notes</th>
@@ -124,9 +125,10 @@
                         </table>
                     </div>
             </div>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" data-dismiss="modal">Download</button>
+                <button id="ticket-to-pdf" type="button" class="btn btn-success">Download</button>
             </div>
           </div>
         </div>
@@ -146,6 +148,7 @@
     
                     //console.log(data);
                     $('#ticketId').html('<strong>' + data.ticket[0].id + '</strong>');
+                    $('#born_date').html('<strong>' + data.ticket[0].born_date + '</strong>');
                     $('#price').html('<strong>' + data.ticket[0].price + '</strong>');
                     $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
                     $('#base').html(
@@ -163,7 +166,7 @@
                         "data-type='textarea' class='black-link' "+
                         "href='#' id='update-comments' data-name='notes'>"+data.ticket[0].notes+"</a></strong>"
                     );
-                    $('#tms').html('<strong>' + data.ticket[0].tms + '</strong>');
+                    $('#tmsNo').html('<strong>' + data.ticket[0].tms + '</strong>');
                     $('#client').html('<strong>' + data.ticket[0].client_name +'</strong>') //TODO: Aqui hay que mostar el nombre del clien te
                     $('#address').html('<strong>' + data.ticket[0].client_address +'</strong>'); //TODO: hay que mostrar lso datos del clien te
                     $('#po').html('<strong>' + data.ticket[0].po + '</strong>');
@@ -244,6 +247,7 @@
                             var evento = "<tr>"
                             evento += "<td>"+number+"</td>";
                             evento += "<td>"+data.events[x].evento+"</td>";
+                            evento += "<td>"+data.events[x].date+"</td>";
                             evento += "<td>"+data.events[x].longitude+"</td>";
                             evento += "<td>"+data.events[x].latitude+"</td>";
                             evento += "<td>"+data.events[x].notes+"</td>";
@@ -267,6 +271,74 @@
                 });
 
                 $("#timeline").html("");
+            });
+
+            $('#ticket-to-pdf').on('click', function(){
+                //var doc = new jsPDF()
+                
+                // Primera columna
+                /*doc.setFontSize(14)
+                doc.text(20, 30, 'Ticket No. ' + $('#ticketId').text());
+                doc.setFontSize(10)
+                //Job Born on
+                //Completed on
+                doc.text(20, 35, 'Price ' + $('#price').text());
+                doc.text(20, 40, 'Product ' + $('#product').text());
+                doc.text(20, 45, 'Base ' + $('#base').text());
+                doc.text(20, 70, 'Silo ' + $('#silo').text());
+                doc.text(20, 80, 'Coments ' + $('#comments').text());
+                doc.text(20, 90, 'Load No. ' + $('#tmsNo').text());
+                doc.text(20, 100, 'Client ' + $('#client').text());
+                doc.text(20, 110, 'Address ' + $('#address').text());
+                doc.text(20, 120, 'P.O. ' + $('#po').text());
+                doc.text(20, 130, 'Origin ' + $('#origin').text());
+                doc.text(20, 140, 'Destination ' + $('#destination').text());
+                doc.text(20, 150, 'B.O.L ' + $('#bol').text());
+                doc.text(20, 160, 'Sand Type ' + $('#sand').text());
+                doc.text(20, 170, 'Weight ' + $('#weight').text());
+                doc.text(20, 180, 'Assigned Date ' + $('#assigned').text());
+                doc.text(20, 190, ' ' + $('#workInProgress').text());
+                doc.text(20, 200, ' ' + $('#completed').text());
+                doc.text(20, 210, ' ' + $('#invoiced').text());
+                doc.text(20, 220, ' ' + $('#payrolled').text());
+                doc.text(20, 230, ' ' + $('#paid').text());
+                doc.text(20, 240, 'Driver ' + $('#driver').text());
+                doc.text(20, 250, ' ' + $('#crew').text());
+                doc.text(20, 260, 'Shift ' + $('#shift').text());
+                doc.text(20, 270, 'Truck ' + $('#truck').text());
+                doc.text(20, 280, 'Trailer ' + $('#trailer').text());
+                doc.text(20, 290, 'Amount Payrolled ' + $('#amountPayrolled').text());
+                doc.text(20, 300, 'Starting Milles ' + $('#starttingMilles').text());
+                doc.text(20, 310, 'Ending Milles ' + $('#endingMilles').text());
+                doc.text(20, 320, 'Date ' + $('#date').text());
+
+
+
+                doc.save('autoprint.pdf');
+                */
+                //doc.fromHTML($('#to-print').get(0), 10, 10, {
+                //    'width': 180
+                //});
+                //doc.save('sample-file.pdf');
+
+
+                /*
+                * Por las prisas se genera este PDF con addHTML. Hay que ver si no la hacen de pedo por la calidad de la imagen
+                * Aqui esta un ejemplo que hay que estudiar, parece que tiene todo lo que necesitamos https://codepen.io/LittleViolette/pen/begBbe
+                */
+                var pdf = new jsPDF('p', 'pt', 'letter');
+    
+                var options = {
+                    pagesplit: true,
+                    background: '#ffffff',
+                    pagesplit: true
+                }
+
+                var nombre = $('#tmsNo').text()
+                
+                pdf.addHTML($('#to-print')[0], 40, 40, options, function () {
+                    pdf.save(nombre + '.pdf');
+                });
             });
         });
         </script>
