@@ -317,6 +317,8 @@ small {
 }
 
 
+
+
 .pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus {
     z-index: 3;
     color: #fff;
@@ -324,3 +326,18 @@ small {
     background-color: #3A3937;
     border-color: #3A3937;
 }
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: #fff;
+    color: #222;
+    opacity: 1;
+}
+
+.form-control[disabled], fieldset[disabled] .form-control {
+    cursor: default !important;
+}
+
+.frm {
+    width: 50%;
+  }
+  
