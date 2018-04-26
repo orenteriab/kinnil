@@ -1,6 +1,10 @@
 let dispatcherService = require('../service/dispatcher_service');
 const SocketEvent = require('./socket_event').SocketEvent;
 
+let administrativeService = require('../service/administrative_service');
+const utf8 = require('utf-8');
+
+
 const onMessage = (socket) => {
     return new SocketEvent('message', (message) => {
         socket.emit('message', 'alive');
@@ -109,7 +113,6 @@ const onTms = (socket) => {
 const onStatus = (socket) => {
     return new SocketEvent('status', (message) => {
         let jsonPayload = JSON.parse(message);
-        console.log(jsonPayload)
         dispatcherService //(substatus, latitude, longitude, ticketId, base, silo, weight, bol)
             .addEvent(jsonPayload.substatus, 
                         jsonPayload.latitude, 
@@ -129,6 +132,61 @@ const onStatus = (socket) => {
     });
 };
 
+
+/*
+* CLOCK IN
+* Estos ya pertenecen a administravie y se utilizan para el clockin, no los pude hacer funcionar en un modulo de sockets aparte solo me funcionaron aqui :C
+*/
+
+const onAccountsClockin = (socket) => {
+    return new SocketEvent('accountsclockin', (message) => {
+        administrativeService
+            .getAccountsClockin()
+            .then((returnData) => {
+                returnData = utf8.encode(JSON.stringify(returnData));
+                socket.emit('accountsclockin', returnData);
+            })
+            .catch(function (err) {
+                console.error('[/app/socket/Events.js][/accounts-clockin/]Error when querying: ', err);
+                socket.emit('accounts-clockin', 'Error when querying: \n' + err);
+            });
+    });
+};
+
+const onSelectedCrew = (socket) => {
+    return new SocketEvent('selectedcrew', (message) => {
+        let jsonPayload = JSON.parse(message);
+        administrativeService
+            .getSelectedCrew(jsonPayload)
+            .then((returnData) => {
+                returnData = utf8.encode(JSON.stringify(returnData));
+                socket.emit('selectedcrew', returnData);
+            })
+            .catch(function (err) {
+                console.error('[/app/socket/Events.js][/selected-crew/]Error when querying: ', err);
+                socket.emit('selected-crew', 'Error when querying: \n' + err);
+            });
+    });
+};
+
+// {"id_evento":"123","supervisor_id":1,"worker_id":3,"in":true,"out":false,"date":"2018-04-25 15:52:11","latitude":0,"longitude":0,"img":""}
+const onClockinEvent = (socket) => {
+    return new SocketEvent('clockinevent', (message) => {
+        let jsonPayload = JSON.parse(message);
+        console.log(jsonPayload)
+        administrativeService
+            .saveClockinEvent(jsonPayload.id_evento, jsonPayload.in, jsonPayload.out, jsonPayload.date, jsonPayload.latitude, jsonPayload.longitude, jsonPayload.img, jsonPayload.worker_id)
+            .then((returnData) => {
+                console.log(returnData)
+                socket.emit('clockinevent', '{"resivido": true}');
+            })
+            .catch(function (err) {
+                console.error('[/app/socket/Events.js][/clockin-event/]Error when querying: ', err);
+                socket.emit('clockin-event', 'Error when querying: \n' + err);
+            });
+    });
+};
+
 exports.onConnection = new SocketEvent('connection', (socket) => {
 
     const socketEvents = [
@@ -139,7 +197,10 @@ exports.onConnection = new SocketEvent('connection', (socket) => {
         onActive(socket),
         onInactive(socket),
         onTms(socket),
-        onStatus(socket)
+        onStatus(socket),
+        onAccountsClockin(socket),
+        onSelectedCrew(socket),
+        onClockinEvent(socket)
     ];
 
     socketEvents.forEach((evt) => {

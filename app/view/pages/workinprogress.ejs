@@ -11,97 +11,97 @@
 <%include ../partials/navbar %>
 
 <div class="wrapper">
-        <!-- Sidebar Holder -->
-        <%include ../partials/sidebar %>
+    <!-- Sidebar Holder -->
+    <%include ../partials/sidebar %>
 
-        <!-- Page Content Holder -->
-        <div id="content" class="main-content">
-            <%include ../partials/up %>
-            <ul class="nav nav-tabs">
-                <li role="presentation"><a href="../dispatcher/tobeassigned">To be Asigned</a></li>
-                <li role="presentation" class="active"><a href="../dispatcher/workinprogress">Work in progress</a></li>
-                <li role="presentation"><a href="../dispatcher/completed">Completed</a></li>
-            </ul>
-            <div class="tab-content"> 
-                <div class="content">
+    <!-- Page Content Holder -->
+    <div id="content" class="main-content">
+        <%include ../partials/up %>
+        <ul class="nav nav-tabs">
+            <li role="presentation"><a href="../dispatcher/tobeassigned">To be Assigned</a></li>
+            <li role="presentation" class="active"><a href="../dispatcher/workinprogress">Work in progress</a></li>
+            <li role="presentation"><a href="../dispatcher/completed">Completed</a></li>
+        </ul>
+        <div class="tab-content"> 
+            <div class="content">
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
-                                <thead>
-                                    <tr>
-                                        <th data-column-id="id" data-type="numeric" data-width="5%">#</th>
-                                        <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
-                                        <th data-column-id="location"  data-width="25%">Location</th>
-                                        <th data-column-id="facility">Facility</th>
-                                        <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
-                                        <th data-column-id="products" data-formatter="products">Product</th>
-                                        <th data-column-id="status">Status</th> <!-- Substatus en la DB (on my way to facility, etc) -->
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
-                                    </tr>
-                                </thead>
-                                <%if (tickets.length > 0) { %>
-                                <tbody>
-                                <% for(var i=0; i<tickets.length; i++) {%>
-                                    <%if (tickets[i].status == 2) { %> <!-- status:2 = work in progress -->
-                                    <tr class="quote">
-                                        <td id="">
-                                            <%= tickets[i].id %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].tms %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].location %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].facility %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].driver_name %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].product %>
-                                        </td>
-                                        <td id="">
-                                            <%if (tickets[i].substatus == 0) { %>
-                                                ASSIGNED
-                                            <% } else if(tickets[i].substatus == 1) { %>
-                                                ON MY WAY TO FACILITY
-                                            <% } else if(tickets[i].substatus == 2) { %>
-                                                ARRIVED TO FACILITY
-                                            <% } else if(tickets[i].substatus == 3) { %>
-                                                LOADING
-                                            <% } else if(tickets[i].substatus == 4) { %>
-                                                ON MY WAY TO LOCATION
-                                            <% } else if(tickets[i].substatus == 5) { %>
-                                                ARRIVED TO LOCATION
-                                            <% } else if(tickets[i].substatus == 6) { %>
-                                                UNLOADING
-                                            <% } else if(tickets[i].substatus == 7) { %>
-                                                FINISHED
-                                            <% } %>
-                                        </td>
-                                        <td id="">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                            <thead>
+                                <tr>
+                                    <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
+                                    <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
+                                    <th data-column-id="location"  data-width="25%">Location</th>
+                                    <th data-column-id="facility">Facility</th>
+                                    <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
+                                    <th data-column-id="products" data-formatter="products">Product</th>
+                                    <th data-column-id="status">Status</th> <!-- Substatus en la DB (on my way to facility, etc) -->
+                                    <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                </tr>
+                            </thead>
+                            <%if (tickets.length > 0) { %>
+                            <tbody>
+                            <% for(var i=0; i<tickets.length; i++) {%>
+                                <%if (tickets[i].status == 2) { %> <!-- status:2 = work in progress -->
+                                <tr class="quote">
+                                    <td id="">
+                                        <%= tickets[i].id %>
+                                    </td>
+                                    <td id="">
+                                        <%= tickets[i].tms %>
+                                    </td>
+                                    <td id="">
+                                        <%= tickets[i].location %>
+                                    </td>
+                                    <td id="">
+                                        <%= tickets[i].facility %>
+                                    </td>
+                                    <td id="">
+                                        <%= tickets[i].driver_name %>
+                                    </td>
+                                    <td id="">
+                                        <%= tickets[i].product %>
+                                    </td>
+                                    <td id="">
+                                        <%if (tickets[i].substatus == 0) { %>
+                                            ASSIGNED
+                                        <% } else if(tickets[i].substatus == 1) { %>
+                                            ON MY WAY TO FACILITY
+                                        <% } else if(tickets[i].substatus == 2) { %>
+                                            ARRIVED TO FACILITY
+                                        <% } else if(tickets[i].substatus == 3) { %>
+                                            LOADING
+                                        <% } else if(tickets[i].substatus == 4) { %>
+                                            ON MY WAY TO LOCATION
+                                        <% } else if(tickets[i].substatus == 5) { %>
+                                            ARRIVED TO LOCATION
+                                        <% } else if(tickets[i].substatus == 6) { %>
+                                            UNLOADING
+                                        <% } else if(tickets[i].substatus == 7) { %>
+                                            FINISHED
+                                        <% } %>
+                                    </td>
+                                    <td id="">
 
-                                        </td>
-                                    </tr>
-                                    <% } %>
+                                    </td>
+                                </tr>
                                 <% } %>
-                            </tbody>
-                            <% } else{ %>  
-                                <tbody>
-                                    <p>No tickets in this category</p>
-                                </tbody>
                             <% } %>
-                            </table>
-                        </div>
+                        </tbody>
+                        <% } else{ %>  
+                            <tbody>
+                                <p>No tickets in this category</p>
+                            </tbody>
+                        <% } %>
+                        </table>
                     </div>
-
                 </div>
+
             </div>
         </div>
     </div>
+</div>
 
 
     <%include ../partials/manual-input-modal %>

@@ -34,43 +34,96 @@ function decideStatus(uStatus) {
 
 /*
  * En base a las millas se calcula el producto que esta seleccionado
- * 0-49 
- * 50-59
- * 60-69
- * 70-79
- * 80-89
- * 90-100
- * 100-109
- * 110-120
+ * 0-50, 51-60, etc
 */
 // TODO: en las siguientes etapas hay que sacar el ID del producto de la tabla products para mandarselo al products_id del ticket
 function decideProduct(uStatus){
     uStatus = parseInt(uStatus)
    
-    if (uStatus > 1 && uStatus <= 49){
-        return "0-49"
+    if (uStatus > 1 && uStatus <= 50){
+        return "0-50"
     }
-    if (uStatus >= 50 && uStatus <= 59){
-        return "50-59"
+    if (uStatus >= 51 && uStatus <= 60){
+        return "51-60"
     }
-    if (uStatus >= 60 && uStatus <= 69){
-        return "60-69"
+    if (uStatus >= 61 && uStatus <= 70){
+        return "61-70"
     }
-    if (uStatus >= 70 && uStatus <= 79){
-        return "70-79"
+    if (uStatus >= 71 && uStatus <= 80){
+        return "71-80"
     }
-    if (uStatus >= 80 && uStatus <= 89){
-        return "80-89"
+    if (uStatus >= 81 && uStatus <= 90){
+        return "81-90"
     }
-    if (uStatus >= 90 && uStatus <= 100){
-        return "90-100"
+    if (uStatus >= 91 && uStatus <= 100){
+        return "91-100"
     }
-    if (uStatus >= 100 && uStatus <= 109){
-        return "100-109"
+    if (uStatus >= 101 && uStatus <= 110){
+        return "101-110"
     }
-    if (uStatus >= 110 && uStatus <= 120){
-        return "110-120"
+    if (uStatus >= 111 && uStatus <= 120){
+        return "111-120"
     }
+    if (uStatus >= 121 && uStatus <= 130){
+        return "121-130"
+    }
+    if (uStatus >= 130 && uStatus <= 140){
+        return "131-140"
+    }
+    if (uStatus >= 141 && uStatus <= 150){
+        return "141-150"
+    }
+    if (uStatus >= 151 && uStatus <= 160){
+        return "151-160"
+    }
+    if (uStatus >= 161 && uStatus <= 170){
+        return "161-170"
+    }
+    if (uStatus >= 171 && uStatus <= 180){
+        return "171-180"
+    }
+    if (uStatus >= 181 && uStatus <= 190){
+        return "181-190"
+    }
+    if (uStatus >= 191 && uStatus <= 200){
+        return "191-200"
+    }
+    if (uStatus >= 201 && uStatus <= 210){
+        return "201-210"
+    }
+    if (uStatus >= 211 && uStatus <= 220){
+        return "211-220"
+    }
+    if (uStatus >= 110 && uStatus <= 230){
+        return "221-230"
+    }
+    if (uStatus >= 110 && uStatus <= 240){
+        return "231-240"
+    }
+    if (uStatus >= 110 && uStatus <= 250){
+        return "241-250"
+    }
+    if (uStatus >= 110 && uStatus <= 260){
+        return "251-260"
+    }
+    if (uStatus >= 110 && uStatus <= 270){
+        return "261-270"
+    }
+    if (uStatus >= 110 && uStatus <= 280){
+        return "271-280"
+    }
+    if (uStatus >= 110 && uStatus <= 290){
+        return "281-290"
+    }
+    if (uStatus >= 110 && uStatus <= 300){
+        return "291-300"
+    }
+}
+
+function decideDriverRate(uStatus){
+    uStatus = parseInt(uStatus)
+
+
 }
 
 function decideDate() {
@@ -103,7 +156,7 @@ function decideDate() {
 exports.create = (ticket) => {
     ticket["Pick Date"] = seekForADate(ticket["Pick Date"]);
     ticket["Drop Date"] = seekForADate(ticket["Drop Date"]);
-    ticket["Status"] = decideStatus(ticket["Status"]);
+    //ticket["Status"] = decideStatus(ticket["Status"]);
     ticket["Rate Invoice"] = parseFloat(ticket["Rate Invoice"]);
     ticket["Load Rate"] = parseFloat(ticket["Load Rate"]);
     ticket["Miles"] = decideProduct(ticket["Miles"]);

@@ -129,14 +129,14 @@ exports.deleteLocation = (locationId) => {
         .deleteLocation(locationId);
 };
 
-exports.addHr = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id) => {
+exports.addHr = (name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, dllsHr, mcExp, ssn, username, password, shift, crew, clients_id) => {
     return administrativeModel
-        .addHr(name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id);
+        .addHr(name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, dllsHr, mcExp, ssn, username, password, shift, crew, clients_id);
 }
 
-exports.addDriver = (name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id) => {
+exports.addDriver = (name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, yearsWorking, clients_id) => {
     return administrativeModel
-        .addDriver(name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id);
+        .addDriver(name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, yearsWorking, clients_id);
 }
 
 exports.getHrDetail = (hrId) => {
@@ -153,3 +153,60 @@ exports.updateTicket = (name, value, pk) => {
     return administrativeModel
     .updateTicket(name, value, pk);
 };
+
+exports.getClockin = () => {
+    return administrativeModel
+        .getClockin();
+};
+
+
+/*
+* Se utilizan para el sockets de clockin
+*/
+exports.getAccountsClockin = () => {
+    return administrativeModel
+        .getAccountsClockin()
+        .then((data) => {
+            var json = {accounts : []}
+
+            // id, name, shift, crew, location, position, username, password
+            for (var x = 0; x < data.length; x++){
+                var user = data[x]
+                json.accounts.push({"id": user.id, "name": user.name, "username": user.username, "password": user.password, "crew": user.crew, "location": user.location, "position": user.position, "shift": user.shift}) 
+            }
+            //console.log(json)
+            return json
+        })
+        .catch(function (err) {
+            console.log(err)
+        })
+}
+
+exports.getSelectedCrew = (crewId) => {
+    return administrativeModel
+        .getSelectedCrew(crewId)
+        .then((data) => {
+            var json = {hr : []}
+
+            // id, name, shift
+            for (var x = 0; x < data.length; x++){
+                var user = data[x]
+                json.hr.push({"id": user.id, "name": user.name, "shift": user.shift}) 
+            }
+            //console.log(json)
+            return json
+        })
+        .catch(function (err) {
+            console.log(err)
+        })
+}
+
+// {"id_evento":"123","supervisor_id":1,"worker_id":3,"in":true,"out":false,"date":"2018-04-25 15:52:11","latitude":0,"longitude":0,"img":""}
+exports.saveClockinEvent = (id_evento, entrada, salida, date, lattitud, longitud, img, worker_id) => {
+
+    if (entrada) {
+        return administrativeModel.saveClockInEvent(id_evento, date, lattitud, longitud, img, worker_id)
+    } else if (salida) {
+        return administrativeModel.saveClockOutEvent(id_evento, date, lattitud, longitud, img)
+    }
+}

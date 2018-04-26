@@ -21,7 +21,7 @@
                         <div class="col-lg-2">
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">To be Asigned</h3>
+                                    <h3 class="panel-title">To be Assigned</h3>
                                     <h1>
                                         <span id="one"></span> <small>Loads</small>
                                     </h1>
@@ -84,7 +84,7 @@
                         <div class="col-lg-2">
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">To be invoiced</h3>
+                                    <h3 class="panel-title">Invoice</h3>
                                     <h1>
                                         <span id="four"></span> <small>Loads</small>
                                     </h1>
@@ -92,7 +92,7 @@
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
-                                            <%if (tickets[i].status == 4) { %>
+                                            <%if (tickets[i].status == 4 && tickets[i].invoice_date == null) { %>
                                                 <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
@@ -105,7 +105,7 @@
                         <div class="col-lg-2">
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">To be Payrolled</h3>
+                                    <h3 class="panel-title">Payroll</h3>
                                     <h1>
                                         <span id="five"></span> <small>Loads</small>
                                     </h1>
@@ -113,7 +113,7 @@
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
-                                            <%if (tickets[i].status == 5) { %>
+                                            <%if (tickets[i].status == 4 && tickets[i].payrolled_date == null) { %>
                                                 <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
@@ -126,7 +126,7 @@
                         <div class="col-lg-2">
                             <div class="panel panel-primary">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">To be Paid</h3>
+                                    <h3 class="panel-title">Paid</h3>
                                     <h1>
                                         <span id="six"></span> <small>Loads</small>
                                     </h1>
@@ -134,7 +134,7 @@
                                 <div class="panel-body">
                                     <%if (tickets.length > 0) { %>
                                         <% for(var i=0; i<tickets.length; i++) {%>
-                                            <%if (tickets[i].status == 6) { %>
+                                            <%if (tickets[i].status == 5) { %>
                                                 <a href="#myModal" data-toggle="modal" data-ticket="<%= tickets[i].id %>" class="text-center"><p><%= tickets[i].tms %></p></a>
                                             <% } %>
                                         <% } %>
@@ -151,7 +151,7 @@
                     </div>
                 </div>
             </div>
-            <!--
+            
             Only for tests: 
             <button id="myDiv" type="button" class="btn">Basic</button>
             <button id="up" type="button" class="btn">active</button>
@@ -166,7 +166,10 @@
             <button id="status6" type="button" class="btn">status 6</button>
             <button id="status7" type="button" class="btn">status 7</button>
             <button id="selected-asset" type="button" class="btn">select asset</button>
-            -->
+            <button id="accounts-clockin" type="button" class="btn">accounts Clockin</button>
+            <button id="selected-crew" type="button" class="btn">selected Crew</button>
+            <button id="clockin-event" type="button" class="btn">clockin Event</button>
+            
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
     
@@ -200,7 +203,7 @@
     
 
     var socket = io.connect('localhost:3000');
-    //var socket = io.connect('http://159.65.98.225:3000');
+    //var socket = io.connect('http://159.89.129.132:3000');
 
     socket.on('message', function(message) {
         console.log('el server esta vivo ' + message);
@@ -250,7 +253,6 @@
         socket.emit('status', '{"id":8,"substatus":7,"latitude":28.6372902,"longitude":-106.0974389}');
     });
 
-
     $('#up').click(function(){
         socket.emit('active', '{"id": 1, "active": true }');
     });
@@ -291,6 +293,27 @@
         console.log(data);
     });
 
+    $('#accounts-clockin').click(function(){
+        socket.emit('accountsclockin', '');
+    });
+    $('#selected-crew').click(function(){
+        socket.emit('selectedcrew', '1');
+    });
+    $('#clockin-event').click(function(){
+        socket.emit('clockinevent', '{"uuid": "xyz", "in": true, "out": false, "date":"2018-04-18 16:45:00", "lat": "+123", "long": "-123", "img":"zyx123"}');
+    });
+
+    socket.on('accountsclockin', function(data){
+        console.log(data);
+    });
+
+    socket.on('selectedcrew', function(data){
+        console.log(data);
+    });
+
+    socket.on('clockinevent', function(data){
+        console.log(data);
+    });
     
 
 

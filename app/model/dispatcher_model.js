@@ -58,18 +58,57 @@ exports.getTicketsList = () => {
 * Obtiene tickets por Id
 */
 exports.getTicketById = (ticketId) => {
-    let statement = 'select t.id, t.tms, t.status, t.substatus, t.price, t.currency, t.product, t.base, t.silo, t.po, t.facility, t.location, t.bol, t.sand_type, t.weight, DATE_FORMAT(t.assign_date, "%m-%d-%Y") assign_date, DATE_FORMAT(t.completed_date, "%m-%d-%Y") completed_date, DATE_FORMAT(t.invoice_date, "%m-%d-%Y") invoice_date, DATE_FORMAT(t.payrolled_date, "%m-%d-%Y") payrolled_date, t.starting_mi, t.end_mi, t.pick_date, t.drop_date, t.pro, t.equipment, t.notes, t.sr, t.hr_id, t.products_id, t.clients_id, t.on_curse, t.truck, t.trailer, t.load_rate, t.load_rate_currency, DATE_FORMAT(t.born_date, "%m-%d-%Y") born_date, c.name client_name, c.address client_address, h.name driver_name, h.shift shift, h.crew crew from tickets t left join clients c on t.clients_id = c.id left join hr h on t.hr_id = h.id where t.id = ?';
+    let statement = 'select t.id, \
+                        t.tms, \
+                        t.status, \
+                        t.substatus, \
+                        t.invoice_rate, \
+                        t.product, \
+                        t.base, \
+                        t.silo, \
+                        t.po, \
+                        t.facility, \
+                        t.location, \
+                        t.bol, \
+                        t.sand_type, \
+                        t.weight, \
+                        DATE_FORMAT(t.assign_date, "%m-%d-%Y") assign_date, \
+                        DATE_FORMAT(t.completed_date, "%m-%d-%Y") completed_date, \
+                        DATE_FORMAT(t.invoice_date, "%m-%d-%Y") invoice_date, \
+                        DATE_FORMAT(t.payrolled_date, "%m-%d-%Y") payrolled_date, \
+                        DATE_FORMAT(t.born_date, "%m-%d-%Y") born_date, \
+                        t.starting_mi, \
+                        t.end_mi, \
+                        t.pick_date, \
+                        t.drop_date, \
+                        t.notes, \
+                        t.hr_id, \
+                        t.products_id, \
+                        t.clients_id, \
+                        t.on_curse, \
+                        t.truck, \
+                        t.trailer, \
+                        t.load_rate, \
+                        t.load_rate_currency, \
+                        c.name client_name, \
+                        c.address client_address, \
+                        h.name driver_name, \
+                        h.shift shift, \
+                        h.crew crew \
+                        from tickets t \
+                        left join clients c on t.clients_id = c.id \
+                        left join hr h on t.hr_id = h.id \
+                        where t.id = ?';
 
     return connectionPool.query(statement, [ticketId]);
 };
 
 
-exports.assignTicket = (hrId, product, ticketId) => {
-    let statement = 'update tickets set hr_id = ?, status = 2, on_curse = TRUE where id = ?';
+exports.assignTicket = (hrId, ticketId, timestap) => {
+    let statement = 'update tickets set hr_id = ?, status = 2, on_curse = TRUE, assign_date = ? where id = ?';
 
-    // TODO: Hacer el codigo para que cuando se asigne un ticket se cambie la columna hr.assigned a TRUE
-
-    return connectionPool.query(statement, [hrId, product, ticketId]);
+    console.log(statement, [hrId, timestap, ticketId])
+    return connectionPool.query(statement, [hrId, timestap, ticketId]);
 };
 
 exports.cancelTicket = (ticketId) => {
@@ -78,10 +117,11 @@ exports.cancelTicket = (ticketId) => {
     return connectionPool.query(statement, [ticketId]);
 };
 
-exports.completeTicket = (ticketId) => {
-    let statement =  'update tickets set status = 4 where id in ('+ ticketId +')'; // Status 4 es To be Invoiced
+exports.completeTicket = (ticketId, timestap) => {
+    let statement =  'update tickets set status = 4, completed_date = ? where id in ('+ ticketId +')'; // es un in () porque se pueden completar varios a la vez
 
-    return connectionPool.query(statement);
+    console.log(statement, [timestap])
+    return connectionPool.query(statement, [timestap]);
 };
 
 

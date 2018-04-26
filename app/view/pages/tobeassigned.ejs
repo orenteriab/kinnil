@@ -18,7 +18,7 @@
         <div id="content" class="main-content">
             <%include ../partials/up %>
             <ul class="nav nav-tabs">
-                    <li role="presentation" class="active"><a href="../dispatcher/tobeassigned">To be Asigned</a></li>
+                    <li role="presentation" class="active"><a href="../dispatcher/tobeassigned">To be Assigned</a></li>
                 <li role="presentation"><a href="../dispatcher/workinprogress">Work in progress</a></li>
                 <li role="presentation"><a href="../dispatcher/completed">Completed</a></li>
             </ul>
@@ -51,7 +51,7 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric" data-width="5%">#</th>
+                                        <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
                                         <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
                                         <th data-column-id="location" data-width="25%">Location</th>
                                         <th data-column-id="facility">Facility</th>
@@ -122,7 +122,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4>Create ticket</h4>
+                    <h4>Create Ticket</h4>
                 </div>
                 <div id="dv_create_ticket_modal_body" class="modal-body row">
                     <form id="frm_ticket">
@@ -148,11 +148,11 @@
                             <input class="form-control" type="number" min="0.01" step="0.01" id="tx_miles"/>
                         </div>
                         <div class="col-md-6">
-                            <label for="tx_origin">Origin</label>
+                            <label for="tx_origin">Facility</label>
                             <br/>
                             <input class="form-control" type="text" id="tx_origin"/>
                             <br/>
-                            <label for="tx_destination">Destination</label>
+                            <label for="tx_destination">Location</label>
                             <br/>
                             <input class="form-control" type="text" id="tx_destination"/>
                             <br/>

@@ -20,6 +20,8 @@
                     <li role="presentation"><a href="../administrative/clients">Clients</a></li>
                     <li role="presentation"><a href="../administrative/hr">Human resources</a></li>
                     <li role="presentation" class="active"><a href="../administrative/drivers">Drivers</a></li>
+                    <li role="presentation"><a href="../administrative/clockin">Clockin</a></li>
+                    
             </ul>
             <div class="tab-content"> 
                 <div class="content">
@@ -42,9 +44,9 @@
                             <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="id" data-type="numeric" data-width="10%">#</th>
                                         <th data-column-id="name" data-formatter="link">Name</th>
-                                        <th data-column-id="shift">Shift</th>
+                                        <th data-column-id="shift">License</th>
                                         <th data-column-id="type">Type</th>
                                         <th data-column-id="status">Status</th>
                                     </tr>
@@ -55,7 +57,7 @@
                                         <tr class="quote">
                                             <td id=""> <%= drivers[i].id %> </td>
                                             <td id=""> <%= drivers[i].name %> </td>
-                                            <td id=""> <%= drivers[i].shift %> </td>
+                                            <td id=""> <%= drivers[i].license %> </td>
                                             <td id=""> <%= drivers[i].type %> </td>
                                             <td id=""> 
                                                 <%if (drivers[i].up == 1) { %>
@@ -87,7 +89,7 @@
         <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="myModalLabel">Add employee</h4>
+            <h4 class="modal-title" id="myModalLabel">Add Driver</h4>
         </div>
         <form role="form" id="addHrForm">
             <div class="modal-body">
@@ -99,6 +101,8 @@
                         <input id="address" class="form-control" required></input>
                         <label for="tel" class="h4 ">Phone</label>
                         <input id="tel" class="form-control" required type="tel"></input>
+                        <label for="birth" class="h4 ">Date of birth</label>
+                        <input id="birth" class="form-control" required type="date"></input>
                         <label for="civilStatus" class="h4 ">Civil status</label>
                         <select id="civilStatus" class="form-control">
                             <option value="SINGLE">Single</option>
@@ -107,33 +111,20 @@
                             <option value="SEPARATED">Separated</option>
                             <option value="WIDOWED">Widowed</option>
                         </select>
-                        <label for="dependent" class="h4 ">Dependent</label>
-                        <input id="dependent" class="form-control" value='0' required type="number"></input>
                         <label for="email" class="h4 ">email</label>
                         <input id="email" class="form-control" required type="email"></input>
-                        <label for="contact1" class="h4 ">Emergency contact 1</label>
-                        <input id="contacta1" class="form-control" type="tel"></input>
-                        <label for="contacta2" class="h4 ">Emergency contact 1</label>
-                        <input id="contacta2" class="form-control" type="tel"></input>
-                        <label for="birth" class="h4 ">Date of birth</label>
-                        <input id="birth" class="form-control" required type="date"></input>
-                        <label for="over25" class="h4 ">Over 25</label>
-                        <select id="over25" class="form-control">
-                            <option value="YES">Yes</option>
-                            <option value="NO">No</option>
-                        </select>
                         <label for="laborStatus" class="h4 ">Labor status</label>
                         <select id="laborStatus" class="form-control">
-                            <option value="WORKING WITH US">Working with us</option>
-                            <option value="NOT WORKING WITH US">Not Working with us</option>
+                            <option value="EMPLOYED">Employed</option>
+                            <option value="TERMINATED">Terminated</option>
                         </select>
                         <label for="type" class="h4 ">Type</label>
                         <select id="type" class="form-control">
-                            <option value="DRIVER">Driver</option>
+                            <option value="DRIVER">Company Driver</option>
                             <option value="HELPER TRUCK">Helper Truck</option>
                             <option value="OWNER OPERATOR">Owner Operator</option>
                         </select>
-                        <label for="crew" class="h4 ">Crew</label>
+                        <label for="crew" class="h4">Crew</label>
                         <select id="crew" class="form-control">
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -146,8 +137,8 @@
                             <option value="9">9</option>
                             <option value="10">10</option>
                         </select>
-                        <label for="crew" class="h4 ">Shift</label>
-                        <select id="crew" class="form-control">
+                        <label for="shift" class="h4">Shift</label>
+                        <select id="shift" class="form-control">
                             <option value="AM">am</option>
                             <option value="PM">pm</option>
                         </select>
@@ -165,32 +156,17 @@
                         <input id="user" class="form-control" required></input>
                         <label for="password" class="h4 ">Password</label>
                         <input id="password" class="form-control" required></input>
-                        <label for="medicalCard" class="h4 ">Medical card</label>
-                        <select id="medicalCard" class="form-control">
-                            <option value="YES">Yes</option>
-                            <option value="NO">No</option>
-                        </select>
                         <label for="mcExp" class="h4 ">Medical card expiration date</label>
                         <input id="mcExp" class="form-control" required type="date"></input>
-                        <label for="drugTest" class="h4 ">Drug test</label>
-                        <select id="drugTest" class="form-control">
-                            <option value="YES">Yes</option>
-                            <option value="NO">No</option>
-                        </select>
-                        <label for="dtExp" class="h4 ">Drug test expiration date</label>
-                        <input id="dtExp" class="form-control" required type="date"></input>
-                        <label for="training" class="h4 ">Training</label>
+                        <!--<label for="training" class="h4 ">Training</label>
                         <select id="training" class="form-control">
                             <option value="YES">Yes</option>
                             <option value="NO">No</option>
                         </select>
                         <label for="trainingExp" class="h4 ">Training expiration date</label>
-                        <input id="trainingExp" class="form-control" required type="date"></input>
-                        <label for="licence" class="h4 ">Licence</label>
-                        <select id="licence" class="form-control">
-                            <option value="YES">Yes</option>
-                            <option value="NO">No</option>
-                        </select>
+                        <input id="trainingExp" class="form-control" required type="date"></input>-->
+                        <label for="licence" class="h4 ">Licence No.</label>
+                        <input id="licence" class="form-control" required type="text"></input>
                         <label for="licenseExp" class="h4 ">License expiration date</label>
                         <input id="licenseExp" class="form-control" required type="date"></input>
                         <label for="state" class="h4 ">State</label>
@@ -199,6 +175,10 @@
                         <input id="yearsWorking" class="form-control" required type="date"></input>
                         <label for="ssn" class="h4 ">SSN</label>
                         <input id="ssn" class="form-control" required></input>
+                        <label for="contact1" class="h4 ">Emergency contact Name</label>
+                        <input id="contacta1" class="form-control" type="text"></input>
+                        <label for="contacta2" class="h4 ">Emergency contact Phone</label>
+                        <input id="contacta2" class="form-control" type="tel"></input>
                     </div>
                     
                 </div>
@@ -220,7 +200,7 @@
         <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4>Driver detail</h4>
+            <h4>Driver details</h4>
         </div>
         <div class="modal-body">
         <div id="to-print">
@@ -229,35 +209,28 @@
                     <p>Name <span id="editName"> </span></p>
                     <p>Address <span id="editAddress"> </span></p>
                     <p>Phone <span id="editTel"> </span></p>
-                    <p>Civil status <span id="editCivilStatus"> </span></p>
-                    <p>Dependent <span id="editDependent"> </span></p>
-                    <p>email <span id="editEmail"> </span></p>
-                    <p>Emergency contact 1 <span id="editContact1"> </span></p>
-                    <p>Emergency contact 1 <span id="editContact2"> </span></p>
                     <p>Date of birth <span id="editBrith"> </span></p>
-                    <p>Over 25 <span id="editOver25"> </span></p>
+                    <p>Civil status <span id="editCivilStatus"> </span></p>
+                    <p>email <span id="editEmail"> </span></p>
                     <p>Labor status <span id="editLaborStatus"> </span></p>
                     <p>Type <span id="editType"> </span></p>
                     <p>Crew <span id="editCrew"> </span></p>
-
+                    <p>Shift <span id="editShift"> </span></p>
+                    <p>Rate <span id="editRate"> </span></p>
                 </div>
                 <div class="col-md-6">
-                    
-                    <p>Rate <span id="editRate"> </span></p>
                     <p>User <span id="editUser"> </span></p>
                     <p>Password <span id="editPassword"> </span></p>
-                    <p>Medical card <span id="editMc"> </span></p>
                     <p>Medical card expiration date <span id="editMcExp"> </span></p>
-                    <p>Drug test <span id="editDt"> </span></p>
-                    <p>Drug test expiration date <span id="editDtExp"> </span></p>
-                    <p>Training <span id="editTraining"> </span></p>
-                    <p>Training expiration date <span id="editTrainingExp"> </span></p>
-                    <p>License <span id="editLicense"> </span></p>
+                    <!--<p>Training <span id="editTraining"> </span></p>
+                    <p>Training expiration date <span id="editTrainingExp"> </span></p>-->
+                    <p>License No. <span id="editLicense"> </span></p>
                     <p>License expiration date <span id="editLicenseExp"> </span></p>
                     <p>State <span id="editState"> </span></p>
                     <p>Hire date <span id="editHireDate"> </span></p>
                     <p>SSN <span id="editSsn"> </span></p>
-
+                    <p>Emergency contact Name <span id="editContact1"> </span></p>
+                    <p>Emergency contact Phone <span id="editContact2"> </span></p>
                 </div>
             </div>
         </div>
@@ -306,7 +279,6 @@
                     $("#grid-basic")
                         .find(".show-edit-driver")
                         .on("click", onEditHrShow);
-                        
                 };
 
                 $("#grid-basic")
@@ -321,10 +293,8 @@
 
             APP.EVENTS = APP.EVENTS || {
                 MODALS_SUBMIT: function(){
-
                     // Add HR
                     $("#addHrForm").submit(function(event) {
-
                         event.preventDefault(); // cancels the form submission
                         $.ajax({
                             cache: false,
@@ -335,26 +305,22 @@
                                 address: $("#address").val(),
                                 tel: $("#tel").val(),
                                 civilStatus: $("#civilStatus").val(),
-                                dependent: $("#dependent").val(),
                                 email: $("#email").val(),
-                                contac1: $("#contacta1").val(),
+                                contact1: $("#contacta1").val(),
                                 contact2: $("#contacta2").val(),
                                 birth: $("#birth").val(),
-                                over25: $("#over25").val(),
                                 laborStatus: $("#laborStatus").val(),
                                 position: $("#position").val(),
                                 rate: $("#rate").val(),
-                                medicalCard: $("#medicalCard").val(),
                                 mcExp: $("#mcExp").val(),
-                                drugTest: $("#drugTest").val(),
-                                dtExp: $("#dtExp").val(),
                                 ssn: $("#ssn").val(),
                                 type: $("#type").val(),
                                 crew: $("#crew").val(),
+                                shift: $("#shift").val(),
                                 user: $("#user").val(),
                                 password: $("#password").val(),
-                                training: $("#training").val(),
-                                trainingExp: $("#trainingExp").val(),
+                                //training: $("#training").val(),
+                                //trainingExp: $("#trainingExp").val(),
                                 license: $("#licence").val(),
                                 licenseExp: $("#licenseExp").val(),
                                 state: $("#state").val(),
@@ -402,7 +368,6 @@
                         "data-type='text' class='black-link' "+
                         "href='#' data-name='name'>"+data.hr[0].name+"</a></strong>"    
                     );
-
                     $('#editAddress').html(
                         "<strong><a id='updateAddress' data-pk='" + data.hr[0].id + "' data-title='Update address' "+
                         "data-type='text' class='black-link' "+
@@ -413,15 +378,15 @@
                         "data-type='text' class='black-link' "+
                         "href='#' data-name='tel'>"+data.hr[0].tel+"</a></strong>"
                     );
+                    $('#editBrith').html(
+                        "<strong><a id='updateBrith' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
+                        "data-type='date' class='black-link' "+
+                        "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
+                    );
                     $('#editCivilStatus').html(
                         "<strong><a id='updateCivilStatus' data-pk='" + data.hr[0].id + "' data-title='Update civil status' "+
                         "data-type='select' class='black-link' "+
                         "href='#' data-name='civil_status'>"+data.hr[0].civil_status+"</a></strong>"
-                    );
-                    $('#editDependent').html(
-                        "<strong><a id='updateDependent' data-pk='" + data.hr[0].id + "' data-title='Update dependents' "+
-                        "data-type='number' class='black-link' "+
-                        "href='#' data-name='dependants'>"+data.hr[0].dependants+"</a></strong>"
                     );
                     $('#editEmail').html(
                         "<strong><a id='updateEmail' data-pk='" + data.hr[0].id + "' data-title='Update email' "+
@@ -429,24 +394,14 @@
                         "href='#' data-name='email'>"+data.hr[0].email+"</a></strong>"
                     );
                     $('#editContact1').html(
-                        "<strong><a id='updateContact1' data-pk='" + data.hr[0].id + "' data-title='Update contact 1' "+
+                        "<strong><a id='updateContact1' data-pk='" + data.hr[0].id + "' data-title='Update contact Name' "+
                         "data-type='text' class='black-link' "+
                         "href='#' data-name='contact1'>"+data.hr[0].contact1+"</a></strong>"
                     );
                     $('#editContact2').html(
-                        "<strong><a id='updateContact2' data-pk='" + data.hr[0].id + "' data-title='Update contact2' "+
+                        "<strong><a id='updateContact2' data-pk='" + data.hr[0].id + "' data-title='Update contact Phone' "+
                         "data-type='text' class='black-link' "+
                         "href='#' data-name='contact2'>"+data.hr[0].contact2+"</a></strong>"
-                    );
-                    $('#editBrith').html(
-                        "<strong><a id='updateBrith' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
-                    );
-                    $('#editOver25').html(
-                        "<strong><a id='updateOver25' data-pk='" + data.hr[0].id + "' data-title='Update over25' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='over25'>"+data.hr[0].over25+"</a></strong>"
                     );
                     $('#editLaborStatus').html(
                         "<strong><a id='updateLaborStatus' data-pk='" + data.hr[0].id + "' data-title='Update labor status' "+
@@ -463,6 +418,11 @@
                         "data-type='select' class='black-link' "+
                         "href='#' data-name='crew'>"+data.hr[0].crew+"</a></strong>"
                     );
+                    $('#editShift').html(
+                        "<strong><a id='updateShift' data-pk='" + data.hr[0].id + "' data-title='Update shift' "+
+                        "data-type='select' class='black-link' "+
+                        "href='#' data-name='shift'>"+data.hr[0].shift+"</a></strong>"
+                    );
                     $('#editRate').html(
                         "<strong><a id='updateRate' data-pk='" + data.hr[0].id + "' data-title='Update rate' "+
                         "data-type='select' step='0.01' value='0.00' class='black-link' "+
@@ -478,35 +438,10 @@
                         "data-type='text' class='black-link' "+
                         "href='#' data-name='password'>"+data.hr[0].password+"</a></strong>"
                     );
-                    $('#editMc').html(
-                        "<strong><a id='updateMc' data-pk='" + data.hr[0].id + "' data-title='Update medical card' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='medical_card'>"+data.hr[0].medical_card+"</a></strong>"
-                    );
                     $('#editMcExp').html(
                         "<strong><a id='updateMcExp' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='mc_exp'>"+data.hr[0].mc_exp+"</a></strong>"
-                    );
-                    $('#editDt').html(
-                        "<strong><a id='updateDt' data-pk='" + data.hr[0].id + "' data-title='Update drug test' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='drug_test'>"+data.hr[0].drug_test+"</a></strong>"
-                    );
-                    $('#editDtExp').html(
-                        "<strong><a id='updateDtExp' data-pk='" + data.hr[0].id + "' data-title='Update drug test expiration date' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='dt_exp'>"+data.hr[0].dt_exp+"</a></strong>"
-                    );
-                    $('#editTraining').html(
-                        "<strong><a id='updateTraining' data-pk='" + data.hr[0].id + "' data-title='Update training' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='training'>"+data.hr[0].training+"</a></strong>"
-                    );
-                    $('#editTrainingExp').html(
-                        "<strong><a id='updateTrainingExp' data-pk='" + data.hr[0].id + "' data-title='Update training expiration date' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='training_exp'>"+data.hr[0].training_exp+"</a></strong>"
                     );
                     $('#editLicense').html(
                         "<strong><a id='updateLicense' data-pk='" + data.hr[0].id + "' data-title='Update license' "+
@@ -535,7 +470,7 @@
                     );
     
                     // x-editable
-                    $('#updateName, #updateAddress, #updateTel, #updateDependent, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword').editable({
+                    $('#updateName, #updateAddress, #updateTel, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         success: function(response, newValue) {
@@ -579,6 +514,19 @@
                                 return response.msg; //msg will be shown in editable form
                         }
                     });
+
+                    $('#updateShift').editable({
+                        url: '/api/administrative/updatehr/',
+                        send: 'always',
+                        source: [
+                            {value: "AM", text: 'am'},
+                            {value: "PM", text: 'pm'},
+                        ],
+                        success: function(response, newValue) {
+                            if (response.status == 'error') 
+                                return response.msg; //msg will be shown in editable form
+                        }
+                    });
                     
 
                     $('#updateCivilStatus').editable({   
@@ -597,20 +545,7 @@
                         },
                     });
 
-                    $('#updateOver25, #updateMc, #updateDt, #updateTraining').editable({   
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "YES", text: 'Yes'},
-                            {value: "NO", text: 'No'}
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-
-                    $('#updateBrith, #updateMcExp, #updateDtExp, #updateTrainingExp, #updateLicenseExp, #updateHireDate').editable({
+                    $('#updateBrith, #updateMcExp, #updateLicenseExp, #updateHireDate').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         format: 'yyyy-mm-dd',    

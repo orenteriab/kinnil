@@ -6,17 +6,17 @@
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4>Ticket detail</h4>
+              <h4>Ticket details</h4>
             </div>
             <div class="modal-body" style="background-color:#ffffff">
                 <div id="to-print" >
                 <div class="row">
                     <div class="col-md-6">
                         <p>Ticket No.  <span id="ticketId"> </span></p>
-                        <p>Job Born on <span id="born_date"> </span></p>
+                        <p>Job Created <span id="born_date"> </span></p>
                         <p>Completed on <span id=""> </span></p>
-                        <p>Price <span id="price"> </span></p>
-                        <p>Product <span id="product"> </span></p>
+                        <p>Invoice Rate <span id="invoice_rate"> </span></p>
+                        <p>Miles <span id="product"> </span></p>
                         <p>Base <span id="base"> </span></p>
                         <p>Silo <span id="silo"> </span></p>
                         <p>Coments <span id="comments"> </span></p>
@@ -27,8 +27,8 @@
                         <p>Client <span id="client"> </span></p>
                         <p>Address <span id="address"> </span></p>
                         <p>P.O. <span id="po"> </span></p>
-                        <p>Origin <span id="origin"> </span></p>
-                        <p>Destination <span id="destination"> </span></p>
+                        <p>Facility <span id="origin"> </span></p>
+                        <p>Location <span id="destination"> </span></p>
                         <p>B.O.L. <span id="bol"> </span></p>
                         <p>Sand Type <span id="sand"> </span></p>
                         <p>Weight <span id="weight"> </span></p>
@@ -112,7 +112,7 @@
                             <thead>
                                 <tr>
                                     <th data-column-id="no">No.</th>
-                                    <th data-column-id="evento">evento</th>
+                                    <th data-column-id="evento">Event</th>
                                     <th data-column-id="date">Timestamp</th>
                                     <th data-column-id="longitude">longitude</th>
                                     <th data-column-id="latitude">latitude</th>
@@ -149,7 +149,7 @@
                     //console.log(data);
                     $('#ticketId').html('<strong>' + data.ticket[0].id + '</strong>');
                     $('#born_date').html('<strong>' + data.ticket[0].born_date + '</strong>');
-                    $('#price').html('<strong>' + data.ticket[0].price + '</strong>');
+                    $('#invoice_rate').html('<strong>' + data.ticket[0].invoice_rate + '</strong>');
                     $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
                     $('#base').html(
                         "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update base' "+

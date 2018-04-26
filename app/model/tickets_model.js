@@ -2,17 +2,15 @@ let connectionPool = require('../config/database_config').connectionPool;
 let moment = require('moment-timezone');
 
 exports.create = (ticket) => {
-    let query = "INSERT INTO `sandras`.`tickets`(`tms`,`born_date` ,`status`,`substatus`,`price`,`currency`,`load_rate`,`load_rate_currency`,`product`,`facility`,`location`,`sand_type`,`pick_date`,`drop_date`,`products_id`,`clients_id`) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    let query = "INSERT INTO `sandras`.`tickets`(`tms`,`born_date` ,`status`,`substatus`,`invoice_rate`,`load_rate`,`product`,`facility`,`location`,`sand_type`,`pick_date`,`drop_date`,`products_id`,`clients_id`) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     return connectionPool.query(query, [
         ticket["TMS Load #"],
         ticket["born_date"],
         1, // El primer status siempre es 1 no importa lo que venga en el cvs
-        0, //substatus
+        0, //substatus (accepted)
         ticket["Rate Invoice"],
-        ticket["Currency"],
         ticket["Load Rate"],
-        ticket["Currency"],
         ticket["Miles"], //product
         ticket["Origin"],
         ticket["Destination"],

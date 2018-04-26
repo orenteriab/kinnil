@@ -95,4 +95,21 @@ router.get('/drivers', (req, res) => {
         });
 });
 
+router.get('/clockin', (req, res) => {
+
+    administrativeService
+        .getClockin()
+        .then((return_data) => {
+            res.render('pages/clockin.ejs', { 
+                message: '',
+                clockin: return_data
+            });
+        })
+        .catch(function (err) {
+            console.error('[Web/administrative_controller.js][/clockin] Error cuando obtenemos el detalle del clockin: ', err);
+            res.status(500);
+            res.send(JSON.stringify({ err: 'Unable to retrieve data from datbase.' }));
+        });
+});
+
 exports.router = router;

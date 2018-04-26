@@ -107,9 +107,32 @@ exports.getToBeAsignedInfo = () => {
 
 exports.assignTicket = (hrId, ticketId) => {
 
+    // Se obtiene fecha y hora
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; 
+    var yyyy = today.getFullYear();
+    if(dd<10) 
+        dd='0'+dd;
+    
+    if(mm<10) 
+        mm='0'+mm;
+
+    today = yyyy+'-'+mm+'-'+dd;
+
+    var d = new Date()
+    var h = d.getHours()
+    var m = d.getMinutes()
+    var s = d.getSeconds()
+    var horaActual = h + ":" + m + ":" + s
+
+    // TODO: Ver si nos van a mandar la hora desde la app de drivers o si la vamos a generar nosotros
+    // De momento no nos mandan nada asi que vamos a generarla aqui
+    timestap = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD HH:mm:ss')
+
     // Asigna el ticket
     let assign = dispatcherModel
-        .assignTicket(hrId, ticketId);
+        .assignTicket(hrId, ticketId, timestap);
 
     // Marca el driver como inactive
     let inactivate = dispatcherModel
@@ -128,8 +151,32 @@ exports.cancelTicket = (ticketId) => {
 
 // Uno o muchos tickets a la vez en un arreglo []
 exports.completeTicket = (ticketId) => {
+
+    // Se obtiene fecha y hora
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; 
+    var yyyy = today.getFullYear();
+    if(dd<10) 
+        dd='0'+dd;
+    
+    if(mm<10) 
+        mm='0'+mm;
+
+    today = yyyy+'-'+mm+'-'+dd;
+
+    var d = new Date()
+    var h = d.getHours()
+    var m = d.getMinutes()
+    var s = d.getSeconds()
+    var horaActual = h + ":" + m + ":" + s
+
+    // TODO: Ver si nos van a mandar la hora desde la app de drivers o si la vamos a generar nosotros
+    // De momento no nos mandan nada asi que vamos a generarla aqui
+    timestap = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD HH:mm:ss')
+
     return dispatcherModel
-        .completeTicket(ticketId);
+        .completeTicket(ticketId, timestap);
 };
 
 
@@ -147,7 +194,7 @@ exports.getUsersAndPassword = () => {
                 var user = data[x]
                 json.users.push({"id": user.id, "name": user.username, "password": user.password, "type": user.type}) 
             }
-            console.log(json)
+            //console.log(json)
             return json
         })
         .catch(function (err) {

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+   <title>Payroll - HR</title>
+</head>
+
+<body>
+
+<%include ../partials/navbar %>
+
+
+<div class="wrapper">
+    <!-- Sidebar Holder -->
+    <%include ../partials/sidebar %>
+
+    <!-- Page Content Holder -->
+    <div id="content" class="main-content">
+            <h4>Payroll</h4>
+        <ul class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="../payroll/hr">Human resources</a></li>
+            <li role="presentation"><a href="../payroll/drivers">Drivers</a></li>
+        </ul>
+        <div class="tab-content"> 
+            <div class="content">
+                <div class="row">
+                    <div class="col-md-6">
+                        
+
+                        <form>
+                            <div class="radio">
+                                <label class="radio">
+                                <input type="radio" name="POSITION" id="Radio3" value="FIELD CREW OPERATOR"> FIELD CREW OPERATOR
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="POSITION" id="Radio3" value="FIELD CREW MANAGER"> FIELD CREW MANAGER
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="POSITION" id="Radio3" value="FIELD CREW SUPERVISOR"> FIELD CREW SUPERVISOR
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="POSITION" id="Radio3" value="OPERATIONS"> OPERATIONS
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="POSITION" id="Radio3" value="MECHANICS"> MECHANICS
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="POSITION" id="Radio3" value="OFFICE"> OFFICE
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <br/>
+                        <br/>
+                        <select class="form-control" id="selectedHr">
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="id" class="control-label col-xs-4">id</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="id" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="control-label col-xs-4">Name</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="name" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="position" class="control-label col-xs-4">Position</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="position" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="control-label col-xs-4">email</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="email" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="phone" class="control-label col-xs-4">Phone</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="phone" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="dllshr" class="control-label col-xs-4">dlls / hr</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="dllshr" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ssn" class="control-label col-xs-4">ssn</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="ssn" type="text" value="" disabled>
+                            </div>
+                        </div>
+                        
+                        </form>
+                    </div>
+                </div>
+                <div class = "row">
+                    <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-type="numeric" data-width="10%">Clockin No.</th>
+                            <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
+                            <th data-column-id="location"  data-width="25%">Location</th>
+                            <th data-column-id="facility">Facility</th>
+                            <th data-column-id="dllshrs" data-formatter="dllshrs">Dlls / hr</th>
+                            <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="quote">
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+    
+
+    <!-- <script src="/socket.io/socket.io.js"></script>  -->
+    <%include ../partials/js %>
+
+    <!-- Ticket detail modal  -->
+    <%include ../partials/ticket-detail %>
+    <script>
+        //var socket = io.connect('http://localhost:3000');
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+
+        
+        $("input[name='POSITION']").click(function() {
+
+            $("#selectedHr").html("<option value='0'> please select </option>");
+            $.ajax({
+                url: '/api/payroll/hr',
+                method: 'POST',
+                data: {
+                    position: this.value,
+                },
+                success: function(data){
+                    var sel = document.getElementById('selectedHr');
+                    var fragment = document.createDocumentFragment();
+
+                    data.forEach(function(hr, index) {
+                        var opt = document.createElement('option');
+                        opt.innerHTML = hr.name;
+                        opt.value = hr.id;
+                        fragment.appendChild(opt);
+                    });
+
+                    sel.appendChild(fragment);
+                    console.log(data);
+                },
+                error: function(){
+                    alert('Please try again');
+                }
+            });
+        });
+
+        $("#selectedHr").on('change', function() {
+            
+            if (this.value != "0") {
+                $.ajax({
+                    url: '/api/payroll/byId',
+                    method: 'POST',
+                    data: {
+                        id: this.value,
+                    },
+                    success: function(data){
+                        $("#id").val(data[0].id);
+                        $("#name").val(data[0].name);
+                        $("#position").val(data[0].position);
+                        $("#email").val(data[0].email);
+                        $("#phone").val(data[0].tel);
+                        $("#dllshr").val(data[0].dll_hr);
+                        $("#ssn").val(data[0].ssn);
+                    },
+                    error: function(){
+                        alert('Please try again');
+                    }
+                });
+            }
+            
+            
+        })
+
+        var grid = $("#grid-basic").bootgrid({
+            caseSensitive: false,
+            formatters: {
+                "link": function(column, row)
+                {
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+                },
+                "commands": function(column, row)
+                {
+                    return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                }
+            }
+        }).on("loaded.rs.jquery.bootgrid", function()
+        {
+            
+            /* Executes after data is loaded and rendered */
+            grid.find(".command-edit").on("click", function(e)
+            {
+                
+                //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+            }).end().find(".show-ticket").on("click", function(e) {
+                $($(this).attr("href")).modal("show", $(this));
+            });
+        });
+
+        $("#validate").click(function() {
+            var ticketList = [];
+                $('.validate:checkbox:checked').each(function() {
+                ticketList.push($(this).val());
+                });
+                if (ticketList != ''){
+
+                    $.ajax({
+                        url: '/api/payroll/createPayroll/',    
+                        type: 'PUT',   
+                        data: {
+                                ticketId: ticketList
+
+                        },      //Data as js object
+                        success: function (msj) {
+                            alert(msj.message);
+                            location.reload();
+                        },
+                        error: function(xhr) {
+                            alert("Error occured. please try again");
+                        },
+                    })
+                }
+                else {
+                    alert("No ticket(s) selected")
+                }
+                
+        });
+
+        
+    </script>
+
+
+
+
+</body>
+</html>

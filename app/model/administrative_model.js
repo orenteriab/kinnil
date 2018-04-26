@@ -127,62 +127,92 @@ exports.addHr = (name,
     address,
     tel,
     civilStatus,
-    dependent,
     email,
     contact1,
     contact2,
     birth,
-    over25,
     laborStatus,
     position,
     dllsHr,
-    medicalCard,
     mcExp,
-    drugTest,
-    dtExp,
     ssn,
+    username,
+    password,
+    shift,
+    crew,
     clients_id) => {
-    let statement = 'insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, clients_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    let statement = 'insert into hr (name, address, tel, civil_status, email, contact1, contact2, birthdate, labor_status, position, dll_hr, mc_exp, ssn, username, password, shift, crew, clients_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    return connectionPool.query(statement, [name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, dllsHr, medicalCard, mcExp, drugTest, dtExp, ssn, clients_id]);
+    return connectionPool.query(statement, [name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, dllsHr, mcExp, ssn, username, password, shift, crew, clients_id]);
 };
 
 exports.addDriver = (name,
     address,
     tel,
     civilStatus,
-    dependent,
     email,
     contact1,
     contact2,
     birth,
-    over25,
     laborStatus,
     position,
     rate,
-    medicalCard,
     mcExp,
-    drugTest,
-    dtExp,
     ssn,
     type,
     crew,
+    shift,
     user,
     password,
-    training,
-    trainingExp,
     license,
     licenseExp,
     state,
     yearsWorking,
     clients_id) => {
-    let statement = 'insert into hr (name, address, tel, civil_status, dependants, email, contact1, contact2, birthdate, over25, labor_status, position, rate, medical_card, mc_exp, drug_test, dt_exp, ssn, type, crew, username, password, training, training_exp, license, license_exp, state, years_working, clients_id, assigned) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)';
+    let statement = 'insert into hr (name, address, tel, civil_status, email, contact1, contact2, birthdate, labor_status, position, rate, mc_exp, ssn, type, crew, shift, username, password, license, license_exp, state, years_working, clients_id, assigned) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)';
 
-    return connectionPool.query(statement, [name, address, tel, civilStatus, dependent, email, contact1, contact2, birth, over25, laborStatus, position, rate, medicalCard, mcExp, drugTest, dtExp, ssn, type, crew, user, password, training, trainingExp, license, licenseExp, state, yearsWorking, clients_id]);
+    return connectionPool.query(statement, [name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, yearsWorking, clients_id]);
 };
 
 exports.getHrDetail = (hrId) => {
-    let statement = 'select id, name, address, civil_status, tel, email, contact1, contact2, DATE_FORMAT(birthdate, "%m-%d-%Y") birthdate, over25, labor_status, position, type, shift, crew, rate, username, password, medical_card, DATE_FORMAT(mc_exp, "%m-%d-%Y") mc_exp, drug_test, DATE_FORMAT(dt_exp, "%m-%d-%Y") dt_exp, training, DATE_FORMAT(training_exp, "%m-%d-%Y") training_exp, license, DATE_FORMAT(license_exp, "%m-%d-%Y") license_exp, state, DATE_FORMAT(hire_date, "%m-%d-%Y") hire_date, ssn, dependants, up, clients_id, assigned from hr where id = ?';
+    let statement = 'select id, \
+                        name, \
+                        address, \
+                        civil_status, \
+                        tel, \
+                        email, \
+                        contact1, \
+                        contact2, \
+                        over25, \
+                        labor_status, \
+                        position, \
+                        type, \
+                        shift, \
+                        crew, \
+                        rate, \
+                        username, \
+                        password, \
+                        medical_card, \
+                        drug_test, \
+                        training, \
+                        license, \
+                        DATE_FORMAT(birthdate, "%m-%d-%Y") birthdate, \
+                        DATE_FORMAT(mc_exp, "%m-%d-%Y") mc_exp, \
+                        DATE_FORMAT(dt_exp, "%m-%d-%Y") dt_exp, \
+                        DATE_FORMAT(training_exp, "%m-%d-%Y") training_exp, \
+                        DATE_FORMAT(license_exp, "%m-%d-%Y") license_exp, \
+                        DATE_FORMAT(years_working, "%m-%d-%Y") years_working, \
+                        DATE_FORMAT(hire_date, "%m-%d-%Y") hire_date, \
+                        state, \
+                        ssn, \
+                        dependants, \
+                        up, \
+                        clients_id, \
+                        assigned, \
+                        location, \
+                        dll_hr \
+                        from hr \
+                        where id = ?'
 
     return connectionPool.query(statement, [hrId]);
 };
@@ -197,4 +227,38 @@ exports.updateTicket = (name, value, pk) => {
     let statement = 'update tickets set ' + name + ' = ? where id = ?';
 
     return connectionPool.query(statement, [value, pk]);
+};
+
+exports.getClockin = () => {
+    let statement = 'select c.id, h.name, DATE_FORMAT(c.in, "%m-%d-%Y %H:%i:%s") "in", DATE_FORMAT(c.out, "%m-%d-%Y %H:%i:%s") "out", TIMESTAMPDIFF(hour, c.in, c.out) "hours_worked", h.shift from clockin c join hr h on c.hr_id = h.id where c.paid = false';
+
+    return connectionPool.query(statement);
+}
+
+
+/*
+* Se utilizan para el sockets de clockin
+*/
+exports.getAccountsClockin = () => {
+    let statement = 'select id, name, shift, crew, location, position, username, password from hr where position = "FIELD CREW SUPERVISOR"';
+
+    return connectionPool.query(statement);
+};
+
+exports.getSelectedCrew = (crewId) => {
+    let statement = 'select id, name, shift from hr where crew = ?';
+
+    return connectionPool.query(statement, [crewId]);
+};
+
+exports.saveClockInEvent = (id_evento, date, lattitud, longitud, img, id_hr) => {
+    let statement = 'insert into `sandras`.`clockin` (`id_evento`, `in`, `lat_in`, `long_in`, `img_in`, `hr_id`, paid) values (?,?,?,?,?,?,?)';
+
+    return connectionPool.query(statement, [id_evento, date, lattitud, longitud, img, id_hr, 0]);
+};
+
+exports.saveClockOutEvent = (id_evento, date, lattitud, longitud, img) => {
+    let statement = " update `sandras`.`clockin` set `out` = '"+ date +"', `lat_out` = '"+ lattitud +"', `long_out` = '"+ longitud +"', `img_out` = '"+ img +"' where `id_evento` = '"+ id_evento +"' ";
+
+    return connectionPool.query(statement);
 };
