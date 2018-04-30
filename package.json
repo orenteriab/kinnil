@@ -25,6 +25,7 @@
     "passport-local": "^1.0.0",
     "promise-mysql": "^3.1.1",
     "serve-favicon": "^2.4.4",
-    "socket.io": "^2.0.3"
+    "socket.io": "^2.0.3",
+    "utf-8": "^2.0.0"
   }
 }
