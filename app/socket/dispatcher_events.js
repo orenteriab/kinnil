@@ -115,13 +115,13 @@ const onStatus = (socket) => {
         let jsonPayload = JSON.parse(message);
         dispatcherService //(substatus, latitude, longitude, ticketId, base, silo, weight, bol)
             .addEvent(jsonPayload.substatus, 
-                        jsonPayload.latitude, 
-                        jsonPayload.longitude, 
-                        jsonPayload.id, 
-                        jsonPayload.base, 
-                        jsonPayload.silo,
-                        jsonPayload.weight,
-                        jsonPayload.bol)
+                jsonPayload.latitude, 
+                jsonPayload.longitude, 
+                jsonPayload.id, 
+                jsonPayload.base, 
+                jsonPayload.silo,
+                jsonPayload.weight,
+                jsonPayload.bol)
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })
@@ -139,7 +139,7 @@ const onStatus = (socket) => {
 */
 
 const onAccountsClockin = (socket) => {
-    return new SocketEvent('accountsclockin', (message) => {
+    return new SocketEvent('accountsclockin', () => {
         administrativeService
             .getAccountsClockin()
             .then((returnData) => {
