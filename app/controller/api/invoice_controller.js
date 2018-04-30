@@ -3,7 +3,54 @@ let invoiceService = require('../../service/invoice_service');
 
 const ROUTER = Router();
 
+ROUTER.get('/toBeInvoiced', (req, res) => {
+    invoiceService
+        .queryToBeInvoiced()
+        .then(
+            (toInvoice) => {
+                res.status(200)
+                res.json(toInvoice)
+            },
+            (err) => {
+                console.error(err)
 
+                res.status(500)
+                res.json({ error: 'Unable to pull tickets to be invoiced. Try again later.'})
+            })
+})
 
+ROUTER.get('/toBePaid', (req, res) => {
+    invoiceService
+        .queryToBePaid()
+        .then(
+            (toPay) => {
+                res.status(200)
+                res.json(toPay)
+            },
+            (err) => {
+                console.error(err)
+
+                res.status(500)
+                res.json({ error: 'Unable to pull invoices to be paid. Try again later.'})
+            }
+        )
+})
+
+ROUTER.get('/paid', (req, res) => {
+    invoiceService
+        .queryPaid()
+        .then(
+            (paid) => {
+                res.status(200)
+                res.json(paid)
+            },
+            (err) => {
+                console.error(err)
+
+                res.status(500)
+                res.json({ error: 'Unable to pull paid invoices. Try again later.'})
+            }
+        )
+})
 
 exports.router = ROUTER;
