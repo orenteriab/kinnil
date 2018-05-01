@@ -257,7 +257,12 @@ ROUTER.post('/adddriver/', (req, res) => {
             req.body.license,
             req.body.licenseExp,
             req.body.state,
-            req.body.yearsWorking,
+            req.body.hireDate,
+            req.body.licenseClass,
+            req.body.experience,
+            req.body.paymentMethod,
+            req.body.BankAccount,
+            req.body.RoutingNumber,
             1) // 1 el default siempre es 1 porque en esta version solo hay un cliente (HALLIBURTON)
         .then((return_data) => {
 
@@ -324,8 +329,6 @@ ROUTER.post('/updatehr/', (req, res) => {
 
 // Aunque tenga que ser un PUT x-editable necesita que sea un POST
 ROUTER.post('/updateticket/', (req, res) => {
-
-    console.log(req.body)
     administrativeService
         .updateTicket(req.body.name, req.body.value, req.body.pk)
         .then(() => {
@@ -335,6 +338,42 @@ ROUTER.post('/updateticket/', (req, res) => {
         })
         .catch((err) => {
             console.error('[Api/dispatcher_controller.js][/cancelTicket/' + req.body.ticketId + ']Error when updating ticket: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ status: 'error', msg: 'field cannot be empty!' }));
+        });
+});
+
+ROUTER.get('/getClockinById/:pk', (req, res) => {
+    console.log(req.params.pk)
+    administrativeService
+        .getClockinById(req.params.pk)
+        .then((return_data) => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify(return_data));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/getClockinById/' + req.params.pk + ']Error when obtain clockin by id: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ status: 'error', msg: 'field cannot be empty!' }));
+        });
+});
+
+ROUTER.put('/updateClockinById/:pk', (req, res) => {
+    console.log(req.params.pk)
+    administrativeService
+        .updateClockinById(req.body.in, req.body.out, req.params.pk)
+        .then(() => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({status: 'success', msg: 'Record Updated' }));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/updateClockinById/' + req.params.pk + ']Error when obtain clockin by id: ', err);
 
             res.status(500);
             res.contentType('application/json');

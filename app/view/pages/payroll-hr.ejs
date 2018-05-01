@@ -113,14 +113,15 @@
                     </div>
                 </div>
                 <div class = "row">
-                    <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                    <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                     <thead>
                         <tr>
                             <th data-column-id="id" data-type="numeric" data-width="10%">Clockin No.</th>
-                            <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
-                            <th data-column-id="location"  data-width="25%">Location</th>
-                            <th data-column-id="facility">Facility</th>
-                            <th data-column-id="dllshrs" data-formatter="dllshrs">Dlls / hr</th>
+                            <th data-column-id="evento" data-formatter="link">UUID</th>
+                            <th data-column-id="in" >In</th>
+                            <th data-column-id="out">Out</th>
+                            <th data-column-id="hours-worked">Hours worked</th>
+                            <!--<th data-column-id="dll-hr">Dlls / hr</th>-->
                             <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                         </tr>
                     </thead>
@@ -131,7 +132,7 @@
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
-                            <td id=""></td>
+                            <!--<td id=""></td>-->
                             <td id=""></td>
                         </tr>
                     </tbody>
@@ -199,14 +200,19 @@
                     data: {
                         id: this.value,
                     },
-                    success: function(data){
-                        $("#id").val(data[0].id);
-                        $("#name").val(data[0].name);
-                        $("#position").val(data[0].position);
-                        $("#email").val(data[0].email);
-                        $("#phone").val(data[0].tel);
-                        $("#dllshr").val(data[0].dll_hr);
-                        $("#ssn").val(data[0].ssn);
+                    success: function(hr){
+                        $("#id").val(hr[0].id);
+                        $("#name").val(hr[0].name);
+                        $("#position").val(hr[0].position);
+                        $("#email").val(hr[0].email);
+                        $("#phone").val(hr[0].tel);
+                        $("#dllshr").val(hr[0].dll_hr);
+                        $("#ssn").val(hr[0].ssn);
+
+                        //Recargar Bottgrid
+                        $('#grid-basic').bootgrid('destroy');
+                        initGrid(hr[0].id);
+                        
                     },
                     error: function(){
                         alert('Please try again');
@@ -217,30 +223,45 @@
             
         })
 
-        var grid = $("#grid-basic").bootgrid({
-            caseSensitive: false,
-            formatters: {
-                "link": function(column, row)
-                {
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+        function initGrid(payroll_id) {
+            var grid = $("#grid-basic").bootgrid({
+                ajax: true,
+                ajaxSettings: {
+                    method: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    cache: false
                 },
-                "commands": function(column, row)
-                {
-                    return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                url: "/api/payroll/getClockinById/" + payroll_id,
+                rowCount: [10, 50, 75, 100, 200, -1],
+                caseSensitive: false,
+                formatters: {
+                    "link": function(column, row)
+                    {
+                        return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.evento + "</a>";
+                    },
+                    "commands": function(column, row)
+                    {
+                        return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                    }
                 }
-            }
-        }).on("loaded.rs.jquery.bootgrid", function()
-        {
-            
-            /* Executes after data is loaded and rendered */
-            grid.find(".command-edit").on("click", function(e)
+            }).on("loaded.rs.jquery.bootgrid", function()
             {
                 
-                //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
-            }).end().find(".show-ticket").on("click", function(e) {
-                $($(this).attr("href")).modal("show", $(this));
+                /* Executes after data is loaded and rendered */
+                grid.find(".command-edit").on("click", function(e)
+                {
+                    
+                    //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                }).end().find(".show-ticket").on("click", function(e) {
+                    $($(this).attr("href")).modal("show", $(this));
+                });
             });
-        });
+        }
+        
+
+
+
 
         $("#validate").click(function() {
             var ticketList = [];

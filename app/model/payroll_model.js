@@ -55,3 +55,14 @@ exports.getPayrollById = (id) => {
 
     return connectionPool.query(statement, [id]);
 }
+
+exports.getClockinById = (hr_id) => {
+    let statement = 'select `c`.`id`, `c`.`id_evento`, \
+                    DATE_FORMAT(`c`.`in`, "%m-%d-%Y %H:%i:%s") "in" , \
+                    DATE_FORMAT(`c`.`out`, "%m-%d-%Y %H:%i:%s") "out", \
+                    TIMESTAMPDIFF(hour, `c`.`in`, `c`.`out`) "hours_worked", \
+                    `h`.`dll_hr` \
+                    from `sandras`.`clockin` `c` join `sandras`.`hr` h on `c`.`hr_id` = `h`.`id` where `c`.`paid` != true and `c`.`hr_id` = ?';
+
+    return connectionPool.query(statement, [hr_id]);
+}

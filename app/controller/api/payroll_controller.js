@@ -30,5 +30,15 @@ ROUTER.post('/byId', (req, res) => {
         });
 })
 
+ROUTER.get('/getClockinById/:hrId', (req, res) => {
+    payrollService
+        .getClockinById(req.params.hrId)
+        .then((return_data) => {
+            res.status(200)
+            //console.log(json(return_data))
+            res.json(return_data);
+        });
+})
+
 
 exports.router = ROUTER;

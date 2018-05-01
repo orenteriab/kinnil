@@ -115,13 +115,13 @@ const onStatus = (socket) => {
         let jsonPayload = JSON.parse(message);
         dispatcherService //(substatus, latitude, longitude, ticketId, base, silo, weight, bol)
             .addEvent(jsonPayload.substatus, 
-                jsonPayload.latitude, 
-                jsonPayload.longitude, 
-                jsonPayload.id, 
-                jsonPayload.base, 
-                jsonPayload.silo,
-                jsonPayload.weight,
-                jsonPayload.bol)
+                        jsonPayload.latitude, 
+                        jsonPayload.longitude, 
+                        jsonPayload.id, 
+                        jsonPayload.base, 
+                        jsonPayload.silo,
+                        jsonPayload.weight,
+                        jsonPayload.bol)
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })
@@ -139,7 +139,7 @@ const onStatus = (socket) => {
 */
 
 const onAccountsClockin = (socket) => {
-    return new SocketEvent('accountsclockin', () => {
+    return new SocketEvent('accountsclockin', (message) => {
         administrativeService
             .getAccountsClockin()
             .then((returnData) => {
@@ -173,7 +173,7 @@ const onSelectedCrew = (socket) => {
 const onClockinEvent = (socket) => {
     return new SocketEvent('clockinevent', (message) => {
         let jsonPayload = JSON.parse(message);
-        console.log(jsonPayload)
+        console.log("payload " + jsonPayload)
         administrativeService
             .saveClockinEvent(jsonPayload.id_evento, jsonPayload.in, jsonPayload.out, jsonPayload.date, jsonPayload.latitude, jsonPayload.longitude, jsonPayload.img, jsonPayload.worker_id)
             .then((returnData) => {
