@@ -7,39 +7,100 @@
 </head>
 
 <body>
-
-        <%include ../partials/navbar %>
+    <%include ../partials/navbar %>
         
-        <div class="wrapper">
-                <!-- Sidebar Holder -->
-                <%include ../partials/sidebar %>
-    
-                <!-- Page Content Holder -->
-                <div id="content">
-    
-                    <div class="row">
-
-
-                    </div>
-    
-                    
-                </div>
+    <div class="wrapper">
+        <!-- Sidebar Holder -->
+        <%include ../partials/sidebar %>
+        <!-- Page Content Holder -->
+        <div id="content" class="main-content">
+            <div class="row">
+                <ul class="nav nav-tabs">
+                    <li role="presentation" class="active">
+                        <a id="a_to_be_invoiced" href="#toBeInvoiced">To be invoiced</a>
+                    </li>
+                    <li role="presentation">
+                        <a id="a_invoiced" href="#invoiced">Invoiced</a>
+                    </li>
+                    <li role="presentation">
+                        <a id="a_paid" href="#paid">Paid</a>
+                    </li>
+                </ul>
             </div>
-    
+            <div class="row">
+                <table id="tbl_data_grid" class="table table-bordered table-condensed table-hover table-striped">
+                    <thead id="thd_data_grid">
+                    </thead>
+                    <tbody id="tbd_data_grid">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-
-    <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
-    <script>
-        //var socket = io.connect('http://localhost:3000');
-    </script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
-            });
-        });
-    </script>
+        (function(APP){
+            APP.SERVICES = APP.SERVICES || {};
+            APP.SERVICES.INVOICE = APP.SERVICES.INVOICE || {};
+            APP.SERVICES.INVOICE.TO_BE_INVOICED = APP.SERVICES.INVOICE.TO_BE_INVOICED || function(){
+                $.ajax({
+                    url: '/api/invoice/toBeInvoiced',
+                    method: 'GET',
+                    error: function(){
+                        alert('Unable to pull tickets to be invoiced. Please try again.')
+                    },
+                    success: function(data){
+                        if(data.length == 0){
+                            var rowElement = $('<tr></tr>');
+                            var tdElement = $('<td></td>')
+                                .text('No tickets to be invoiced found.')
+                                .attr('colspan', 7)
+                                .css('text-align', 'center');
+                            rowElement.append(tdElement);
+                            $('#tbd_data_grid').html('').append(rowElement);
+                        }
+                    }
+                });
+            };
 
+            APP.EVENTS = APP.EVENTS || {};
+
+            APP.EVENTS.UI = APP.EVENTS.UI || {};
+            APP.EVENTS.UI.TO_BE_INVOICED = APP.EVENTS.UI.TO_BE_INVOICED || function(){
+                $('#a_to_be_invoiced').on('click', function(){
+                    $('#thd_data_grid, #tbd_data_grid').html('');
+                    var headerTitles = [ 'Load', 'Date', 'Driver', 'Product', 'Company Rate', '', 'Paid Date' ]
+                    var rowElement = $('<tr></tr>');
+
+                    for(var i = 0; i < headerTitles.length; i++){
+                        var titleColumn = $('<td></td>').text(headerTitles[i]);
+                        rowElement.append(titleColumn);
+                    }
+
+                    $('#thd_data_grid').append(rowElement);
+
+                    var rowElementData = $('<tr></tr>');
+                    var tdElementData = $('<td></td>')
+                        .text('Fetching data...')
+                        .attr('colspan', 7)
+                        .css('text-align', 'center');
+                    rowElementData.append(tdElementData);
+                    $('#tbd_data_grid').append(rowElementData);
+                    
+
+                    APP.SERVICES.INVOICE.TO_BE_INVOICED();
+                });
+            };
+
+            APP.INIT = APP.INIT || function(){
+                $('li[id^="li_sdbr"]').removeClass('active');
+                $('li[id="li_sdbr_invoice"]').addClass('active');
+                APP.EVENTS.UI.TO_BE_INVOICED();
+            };
+
+            APP.INIT();
+        })(window);
+    </script>
 </body>
 </html>
