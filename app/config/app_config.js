@@ -34,6 +34,7 @@ const ENV = process.env.NODE_ENV || 'DEV';
 
 app.use('/api', apiRouter);
 app.use('/web', webRouter);
+app.get('/', (req, res) => res.redirect('/web/login/'));
 
 let server = app.listen(PORT, () => {
     console.log(`Running in ${ENV} on port ${PORT}.`);
