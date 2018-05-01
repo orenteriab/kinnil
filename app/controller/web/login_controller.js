@@ -3,6 +3,10 @@ const router = Router();
 const passport = require('../../config/passport_config');
 
 router.get('/', (req, res) => {
+    if(req.isAuthenticated && req.isAuthenticated()){
+        res.redirect('/web/dispatcher/home')
+    }
+
     let reqFlash = {};
     
     if(req.flash){
