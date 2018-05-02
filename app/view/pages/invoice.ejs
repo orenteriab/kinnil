@@ -52,13 +52,14 @@
                     },
                     success: function(data){
                         if(data.length == 0){
-                            var rowElement = $('<tr></tr>');
-                            var tdElement = $('<td></td>')
-                                .text('No tickets to be invoiced found.')
-                                .attr('colspan', 7)
-                                .css('text-align', 'center');
-                            rowElement.append(tdElement);
-                            $('#tbd_data_grid').html('').append(rowElement);
+                            var tdElement = $('<p></p>')
+                                .text('No tickets to be invoiced found.');
+                            $('#tbd_data_grid').html('').append(tdElement);
+                            $('#tbl_data_grid').bootgrid({ 
+                                labels: { 
+                                    noResults: 'No tickets to be invoiced found.' 
+                                }
+                            });
                         }
                     }
                 });
@@ -69,6 +70,8 @@
             APP.EVENTS.UI = APP.EVENTS.UI || {};
             APP.EVENTS.UI.TO_BE_INVOICED = APP.EVENTS.UI.TO_BE_INVOICED || function(){
                 $('#a_to_be_invoiced').on('click', function(){
+                    $('#tbl_data_grid').bootgrid('destroy');
+
                     $('#thd_data_grid, #tbd_data_grid').html('');
                     var headerTitles = [ 'Load', 'Date', 'Driver', 'Product', 'Company Rate', '', 'Paid Date' ]
                     var rowElement = $('<tr></tr>');
@@ -87,7 +90,6 @@
                         .css('text-align', 'center');
                     rowElementData.append(tdElementData);
                     $('#tbd_data_grid').append(rowElementData);
-                    
 
                     APP.SERVICES.INVOICE.TO_BE_INVOICED();
                 });
