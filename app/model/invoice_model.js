@@ -8,6 +8,7 @@ exports.queryToBeInvoiced = () => {
     query += '    ,`p`.`name`           `Product` '
     query += '    ,`t`.`load_rate`      `Company Rate` '
     query += '    ,`t`.`payrolled_date` `Paid Date` '
+    query += '    ,`t`.`id`             `id`'
     query += 'from  '
     query += '                  `sandras`.`tickets`     `t` '
     query += '    inner join    `sandras`.`hr`          `h` on `h`.`id` = `t`.`hr_id` '
@@ -20,7 +21,7 @@ exports.queryToBeInvoiced = () => {
     query += '    `t`.`assign_date`     asc '
     query += '   ,`t`.`payrolled_date`  asc '
 
-    return connectionPool.query(query);
+    return connectionPool.query(query)
 }
 
 exports.queryToBePaid = () => {
@@ -44,7 +45,7 @@ exports.queryToBePaid = () => {
     query += '    `t`.`assign_date` asc '
     query += '    ,`i`.`payed_date` asc '
 
-    return connectionPool.query(query);
+    return connectionPool.query(query)
 }
 
 exports.queryPaid = () => {
@@ -69,6 +70,27 @@ exports.queryPaid = () => {
     query += 'order by '
     query += '    `i`.`payed_date` desc '
 
-    return connectionPool.query(query);
+    return connectionPool.query(query)
 }
 
+exports.createInvoice = (ticketId) => {
+    let query = 'INSERT INTO `sandras`.`invoices`( '
+    query += '    `id` '
+    query += '    ,`payed_confirmation` '
+    query += '    ,`payed_date` '
+    query += '    ,`status` '
+    query += '    ,`terms` '
+    query += '    ,`notes` '
+    query += '    ,`tickets_id` '
+    query += ') VALUES ( '
+    query += '    DEFAULT '
+    query += '    ,? '
+    query += '    ,? '
+    query += '    ,? '
+    query += '    ,? '
+    query += '    ,? '
+    query += '    ,? '
+    query += ') '
+
+    return connectionPool.query(query, ['', null, 1, '', '', ticketId]);
+}

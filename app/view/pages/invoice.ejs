@@ -42,7 +42,65 @@
     <script type="text/javascript">
         (function(APP){
             APP.SERVICES = APP.SERVICES || {};
+
             APP.SERVICES.INVOICE = APP.SERVICES.INVOICE || {};
+
+            APP.SERVICES.INVOICE.INVOICE = APP.SERVICES.INVOICE.INVOICE || function(){
+                var ticketsToInvoiceElem = $('.to-be-invoiced');
+                var tmsLoads = [];
+                var ticketIdLoadMap = {};
+                
+                for(var i = 0; i < ticketsToInvoiceElem.length; i++){
+                    var currentElem = ticketsToInvoiceElem[i];
+        
+                    if(currentElem.checked){
+                        var tmsLoad = $(currentElem).attr('data-tms-load');
+                        tmsLoads.push(tmsLoad);
+                        ticketIdLoadMap[tmsLoad] = $(currentElem).attr('data-id');
+                    }
+                }
+
+                if(tmsLoads.length == 0){ return; }
+
+                var confirmMessage = 'Are you sure you want to create the invoice for the following Load(s): ' + tmsLoads.join(', ') + '?';
+
+                if(confirm(confirmMessage)){
+                    var requests = [];
+
+                    for(var i = 0; i < tmsLoads.length; i++){
+                        var request = $.ajax({
+                            url: '/api/invoice/create',
+                            method: 'POST',
+                            data: {
+                                ticketId: ticketIdLoadMap[tmsLoads[i]],
+                                tmsLoad: tmsLoads[i]
+                            }
+                        });
+
+                        requests.push(request);
+                    }
+
+                    $.when.apply(undefined, requests).always(function(){
+                        var failed = [];
+
+                        for(var i = 0; i < requests.length; i++){
+                            var requestStatus = parseInt(requests[i].status);
+                            if(requestStatus < 200 || requestStatus > 299){
+                                failed.push(requests[i].responseText);
+                            }
+                        }
+
+                        if(failed.length > 0){
+                            alert("Some invoices couldn't be created:\n" + failed.join(" | "));
+                        }else{
+                            alert("Invoices created successfully!");
+                        }
+
+                        APP.SERVICES.INVOICE.TO_BE_INVOICED();
+                    });
+                }
+            };
+
             APP.SERVICES.INVOICE.TO_BE_INVOICED = APP.SERVICES.INVOICE.TO_BE_INVOICED || function(){
                 $('button[data-function]').remove();
 
@@ -65,7 +123,7 @@
                     var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
 
                     if(headerTitles[i] === ''){
-                        titleColumn.attr('data-formatter', 'invoiceCheck');
+                        titleColumn.attr('data-formatter', 'invoiceCheck').attr('data-column-id', 'tid');
                     }
 
                     rowElement.append(titleColumn);
@@ -96,13 +154,17 @@
                     success: function(data){
                         $('#tbd_data_grid').html('');
 
-                        debugger;
                         for(var i = 0; i < data.length; i++){
                             var trElement = $('<tr></tr>');
 
                             for(var j = 0; j < headerTitles.length; j++){
-                                var dataColumn = $('<td></td>')
-                                    .text(data[i][headerTitles[j]] || 'Not available');
+                                var dataColumn;
+
+                                if(headerTitles[j] === ''){
+                                    dataColumn = $('<td></td>').text(data[i]['id']);
+                                }else{
+                                    dataColumn = $('<td></td>').text(data[i][headerTitles[j]] || 'Not available');
+                                }
                                 
                                 trElement.append(dataColumn);
                                 $('#tbd_data_grid').append(trElement);
@@ -115,7 +177,7 @@
                             },
                             formatters: {
                                 invoiceCheck: function(column, row){
-                                    return '<input type="checkbox" data-id="' + row['load'] + '" class="form-check-input" />';
+                                    return '<input type="checkbox" data-tms-load="' + row['load'] + '" data-id="' + row['tid'] + '" class="form-check-input to-be-invoiced" />';
                                 }
                             }
                         });
@@ -127,7 +189,7 @@
                     .addClass('btn btn-primary')
                     .css('float', 'right')
                     .attr('data-function', 'invoice')
-                    .on('click', function(){});
+                    .on('click', APP.SERVICES.INVOICE.INVOICE);
 
                 $('#tbl_data_grid').parent().append(btnElem);
             };

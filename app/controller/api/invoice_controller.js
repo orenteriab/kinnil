@@ -53,4 +53,21 @@ ROUTER.get('/paid', (req, res) => {
         )
 })
 
+ROUTER.post('/create', (req, res) => {
+    invoiceService
+        .createInvoice(req.body.ticketId)
+        .then(
+            () => {
+                res.status(201);
+                res.json({ message: `Invoice for load ${req.body.tmsLoad} created successfully!` })
+            },
+            (err) => {
+                console.error(err);
+
+                res.status(500)
+                res.json({ error: `Unable to create invoice for load ${req.body.tmsLoad} created successfully!` })
+            }
+        );
+})
+
 exports.router = ROUTER;
