@@ -147,7 +147,7 @@ exports.listProducts = (clientId) => {
 * Obtiene los eventos por ticket
 */
 exports.getEvents = (ticketId) => {
-    let statement = 'select evento, DATE_FORMAT(date, "%m-%d-%Y %H:%i:%s") date, longitude, latitude, notes from eventos where tickets_id = ?';
+    let statement = 'select evento, DATE_FORMAT(date, "%m-%d-%Y %H:%i:%s") date, DATE_FORMAT(date2, "%m-%d-%Y %H:%i:%s") date2, longitude, latitude, notes from eventos where tickets_id = ?';
 
     return connectionPool.query(statement, [ticketId]);
 };
@@ -207,10 +207,10 @@ exports.tms = (hrId) => {
     return connectionPool.query(statement, [hrId])
 }
 
-exports.addEvent = (substatus, timestamp, latitude, longitude, id) => {
-    let statement = "insert into eventos (evento, date, latitude, longitude, tickets_id) values (?,?,?,?,?)"
+exports.addEvent = (substatus, timestamp, latitude, longitude, date, id) => {
+    let statement = "insert into eventos (evento, date, latitude, longitude, date2, tickets_id) values (?,?,?,?,?,?)"
 
-    return connectionPool.query(statement, [substatus, timestamp, latitude, longitude, id])
+    return connectionPool.query(statement, [substatus, timestamp, latitude, longitude, date, id])
 }
 
 exports.tmscounter = () => {
