@@ -21,8 +21,16 @@ exports.queryPaid = () => {
 
 exports.createInvoice = (ticketId) => {
     if(!ticketId || String(ticketId).trim().length == 0){
-        return Bluebird.reject('The Load number cannot be null or empty');
+        return Bluebird.reject('The ticket id cannot be null or empty')
     }else{
-        return invoiceModel.createInvoice(ticketId);
+        return invoiceModel.createInvoice(ticketId)
+    }
+}
+
+exports.updatePayment = (invoiceId, paymentId) => {
+    if(!paymentId || String(paymentId).trim().length == 0){
+        return Bluebird.reject('The payment id cannot be null or empty')
+    }else{
+        return invoiceModel.updatePayment(invoiceId, paymentId)
     }
 }

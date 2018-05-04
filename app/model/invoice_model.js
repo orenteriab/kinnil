@@ -40,7 +40,7 @@ exports.queryToBePaid = () => {
     query += 'where '
     query += '    ( `i`.`payed_confirmation` is null  '
     query += '      or length(trim(`i`.`payed_confirmation`)) = 0 ) '
-    query += '    and `i`.`payed_date` is null'
+    query += '    and `i`.`payed_date` is null '
     query += 'order by '
     query += '    `t`.`assign_date` asc '
     query += '    ,`i`.`payed_date` asc '
@@ -93,4 +93,10 @@ exports.createInvoice = (ticketId) => {
     query += ') '
 
     return connectionPool.query(query, ['', null, 1, '', '', ticketId]);
+}
+
+exports.updatePayment = (invoiceId, paymentId) => {
+    let query = 'UPDATE `sandras`.`invoices` SET payed_confirmation = ? , payed_date = ? where id = ?';
+
+    return connectionPool.query(query, [paymentId, new Date(), invoiceId]);
 }

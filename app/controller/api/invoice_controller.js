@@ -58,7 +58,7 @@ ROUTER.post('/create', (req, res) => {
         .createInvoice(req.body.ticketId)
         .then(
             () => {
-                res.status(201);
+                res.status(201)
                 res.json({ message: `Invoice for load ${req.body.tmsLoad} created successfully!` })
             },
             (err) => {
@@ -68,6 +68,23 @@ ROUTER.post('/create', (req, res) => {
                 res.json({ error: `Unable to create invoice for load ${req.body.tmsLoad} created successfully!` })
             }
         );
+})
+
+ROUTER.post('/pay', (req, res) => {
+    invoiceService
+        .updatePayment(req.body.id, req.body.payment)
+        .then(
+            () => {
+                res.status(200)
+                res.json({ message: `Payment ${req.body.payment} has been applied to invoice ${req.body.id}` })
+            },
+            (err) => {
+                console.error(err);
+
+                res.status(500)
+                res.json({ error: `Unable to bind payment ${req.body.payment} to invoice ${req.body.id}!` })
+            }
+        )
 })
 
 exports.router = ROUTER;
