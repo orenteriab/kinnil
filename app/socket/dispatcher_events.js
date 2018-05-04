@@ -121,7 +121,8 @@ const onStatus = (socket) => {
                         jsonPayload.base, 
                         jsonPayload.silo,
                         jsonPayload.weight,
-                        jsonPayload.bol)
+                        jsonPayload.bol,
+                        jsonPayload.date)
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })
