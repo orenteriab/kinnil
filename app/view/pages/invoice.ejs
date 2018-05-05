@@ -4,6 +4,12 @@
 <head>
    <%include ../partials/head %>
    <title>Invoice</title>
+   <style>
+    .lnk_view_invoice:visited{
+        color: #333;
+    }
+   </style>
+
 </head>
 
 <body>
@@ -62,6 +68,109 @@
             APP.SERVICES = APP.SERVICES || {};
 
             APP.SERVICES.INVOICE = APP.SERVICES.INVOICE || {};
+
+            APP.SERVICES.INVOICE.PAID = APP.SERVICES.INVOICE.PAID || function(){
+                $('button[data-function]').remove();
+
+                $('#a_invoiced, #a_to_be_invoiced')
+                    .parent()
+                    .removeClass('active');
+
+                $('#a_paid')
+                    .parent()
+                    .addClass('active');
+
+                $('#tbl_data_grid').bootgrid('destroy');
+
+                $('#thd_data_grid, #tbd_data_grid').html('');
+
+                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Company Rate', 'Paid ID', 'Paid Date', 'Print' ];
+                var rowElement = $('<tr></tr>');
+
+                for(var i = 0; i < headerTitles.length; i++){
+                    var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
+
+                    if(headerTitles[i] === 'Print'){
+                        titleColumn.attr('data-formatter', 'invoiceCheck').attr('data-column-id', 'id');
+                    }
+
+                    if(headerTitles[i] === 'Invoice Id'){
+                        titleColumn.attr('data-formatter', 'invoiceLink');
+                    }
+
+                    rowElement.append(titleColumn);
+                }
+
+                $('#thd_data_grid').append(rowElement);
+
+                var rowElementData = $('<tr></tr>');
+                var tdElementData = $('<td></td>')
+                    .text('Fetching data...')
+                    .attr('colspan', 7)
+                    .css('text-align', 'center');
+                var invoicePrice = { };
+
+                rowElementData.append(tdElementData);
+
+                $('#tbd_data_grid').append(rowElementData);
+    
+                $.ajax({
+                    url: '/api/invoice/paid',
+                    method: 'GET',
+                    error: function(){
+                        $('#tbl_data_grid').bootgrid({
+                            labels: {
+                                noResults: 'No paid invoices found.'
+                            }
+                        });
+                    },
+                    success: function(data){
+                        $('#tbd_data_grid').html('');
+
+                        for(var i = 0; i < data.length; i++){
+                            var trElement = $('<tr></tr>');
+
+                            for(var j = 0; j < headerTitles.length; j++){
+                                var dataColumn;
+
+                                if(headerTitles[j] === 'Print'){
+                                    dataColumn = $('<td></td>').text(data[i]['Invoice Id']);
+                                }else{
+                                    dataColumn = $('<td></td>').text(data[i][headerTitles[j]] || 'Not available');
+                                }
+                                
+                                trElement.append(dataColumn);
+                                $('#tbd_data_grid').append(trElement);
+                            }
+
+                            invoicePrice[data[i]['Invoice Id']] = data[i]['Price'];
+                        }
+
+                        $('#tbl_data_grid').bootgrid({
+                            labels: {
+                                noResults: 'No paid invoices found.'
+                            },
+                            formatters: {
+                                invoiceCheck: function(column, row){
+                                    return '<input type="checkbox" data-tms-load="' + row['load'] + '" data-id="' + row['id'] + '" data-price="' + invoicePrice[row['id']] + '" data-driver="'+ row['driver'] +'" class="form-check-input paid-invoice" />';
+                                },
+                                invoiceLink: function(column, row){
+                                    return '<a href="#" class="lnk_view_invoice" data-id="' + row['id'] + '" style="" >' + row['id'] + '</a>';
+                                }
+                            }
+                        });
+                    }
+                });
+
+                var btnElem = $('<button />')
+                    .text('Print invoices as PDF')
+                    .addClass('btn btn-primary')
+                    .css('float', 'right')
+                    .attr('data-function', 'print-invoices')
+                    .on('click', function(){});
+
+                $('#tbl_data_grid').parent().append(btnElem);
+            };
 
             APP.SERVICES.INVOICE.PERFORM_VALIDATION = APP.SERVICES.INVOICE.PERFORM_VALIDATION || function(invoiceInformation){
                 return function(){
@@ -407,12 +516,17 @@
                 $('#a_invoiced').on('click', APP.SERVICES.INVOICE.INVOICED);
             };
 
+            APP.EVENTS.UI.PAID = APP.EVENTS.UI.PAID || function(){
+                $('#a_paid').on('click', APP.SERVICES.INVOICE.PAID);
+            };
+
             APP.INIT = APP.INIT || function(){
                 $('li[id^="li_sdbr"]').removeClass('active');
                 $('li[id="li_sdbr_invoice"]').addClass('active');
                 APP.EVENTS.UI.TO_BE_INVOICED();
                 APP.SERVICES.INVOICE.TO_BE_INVOICED();
                 APP.EVENTS.UI.INVOICED();
+                APP.EVENTS.UI.PAID();
             };
 
             APP.INIT();
