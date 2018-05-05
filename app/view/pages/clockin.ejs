@@ -37,6 +37,8 @@
                                         <th data-column-id="out">Out</th>
                                         <th data-column-id="hours">Hours worked</th>
                                         <th data-column-id="shift">Shift</th>
+                                        <th data-column-id="imagein" data-formatter="pixin">Image in</th>
+                                        <th data-column-id="imageout" data-formatter="pixout">Image out</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
@@ -69,6 +71,12 @@
                                                     <%= entry.shift || 'No shift available' %>
                                                 </td>
                                                 <td id="">
+                                                    <%= entry.img_in_name || 'No image available' %>
+                                                </td>
+                                                <td id="">
+                                                    <%= entry.img_out_name || 'No image available' %>
+                                                </td>
+                                                <td id="">
                                                     
                                                 </td>
                                             </tr>
@@ -82,11 +90,69 @@
                 </div>
             </div>
         </div>
-            </div>
-    
+    </div>
 
+<!-- Modal -->
+<div id="imageModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img class="" src="#"/>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dv_edit_clockin" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4>Edit Clockin</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frm_edit_clockin">
+                    <label for="tx_edit_in">In:</label> 
+                    <br>
+                    <input class="form-control" placeholder="in" name="in" type="datetime" id="tx_edit_in" required />
+                    <br>
+                    <label for="tx_edit_out">Out:</label>
+                    <br>
+                    <input class="form-control" placeholder="out" name="out" type="datetime" id="tx_edit_out" required />
+                    <br>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btn_save_edit_clockin" type="button" class="btn btn-primary">Save Clockin</button>
+                <button id="btn_cancel_edit_clockin" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <%include ../partials/js %>
+
+<script>
+    $( document ).ready(function() {
+        $('#imageModal').on('shown.bs.modal', function (e) {
+
+            var $trigger = $(e.relatedTarget);
+            console.log($trigger.data('image'));
+            $('#imageModal img').attr('src', ""); 
+            $('#imageModal img').attr('src', $trigger.data('image')); 
+
+        });
+
+    // Limpia los steps y les asigna la clase disabled
+    $('#myModal').on('hide.bs.modal', function (e) {
+        
+    });
+
+});
+</script>
 
 <script type="text/javascript">
     (function (APP) {
@@ -94,7 +160,43 @@
 
         APP.SERVICE.ADMINISTRATIVE = APP.SERVICE.ADMINISTRATIVE || {};
 
+        APP.SERVICE.ADMINISTRATIVE.FIND_BY_ID = APP.SERVICE.ADMINISTRATIVE.FIND_BY_ID || function(id, callback){
+            $.ajax({
+                url: '/api/administrative/getClockinById/' + id,
+                method: 'GET',
+                success: function(data){
+                    callback(data);
+                },
+                error: function(){
+                    alert('It seems this clockin event is not available anymore.');
+                }
+            });
+        };
 
+        APP.SERVICE.ADMINISTRATIVE.UPDATE = APP.SERVICE.ADMINISTRATIVE.UPDATE || function(id){
+            $('#frm_edit_clockin').attr('disabled', 'disabled');
+            var postData = {
+                in:  $("#tx_edit_in").val(),
+                out: $("#tx_edit_out").val()
+            };
+            
+            $.ajax({
+                url: '/api/administrative/updateClockinById/' + id,
+                method: 'PUT',
+                data: postData,
+                success: function(data){
+                    alert(data.msg);
+                    document.getElementById('frm_edit_clockin').reset();
+                    $('#frm_edit_clockin').removeAttr('disabled');
+                    $('#dv_edit_clockin').modal('toggle');
+                    $('#btn_save_edit_clockin').removeAttr('data-id');
+                },
+                error: function(){
+                    alert('Error when updating clockin. Please try again.');
+                    $('#frm_edit_clockin').removeAttr('disabled');
+                }
+            });
+        };
 
         APP.LOAD = APP.LOAD || {};
         //page load functionality first!
@@ -103,44 +205,64 @@
                 $('#sidebar').toggleClass('active');
             });
         };
-        //Obtiene los drivers, trucks and trailers que estan disponibles
-        APP.LOAD.UPS = APP.LOAD.UPS || function () {
-            APP.SERVICE.DISPATCHER.GET_UPS();
-        };
+
+
         APP.LOAD.GRID = APP.LOAD.GRID || function () {
             var commandsFormatter = function (column, row) {
-                return "<button type=\"button\" class=\"btn btn-md btn-default command-edit-asset\" data-row-id=\"" + row.id + "\">Edit</button>" +
-                    "<button type=\"button\" class=\"btn btn-md btn-default command-delete-asset\" data-row-id=\"" + row.id + "\">Delete</button> ";
+                return "<button type=\"button\" class=\"btn btn-md btn-default command-edit-clockin\" data-row-id=\"" + row.id + "\">Edit</button>";
+                //return "<button type=\"button\" class=\"btn btn-md btn-default command-edit-asset\" data-row-id=\"" + row.id + "\">Edit</button>" +
+                //    "<button type=\"button\" class=\"btn btn-md btn-default command-delete-asset\" data-row-id=\"" + row.id + "\">Delete</button> ";
             };
+
+            var pixinFormatter = function (column, row) {
+
+                var filename = row.imagein.replace(/\s/g, "");
+                if (filename == "Noimageavailable") {
+                    return '<a href="#imageModal" data-toggle="modal" data-image="/assets/img/No_image_available.png" class="text-center black-link show-ticket"> \
+                                <img  src="/assets/img/No_image_available.png" alt="'+filename+'" class="black-link" style="width: 40px; height: 40px;"> \
+                            </a>'
+                } else {
+                    return'<a href="#imageModal" data-toggle="modal" data-image="/assets/clockin/'+filename+'" class="text-center black-link show-ticket"> \
+                                <img  src="/assets/clockin/'+filename+'" alt="'+filename+'" class="black-link" style="width: 40px; height: 40px;"> \
+                            </a>'
+                }
+
+            }
+
+            var pixoutFormatter = function (column, row) {
+
+                
+                var filename = row.imageout.replace(/\s/g, "");
+                if (filename == "Noimageavailable") {
+                    return '<a href="#imageModal" data-toggle="modal" data-image="/assets/img/No_image_available.png" class="text-center black-link show-ticket"> \
+                                <img  src="/assets/img/No_image_available.png" alt="'+filename+'" class="black-link" style="width: 40px; height: 40px;"> \
+                            </a>'
+                } else {
+                    return'<a href="#imageModal" data-toggle="modal" data-image="/assets/clockin/'+filename+'" class="text-center black-link show-ticket"> \
+                                <img  src="/assets/clockin/'+filename+'" alt="'+filename+'" class="black-link" style="width: 40px; height: 40px;"> \
+                            </a>'
+                }
+            }
             var loadedRsJQueryBootgrid = function () {
                 var onClickEdit = function(e) {
-                    APP.SERVICE.ASSETS.FIND_BY_ID($(this).attr('data-row-id'), function (asset) {
-                        asset = asset[0];
-                        $("#dv_edit_asset").modal('show',  $("#dv_edit_asset"));
-                        $("#tx_edit_name").val(asset.name);
-                        $("#tx_edit_type").val(asset.type);
-                        $("#tx_edit_plate").val(asset.plate);
-                        $("#tx_edit_status").val(asset.status);
-                        $("#tx_edit_mi").val(asset.mi);
-                        $("#tx_edit_miLastService").val(asset.mi_last_service);
-                        if(asset.mtto_last != null || asset.mtto_last != undefined){
-                            $("#tx_edit_mttoLast").val(asset.mtto_last.split('T')[0]);
+                    APP.SERVICE.ADMINISTRATIVE.FIND_BY_ID($(this).attr('data-row-id'), function (clockin) {
+                        clockin = clockin[0];
+                        $("#dv_edit_clockin").modal('show',  $("#dv_edit_clockin"));
+                        if(clockin.in != null || clockin.in != undefined){
+                            $("#tx_edit_in").val(clockin.in.split('T')[0]);
                         }
-                        
-                        if(asset.mtto_next != null || asset.mtto_next != undefined){
-                            $("#tx_edit_mttoNext").val(asset.mtto_next.split('T')[0]);
+                        if(clockin.out != null || clockin.out != undefined){
+                            $("#tx_edit_out").val(clockin.out.split('T')[0]);
                         }
-                        
-                        $("#tx_edit_notes").val(asset.notes);
-                        $("#tx_edit_up").val(asset.up);
-                        $("#btn_save_edit_asset").attr('data-id', asset.id);
+                        console.log("el id " + clockin.id);
+                        $("#btn_save_edit_clockin").attr('data-id', clockin.id);
                     });
                 };
                 var onClickShow = function (e) {
                     $($(this).attr("href")).modal("show", $(this));
                 };
                 $("#grid-basic")
-                    .find(".command-edit-asset")
+                    .find(".command-edit-clockin")
                         .on("click", onClickEdit)
                     .end()
                     .find(".show-ticket")
@@ -149,20 +271,35 @@
             $("#grid-basic")
                 .bootgrid({
                     formatters: {
-                        "commands": commandsFormatter
+                        "commands": commandsFormatter,
+                        "pixin":  pixinFormatter,
+                        "pixout":  pixoutFormatter
                     }
                 })
                 .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
         };
+
+        APP.LOAD.MODALS = APP.LOAD.MODALS || function () {
+            $(document).on('click', '.imageLink', function(e) {
+                alert("hola");
+                $("#imageModal").attr('src', $(this).attr('data-img-url'));
+            });
+        };
+
         APP.EVENTS = APP.EVENTS || {
-
-
+            BTN_SAVE_EDIT_CLOCKIN: function() {
+                $('#btn_save_edit_clockin').on('click', function(){
+                    APP.SERVICE.ADMINISTRATIVE.UPDATE($(this).attr('data-id'));
+                });
+            },
             INIT: function () {
-
+                APP.EVENTS.BTN_SAVE_EDIT_CLOCKIN();
             }
         };
+
         APP.LOAD.SIDE_BAR();
         APP.LOAD.GRID();
+        APP.LOAD.MODALS()
         APP.EVENTS.INIT();
     })(window);
 </script>

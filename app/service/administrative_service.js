@@ -1,3 +1,4 @@
+fs = require('fs'); // para guardar las imagenes en el servidor
 let administrativeModel = require('../model/administrative_model');
 
 /*
@@ -134,9 +135,9 @@ exports.addHr = (name, address, tel, civilStatus, email, contact1, contact2, bir
         .addHr(name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, dllsHr, mcExp, ssn, username, password, shift, crew, clients_id);
 }
 
-exports.addDriver = (name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, yearsWorking, clients_id) => {
+exports.addDriver = (name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, hireDate, licenseClass, experience, paymentMethod, BankAccount, RoutingNumber, clients_id) => {
     return administrativeModel
-        .addDriver(name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, yearsWorking, clients_id);
+        .addDriver(name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, hireDate, licenseClass, experience, paymentMethod, BankAccount, RoutingNumber, clients_id);
 }
 
 exports.getHrDetail = (hrId) => {
@@ -204,9 +205,40 @@ exports.getSelectedCrew = (crewId) => {
 // {"id_evento":"123","supervisor_id":1,"worker_id":3,"in":true,"out":false,"date":"2018-04-25 15:52:11","latitude":0,"longitude":0,"img":""}
 exports.saveClockinEvent = (id_evento, entrada, salida, date, lattitud, longitud, img, worker_id) => {
 
+    console.log(entrada)
     if (entrada) {
-        return administrativeModel.saveClockInEvent(id_evento, date, lattitud, longitud, img, worker_id)
+        
+        // TODO: ver si se puede hacer este path dinamico
+        fs.writeFile('/home/nodejs/sandras/app/assets/clockin/' + id_evento + '_in.jpg', img, 'base64', function (err) {
+            if (err) {
+                console.log("error when saving clockin image") // TODO: ver si podemos regresar al usuario algun error
+            } 
+        })
+
+        let name = id_evento + "_in.jpg"
+
+        return administrativeModel.saveClockInEvent(id_evento, date, lattitud, longitud, name, worker_id)
+        
     } else if (salida) {
-        return administrativeModel.saveClockOutEvent(id_evento, date, lattitud, longitud, img)
+
+        fs.writeFile('/home/nodejs/sandras/app/assets/clockin/' + id_evento + '_out.jpg', img, 'base64', function (err) {
+            if (err) {
+                console.log("error when saving clockout image") // TODO: ver si podemos regresar al usuario algun error
+            } 
+        })
+
+        let name = id_evento + "_out.jpg"
+
+        return administrativeModel.saveClockOutEvent(id_evento, date, lattitud, longitud, name)
     }
+}
+
+exports.getClockinById = (id) => {
+    return administrativeModel
+            .getClockinById(id)
+}
+
+exports.updateClockinById = (entrada, salida, id) => {
+    return administrativeModel
+            .updateClockinById(entrada, salida, id)
 }

@@ -1,4 +1,5 @@
 let invoiceModel = require('../model/invoice_model')
+let Bluebird = require('bluebird');
 
 exports.queryToBeInvoiced = () => {
 
@@ -16,4 +17,20 @@ exports.queryPaid = () => {
 
     return invoiceModel.queryPaid()
 
+}
+
+exports.createInvoice = (ticketId) => {
+    if(!ticketId || String(ticketId).trim().length == 0){
+        return Bluebird.reject('The ticket id cannot be null or empty')
+    }else{
+        return invoiceModel.createInvoice(ticketId)
+    }
+}
+
+exports.updatePayment = (invoiceId, paymentId) => {
+    if(!paymentId || String(paymentId).trim().length == 0){
+        return Bluebird.reject('The payment id cannot be null or empty')
+    }else{
+        return invoiceModel.updatePayment(invoiceId, paymentId)
+    }
 }

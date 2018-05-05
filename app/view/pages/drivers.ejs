@@ -142,37 +142,40 @@
                             <option value="AM">am</option>
                             <option value="PM">pm</option>
                         </select>
+                        <label for="rate" class="h4 ">Rate % (example 10 = 10%)</label>
+                        <input type="number" class="form-control" id="rate" min="0" max="100" required>
+                        <label for="paymentMethod" class="h4 ">Payment Method</label>
+                        <select id="shift" class="form-control" required>
+                            <option value="PAY PER CHECK">Pay per Check</option>
+                            <option value="DIRECT DEPOSIT">Direct Deposit</option>
+                        </select>
+                        <label for="bankAccount" class="h4 ">Bank Account</label>
+                        <input id="bankAccount" class="form-control" required></input>
+                        <label for="routingNumber" class="h4 ">Routing Number</label>
+                        <input id="routingNumber" class="form-control" required></input>
                     </div>
                     <div class="col-md-6">
-                        <label for="position" class="h4 ">Position</label>
+                        <!--<label for="position" class="h4 ">Position</label>  no se necesita porque el valor siempre va hidden y es DRIVER-->
                         <input id="position" class="form-control" type="hidden" value="DRIVER"></input> <!-- Se agrego la posicion como hidden input value DRIVER -->
-                        <label for="rate" class="h4 ">Rate</label>
-                        <select id="rate" class="form-control">
-                            <option value=".15">15 %</option>
-                            <option value=".20">20 %</option>
-                            <option value=".25">25 %</option>
-                        </select>
+                        
                         <label for="user" class="h4 ">user</label>
                         <input id="user" class="form-control" required></input>
                         <label for="password" class="h4 ">Password</label>
                         <input id="password" class="form-control" required></input>
                         <label for="mcExp" class="h4 ">Medical card expiration date</label>
                         <input id="mcExp" class="form-control" required type="date"></input>
-                        <!--<label for="training" class="h4 ">Training</label>
-                        <select id="training" class="form-control">
-                            <option value="YES">Yes</option>
-                            <option value="NO">No</option>
-                        </select>
-                        <label for="trainingExp" class="h4 ">Training expiration date</label>
-                        <input id="trainingExp" class="form-control" required type="date"></input>-->
                         <label for="licence" class="h4 ">Licence No.</label>
                         <input id="licence" class="form-control" required type="text"></input>
+                        <label for="licenceClass" class="h4 ">Licence Class</label>
+                        <input id="licenceClass" class="form-control" required type="text"></input>
                         <label for="licenseExp" class="h4 ">License expiration date</label>
                         <input id="licenseExp" class="form-control" required type="date"></input>
                         <label for="state" class="h4 ">State</label>
                         <input id="state" class="form-control" required></input>
-                        <label for="yearsWorking" class="h4 ">Hire date</label>
-                        <input id="yearsWorking" class="form-control" required type="date"></input>
+                        <label for="hireDate" class="h4 ">Hire date</label>
+                        <input id="hireDate" class="form-control" required type="date"></input>
+                        <label for="experience" class="h4 ">Experience Years</label>
+                        <input id="experience" class="form-control" required type="date"></input>
                         <label for="ssn" class="h4 ">SSN</label>
                         <input id="ssn" class="form-control" required></input>
                         <label for="contact1" class="h4 ">Emergency contact Name</label>
@@ -217,17 +220,20 @@
                     <p>Crew <span id="editCrew"> </span></p>
                     <p>Shift <span id="editShift"> </span></p>
                     <p>Rate <span id="editRate"> </span></p>
+                    <p>Payment Method <span id="editPaymentMethod"> </span></p>
+                    <p>Bank Account <span id="editBankAccount"> </span></p>
+                    <p>Routing Number <span id="editRoutingNumber"> </span></p>
                 </div>
                 <div class="col-md-6">
                     <p>User <span id="editUser"> </span></p>
                     <p>Password <span id="editPassword"> </span></p>
                     <p>Medical card expiration date <span id="editMcExp"> </span></p>
-                    <!--<p>Training <span id="editTraining"> </span></p>
-                    <p>Training expiration date <span id="editTrainingExp"> </span></p>-->
                     <p>License No. <span id="editLicense"> </span></p>
+                    <p>License Class <span id="editLicenseClass"> </span></p>
                     <p>License expiration date <span id="editLicenseExp"> </span></p>
                     <p>State <span id="editState"> </span></p>
                     <p>Hire date <span id="editHireDate"> </span></p>
+                    <p>Experience Years <span id="editExperienceYears"> </span></p>
                     <p>SSN <span id="editSsn"> </span></p>
                     <p>Emergency contact Name <span id="editContact1"> </span></p>
                     <p>Emergency contact Phone <span id="editContact2"> </span></p>
@@ -319,12 +325,15 @@
                                 shift: $("#shift").val(),
                                 user: $("#user").val(),
                                 password: $("#password").val(),
-                                //training: $("#training").val(),
-                                //trainingExp: $("#trainingExp").val(),
                                 license: $("#licence").val(),
                                 licenseExp: $("#licenseExp").val(),
                                 state: $("#state").val(),
-                                yearsWorking: $("#yearsWorking").val()
+                                hireDate: $("#hireDate").val(),
+                                licenseClass: $("#licenseClass").val(),
+                                paymentMethod: $("#paymentMethod").val(),
+                                bankAccount: $("#bankAccount").val(),
+                                routingNumer: $("#routingNumer").val(),
+                                experience: $("#experience").val()
                             },
                             success: function (msj) {
                                 alert(msj.message);
@@ -426,7 +435,7 @@
                     $('#editRate').html(
                         "<strong><a id='updateRate' data-pk='" + data.hr[0].id + "' data-title='Update rate' "+
                         "data-type='select' step='0.01' value='0.00' class='black-link' "+
-                        "href='#' data-name='rate'>"+ data.hr[0].rate*100 +" %</a></strong>" // El rate en los drivers es un porcentage asi que le damos formato
+                        "href='#' data-name='rate'>"+ data.hr[0].rate +" %</a></strong>" // El rate en los drivers es un porcentage asi que le damos formato
                     );
                     $('#editUser').html(
                         "<strong><a id='updateUser' data-pk='" + data.hr[0].id + "' data-title='Update user' "+
@@ -453,9 +462,14 @@
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='license_exp'>"+data.hr[0].license_exp+"</a></strong>"
                     );
+                    $('#editLicenseClass').html(
+                        "<strong><a id='updateLicenseClass' data-pk='" + data.hr[0].id + "' data-title='Update license class' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' data-name='license_class'>"+data.hr[0].license_class+"</a></strong>"
+                    );
                     $('#editState').html(
                         "<strong><a id='updateState' data-pk='" + data.hr[0].id + "' data-title='Update state' "+
-                        "data-type='select' class='black-link' "+
+                        "data-type='text' class='black-link' "+
                         "href='#' data-name='state'>"+data.hr[0].state+"</a></strong>"
                     );
                     $('#editHireDate').html(
@@ -463,14 +477,45 @@
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='hire_date'>"+data.hr[0].hire_date+"</a></strong>"
                     );
+                    $('#editExperienceYears').html(
+                        "<strong><a id='updateExperienceYears' data-pk='" + data.hr[0].id + "' data-title='Update Experience Years' "+
+                        "data-type='date' class='black-link' "+
+                        "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
+                    );
                     $('#editSsn').html(
                         "<strong><a id='updateSsn' data-pk='" + data.hr[0].id + "' data-title='Update ssn' "+
                         "data-type='text' class='black-link' "+
                         "href='#' data-name='ssn'>"+data.hr[0].ssn+"</a></strong>"
                     );
+
+                    $('#editLinceClass').html(
+                        "<strong><a id='updateLicenceClass' data-pk='" + data.hr[0].id + "' data-title='Update License Class' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' data-name='license_class'>"+data.hr[0].license_class+"</a></strong>"
+                    );
+                    $('#editExperience').html(
+                        "<strong><a id='updateExperience' data-pk='" + data.hr[0].id + "' data-title='Update Experience' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
+                    );
+                    $('#editPaymentMethod').html(
+                        "<strong><a id='updatePaymentMethod' data-pk='" + data.hr[0].id + "' data-title='Update Payment Method' "+
+                        "data-type='select' class='black-link' "+
+                        "href='#' data-name='payment_method'>"+data.hr[0].payment_method+"</a></strong>"
+                    );
+                    $('#editBankAccount').html(
+                        "<strong><a id='updateBankAccount' data-pk='" + data.hr[0].id + "' data-title='Update Bank Account' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' data-name='bank_account'>"+data.hr[0].bank_account+"</a></strong>"
+                    );
+                    $('#editRoutingNumber').html(
+                        "<strong><a id='updateRoutingNumber' data-pk='" + data.hr[0].id + "' data-title='Update RoutingNumber' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' data-name='routing_number'>"+data.hr[0].routing_number+"</a></strong>"
+                    );
     
                     // x-editable
-                    $('#updateName, #updateAddress, #updateTel, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword').editable({
+                    $('#updateName, #updateAddress, #updateTel, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword, #updateState, #updateLicenceClass, #updateBankAccount, #updateRoutingNumber, #updateLicenseClass').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         success: function(response, newValue) {
@@ -480,13 +525,26 @@
                         
                     });
 
-                    $('#updateRate').editable({
+                    $('#updateRate').editable({ 
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         source: [
                             {value: ".15", text: '15%'},
                             {value: ".20", text: '20%'},
                             {value: ".25", text: '25%'},
+                        ],
+                        success: function(response, newValue) {
+                            if (response.status == 'error') 
+                                return response.msg; //msg will be shown in editable form
+                        }
+                    });
+
+                    $('#updatePaymentMethod').editable({ 
+                        url: '/api/administrative/updatehr/',
+                        send: 'always',
+                        source: [
+                            {value: "PAY PER CHECK", text: 'Pay per Check'},
+                            {value: "DIRECT DEPOSIT", text: 'Direct Deposit'}
                         ],
                         success: function(response, newValue) {
                             if (response.status == 'error') 
@@ -545,7 +603,7 @@
                         },
                     });
 
-                    $('#updateBrith, #updateMcExp, #updateLicenseExp, #updateHireDate').editable({
+                    $('#updateBrith, #updateMcExp, #updateLicenseExp, #updateHireDate, #updateExperienceYears').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         format: 'yyyy-mm-dd',    

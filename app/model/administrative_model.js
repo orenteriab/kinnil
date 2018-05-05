@@ -167,11 +167,16 @@ exports.addDriver = (name,
     license,
     licenseExp,
     state,
-    yearsWorking,
+    hireDate,
+    licenseClass,
+    experience,
+    paymentMethod,
+    BankAccount,
+    RoutingNumber,
     clients_id) => {
-    let statement = 'insert into hr (name, address, tel, civil_status, email, contact1, contact2, birthdate, labor_status, position, rate, mc_exp, ssn, type, crew, shift, username, password, license, license_exp, state, years_working, clients_id, assigned) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)';
+    let statement = 'insert into hr (name, address, tel, civil_status, email, contact1, contact2, birthdate, labor_status, position, rate, mc_exp, ssn, type, crew, shift, username, password, license, license_exp, state, hire_date, license_class, experience, payment_method, bank_account, routing_number, clients_id, assigned) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, false)';
 
-    return connectionPool.query(statement, [name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, yearsWorking, clients_id]);
+    return connectionPool.query(statement, [name, address, tel, civilStatus, email, contact1, contact2, birth, laborStatus, position, rate, mcExp, ssn, type, crew, shift, user, password, license, licenseExp, state, hireDate, licenseClass, experience, paymentMethod, BankAccount, RoutingNumber, clients_id]);
 };
 
 exports.getHrDetail = (hrId) => {
@@ -203,6 +208,7 @@ exports.getHrDetail = (hrId) => {
                         DATE_FORMAT(license_exp, "%m-%d-%Y") license_exp, \
                         DATE_FORMAT(years_working, "%m-%d-%Y") years_working, \
                         DATE_FORMAT(hire_date, "%m-%d-%Y") hire_date, \
+                        DATE_FORMAT(experience, "%m-%d-%Y") experience, \
                         state, \
                         ssn, \
                         dependants, \
@@ -210,7 +216,11 @@ exports.getHrDetail = (hrId) => {
                         clients_id, \
                         assigned, \
                         location, \
-                        dll_hr \
+                        dll_hr, \
+                        license_class, \
+                        payment_method, \
+                        routing_number, \
+                        bank_account \
                         from hr \
                         where id = ?'
 
@@ -218,7 +228,7 @@ exports.getHrDetail = (hrId) => {
 };
 
 exports.updateHr = (name, value, pk) => {
-    let statement = 'update hr set ' + name + ' = ? where id = ?';
+    let statement = 'update `sandras`.`hr` set `' + name + '` = ? where `id` = ?';
 
     return connectionPool.query(statement, [value, pk]);
 };
@@ -230,7 +240,13 @@ exports.updateTicket = (name, value, pk) => {
 };
 
 exports.getClockin = () => {
-    let statement = 'select c.id, h.name, DATE_FORMAT(c.in, "%m-%d-%Y %H:%i:%s") "in", DATE_FORMAT(c.out, "%m-%d-%Y %H:%i:%s") "out", TIMESTAMPDIFF(hour, c.in, c.out) "hours_worked", h.shift from clockin c join hr h on c.hr_id = h.id where c.paid = false';
+    let statement = 'select c.id, h.name, DATE_FORMAT(c.in, "%m-%d-%Y %H:%i:%s") "in", \
+                        DATE_FORMAT(c.out, "%m-%d-%Y %H:%i:%s") "out", \
+                        TIMESTAMPDIFF(hour, c.in, c.out) "hours_worked", \
+                        h.shift, \
+                        c.img_in_name, \
+                        c.img_out_name \
+                        from clockin c join hr h on c.hr_id = h.id where c.paid = false';
 
     return connectionPool.query(statement);
 }
@@ -251,14 +267,30 @@ exports.getSelectedCrew = (crewId) => {
     return connectionPool.query(statement, [crewId]);
 };
 
-exports.saveClockInEvent = (id_evento, date, lattitud, longitud, img, id_hr) => {
-    let statement = 'insert into `sandras`.`clockin` (`id_evento`, `in`, `lat_in`, `long_in`, `img_in`, `hr_id`, paid) values (?,?,?,?,?,?,?)';
+exports.saveClockInEvent = (id_evento, date, lattitud, longitud, name, id_hr) => {
+    let statement = 'insert into `sandras`.`clockin` (`id_evento`, `in`, `lat_in`, `long_in`, `img_in_name`, `hr_id`,  `paid`) values (?,?,?,?,?,?,?)';
 
-    return connectionPool.query(statement, [id_evento, date, lattitud, longitud, img, id_hr, 0]);
+    console.log("save clockin " + statement, [id_evento, date, lattitud, longitud, name, id_hr, 0])
+    return connectionPool.query(statement, [id_evento, date, lattitud, longitud, name, id_hr, 0]);
 };
 
-exports.saveClockOutEvent = (id_evento, date, lattitud, longitud, img) => {
-    let statement = " update `sandras`.`clockin` set `out` = '"+ date +"', `lat_out` = '"+ lattitud +"', `long_out` = '"+ longitud +"', `img_out` = '"+ img +"' where `id_evento` = '"+ id_evento +"' ";
+exports.saveClockOutEvent = (id_evento, date, lattitud, longitud, name) => {
+    let statement = " update `sandras`.`clockin` set `out` = '"+ date +"', `lat_out` = '"+ lattitud +"', `long_out` = '"+ longitud +"', `img_out_name` = '"+ name +"' where `id_evento` = '"+ id_evento +"' ";
 
     return connectionPool.query(statement);
 };
+
+exports.getClockinById = (id) => {
+    let statement = 'select id, \
+                            DATE_FORMAT(`in`, "%Y-%m-%d %H:%i:%s") "in" , \
+                            DATE_FORMAT(`out`, "%Y-%m-%d %H:%i:%s") "out" \
+                            from `sandras`.`clockin` where `id` = ?'
+
+    return connectionPool.query(statement, [id]);
+};
+
+exports.updateClockinById = (entrada, salida, id) => {
+    let statement = " update `sandras`.`clockin` set `in` = ?, `out` = ? where id = ? ";
+
+    return connectionPool.query(statement, [entrada, salida, id]);
+}
