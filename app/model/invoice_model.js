@@ -58,15 +58,16 @@ exports.queryPaid = () => {
     query += '    ,`t`.`load_rate`          `Company Rate` '
     query += '    ,`i`.`payed_confirmation` `Paid ID` '
     query += '    ,`i`.`payed_date`         `Paid Date` '
+    query += '    ,`t`.`price`              `Price` '
     query += 'from '
     query += '                  `sandras`.`invoices`    `i` '
     query += '    inner join    `sandras`.`tickets`     `t` on `t`.`id` = `i`.`tickets_id` '
     query += '    inner join    `sandras`.`hr`          `h` on `h`.`id` = `t`.`hr_id` '
     query += '    inner join    `sandras`.`products`    `p` on `p`.`id` = `t`.`products_id` '
     query += 'where '
-    query += '    ( `i`.`payed_confirmation` is not null  '
+    query += '    ( `i`.`payed_confirmation` is not null '
     query += '      and length(trim(`i`.`payed_confirmation`)) > 0 ) '
-    query += '    or `i`.`payed_date` is not null'
+    query += '    or `i`.`payed_date` is not null '
     query += 'order by '
     query += '    `i`.`payed_date` desc '
 
@@ -99,4 +100,40 @@ exports.updatePayment = (invoiceId, paymentId) => {
     let query = 'UPDATE `sandras`.`invoices` SET payed_confirmation = ? , payed_date = ? where id = ?';
 
     return connectionPool.query(query, [paymentId, new Date(), invoiceId]);
+}
+
+exports.viewInvoice = (invoiceId) => {
+    let query = 'SELECT '
+    query += '    `c`.`name` `customer_name` '
+    query += '    ,`c`.`address` `customer_address` '
+    query += '    ,`i`.`id`  `invoice_number` '
+    query += '    ,`t`.`invoice_date` `invoice_date` '
+    query += '    ,`t`.`drop_date` `completed_date` '
+    query += '    ,`i`.`terms` `invoice_terms` '
+    query += '    ,`t`.`drop_date` `to_be_invoiced_date` '
+    query += '    ,`t`.`invoice_date` `invoiced_date` '
+    query += '    ,`i`.`payed_date` `paid_date` '
+    query += '    ,`t`.`tms` `load` '
+    query += '    ,`t`.`po` `po` '
+    query += '    ,`t`.`bol` `bol` '
+    query += '    ,`h`.`name` `driver` '
+    query += '    ,`t`.`pick_date` `ship_date` '
+    query += '    ,`t`.`location` `origin` '
+    query += '    ,`t`.`facility` `destination` '
+    query += '    ,`t`.`weight` `weight` '
+    query += '    ,`t`.`price` `price` '
+    query += '    ,`p`.`payrolled` `payrolled` '
+    query += '    ,`t`.`trailer` `trailer` '
+    query += '    ,`p`.`date` `payrolled_date` '
+    query += '    ,`t`.`price` `total` '
+    query += 'FROM '
+    query += '            `sandras`.`clients`  `c` '
+    query += '    INNER JOIN `sandras`.`tickets`  `t` ON `t`.`clients_id` = `c`.`id` '
+    query += '    INNER JOIN `sandras`.`invoices` `i` ON `i`.`tickets_id` = `t`.`id` '
+    query += '    INNER JOIN `sandras`.`hr`       `h` ON `h`.`id` = `t`.`hr_id` '
+    query += '    INNER JOIN `sandras`.`payroll`  `p` ON `p`.`tickets_id` = `t`.`id` '
+    query += 'WHERE '
+    query += '    `i`.`id` = ? '
+
+    return connectionPool.query(query, [invoiceId])
 }
