@@ -113,6 +113,7 @@
                     </div>
                 </div>
                 <div class = "row">
+                    <h4> Clockin events</h4>
                     <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                     <thead>
                         <tr>
@@ -121,7 +122,6 @@
                             <th data-column-id="in" >In</th>
                             <th data-column-id="out">Out</th>
                             <th data-column-id="hours-worked">Hours worked</th>
-                            <!--<th data-column-id="dll-hr">Dlls / hr</th>-->
                             <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                         </tr>
                     </thead>
@@ -132,7 +132,36 @@
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
-                            <!--<td id=""></td>-->
+                            <td id=""></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="validate" type="button" class="btn btn-secondary pull-right" disabled>Validate</button>
+                    </div>
+                </div>
+                <div class = "row">
+                    <h4> Payroll entries</h4>
+                    <table id='grid-payroll' border="1" class="table table-bordered table-condensed table-hover table-striped" >
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-type="numeric" data-width="10%">Payroll No.</th>
+                            <th data-column-id="amount">Amount</th>
+                            <th data-column-id="hours-worked">Hours Worked</th>
+                            <th data-column-id="date">Date</th>
+                            <th data-column-id="wire-transfer">Wire Transfer</th>
+                            <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="quote">
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
                             <td id=""></td>
                         </tr>
                     </tbody>
@@ -143,14 +172,36 @@
     </div>
 </div>
     
+<!-- wireTransferModal -->
+<div id="wireTransferModal" class="modal fade" tabindex="-1" role="dialog">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Capture wire transfer</h4>
+    </div>
+    <div class="modal-body">
+        <label for="id" class="control-label col-xs-4">Wire Transfer</label>
+        <div class="col-xs-8">
+            <input class="form-control" id="wireTransferInput" type="text" value="">
+        </div>
+        <br/>
+        <br/>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="accepted" type="button" class="btn btn-primary">Save changes</button>
+    </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
-    
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
 
     <!-- Ticket detail modal  -->
-    <%include ../partials/ticket-detail %>
+    <!--<%include ../partials/ticket-detail %>-->
     <script>
         //var socket = io.connect('http://localhost:3000');
     </script>
@@ -182,8 +233,7 @@
                         fragment.appendChild(opt);
                     });
 
-                    sel.appendChild(fragment);
-                    console.log(data);
+                    sel.appendChild(fragment);    
                 },
                 error: function(){
                     alert('Please try again');
@@ -211,8 +261,11 @@
 
                         //Recargar Bottgrid
                         $('#grid-basic').bootgrid('destroy');
+                        $('#grid-payroll').bootgrid('destroy');
                         initGrid(hr[0].id);
-                        
+                        initGridPayroll(hr[0].id);
+
+                        $('#validate').prop("disabled", false);
                     },
                     error: function(){
                         alert('Please try again');
@@ -233,7 +286,6 @@
                     cache: false
                 },
                 url: "/api/payroll/getClockinById/" + payroll_id,
-                rowCount: [10, 50, 75, 100, 200, -1],
                 caseSensitive: false,
                 formatters: {
                     "link": function(column, row)
@@ -251,46 +303,83 @@
                 /* Executes after data is loaded and rendered */
                 grid.find(".command-edit").on("click", function(e)
                 {
-                    
                     //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
-                }).end().find(".show-ticket").on("click", function(e) {
-                    $($(this).attr("href")).modal("show", $(this));
-                });
+                })
             });
         }
         
-
-
-
+        function initGridPayroll(payroll_id) {
+            var grid = $("#grid-payroll").bootgrid({
+                ajax: true,
+                ajaxSettings: {
+                    method: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    cache: false
+                },
+                url: "/api/payroll/getPayrollHrById/" + payroll_id,
+                caseSensitive: false,
+                formatters: {
+                    "commands": function(column, row)
+                    {
+                        return "<button type=\"button\" class=\"btn btn-md btn-default command-payroll-to-pdf\" data-row-id=\"" + row.id + "\">PDF</button>" 
+                    }
+                }
+            }).on("loaded.rs.jquery.bootgrid", function()
+            {
+                /* Executes after data is loaded and rendered */
+                grid.find(".command-edit").on("click", function(e)
+                {
+                    //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                });
+            });
+        }
 
         $("#validate").click(function() {
-            var ticketList = [];
-                $('.validate:checkbox:checked').each(function() {
-                ticketList.push($(this).val());
-                });
-                if (ticketList != ''){
-
-                    $.ajax({
-                        url: '/api/payroll/createPayroll/',    
-                        type: 'PUT',   
-                        data: {
-                                ticketId: ticketList
-
-                        },      //Data as js object
-                        success: function (msj) {
-                            alert(msj.message);
-                            location.reload();
-                        },
-                        error: function(xhr) {
-                            alert("Error occured. please try again");
-                        },
-                    })
-                }
-                else {
-                    alert("No ticket(s) selected")
-                }
-                
+            $('#wireTransferModal').modal('show');
         });
+
+        $("#accepted").click(function() {
+            var clockinList = [];
+            $('.validate:checkbox:checked').each(function() {
+                clockinList.push($(this).val());
+            });
+
+            if($("#dllshr").val() == null || $("#dllshr").val() == undefined || $("#dllshr").val() == ""){
+                alert("please define dlls/hr for selected user");
+                return // TODO: hacer una prueba con un hr sin dlls_hr para ver si corre el codigo de abajo (en distintos navegadores)!!
+            }
+
+            if (clockinList != ''){
+
+                $.ajax({
+                    url: '/api/payroll/createPayrollEntry/',    
+                    type: 'POST',   
+                    data: {
+                        clockinList: clockinList,
+                        id: $("#id").val(),
+                        dllsHr: $("#dllshr").val(),
+                        wireTransfer: $("#wireTransferInput").val()
+                    },      //Data as js object
+                    success: function (msj) {
+                        alert(msj.message);
+                        $('#grid-basic').bootgrid('destroy');
+                        $('#grid-payroll').bootgrid('destroy');
+                        initGrid($("#id").val());
+                        initGridPayroll($("#id").val());
+                        $('#wireTransferModal').modal('hide');
+                        $("#wireTransferInput").val("");
+                    },
+                    error: function(xhr) {
+                        $('#wireTransferModal').modal('hide');
+                        alert("Error occured. please try again");
+                    },
+                })
+            }
+            else {
+                alert("No clockin event(s) selected")
+            }
+        })
 
         
     </script>

@@ -263,7 +263,7 @@ exports.tms = (hrId) => {
 /*
 * TODO: AddEvent necesita una refactorizacion, se realizo muy rapido para darle cierre a la primera etapa.
 */
-exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol) => {
+exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date) => {
 
 
     // Esta rutina tiene que correr primero porque el substatus es un numero que vamos a insertar en la columna substatus del ticket
@@ -297,6 +297,7 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
             console.error('Error when querying: \n', err);
             return 'Error when querying: \n' + err
         })
+
     } else if (substatus == "4") {
         substatus = "ON MY WAY TO LOCATION"
     } else if (substatus == "5") {
@@ -358,7 +359,7 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
 
     // Aqui es donde se guarda el evento en la tabla de eventos
     return dispatcherModel
-        .addEvent(substatus, timestap,  latitude, longitude, ticketId)
+        .addEvent(substatus, timestap, latitude, longitude, date, ticketId)
         .then((return_data) => {
             return return_data
         })
