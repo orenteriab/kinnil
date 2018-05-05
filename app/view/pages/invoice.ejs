@@ -257,7 +257,9 @@
                     }
 
                     $('#dv_enter_payment').modal('show');
-                    $('#btn_save_payment').on('click', APP.SERVICES.INVOICE.PERFORM_VALIDATION(invoicesInformation));
+                    $('#btn_save_payment')
+                        .unbind('click')
+                        .on('click', APP.SERVICES.INVOICE.PERFORM_VALIDATION(invoicesInformation));
                 }
 
             };
