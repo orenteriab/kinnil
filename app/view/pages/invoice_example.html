@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="../../assets/css/bootstrap.min.css" media="screen and print">
+    <script src="../../assets/js/jquery.js"></script>
+    <script src="../../assets/js/bootstrap.js"></script>
+    <style>
+        .controls_full {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="form-group">
+    <table style="width: 800px; margin: auto auto;">
+        <tr style="height: 100px;">
+            <td>
+                <img src="../../assets/img/No_image_available.png" alt="No image available" style="height: 100px;" />
+            </td>
+            <td style="vertical-align: top; text-align: right;">
+                <span>Invoice No.</span>
+                <input type="text" id="tx_invoice_number" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table style="width: 100%;">
+                    <tr>
+                        <td>
+                            <span>Bill to:</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; width: 50%;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td>
+                                        <span>Customer:</span>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="customer" id="tx_customer" class="controls_full"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top;">
+                                        <span>Address:</span>
+                                    </td>
+                                    <td>
+                                        <textarea name="address" id="txa_address" cols="40" rows="5"></textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="vertical-align: top;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td>
+                                        <span>Date:</span>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="date" id="tx_date" class="controls_full"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span>Due date:</span>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="due_date" id="tx_due_date" class="controls_full"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span>Terms:</span>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="terms" id="tx_terms" class="controls_full" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr style="background-color: #a6a6a6;">
+            <td colspan="2" style="text-align: center; color: #fff;">
+                <span>STATUS</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table style="text-align: center; width: 100%">
+                    <tr>
+                        <td style="width: 34%">To be invoiced</td>
+                        <td style="width: 33%">Invoiced</td>
+                        <td style="width: 33%">Paid</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 34%">
+                            <input type="text" name="to_be_invoiced" id="tx_to_be_invoiced" style="width: 90%" />
+                        </td>
+                        <td style="width: 33%;">
+                            <input type="text" name="invoiced" id="tx_invoiced" style="width: 90%" />
+                        </td>
+                        <td style="width: 33%">
+                            <input type="text" name="paid" id="tx_paid" style="width: 90%" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr style="background-color: #a6a6a6;">
+            <td colspan="2" style="text-align: center; color: #fff;">
+                <span>INFO</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table style="text-align: center; width: 100%">
+                    <tr>
+                        <td style="width: 25%">Load</td>
+                        <td style="width: 25%">P.O.</td>
+                        <td style="width: 25%">BOL</td>
+                        <td style="width: 25%">Driver</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 25%">
+                            <input type="text" name="load" id="tx_load" style="width: 90%" />
+                        </td>
+                        <td style="width: 25%;">
+                            <input type="text" name="po" id="tx_po" style="width: 90%" />
+                        </td>
+                        <td style="width: 25%">
+                            <input type="text" name="bol" id="tx_bol" style="width: 90%" />
+                        </td>
+                        <td style="width: 25%">
+                            <input type="text" name="driver" id="tx_driver" style="width: 90%" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr style="background-color: #a6a6a6;">
+            <td colspan="2" style="text-align: center; color: #fff;">
+                <span>Products</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table style="text-align: center; width: 100%">
+                    <tr style="text-align: left;">
+                        <td style="width: 20%">Ship Date: </td>
+                        <td style="width: 40%" colspan="2">
+                            <input type="text" name="ship_date" id="tx_ship_date" style="width: 90%" />
+                        </td>
+                        <td style="width: 20%"></td>
+                        <td style="width: 20%"></td>
+                    </tr>
+                    <tr style="text-align: left;">
+                        <td style="width: 20%">Origin: </td>
+                        <td style="width: 40%" colspan="2">
+                            <input type="text" name="origin" id="tx_origin" style="width: 90%" />
+                        </td>
+                        <td style="width: 20%"></td>
+                        <td style="width: 20%"></td>
+                    </tr>
+                    <tr style="text-align: left;">
+                        <td style="width: 20%">Destination: </td>
+                        <td style="width: 40%" colspan="2">
+                            <input type="text" name="destination" id="tx_destination" style="width: 90%" />
+                        </td>
+                        <td style="width: 20%"></td>
+                        <td style="width: 20%"></td>
+                    </tr>
+                    <tr style="text-align: left;">
+                        <td style="width: 20%">Weight: </td>
+                        <td style="width: 40%" colspan="2">
+                            <input type="text" name="weight" id="tx_weight" style="width: 90%" />
+                        </td>
+                        <td style="width: 20%">Price:</td>
+                        <td style="width: 20%">
+                            <input type="text" name="price" id="tx_price" style="width: 95%" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table style="width: 100%">
+                    <tr style="text-align: center;">
+                        <td style="width: 25%">Amount payrolled</td>
+                        <td style="width: 25%">Trailer</td>
+                        <td style="width: 25%">Date</td>
+                        <td style="width: 25%"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" name="amount_payrolled" id="tx_amount_payrolled" style="width: 90%;" />
+                        </td>
+                        <td>
+                            <input type="text" name="trailer" id="tx_trailer" style="width: 90%;"/>
+                        </td>
+                        <td>
+                            <input type="text" name="date" id="tx_date" style="width: 90%;"/>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align: right;">Total</td>
+                        <td>
+                            <input type="text" name="total" id="tx_total" style="width: 95%;"/>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
