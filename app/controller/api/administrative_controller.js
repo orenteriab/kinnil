@@ -212,8 +212,8 @@ ROUTER.post('/addhr/', (req, res) => {
             req.body.ssn,
             req.body.username,
             req.body.password,
-            req.body.crew,
             req.body.shift,
+            req.body.crew,
             1) // 1 el default siempre es 1 porque en esta version solo hay un cliente (HALLIBURTON)
         .then(() => {
 
