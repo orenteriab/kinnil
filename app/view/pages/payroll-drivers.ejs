@@ -109,20 +109,25 @@
                                 <input class="form-control" id="ssn" type="text" value="" disabled>
                             </div>
                         </div>
-                        
+                        <div class="form-group">
+                            <label for="rate" class="control-label col-xs-4">rate</label>
+                            <div class="col-xs-8">
+                                <input class="form-control" id="rate" type="text" value="" disabled>
+                            </div>
+                        </div>
                         </form>
                     </div>
                 </div>
                 <div class = "row">
+                    <h4>Loads</h4>
                     <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
                     <thead>
                         <tr>
-                            <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
-                            <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
+                            <th data-column-id="id" data-type="numeric" data-type="numeric" data-width="10%">Ticket No.</th>
+                            <th data-column-id="tms" data-formatter="link">Load</th>
                             <th data-column-id="location"  data-width="25%">Location</th>
                             <th data-column-id="facility">Facility</th>
-                            <th data-column-id="drivers"  data-formatter="drivers">Load rate</th>
-                            <th data-column-id="products" data-formatter="products">Driver rate</th>
+                            <th data-column-id="load-rate">Load rate</th>
                             <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                         </tr>
                     </thead>
@@ -131,6 +136,33 @@
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                            <td id=""></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="validate" type="button" class="btn btn-secondary pull-right" disabled>Validate</button>
+                    </div>
+                </div>
+                <div class = "row">
+                    <h4> Payroll entries</h4>
+                    <table id='grid-payroll' border="1" class="table table-bordered table-condensed table-hover table-striped" >
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-type="numeric" data-width="10%">Payroll No.</th>
+                            <th data-column-id="amount">Amount</th>
+                            <th data-column-id="date">Date</th>
+                            <th data-column-id="wire-transfer">Wire Transfer</th>
+                            <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="quote">
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
@@ -146,7 +178,30 @@
 </div>
     
 
-    
+<!-- wireTransferModal -->
+<div id="wireTransferModal" class="modal fade" tabindex="-1" role="dialog">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Capture wire transfer</h4>
+    </div>
+    <div class="modal-body">
+        <label for="id" class="control-label col-xs-4">Wire Transfer</label>
+        <div class="col-xs-8">
+            <input class="form-control" id="wireTransferInput" type="text" value="">
+        </div>
+        <br/>
+        <br/>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="accepted" type="button" class="btn btn-primary">Save changes</button>
+    </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
@@ -202,16 +257,26 @@
                     data: {
                         id: this.value,
                     },
-                    success: function(data){
-                        $("#id").val(data[0].id);
-                        $("#name").val(data[0].name);
-                        $("#type").val(data[0].type);
-                        $("#email").val(data[0].email);
-                        $("#phone").val(data[0].tel);
-                        $("#license").val(data[0].license);
-                        $("#license-type").val(data[0].license_type);
-                        $("#license-exp").val(data[0].license_exp);
-                        $("#ssn").val(data[0].ssn);
+                    success: function(driver){
+                        console.log(driver);
+                        $("#id").val(driver[0].id);
+                        $("#name").val(driver[0].name);
+                        $("#type").val(driver[0].type);
+                        $("#email").val(driver[0].email);
+                        $("#phone").val(driver[0].tel);
+                        $("#license").val(driver[0].license);
+                        $("#license-type").val(driver[0].license_type);
+                        $("#license-exp").val(driver[0].license_exp);
+                        $("#ssn").val(driver[0].ssn);
+                        $("#rate").val(driver[0].rate);
+
+                        // Recargar Bottgrid
+                        $('#grid-basic').bootgrid('destroy');
+                        $('#grid-payroll').bootgrid('destroy');
+                        initGrid(driver[0].id);
+                        initGridPayroll(driver[0].id);
+
+                        $('#validate').prop("disabled", false);
                     },
                     error: function(){
                         alert('Please try again');
@@ -222,59 +287,113 @@
             
         })
 
-        var grid = $("#grid-basic").bootgrid({
-            caseSensitive: false,
-            formatters: {
-                "link": function(column, row)
-                {
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+        function initGrid(payroll_id) {
+            var grid = $("#grid-basic").bootgrid({
+                ajax: true,
+                ajaxSettings: {
+                    method: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    cache: false
                 },
-                "commands": function(column, row)
-                {
-                    return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                url: "/api/payroll/getTicketsById/" + payroll_id,
+                caseSensitive: false,
+                formatters: {
+                    "link": function(column, row)
+                    {
+                        return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+                    },
+                    "commands": function(column, row)
+                    {
+                        return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                    }
                 }
-            }
-        }).on("loaded.rs.jquery.bootgrid", function()
-        {
-            
-            /* Executes after data is loaded and rendered */
-            grid.find(".command-edit").on("click", function(e)
+            }).on("loaded.rs.jquery.bootgrid", function()
             {
                 
-                //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
-            }).end().find(".show-ticket").on("click", function(e) {
-                $($(this).attr("href")).modal("show", $(this));
+                /* Executes after data is loaded and rendered */
+                grid.find(".command-edit").on("click", function(e)
+                {
+                    //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                }).end().find(".show-ticket").on("click", function(e) {
+                    $($(this).attr("href")).modal("show", $(this));
+                });
             });
-        });
+        }
+
+        function initGridPayroll(payroll_id) {
+            var grid = $("#grid-payroll").bootgrid({
+                ajax: true,
+                ajaxSettings: {
+                    method: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    cache: false
+                },
+                url: "/api/payroll/getPayrollHrById/" + payroll_id,
+                caseSensitive: false,
+                formatters: {
+                    "commands": function(column, row)
+                    {
+                        return "<button type=\"button\" class=\"btn btn-md btn-default command-payroll-to-pdf\" data-row-id=\"" + row.id + "\">PDF</button>" 
+                    }
+                }
+            }).on("loaded.rs.jquery.bootgrid", function()
+            {
+                /* Executes after data is loaded and rendered */
+                grid.find(".command-edit").on("click", function(e)
+                {
+                    //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                });
+            });
+        }
 
         $("#validate").click(function() {
-            var ticketList = [];
-                $('.validate:checkbox:checked').each(function() {
-                ticketList.push($(this).val());
-                });
-                if (ticketList != ''){
-
-                    $.ajax({
-                        url: '/api/payroll/createPayroll/',    
-                        type: 'PUT',   
-                        data: {
-                                ticketId: ticketList
-
-                        },      //Data as js object
-                        success: function (msj) {
-                            alert(msj.message);
-                            location.reload();
-                        },
-                        error: function(xhr) {
-                            alert("Error occured. please try again");
-                        },
-                    })
-                }
-                else {
-                    alert("No ticket(s) selected")
-                }
-                
+            $('#wireTransferModal').modal('show');
         });
+
+        $("#accepted").click(function() {
+            var ticketList = [];
+            $('.validate:checkbox:checked').each(function() {
+                ticketList.push($(this).val());
+            });
+
+            if($("#rate").val() == null || $("#rate").val() == undefined || $("#rate").val() == ""){
+                alert("please define driver rate for selected user");
+                return // TODO: hacer una prueba con un hr sin dlls_hr para ver si corre el codigo de abajo (en distintos navegadores)!!
+            }
+
+            if (ticketList != ''){
+
+                $.ajax({
+                    url: '/api/payroll/createPayrollEntryforDriver/',    
+                    type: 'POST',   
+                    data: {
+                        ticketList: ticketList,
+                        id: $("#id").val(),
+                        rate: $("#rate").val(),
+                        type: $("#type").val(),
+                        wireTransfer: $("#wireTransferInput").val()
+                    },      //Data as js object
+                    success: function (msj) {
+                        alert(msj.message);
+                        $('#grid-basic').bootgrid('destroy');
+                        $('#grid-payroll').bootgrid('destroy');
+                        initGrid($("#id").val());
+                        initGridPayroll($("#id").val());
+                        $('#wireTransferModal').modal('hide');
+                        $("#wireTransferInput").val("");
+                    },
+                    error: function(xhr) {
+                        $('#wireTransferModal').modal('hide');
+                        alert("Error occured. please try again");
+                    },
+                })
+            }
+            else {
+                alert("No ticket(s) selected")
+            }
+        })
 
         
     </script>

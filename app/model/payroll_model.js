@@ -69,7 +69,6 @@ exports.getClockinById = (hr_id) => {
 
 exports.getPaymentDetails = (clockinList, dllsHr) => {
 
-    console.log(clockinList, dllsHr)
     let statement = 'select SUM(TIMESTAMPDIFF(SECOND, `in`, `out`)) "seconds_worked", ((SUM(TIMESTAMPDIFF(SECOND, `in`, `out`)))/60/60)*'+ dllsHr +' "amount" from `sandras`.`clockin` where `id` in ('+ clockinList +')'
 
     return connectionPool.query(statement);
@@ -78,15 +77,12 @@ exports.getPaymentDetails = (clockinList, dllsHr) => {
 exports.createPayrollEntry = (wireTransfer, amount, seconds_worked, timestap, id) => {
     let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `seconds_worked`, `date`, `hr_id`) values (?,?,?,?,?)'
 
-
-    console.log(statement, [wireTransfer, amount, seconds_worked, timestap, id])
     return connectionPool.query(statement, [wireTransfer, amount, seconds_worked, timestap, id]);
 }
 
 exports.relateClockinEventWithPaymentEvent = (newPaymentId,clockinList) => {
     let statement = 'update `sandras`.`clockin` set payroll_hr_id = ?, paid = true where id in ('+ clockinList +')'
 
-    console.log(statement, [newPaymentId])
     return connectionPool.query(statement, [newPaymentId]);
 }
 
@@ -94,4 +90,30 @@ exports.getPayrollHrById = (hr_id) => {
     let statement = 'select `id`, `amount`, `seconds_worked`, DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") date, `wire_transfer` from `sandras`.`payroll_hr` where hr_id = ? order by `date` desc'
 
     return connectionPool.query(statement, [hr_id]);
+}
+
+exports.getTicketsById = (hr_id) => {
+    let statement = 'select id, tms, location, facility, load_rate, driver_rate from tickets where status = 4 and payrolled_date is null and hr_id = ?'
+
+    return connectionPool.query(statement, [hr_id]);
+}
+
+
+exports.getPaymentDetailsForDrivers = (ticketList, rate) => {
+    console.log(ticketList, rate)
+    let statement = 'select SUM(`load_rate` * '+ rate +') amount from `sandras`.`tickets` where `id` in ('+ ticketList +')'
+
+    return connectionPool.query(statement);
+}
+
+exports.createPayrollEntryforDrivers = (wireTransfer, amount, timestap, id) => {
+    let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `date`, `hr_id`) values (?,?,?,?)'
+
+    return connectionPool.query(statement, [wireTransfer, amount, timestap, id]);
+}
+
+exports.relateTicketsWithPaymentEvent = (newPaymentId, timestap, ticketList) => {
+    let statement = 'update `sandras`.`tickets` set payroll_hr_id = ?, payrolled_date = ? where id in ('+ ticketList +')'
+
+    return connectionPool.query(statement, [newPaymentId, timestap]);
 }
