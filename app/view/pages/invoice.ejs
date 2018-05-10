@@ -523,7 +523,6 @@
             };
 
             APP.INIT = APP.INIT || function(){
-                $('li[id^="li_sdbr"]').removeClass('active');
                 $('li[id="li_sdbr_invoice"]').addClass('active');
                 APP.EVENTS.UI.TO_BE_INVOICED();
                 APP.SERVICES.INVOICE.TO_BE_INVOICED();
