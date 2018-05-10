@@ -2,7 +2,7 @@ let dispatcherService = require('../service/dispatcher_service');
 const SocketEvent = require('./socket_event').SocketEvent;
 
 let administrativeService = require('../service/administrative_service');
-const utf8 = require('utf-8');
+const utf8 = require('utf8');
 
 
 const onMessage = (socket) => {
