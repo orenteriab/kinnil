@@ -299,7 +299,6 @@
                 }
             }).on("loaded.rs.jquery.bootgrid", function()
             {
-                
                 /* Executes after data is loaded and rendered */
                 grid.find(".command-edit").on("click", function(e)
                 {
@@ -328,9 +327,19 @@
             }).on("loaded.rs.jquery.bootgrid", function()
             {
                 /* Executes after data is loaded and rendered */
-                grid.find(".command-edit").on("click", function(e)
+                grid.find(".command-payroll-to-pdf").on("click", function(e)
                 {
-                    //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
+                    $.ajax({
+                        url: '/api/payroll/getPDFInformationHr/' + $(this).data("row-id"),    
+                        type: 'GET',   
+                        data: {},      //Data as js object
+                        success: function (msj) {
+                            payrollToPdf(msj);
+                        },
+                        error: function(err) {
+                            alert("Error occured. please try again: " + err);
+                        },
+                    })
                 });
             });
         }
@@ -383,6 +392,65 @@
 
         //$('li[id^="li_sdbr"]').removeClass('active');
         $('li[id="li_sdbr_payroll"]').addClass('active');
+
+        function payrollToPdf(msj) {
+
+            // Default export is a4 paper, portrait, using milimeters for units
+            var doc = new jsPDF(); // tamaño carta por default
+            doc.setFontSize(14);
+            doc.text(20, 30, 'Payroll ID. ' + msj.payroll[0].id);
+            doc.setFontSize(10);
+            doc.text(20, 40, 'Name: ' + msj.hr[0].name);
+            doc.text(20, 45, 'Address: ' + msj.hr[0].address);
+            doc.text(20, 50, 'Date of Birth: ' + msj.hr[0].birthdate);
+            doc.text(20, 55, 'Civil status: ' + msj.hr[0].civil_status);
+            doc.text(20, 60, 'email: ' + msj.hr[0].email);
+            doc.text(20, 65, 'Emergency contact name: ' + msj.hr[0].contact1);
+            doc.text(20, 70, 'Emergency contact phone: ' + msj.hr[0].contact2);
+            doc.text(20, 75, 'Crew: ' + msj.hr[0].crew);
+            doc.text(20, 80, 'Shift: ' + msj.hr[0].shift);
+            doc.text(20, 85, 'Labor status: ' + msj.hr[0].labor_status);
+            doc.text(20, 90, 'Position: ' + msj.hr[0].position);
+            doc.text(20, 95, 'Dlls/hr: ' + msj.hr[0].dll_hr);
+            doc.text(20, 100, 'Medical card expiration date: ' + msj.hr[0].mc_exp);
+            doc.text(20, 105, 'SSN: ' + msj.hr[0].ssn);
+
+            doc.setFontSize(14);
+            doc.text(20, 120, 'Clockin events.');
+            doc.setFontSize(10);
+            
+            doc.text(20, 130, 'clockin No.');
+            doc.text(40, 130, 'In');
+            doc.text(90, 130, 'Out')
+            doc.text(140, 130, 'Time Worked')
+            var actualLine = 140;
+
+            for (var i = 0; i < msj.clockins.length; i++) {
+                doc.text(20, actualLine, '' + msj.clockins[i].id);
+                doc.text(40, actualLine, '' + msj.clockins[i].in);
+                doc.text(90, actualLine, '' + msj.clockins[i].out);
+                doc.text(140, actualLine, '' + msj.clockins[i].hours_worked);
+
+                actualLine = actualLine + 5; // salto de linea en el PDF
+            }
+
+            actualLine = actualLine + 10;
+            doc.text(100, actualLine, 'Amount:');
+            doc.text(140, actualLine, '$ ' + msj.payroll[0].amount);
+            
+
+            
+            var img = new Image;
+            img.src = '/assets/img/pdf.jpeg';
+            
+            // addImage algunas veces da este error: Uncaught Error: Supplied data is not a JPEG
+            // Recordar seguir este theard para encontrar solucion: https://github.com/MrRio/jsPDF/issues/411
+            //doc.addImage(img , 'JPEG', horizontal, vertical, 100, 92)
+            doc.addImage(img , 160, 260, 25, 23);
+
+            doc.save('payroll_'+ msj.payroll[0].id +'.pdf');
+        }
+        
 
         
     </script>

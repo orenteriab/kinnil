@@ -10,8 +10,8 @@ exports.getPayrollByType = (position) => {
     return payrollModel.getPayrollByType(position);
 };
 
-exports.getPayrollById = (id) => {
-    return payrollModel.getPayrollById(id);
+exports.getHrInformation = (id) => {
+    return payrollModel.getHrInformation(id);
 };
 
 exports.getClockinById = (hr_id) => {
@@ -176,4 +176,55 @@ exports.getTicketsById = (hr_id) => {
 
                     return return_data
                 });	
+}
+
+
+exports.getPdfIinformationHr = (payrollId) => {
+
+    return payroll = payrollModel
+            .getPayrollInfoById(payrollId)
+            .then((returnData) => {
+
+                let hr = payrollModel
+                    .getHrInformation(returnData[0].hr_id);
+
+                let clockins = payrollModel
+                    .getClockinInfoByPayrollId(returnData[0].id);
+
+                let return_data = {}
+                return_data.payroll = returnData
+                return Promise.all([hr,clockins]).then((data) => {
+    
+                    return_data.hr = data[0];
+                    return_data.clockins = data[1];
+            
+                    console.log(JSON.stringify(return_data))
+                    return return_data;
+                })
+            })
+}
+
+exports.getPdfIinformationDrivers = (payrollId) => {
+
+    return payroll = payrollModel
+            .getPayrollInfoById(payrollId)
+            .then((returnData) => {
+
+                let hr = payrollModel
+                    .getHrInformation(returnData[0].hr_id);
+
+                let tickets = payrollModel
+                    .getTicketsInfoByPayrollId(returnData[0].id);
+
+                let return_data = {}
+                return_data.payroll = returnData
+                return Promise.all([hr,tickets]).then((data) => {
+    
+                    return_data.hr = data[0];
+                    return_data.tickets = data[1];
+            
+                    console.log(JSON.stringify(return_data))
+                    return return_data;
+                })
+            })
 }

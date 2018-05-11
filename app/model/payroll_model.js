@@ -13,7 +13,7 @@ exports.getPayrollByType = (type) => {
     return connectionPool.query(statement, [type]);
 }
 
-exports.getPayrollById = (id) => {
+exports.getHrInformation = (id) => {
     let statement = 'select id, \
                         name, \
                         address, \
@@ -117,3 +117,50 @@ exports.relateTicketsWithPaymentEvent = (newPaymentId, timestap, ticketList) => 
 
     return connectionPool.query(statement, [newPaymentId, timestap]);
 }
+
+exports.getClockinInfoByPayrollId = (payrollId) => {
+    let statement = 'select `id`, DATE_FORMAT(`in`, "%m-%d-%Y %H:%i:%s") `in`, DATE_FORMAT(`out`, "%m-%d-%Y %H:%i:%s") `out`, TIMEDIFF(`out`, `in`) `hours_worked`  from `sandras`.`clockin` where `payroll_hr_id` in ('+ payrollId +')'
+
+    return connectionPool.query(statement);
+}
+
+exports.getPayrollInfoById = (payrollId) => {
+    let statement = 'select * from `sandras`.`payroll_hr` where id = ?'
+
+    return connectionPool.query(statement, [payrollId]);
+}
+
+exports.getTicketsInfoByPayrollId = (payrollId) => {
+    let statement = 'select `id`, \
+`tms`, \
+`status`, \
+`substatus`, \
+`invoice_rate`, \
+`product`, \
+`base`, \
+`silo`, \
+`po`, \
+`facility`, \
+`location`, \
+`bol`, \
+`sand_type`, \
+`weight`, \
+DATE_FORMAT(`assign_date`, "%m-%d-%Y") `assign_date`, \
+DATE_FORMAT(`completed_date`, "%m-%d-%Y") `completed_date`, \
+DATE_FORMAT(`invoice_date`, "%m-%d-%Y") `invoice_date`, \
+DATE_FORMAT(`payrolled_date`, "%m-%d-%Y") `payrolled_date`, \
+DATE_FORMAT(`born_date`, "%m-%d-%Y") `born_date`, \
+`starting_mi`, \
+`end_mi`, \
+`pick_date`, \
+`drop_date`, \
+`notes`, \
+`products_id`, \
+`truck`, \
+`trailer`, \
+`load_rate` \
+from tickets  \
+where `payroll_hr_id` in ('+ payrollId +')';
+    return connectionPool.query(statement);
+}
+

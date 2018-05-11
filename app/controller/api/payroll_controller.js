@@ -38,7 +38,7 @@ ROUTER.post('/drivers', (req, res) => {
 // Obtiene los detalles de un HR o de un driver (estan en la misma tabla)
 ROUTER.post('/byId', (req, res) => {
     payrollService
-        .getPayrollById(req.body.id)
+        .getHrInformation(req.body.id)
         .then((return_data) => {
             res.status(200)
             res.json(return_data);
@@ -135,5 +135,40 @@ ROUTER.get('/getTicketsById/:hrId', (req, res) => {
         })
 })
 
+
+// PDF
+// Obtiene la informacion necesaria para armar el PDF para HR
+ROUTER.get('/getPDFInformationHr/:payrollId', (req, res) => {
+    payrollService
+        .getPdfIinformationHr(req.params.payrollId)
+        .then((return_data) => {
+            res.status(200)
+            console.log(return_data)
+            res.json(return_data);
+        })
+        .catch(function (err) {
+            console.log('[Api/payroll_controller.js][/getClockinById/:hrId] error when obtaining the Payroll information for the PDF: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        })
+})
+
+// Obtiene la informacion necesaria para armar el PDF para Drivers
+ROUTER.get('/getPDFInformationDrivers/:payrollId', (req, res) => {
+    payrollService
+        .getPdfIinformationDrivers(req.params.payrollId)
+        .then((return_data) => {
+            res.status(200)
+            console.log(return_data)
+            res.json(return_data);
+        })
+        .catch(function (err) {
+            console.log('[Api/payroll_controller.js][/getClockinById/:hrId] error when obtaining the Payroll information for the PDF: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        })
+})
 
 exports.router = ROUTER;
