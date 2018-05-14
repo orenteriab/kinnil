@@ -164,3 +164,7 @@ exports.create = (ticket) => {
 
     return MODEL.create(ticket);
 };
+
+exports.updateTicketInvoiceDate = (ticket) => {
+    return MODEL.updateTicketInvoiceDate(ticket)
+}
