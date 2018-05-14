@@ -64,7 +64,23 @@
                                             <%= tickets[i].product_name %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].substatus %>
+                                            <%if (tickets[i].substatus == 0) { %>
+                                                ASSIGNED
+                                            <% } else if(tickets[i].substatus == 1) { %>
+                                                ON MY WAY TO FACILITY
+                                            <% } else if(tickets[i].substatus == 2) { %>
+                                                ARRIVED TO FACILITY
+                                            <% } else if(tickets[i].substatus == 3) { %>
+                                                LOADING
+                                            <% } else if(tickets[i].substatus == 4) { %>
+                                                ON MY WAY TO LOCATION
+                                            <% } else if(tickets[i].substatus == 5) { %>
+                                                ARRIVED TO LOCATION
+                                            <% } else if(tickets[i].substatus == 6) { %>
+                                                UNLOADING
+                                            <% } else if(tickets[i].substatus == 7) { %>
+                                                FINISHED
+                                            <% } %>
                                         </td>
                                         <td id="">
 
