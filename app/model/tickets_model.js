@@ -21,3 +21,9 @@ exports.create = (ticket) => {
         1 // 1 porque siempre en esta etapa es halliburton
     ]);
 };
+
+exports.updateTicketInvoiceDate = (ticket) => {
+    var sql = 'UPDATE `sandras`.`tickets` SET `invoice_date` = CURDATE() WHERE id = ?';
+
+    return connectionPool.query(sql, [ticket])
+}
