@@ -262,7 +262,7 @@ exports.getAccountsClockin = () => {
 };
 
 exports.getSelectedCrew = (crewId) => {
-    let statement = 'select id, name, shift from hr where crew = ?';
+    let statement = 'select id, name, shift from hr where position <> "DRIVER" and crew = ?';
 
     return connectionPool.query(statement, [crewId]);
 };
