@@ -1,5 +1,6 @@
 let Router = require('express').Router;
 let invoiceService = require('../../service/invoice_service');
+let ticketService = require('../../service/tickets_service')
 
 const ROUTER = Router();
 
@@ -59,7 +60,18 @@ ROUTER.post('/create', (req, res) => {
         .then(
             () => {
                 res.status(201)
-                res.json({ message: `Invoice for load ${req.body.tmsLoad} created successfully!` })
+
+                ticketService
+                    .updateTicketInvoiceDate(req.body.ticketId)
+                    .then(
+                        () => {
+                            res.json({ message: `Invoice for load ${req.body.tmsLoad} created successfully!` })
+                        },
+                        (err) => {
+                            console.error(err);
+                            res.json({ message: `Invoice for load ${req.body.tmsLoad} created successfully!. Unable to update ticket invoice date.` })
+                        } 
+                    )
             },
             (err) => {
                 console.error(err);
@@ -86,5 +98,22 @@ ROUTER.post('/pay', (req, res) => {
             }
         )
 })
+
+ROUTER.get('/view/:invoiceId', (req, res) => {
+    invoiceService
+        .viewInvoice(req.params.invoiceId)
+        .then(
+            (invoice) => {
+                res.status(200);
+                res.json(invoice);
+            },
+            (err) => {
+                console.error(err);
+
+                res.status(500)
+                res.json({ error: `Unable to get invoice ${rreq.params.invoiceId}. Please try again.` })
+            }
+        )
+});
 
 exports.router = ROUTER;
