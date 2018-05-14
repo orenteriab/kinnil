@@ -125,7 +125,7 @@
                         var requestStatus = parseInt(ajaxRequests[i].status);
                         var responseObject = ajaxRequests[i].responseJSON[0];
                         if(requestStatus > 199 || requestStatus < 300){
-                            debugger;
+                            //debugger;
                             atLeastOne = true;
 
                             if(i != 0){
@@ -199,7 +199,7 @@
 
                 $('#thd_data_grid, #tbd_data_grid').html('');
 
-                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Company Rate', 'Paid ID', 'Paid Date', 'Print' ];
+                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid ID', 'Paid Date', 'Print' ];
                 var rowElement = $('<tr></tr>');
 
                 for(var i = 0; i < headerTitles.length; i++){
@@ -258,7 +258,7 @@
                                 $('#tbd_data_grid').append(trElement);
                             }
 
-                            invoicePrice[data[i]['Invoice Id']] = data[i]['Price'];
+                            invoicePrice[data[i]['Invoice Id']] = data[i]['Invoice Rate'];
                         }
 
                         $('#tbl_data_grid').bootgrid({
@@ -394,7 +394,7 @@
 
                 $('#thd_data_grid, #tbd_data_grid').html('');
 
-                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Price', 'Paid Id'];
+                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid Id'];
                 var rowElement = $('<tr></tr>');
 
                 for(var i = 0; i < headerTitles.length; i++){
@@ -455,7 +455,7 @@
                             },
                             formatters: {
                                 invoiceCheck: function(column, row){
-                                    return '<input type="checkbox" data-tms-load="' + row['load'] + '" data-id="' + row['id'] + '" data-price="' + row['price'] + '" data-driver="'+ row['driver'] +'" class="form-check-input to-validate" />';
+                                    return '<input type="checkbox" data-tms-load="' + row['load'] + '" data-id="' + row['id'] + '" data-price="' + row['invoice rate'] + '" data-driver="'+ row['driver'] +'" class="form-check-input to-validate" />';
                                 }
                             }
                         });
@@ -543,7 +543,7 @@
 
                 $('#thd_data_grid, #tbd_data_grid').html('');
 
-                var headerTitles = [ 'Load', 'Date', 'Driver', 'Product', 'Company Rate', '', 'Paid Date' ];
+                var headerTitles = [ 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', '', 'Paid Date' ];
                 var rowElement = $('<tr></tr>');
 
                 for(var i = 0; i < headerTitles.length; i++){
