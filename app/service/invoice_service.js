@@ -34,3 +34,11 @@ exports.updatePayment = (invoiceId, paymentId) => {
         return invoiceModel.updatePayment(invoiceId, paymentId)
     }
 }
+
+exports.viewInvoice = (invoiceId) => {
+    if(!invoiceId || String(invoiceId).trim().length == 0){
+        return Bluebird.reject('The invoice id cannot be null or empty')
+    }else{
+        return invoiceModel.viewInvoice(invoiceId)
+    }
+};
