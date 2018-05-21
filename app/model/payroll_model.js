@@ -2,13 +2,13 @@ let connectionPool = require('../config/database_config').connectionPool;
 
 
 exports.getPayrollByPosition = (position) => {
-    let statement = 'select id, name from hr where position = ?';
+    let statement = 'select id, name, substring_index(name, " ", -1) last_name from hr where position = ? order by last_name';
 
     return connectionPool.query(statement, [position]);
 }
 
 exports.getPayrollByType = (type) => {
-    let statement = 'select id, name from hr where type = ?';
+    let statement = 'select id, name, substring_index(name, " ", -1) last_name from hr where type = ? order by last_name';
 
     return connectionPool.query(statement, [type]);
 }
