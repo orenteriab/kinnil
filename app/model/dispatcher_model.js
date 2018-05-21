@@ -86,8 +86,8 @@ exports.getTicketById = (ticketId) => {
                         t.products_id, \
                         t.clients_id, \
                         t.on_curse, \
-                        t.truck, \
-                        t.trailer, \
+                        a1.name truck, \
+                        a2.name trailer, \
                         t.load_rate, \
                         t.load_rate_currency, \
                         c.name client_name, \
@@ -98,6 +98,8 @@ exports.getTicketById = (ticketId) => {
                         from tickets t \
                         left join clients c on t.clients_id = c.id \
                         left join hr h on t.hr_id = h.id \
+                        left join assets a1 on t.truck = a1.id\
+                        left join assets a2 on t.trailer = a2.id\
                         where t.id = ?';
 
     return connectionPool.query(statement, [ticketId]);
