@@ -17,7 +17,7 @@ const onAccounts = (socket) => {
         dispatcherService
             .getUsersAndPassword()
             .then((returnData) => {
-                socket.emit('accounts', JSON.stringify(returnData));
+                socket.emit('accounts',  utf8.encode(JSON.stringify(returnData)));
             })
             .catch(function (err) {
                 console.error('[/app/socket/Events.js][/accounts/]Error when querying: ', err);
@@ -31,7 +31,7 @@ const onAssets = (socket) => {
         dispatcherService
             .getAvailableAssets()
             .then((returnData) => {
-                socket.emit('assets', JSON.stringify(returnData));
+                socket.emit('assets',  utf8.encode(JSON.stringify(returnData)));
             })
             .catch(function (err) {
                 console.error('[/app/socket/Events.js][/assets/]Error when querying: ', err);
@@ -100,7 +100,7 @@ const onTms = (socket) => {
                 if (JSON.stringify(returnData[0]) == null){
                     socket.emit('tms', '{}');
                 } else {
-                    socket.emit('tms', JSON.stringify(returnData[0]));
+                    socket.emit('tms',  utf8.encode(JSON.stringify(returnData[0])));
                 }
             })
             .catch(function (err) {
