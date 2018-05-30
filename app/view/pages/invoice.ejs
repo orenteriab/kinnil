@@ -61,10 +61,31 @@
             </div>
         </div>
     </div>
+    <div id="dv_display_invoice" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" style="overflow-y: initial !important">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4>Invoice</h4>
+                </div>
+                <div class="modal-body" style="height: 400px; overflow-y: auto;">
+                    <div id="dv_invoices_preview" style="display:table; width: 80%; margin: auto auto;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn_save_pdf" type="button" class="btn btn-primary">Print as PDF</button>
+                    <button id="btn_cancel_pdf" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <%include ../partials/js %>
     <script type="text/javascript">
         (function(APP){
+            APP.STORE = APP.STORE || {};
+            APP.STORE.PDF = APP.STORE.PDF || {};
+            APP.STORE.PDF.INVOICES_TO_PRINT = APP.STORE.PDF.INVOICES_TO_PRINT || [];
+
             APP.SERVICES = APP.SERVICES || {};
 
             APP.SERVICES.FORMAT_DATE = APP.SERVICES.FORMAT_DATE || function(currentDate){
@@ -90,6 +111,86 @@
             };
 
             APP.SERVICES.INVOICE = APP.SERVICES.INVOICE || {};
+
+            APP.SERVICES.INVOICE.PRINT_RIGHT_PDF = APP.SERVICES.INVOICE.PRINT_RIGHT_PDF || function(){
+                var invoiceIds = APP.STORE.PDF.INVOICES_TO_PRINT;
+
+                var ajaxRequests = [];
+
+                for(var i = 0; i < invoiceIds.length; i++){
+                    ajaxRequests.push($.ajax({
+                        url: '/api/invoice/view/' + invoiceIds[i],
+                        method: 'GET',
+                    }));
+                }
+
+                $.when.apply(undefined, ajaxRequests).always(function(){
+                    var pdf = new jsPDF('p', 'mm', 'letter');
+                    var atLeastOne = false;
+
+                    for(var i = 0; i < ajaxRequests.length; i++){
+
+                        var requestStatus = parseInt(ajaxRequests[i].status);
+                        var responseObject = ajaxRequests[i].responseJSON[0];
+                        if(requestStatus > 199 || requestStatus < 300){
+                            //debugger;
+                            atLeastOne = true;
+
+                            if(i != 0){
+                                pdf.addPage();
+                            }
+
+                            pdf.setFontSize(14);
+                            pdf.text('Invoice No.: ' + responseObject.invoice_number , 155, 15);
+                            pdf.text('Bill To:', 15, 30);
+                            pdf.text('Customer: ' + responseObject.customer_name, 15, 40);
+                            pdf.text('Date    : ' + responseObject.date, 110, 40);
+                            pdf.text('Address : ' + responseObject.customer_address || '', 15, 50);
+                            pdf.text('Due Date: ' + responseObject.completed_date, 110, 50);
+                            pdf.text('Terms: ' + responseObject.invoice_terms || '', 110, 60);
+                            pdf.text('=============================STATUS=============================', 15, 70);
+                            pdf.text('To be invoiced: ' + responseObject.to_be_invoiced_date, 15, 80,);
+                            pdf.text('Invoiced: ' + responseObject.invoiced_date, 90, 80,);
+                            pdf.text('Paid: ' + responseObject.paid_date, 155, 80,);
+                            pdf.text('===========================INFORMATION==========================', 15, 90);
+                            pdf.text('Load: ' + responseObject.load , 15, 100,);
+                            pdf.text('P.O.: ' + responseObject.po, 100, 100,);
+                            pdf.text('BOL: ' + responseObject.bol, 15, 110,);
+                            pdf.text('Driver: ' + responseObject.driver, 100, 110);
+                            pdf.text('============================PRODUCTS===========================', 15, 120);
+                            pdf.text('Ship Date: ' + responseObject.ship_date, 15, 130,);
+                            pdf.text('Origin: ' + responseObject.origin.substring(0,31), 100, 130,);
+                            pdf.text('Destination: ' + responseObject.destination, 15, 140,);
+                            pdf.text('Weight: ' + responseObject.weight, 100, 140);
+                            pdf.text('Price: $ ' + responseObject.price, 158, 150);
+                            pdf.text('Amount payrolled: $ ' + responseObject.payrolled || 0, 15, 162);
+                            pdf.text('Trailer: ' + responseObject.trailer, 95, 162);
+                            pdf.text('Date: ' + responseObject.date, 158, 162);
+                            pdf.text('Total: ' + responseObject.total, 158, 172);
+
+                            $.ajax({
+                                url: '/api/invoice/' + responseObject.invoice_number + '/printed',
+                                method: 'POST'
+                            });
+                        }
+                    }
+
+                    if(!atLeastOne){
+                        alert('It wasn\'t possible to print any invoice. Please try again.');
+                        pdf = null;
+                    }else{
+                        pdf.save('invoice_' + new Date().getTime() + '.pdf');
+                        alert('Invoice saved successfully!');
+
+                    }
+
+                    APP.STORE.PDF.INVOICES_TO_PRINT = [];
+                    $('#dv_invoices_preview').html('');
+                    $('#dv_display_invoice').modal('hide');
+                    APP.SERVICES.INVOICE.PAID();
+
+                });
+            };
 
             APP.SERVICES.INVOICE.PRINT_PDF = APP.SERVICES.INVOICE.PRINT_PDF || function(){
                 var invoiceToValidateElems = $('.paid-invoice');
@@ -199,18 +300,22 @@
 
                 $('#thd_data_grid, #tbd_data_grid').html('');
 
-                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid ID', 'Paid Date', 'Print' ];
+                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid ID', 'Paid Date', 'Print to PDF', 'Has been printed?' ];
                 var rowElement = $('<tr></tr>');
 
                 for(var i = 0; i < headerTitles.length; i++){
                     var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
 
-                    if(headerTitles[i] === 'Print'){
+                    if(headerTitles[i] === 'Print to PDF'){
                         titleColumn.attr('data-formatter', 'invoiceCheck').attr('data-column-id', 'id');
                     }
 
                     if(headerTitles[i] === 'Invoice Id'){
                         titleColumn.attr('data-formatter', 'invoiceLink');
+                    }
+
+                    if(headerTitles[i] === 'Has been printed?'){
+                        titleColumn.attr('data-formatter', 'invoicePrintedFormatted').attr('data-column-id', 'Has been printed?');
                     }
 
                     rowElement.append(titleColumn);
@@ -249,7 +354,7 @@
                             for(var j = 0; j < headerTitles.length; j++){
                                 var dataColumn;
 
-                                if(headerTitles[j] === 'Print'){
+                                if(headerTitles[j] === 'Print to PDF'){
                                     dataColumn = $('<td></td>').text(data[i]['Invoice Id']);
                                 }else{
                                     dataColumn = $('<td></td>').text(data[i][headerTitles[j]] || 'Not available');
@@ -273,6 +378,18 @@
                                 },
                                 invoiceLink: function(column, row){
                                     return '<a href="#" class="lnk_view_invoice" data-id="' + row['id'] + '" style="" >' + row['id'] + '</a>';
+                                },
+                                invoicePrintedFormatted: function(column, row){
+                                    var hasBeen = row['Has been printed?'];
+
+                                    if(!hasBeen || hasBeen == null){
+                                        hasBeen = 0;
+                                    }
+
+                                    hasBeen = parseInt(hasBeen);
+                                    var vohb = hasBeen == 1 ? 'Yes' : 'No';
+
+                                    return '<span>' + vohb + '</span>';
                                 }
                             }
                         });
@@ -291,13 +408,17 @@
 
             APP.SERVICES.INVOICE.PERFORM_VALIDATION = APP.SERVICES.INVOICE.PERFORM_VALIDATION || function(invoiceInformation){
                 return function(){
+                    debugger;
+                    APP.STORE.PDF.INVOICES_TO_PRINT = [];
                     var requests = [];
 
                     if($('#tx_payment_id').val() == '' || $('#tx_payment_id').val().trim() == ''){
-                        alert('Payment Id is empty, please enter a valid payment id');
+                        return alert('Payment Id is empty, please enter a valid payment id!');
                     }
 
                     for(var i = 0; i < invoiceInformation.length; i++){
+                        APP.STORE.PDF.INVOICES_TO_PRINT.push(invoiceInformation[i].id);
+
                         var request = $.ajax({
                             url: '/api/invoice/pay',
                             method: 'POST',
@@ -324,10 +445,58 @@
                             alert("Some invoices weren't able to save the payment:" + failed.join(" | "));
                         }else{
                             alert("Payment applied to selected invoices!");
+
+                            var invoiceRenderRequests = [];
+
+                            for(var i = 0; i < APP.STORE.PDF.INVOICES_TO_PRINT.length; i++){
+                                var invoiceRequest = $.ajax({
+                                    url: '/api/invoice/view/' + APP.STORE.PDF.INVOICES_TO_PRINT[i] + '/render',
+                                    method: 'GET'
+                                });
+
+                                invoiceRenderRequests.push(invoiceRequest);
+                            }
+
+                            $.when.apply(undefined, invoiceRenderRequests).always(function(){
+                                var renderedFailed = [];
+                                var isFirst = true;
+
+                                for(var i = 0; i < invoiceRenderRequests.length; i++){
+                                    var invoiceRenderRequestStatus = parseInt(invoiceRenderRequests[i].status);
+                                    if(invoiceRenderRequestStatus < 200 || invoiceRenderRequestStatus > 299){
+                                        failed.push(invoiceRenderRequests[i].responseText);
+                                    }else{
+                                        if(isFirst){
+                                            isFirst = false;
+                                        }else{
+                                            $('#dv_invoices_preview').append('<div style="display:table-row; border: 3px; font-size: 6px;"><div style="display:table-cell; width: 100%;">&nbsp;</div></div>');
+                                            $('#dv_invoices_preview').append('<div style="display:table-row; border: 3px; font-size: 10px; text-align:center; background-color: #000;"><div style="display:table-cell; width: 100%;">&nbsp;</div></div>');
+                                            $('#dv_invoices_preview').append('<div style="display:table-row; border: 3px; font-size: 6px;"><div style="display:table-cell; width: 100%;">&nbsp;</div></div>');
+                                        }
+
+                                        $('#dv_invoices_preview').append(invoiceRenderRequests[i].responseText);
+                                    }
+                                }
+
+                                $('#dv_enter_payment').modal('hide');
+
+                                if(renderedFailed.length > 0 && renderedFailed.length != invoiceRenderRequests.length){
+                                    alert("Some invoices weren't able to be loaded after payment applied:" + failed.join(" | "));
+                                    $('#dv_display_invoice').modal('show');
+                                    $('#btn_save_pdf').unbind('click').on('click', APP.SERVICES.INVOICE.PRINT_RIGHT_PDF);
+                                }else if (renderedFailed.length == invoiceRenderRequests.length){
+                                    alert("No invoices were able to be loaded after payment applied:" + failed.join(" | ") + '; please try later.');
+                                    $('#dv_enter_payment').modal('hide');
+                                }else{
+                                    $('#dv_display_invoice').modal('show');
+                                    $('#btn_save_pdf').unbind('click').on('click', APP.SERVICES.INVOICE.PRINT_RIGHT_PDF);
+                                }
+
+                            });
                         }
 
-                        $('#dv_enter_payment').modal('hide');
-                        APP.SERVICES.INVOICE.INVOICED()
+                        
+
                     });
                 };
             };
