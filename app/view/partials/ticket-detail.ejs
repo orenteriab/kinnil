@@ -246,13 +246,13 @@
                         for (var x = 0; x < data.events.length; x++) {
                             var number = x+1;
                             var evento = "<tr>"
-                            evento += "<td>"+number+"</td>";
-                            evento += "<td>"+data.events[x].evento+"</td>";
-                            evento += "<td>"+data.events[x].date+"</td>";
-                            evento += "<td>"+data.events[x].date2+"</td>";
-                            evento += "<td>"+data.events[x].longitude+"</td>";
-                            evento += "<td>"+data.events[x].latitude+"</td>";
-                            evento += "<td>"+data.events[x].notes+"</td>";
+                            evento += "<td class='table_tms'>"+number+"</td>";
+                            evento += "<td class='table_evento'>"+data.events[x].evento+"</td>";
+                            evento += "<td class='table_date1'>"+data.events[x].date+"</td>";
+                            evento += "<td class='table_date2'>"+data.events[x].date2+"</td>";
+                            evento += "<td class='table_longitude'>"+data.events[x].longitude+"</td>";
+                            evento += "<td class='table_latitude'>"+data.events[x].latitude+"</td>";
+                            evento += "<td class='table_notes'>"+data.events[x].notes+"</td>";
                             evento += "</tr>";
                             $("#timeline").append(evento);
                         }
@@ -276,71 +276,129 @@
             });
 
             $('#ticket-to-pdf').on('click', function(){
-                //var doc = new jsPDF()
-                
-                // Primera columna
-                /*doc.setFontSize(14)
+
+                //portrait, a4, 
+                //var doc = new jsPDF(orientation, unit, format, compress);
+
+                // Default export is a4 paper, portrait, using milimeters for units
+
+                var doc = new jsPDF('p', 'mm', 'letter'); // tamaño carta por default
+                doc.setFontSize(14);
+                // First column
                 doc.text(20, 30, 'Ticket No. ' + $('#ticketId').text());
-                doc.setFontSize(10)
-                //Job Born on
-                //Completed on
-                doc.text(20, 35, 'Price ' + $('#price').text());
-                doc.text(20, 40, 'Product ' + $('#product').text());
-                doc.text(20, 45, 'Base ' + $('#base').text());
-                doc.text(20, 70, 'Silo ' + $('#silo').text());
-                doc.text(20, 80, 'Coments ' + $('#comments').text());
-                doc.text(20, 90, 'Load No. ' + $('#tmsNo').text());
-                doc.text(20, 100, 'Client ' + $('#client').text());
-                doc.text(20, 110, 'Address ' + $('#address').text());
-                doc.text(20, 120, 'P.O. ' + $('#po').text());
-                doc.text(20, 130, 'Origin ' + $('#origin').text());
-                doc.text(20, 140, 'Destination ' + $('#destination').text());
-                doc.text(20, 150, 'B.O.L ' + $('#bol').text());
-                doc.text(20, 160, 'Sand Type ' + $('#sand').text());
-                doc.text(20, 170, 'Weight ' + $('#weight').text());
-                doc.text(20, 180, 'Assigned Date ' + $('#assigned').text());
-                doc.text(20, 190, ' ' + $('#workInProgress').text());
-                doc.text(20, 200, ' ' + $('#completed').text());
-                doc.text(20, 210, ' ' + $('#invoiced').text());
-                doc.text(20, 220, ' ' + $('#payrolled').text());
-                doc.text(20, 230, ' ' + $('#paid').text());
-                doc.text(20, 240, 'Driver ' + $('#driver').text());
-                doc.text(20, 250, ' ' + $('#crew').text());
-                doc.text(20, 260, 'Shift ' + $('#shift').text());
-                doc.text(20, 270, 'Truck ' + $('#truck').text());
-                doc.text(20, 280, 'Trailer ' + $('#trailer').text());
-                doc.text(20, 290, 'Amount Payrolled ' + $('#amountPayrolled').text());
-                doc.text(20, 300, 'Starting Milles ' + $('#starttingMilles').text());
-                doc.text(20, 310, 'Ending Milles ' + $('#endingMilles').text());
-                doc.text(20, 320, 'Date ' + $('#date').text());
+                doc.setFontSize(10);
+                doc.text(20, 40, 'Job created on: ' + $('#born_date').text());
+                doc.text(20, 45, 'Completed on: ' + $('#completed_date').text());
+                doc.text(20, 50, 'Invoice rate: ' + $('#invoice_rate').text());
+                doc.text(20, 55, 'Miles: ' + $('#product').text());
+                doc.text(20, 60, 'Base: ' + $('#base').text());
+                doc.text(20, 65, 'Silo: ' + $('#silo').text());
+                doc.text(20, 70, 'Comments: ' + $('#comments').text());
 
+                // Second column
+                doc.text(20, 70, 'Comments: ' + $('#comments').text());
+                doc.text(100, 40, 'Load No: ' + $('#tmsNo').text());
+                doc.text(100, 45, 'Client: ' + $('#client').text());
+                doc.text(100, 50, 'Address: ' + $('#address').text());
+                doc.text(100, 55, 'P.O.: ' + $('#po').text());
+                doc.text(100, 60, 'Facility: ' + $('#origin').text());
+                doc.text(100, 65, 'Location: ' + $('#destination').text());
+                doc.text(100, 70, 'B.O.L.: ' + $('#bol').text());
+                doc.text(100, 75, 'Sand type: ' + $('#sand').text());
+                doc.text(100, 80, 'Weight: ' + $('#weight').text());
 
+                // First column
+                doc.text(20, 80, 'To be assigned: ' + $('#assigned').text());
+                doc.text(20, 85, 'Completed: ' + $('#completed').text());
+                doc.text(20, 90, 'Invoice: ' + $('#invoiced').text());
+                doc.text(20, 95, 'Payrolled: ' + $('#payrolled').text());
 
-                doc.save('autoprint.pdf');
-                */
-                //doc.fromHTML($('#to-print').get(0), 10, 10, {
-                //    'width': 180
-                //});
-                //doc.save('sample-file.pdf');
-
-
-                /*
-                * Por las prisas se genera este PDF con addHTML. Hay que ver si no la hacen de pedo por la calidad de la imagen
-                * Aqui esta un ejemplo que hay que estudiar, parece que tiene todo lo que necesitamos https://codepen.io/LittleViolette/pen/begBbe
-                */
-                var pdf = new jsPDF('p', 'pt', 'letter');
-    
-                var options = {
-                    pagesplit: true,
-                    background: '#ffffff',
-                    pagesplit: true
-                }
-
-                var nombre = $('#tmsNo').text()
+                doc.setFontSize(14);
+                doc.text(20, 105, 'Driver - Truck - Millage');
+                doc.setFontSize(10);
                 
-                pdf.addHTML($('#to-print')[0], 40, 40, options, function () {
-                    pdf.save(nombre + '.pdf');
+                doc.text(20, 115, 'Driver: ' + $('#driver').text());
+                doc.text(20, 120, 'Crew: ' + $('#crew').text());
+                doc.text(20, 125, 'Shift: ' + $('#shift').text());
+                doc.text(20, 130, 'Truck: ' + $('#truck').text());
+
+
+                 // Second column
+                doc.text(100, 115, 'Trailer: ' + $('#trailer').text());
+                doc.text(100, 120, 'Amount Payrolled: ' + $('#amountPayrolled').text());
+                doc.text(100, 125, 'Staring milles: ' + $('#starttingMilles').text());
+                doc.text(100, 130, 'Ending milles: ' + $('#endingMilles').text());
+
+                doc.setFontSize(14);
+                doc.text(20, 140, 'Timeline Events');
+                doc.setFontSize(8);
+                
+                doc.text(20, 150, 'No.');
+                doc.text(30, 150, 'Event');
+                doc.text(80, 150, 'Timestamp 1')
+                doc.text(110, 150, 'Timestamp 2')
+                doc.text(140, 150, 'Longitude')
+                doc.text(160, 150, 'Latitude')
+                doc.text(180, 150, 'Notes')
+
+
+                var actualLine = 155;
+                // TMS No.
+                $(".table_tms").each(function (index, value) {
+                    doc.text(20, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
                 });
+                
+                var actualLine = 155;
+                // Event
+                $(".table_evento").each(function (index, value) {
+                    doc.text(30, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
+                });
+
+                var actualLine = 155;
+                // Timestamp 1
+                $(".table_date1").each(function (index, value) {
+                    doc.text(80, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
+                });
+
+                var actualLine = 155;
+                // Timestamp 2
+                $(".table_date2").each(function (index, value) {
+                    doc.text(110, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
+                });
+
+                var actualLine = 155;
+                // Longitude
+                $(".table_longitude").each(function (index, value) {
+                    doc.text(140, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
+                });
+
+                var actualLine = 155;
+                // Latitude
+                $(".table_latitude").each(function (index, value) {
+                    doc.text(160, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
+                });
+
+                var actualLine = 155;
+                // Notes
+                $(".table_notes").each(function (index, value) {
+                    doc.text(180, actualLine, '' + value.textContent);
+                    actualLine = actualLine + 5
+                });
+                
+                var img = new Image;
+                img.src = '/assets/img/pdf.jpeg';
+                
+                // addImage algunas veces da este error: Uncaught Error: Supplied data is not a JPEG
+                // Recordar seguir este theard para encontrar solucion: https://github.com/MrRio/jsPDF/issues/411
+                //doc.addImage(img , 'JPEG', horizontal, vertical, 100, 92)
+                //doc.addImage(img , 160, 260, 25, 23);  // <--- ESTA ES
+                doc.save('ticket_'+  $('#ticketId').text() +'.pdf');
             });
         });
         </script>
