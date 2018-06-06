@@ -102,7 +102,7 @@
                         <label for="tel" class="h4 ">Phone</label>
                         <input id="tel" class="form-control" required type="tel"></input>
                         <label for="birth" class="h4 ">Date of birth</label>
-                        <input id="birth" class="form-control" required type="date"></input>
+                        <input id="birth" class="form-control" required type="datetime-local"></input>
                         <label for="civilStatus" class="h4 ">Civil status</label>
                         <select id="civilStatus" class="form-control">
                             <option value="SINGLE">Single</option>
@@ -163,19 +163,19 @@
                         <label for="password" class="h4 ">Password</label>
                         <input id="password" class="form-control" required></input>
                         <label for="mcExp" class="h4 ">Medical card expiration date</label>
-                        <input id="mcExp" class="form-control" required type="date"></input>
+                        <input id="mcExp" class="form-control" required type="datetime-local"></input>
                         <label for="licence" class="h4 ">Licence No.</label>
                         <input id="licence" class="form-control" required type="text"></input>
                         <label for="licenceClass" class="h4 ">Licence Class</label>
                         <input id="licenceClass" class="form-control" required type="text"></input>
                         <label for="licenseExp" class="h4 ">License expiration date</label>
-                        <input id="licenseExp" class="form-control" required type="date"></input>
+                        <input id="licenseExp" class="form-control" required type="datetime-local"></input>
                         <label for="state" class="h4 ">State</label>
                         <input id="state" class="form-control" required></input>
                         <label for="hireDate" class="h4 ">Hire date</label>
-                        <input id="hireDate" class="form-control" required type="date"></input>
+                        <input id="hireDate" class="form-control" required type="datetime-local"></input>
                         <label for="experience" class="h4 ">Experience Years</label>
-                        <input id="experience" class="form-control" required type="date"></input>
+                        <input id="experience" class="form-control" required type="datetime-local"></input>
                         <label for="ssn" class="h4 ">SSN</label>
                         <input id="ssn" class="form-control" required></input>
                         <label for="contact1" class="h4 ">Emergency contact Name</label>
@@ -391,7 +391,7 @@
                     );
                     $('#editBrith').html(
                         "<strong><a id='updateBrith' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
-                        "data-type='date' class='black-link' "+
+                        "data-type='datetime-local' class='black-link' "+
                         "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
                     );
                     $('#editCivilStatus').html(
@@ -451,7 +451,7 @@
                     );
                     $('#editMcExp').html(
                         "<strong><a id='updateMcExp' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
-                        "data-type='date' class='black-link' "+
+                        "data-type='datetime-local' class='black-link' "+
                         "href='#' data-name='mc_exp'>"+data.hr[0].mc_exp+"</a></strong>"
                     );
                     $('#editLicense').html(
@@ -461,7 +461,7 @@
                     );
                     $('#editLicenseExp').html(
                         "<strong><a id='updateLicenseExp' data-pk='" + data.hr[0].id + "' data-title='Update license expiration date' "+
-                        "data-type='date' class='black-link' "+
+                        "data-type='datetime-local' class='black-link' "+
                         "href='#' data-name='license_exp'>"+data.hr[0].license_exp+"</a></strong>"
                     );
                     $('#editLicenseClass').html(
@@ -476,12 +476,12 @@
                     );
                     $('#editHireDate').html(
                         "<strong><a id='updateHireDate' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
-                        "data-type='date' class='black-link' "+
+                        "data-type='datetime-local' class='black-link' "+
                         "href='#' data-name='hire_date'>"+data.hr[0].hire_date+"</a></strong>"
                     );
                     $('#editExperienceYears').html(
                         "<strong><a id='updateExperienceYears' data-pk='" + data.hr[0].id + "' data-title='Update Experience Years' "+
-                        "data-type='date' class='black-link' "+
+                        "data-type='datetime-local' class='black-link' "+
                         "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
                     );
                     $('#editSsn').html(
