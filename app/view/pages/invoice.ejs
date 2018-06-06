@@ -85,61 +85,46 @@
             APP.STORE = APP.STORE || {};
             APP.STORE.PDF = APP.STORE.PDF || {};
             APP.STORE.PDF.INVOICES_TO_PRINT = APP.STORE.PDF.INVOICES_TO_PRINT || [];
-
             APP.SERVICES = APP.SERVICES || {};
-
             APP.SERVICES.FORMAT_DATE = APP.SERVICES.FORMAT_DATE || function(currentDate){
                 if(isNaN(currentDate)){
                     currentDate = new Date();
                 }
-
                 var currentMonth = currentDate.getMonth() + 1;
                 var currentDay = currentDate.getDate();
                 var currentYear = currentDate.getFullYear();
-
                 if(currentMonth < 10){
                     currentMonth = "0" + String(currentMonth);
                 }
-
                 if(currentDay < 10){
                     currentDay = "0" + String(currentDay);
                 }
-
                 return String(currentMonth) + '/' + 
                     String(currentDay) + '/' + 
                     String(currentYear);
             };
-
             APP.SERVICES.INVOICE = APP.SERVICES.INVOICE || {};
-
             APP.SERVICES.INVOICE.PRINT_RIGHT_PDF = APP.SERVICES.INVOICE.PRINT_RIGHT_PDF || function(){
                 var invoiceIds = APP.STORE.PDF.INVOICES_TO_PRINT;
-
                 var ajaxRequests = [];
-
                 for(var i = 0; i < invoiceIds.length; i++){
                     ajaxRequests.push($.ajax({
                         url: '/api/invoice/view/' + invoiceIds[i],
                         method: 'GET',
                     }));
                 }
-
                 $.when.apply(undefined, ajaxRequests).always(function(){
                     var pdf = new jsPDF('p', 'mm', 'letter');
                     var atLeastOne = false;
-
                     for(var i = 0; i < ajaxRequests.length; i++){
-
                         var requestStatus = parseInt(ajaxRequests[i].status);
                         var responseObject = ajaxRequests[i].responseJSON[0];
-                        if(requestStatus > 199 || requestStatus < 300){
+                        if(requestStatus > 199 || requestStatus < 300){
                             //debugger;
                             atLeastOne = true;
-
                             if(i != 0){
                                 pdf.addPage();
                             }
-
                             pdf.setFontSize(14);
                             pdf.text('Invoice No.: ' + responseObject.invoice_number , 155, 15);
                             pdf.text('Bill To:', 15, 30);
@@ -163,118 +148,118 @@
                             pdf.text('Destination: ' + responseObject.destination, 15, 140,);
                             pdf.text('Weight: ' + responseObject.weight, 100, 140);
                             pdf.text('Price: $ ' + responseObject.price, 158, 150);
-                            pdf.text('Amount payrolled: $ ' + responseObject.payrolled || 0, 15, 162);
+                            pdf.text('Amount payrolled: $ ' + responseObject.payrolled || 0, 15, 162);
                             pdf.text('Trailer: ' + responseObject.trailer, 95, 162);
                             pdf.text('Date: ' + responseObject.date, 158, 162);
                             pdf.text('Total: ' + responseObject.total, 158, 172);
-
                             $.ajax({
                                 url: '/api/invoice/' + responseObject.invoice_number + '/printed',
                                 method: 'POST'
                             });
                         }
                     }
-
                     if(!atLeastOne){
                         alert('It wasn\'t possible to print any invoice. Please try again.');
                         pdf = null;
                     }else{
                         pdf.save('invoice_' + new Date().getTime() + '.pdf');
                         alert('Invoice saved successfully!');
-
                     }
-
                     APP.STORE.PDF.INVOICES_TO_PRINT = [];
                     $('#dv_invoices_preview').html('');
                     $('#dv_display_invoice').modal('hide');
                     APP.SERVICES.INVOICE.PAID();
-
                 });
             };
-
             APP.SERVICES.INVOICE.PRINT_PDF = APP.SERVICES.INVOICE.PRINT_PDF || function(){
                 var invoiceToValidateElems = $('.paid-invoice');
                 var invoiceIds = [];
-
                 for(var i = 0; i < invoiceToValidateElems.length; i++){
                     var currentElem = invoiceToValidateElems[i];
                     
-
                     if(currentElem.checked){
                         var invoiceId = $(currentElem).attr('data-id');
                         invoiceIds.push(invoiceId);
                     }
                 }
-
                 var ajaxRequests = [];
-
                 for(var i = 0; i < invoiceIds.length; i++){
                     ajaxRequests.push($.ajax({
                         url: '/api/invoice/view/' + invoiceIds[i],
                         method: 'GET',
                     }));
                 }
-
                 var formattedCurrentDate = APP.SERVICES.FORMAT_DATE(new Date());
-
                 $.when.apply(undefined, ajaxRequests).always(function(){
                     var pdf = new jsPDF('p', 'mm', 'letter');
                     var atLeastOne = false;
-
                     for(var i = 0; i < ajaxRequests.length; i++){
-
                         var requestStatus = parseInt(ajaxRequests[i].status);
                         var responseObject = ajaxRequests[i].responseJSON[0];
-                        if(requestStatus > 199 || requestStatus < 300){
+                        if(requestStatus > 199 || requestStatus < 300){
                             //debugger;
                             atLeastOne = true;
-
                             if(i != 0){
                                 pdf.addPage();
                             }
-
                             var formattedToBeInvoicedDate = APP.SERVICES.FORMAT_DATE(
                                 new Date(responseObject.to_be_invoiced_date || ''));
-
                             var formattedInvoicedDate = APP.SERVICES.FORMAT_DATE(
                                 new Date(responseObject.invoiced_date || ''));
-
                             var formattedPaidDate = APP.SERVICES.FORMAT_DATE(
                                 new Date(responseObject.paid_date || ''));
-
                             var formattedShipDate = APP.SERVICES.FORMAT_DATE(
-                                new Date(responseObject.ship_date || ''));
+                                new Date(responseObject.ship_date || ''));
+                                
+                            pdf.setFontSize(14);
+                            pdf.text('Invoice No.: ' + responseObject.invoice_number , 155, 30);
+                            pdf.text('Bill To:', 20, 50);
+
+                            pdf.setFontSize(10);
+                            pdf.text('Customer: ' + responseObject.customer_name, 20, 60);
+                            pdf.text('Date    : ' + formattedCurrentDate, 20, 65);
+                            pdf.text('Address : ' + responseObject.customer_address || '', 20, 70);
+                            pdf.text('Due Date: ' + responseObject.completed_date, 20, 75);
+                            pdf.text('Terms: ' + responseObject.invoice_terms || '', 20, 80);
 
                             pdf.setFontSize(14);
-                            pdf.text('Invoice No.: ' + responseObject.invoice_number , 155, 15);
-                            pdf.text('Bill To:', 15, 30);
-                            pdf.text('Customer: ' + responseObject.customer_name, 15, 40);
-                            pdf.text('Date    : ' + formattedCurrentDate, 110, 40);
-                            pdf.text('Address : ' + responseObject.customer_address || '', 15, 50);
-                            pdf.text('Due Date: ' + responseObject.completed_date, 110, 50);
-                            pdf.text('Terms: ' + responseObject.invoice_terms || '', 110, 60);
-                            pdf.text('=============================STATUS=============================', 15, 70);
-                            pdf.text('To be invoiced: ' + formattedToBeInvoicedDate, 15, 80,);
-                            pdf.text('Invoiced: ' + formattedInvoicedDate, 90, 80,);
-                            pdf.text('Paid: ' + formattedPaidDate, 155, 80,);
-                            pdf.text('===========================INFORMATION==========================', 15, 90);
-                            pdf.text('Load: ' + responseObject.load , 15, 100,);
-                            pdf.text('P.O.: ' + responseObject.po, 100, 100,);
-                            pdf.text('BOL: ' + responseObject.bol, 15, 110,);
-                            pdf.text('Driver: ' + responseObject.driver, 100, 110);
-                            pdf.text('============================PRODUCTS===========================', 15, 120);
-                            pdf.text('Ship Date: ' + formattedShipDate, 15, 130,);
-                            pdf.text('Origin: ' + responseObject.origin, 100, 130,);
-                            pdf.text('Destination: ' + responseObject.destination, 15, 140,);
-                            pdf.text('Weight: ' + responseObject.weight, 100, 140);
-                            pdf.text('Price: $ ' + responseObject.price, 158, 150);
-                            pdf.text('Amount payrolled: $ ' + responseObject.payrolled || 0, 15, 162);
-                            pdf.text('Trailer: ' + responseObject.trailer, 95, 162);
-                            pdf.text('Date: ' + formattedCurrentDate, 158, 162);
-                            pdf.text('Total: ' + responseObject.total, 158, 172);
+                            pdf.text('Status', 20, 90);
+
+                            pdf.setFontSize(10);
+                            pdf.text('To be invoiced: ' + formattedToBeInvoicedDate, 20, 100,);
+                            pdf.text('Invoiced: ' + formattedInvoicedDate, 20, 105,);
+                            pdf.text('Paid: ' + formattedPaidDate, 20, 110,);
+
+                            pdf.setFontSize(14);
+                            pdf.text('Information', 20, 120);
+
+                            pdf.setFontSize(10);
+                            pdf.text('Load: ' + responseObject.load , 20, 130,);
+                            pdf.text('P.O.: ' + responseObject.po, 60, 130,);
+                            pdf.text('BOL: ' + responseObject.bol, 100, 130,);
+                            pdf.text('Driver: ' + responseObject.driver, 140, 130);
+
+                            pdf.setFontSize(14);
+                            pdf.text('Products', 20, 140);
+
+                            pdf.setFontSize(10);
+                            pdf.text('Ship Date: ' + formattedShipDate, 20, 150,);
+                            pdf.text('Origin: ' + responseObject.origin, 20, 155,);
+                            pdf.text('Destination: ' + responseObject.destination, 20, 160,);
+                            pdf.text('Weight: ' + responseObject.weight, 20, 165);
+                            pdf.text('Price: $ ' + responseObject.price, 155, 170);
+                            // TODO: Falta agregar sand type, milles, product
+                            //pdf.text('Amount payrolled: $ ' + responseObject.payrolled || 0, 20, 162);
+                            //pdf.text('Trailer: ' + responseObject.trailer, 100, 162);
+                            //pdf.text('Date: ' + formattedCurrentDate, 155, 162);
+                            pdf.text('Total: ' + responseObject.total, 155, 180);
+
+                            var imgData = 'data:image/jpeg;base64,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'
+
+                            //doc.addImage(img , horizontal, vertical, 100, 92)
+                            doc.addImage(imgData , 160, 240, 25, 23);
                         }
                     }
-
                     if(!atLeastOne){
                         alert('It wasn\'t possible to print any invoice. Please try again.');
                         pdf = null;
@@ -282,56 +267,40 @@
                         pdf.save('invoice_' + new Date().getTime() + '.pdf');
                     }
                 });
-
             };
-
             APP.SERVICES.INVOICE.PAID = APP.SERVICES.INVOICE.PAID || function(){
                 $('button[data-function]').remove();
-
                 $('#a_invoiced, #a_to_be_invoiced')
                     .parent()
                     .removeClass('active');
-
                 $('#a_paid')
                     .parent()
                     .addClass('active');
-
                 $('#tbl_data_grid').bootgrid('destroy');
-
                 $('#thd_data_grid, #tbd_data_grid').html('');
-
                 var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid ID', 'Paid Date', 'Print to PDF', 'Has been printed?' ];
                 var rowElement = $('<tr></tr>');
-
                 for(var i = 0; i < headerTitles.length; i++){
                     var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
-
                     if(headerTitles[i] === 'Print to PDF'){
                         titleColumn.attr('data-formatter', 'invoiceCheck').attr('data-column-id', 'id');
                     }
-
                     if(headerTitles[i] === 'Invoice Id'){
                         titleColumn.attr('data-formatter', 'invoiceLink');
                     }
-
                     if(headerTitles[i] === 'Has been printed?'){
                         titleColumn.attr('data-formatter', 'invoicePrintedFormatted').attr('data-column-id', 'Has been printed?');
                     }
-
                     rowElement.append(titleColumn);
                 }
-
                 $('#thd_data_grid').append(rowElement);
-
                 var rowElementData = $('<tr></tr>');
                 var tdElementData = $('<td></td>')
                     .text('Fetching data...')
                     .attr('colspan', 7)
                     .css('text-align', 'center');
                 var invoicePrice = { };
-
                 rowElementData.append(tdElementData);
-
                 $('#tbd_data_grid').append(rowElementData);
     
                 $.ajax({
@@ -347,13 +316,10 @@
                     },
                     success: function(data){
                         $('#tbd_data_grid').html('');
-
                         for(var i = 0; i < data.length; i++){
                             var trElement = $('<tr></tr>');
-
                             for(var j = 0; j < headerTitles.length; j++){
                                 var dataColumn;
-
                                 if(headerTitles[j] === 'Print to PDF'){
                                     dataColumn = $('<td></td>').text(data[i]['Invoice Id']);
                                 }else{
@@ -363,10 +329,8 @@
                                 trElement.append(dataColumn);
                                 $('#tbd_data_grid').append(trElement);
                             }
-
                             invoicePrice[data[i]['Invoice Id']] = data[i]['Invoice Rate'];
                         }
-
                         $('#tbl_data_grid').bootgrid({
                             rowCount: [50,75,100,-1],
                             labels: {
@@ -381,44 +345,35 @@
                                 },
                                 invoicePrintedFormatted: function(column, row){
                                     var hasBeen = row['Has been printed?'];
-
                                     if(!hasBeen || hasBeen == null){
                                         hasBeen = 0;
                                     }
-
                                     hasBeen = parseInt(hasBeen);
                                     var vohb = hasBeen == 1 ? 'Yes' : 'No';
-
                                     return '<span>' + vohb + '</span>';
                                 }
                             }
                         });
                     }
                 });
-
                 var btnElem = $('<button />')
                     .text('Print invoices as PDF')
                     .addClass('btn btn-primary')
                     .css('float', 'right')
                     .attr('data-function', 'print-invoices')
                     .on('click', APP.SERVICES.INVOICE.PRINT_PDF);
-
                 $('#tbl_data_grid').parent().append(btnElem);
             };
-
             APP.SERVICES.INVOICE.PERFORM_VALIDATION = APP.SERVICES.INVOICE.PERFORM_VALIDATION || function(invoiceInformation){
                 return function(){
                     debugger;
                     APP.STORE.PDF.INVOICES_TO_PRINT = [];
                     var requests = [];
-
                     if($('#tx_payment_id').val() == '' || $('#tx_payment_id').val().trim() == ''){
                         return alert('Payment Id is empty, please enter a valid payment id!');
                     }
-
                     for(var i = 0; i < invoiceInformation.length; i++){
                         APP.STORE.PDF.INVOICES_TO_PRINT.push(invoiceInformation[i].id);
-
                         var request = $.ajax({
                             url: '/api/invoice/pay',
                             method: 'POST',
@@ -427,43 +382,34 @@
                                 payment: $('#tx_payment_id').val()
                             }
                         });
-
                         requests.push(request);
                     }
-
                     $.when.apply(undefined, requests).always(function(){
                         var failed = [];
-
                         for(var i = 0; i < requests.length; i++){
                             var requestStatus = parseInt(requests[i].status);
-                            if(requestStatus < 200 || requestStatus > 299){
+                            if(requestStatus < 200 || requestStatus > 299){
                                 failed.push(requests[i].responseText);
                             }
                         }
-
                         if(failed.length > 0){
                             alert("Some invoices weren't able to save the payment:" + failed.join(" | "));
                         }else{
                             alert("Payment applied to selected invoices!");
-
                             var invoiceRenderRequests = [];
-
                             for(var i = 0; i < APP.STORE.PDF.INVOICES_TO_PRINT.length; i++){
                                 var invoiceRequest = $.ajax({
                                     url: '/api/invoice/view/' + APP.STORE.PDF.INVOICES_TO_PRINT[i] + '/render',
                                     method: 'GET'
                                 });
-
                                 invoiceRenderRequests.push(invoiceRequest);
                             }
-
                             $.when.apply(undefined, invoiceRenderRequests).always(function(){
                                 var renderedFailed = [];
                                 var isFirst = true;
-
                                 for(var i = 0; i < invoiceRenderRequests.length; i++){
                                     var invoiceRenderRequestStatus = parseInt(invoiceRenderRequests[i].status);
-                                    if(invoiceRenderRequestStatus < 200 || invoiceRenderRequestStatus > 299){
+                                    if(invoiceRenderRequestStatus < 200 || invoiceRenderRequestStatus > 299){
                                         failed.push(invoiceRenderRequests[i].responseText);
                                     }else{
                                         if(isFirst){
@@ -473,13 +419,10 @@
                                             $('#dv_invoices_preview').append('<div style="display:table-row; border: 3px; font-size: 10px; text-align:center; background-color: #000;"><div style="display:table-cell; width: 100%;">&nbsp;</div></div>');
                                             $('#dv_invoices_preview').append('<div style="display:table-row; border: 3px; font-size: 6px;"><div style="display:table-cell; width: 100%;">&nbsp;</div></div>');
                                         }
-
                                         $('#dv_invoices_preview').append(invoiceRenderRequests[i].responseText);
                                     }
                                 }
-
                                 $('#dv_enter_payment').modal('hide');
-
                                 if(renderedFailed.length > 0 && renderedFailed.length != invoiceRenderRequests.length){
                                     alert("Some invoices weren't able to be loaded after payment applied:" + failed.join(" | "));
                                     $('#dv_display_invoice').modal('show');
@@ -491,20 +434,15 @@
                                     $('#dv_display_invoice').modal('show');
                                     $('#btn_save_pdf').unbind('click').on('click', APP.SERVICES.INVOICE.PRINT_RIGHT_PDF);
                                 }
-
                             });
                         }
-
                         
-
                     });
                 };
             };
-
             APP.SERVICES.INVOICE.VALIDATE = APP.SERVICES.INVOICE.VALIDATE || function(){
                 $('#invoices_id').html('');
                 $('#tx_payment_id').val('');
-
                 var invoiceToValidateElems = $('.to-validate');
                 var tmsLoads = [];
                 var loadInvoiceMap = {};
@@ -522,14 +460,11 @@
                         } 
                     }
                 }
-
                 if(tmsLoads.length > 0){
                     var first = true;
                     var subtitle = $('<p></p>').text('Invoices to validate:');
-
                     $('#invoices_id').append(subtitle);
                     var invoicesInformation = [];
-
                     for(var load in loadInvoiceMap){
                         var invoiceIdElem = $('<p></p>').text(
                             'Load: ' + load + 
@@ -537,57 +472,41 @@
                             ', Price: $' + loadInvoiceMap[load].price + 
                             ', Driver: ' + loadInvoiceMap[load].driver
                         );
-
                         $('#invoices_id').append(invoiceIdElem);
                         invoicesInformation.push(loadInvoiceMap[load]);
                     }
-
                     $('#dv_enter_payment').modal('show');
                     $('#btn_save_payment')
                         .unbind('click')
                         .on('click', APP.SERVICES.INVOICE.PERFORM_VALIDATION(invoicesInformation));
                 }
-
             };
-
             APP.SERVICES.INVOICE.INVOICED = APP.SERVICES.INVOICE.INVOICED || function(){
                 $('button[data-function]').remove();
-
                 $('#a_to_be_invoiced, #a_paid')
                     .parent()
                     .removeClass('active');
-
                 $('#a_invoiced')
                     .parent()
                     .addClass('active');
-
                 $('#tbl_data_grid').bootgrid('destroy');
-
                 $('#thd_data_grid, #tbd_data_grid').html('');
-
                 var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid Id'];
                 var rowElement = $('<tr></tr>');
-
                 for(var i = 0; i < headerTitles.length; i++){
                     var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
-
                     if(headerTitles[i] === 'Paid Id'){
                         titleColumn.attr('data-formatter', 'invoiceCheck').attr('data-column-id', 'id');
                     }
-
                     rowElement.append(titleColumn);
                 }
-
                 $('#thd_data_grid').append(rowElement);
-
                 var rowElementData = $('<tr></tr>');
                 var tdElementData = $('<td></td>')
                     .text('Fetching data...')
                     .attr('colspan', 7)
                     .css('text-align', 'center');
-
                 rowElementData.append(tdElementData);
-
                 $('#tbd_data_grid').append(rowElementData);
     
                 $.ajax({
@@ -603,13 +522,10 @@
                     },
                     success: function(data){
                         $('#tbd_data_grid').html('');
-
                         for(var i = 0; i < data.length; i++){
                             var trElement = $('<tr></tr>');
-
                             for(var j = 0; j < headerTitles.length; j++){
                                 var dataColumn;
-
                                 if(headerTitles[j] === 'Paid Id'){
                                     dataColumn = $('<td></td>').text(data[i]['Invoice Id']);
                                 }else{
@@ -620,7 +536,6 @@
                                 $('#tbd_data_grid').append(trElement);
                             }
                         }
-
                         $('#tbl_data_grid').bootgrid({
                             rowCount: [50,75,100,-1],
                             labels: {
@@ -634,17 +549,14 @@
                         });
                     }
                 });
-
                 var btnElem = $('<button />')
                     .text('Validate')
                     .addClass('btn btn-primary')
                     .css('float', 'right')
                     .attr('data-function', 'paid')
                     .on('click', APP.SERVICES.INVOICE.VALIDATE);
-
                 $('#tbl_data_grid').parent().append(btnElem);
             };
-
             APP.SERVICES.INVOICE.INVOICE = APP.SERVICES.INVOICE.INVOICE || function(){
                 var ticketsToInvoiceElem = $('.to-be-invoiced');
                 var tmsLoads = [];
@@ -659,14 +571,10 @@
                         ticketIdLoadMap[tmsLoad] = $(currentElem).attr('data-id');
                     }
                 }
-
                 if(tmsLoads.length == 0){ return; }
-
                 var confirmMessage = 'Are you sure you want to create the invoice for the following Load(s): ' + tmsLoads.join(', ') + '?';
-
                 if(confirm(confirmMessage)){
                     var requests = [];
-
                     for(var i = 0; i < tmsLoads.length; i++){
                         var request = $.ajax({
                             url: '/api/invoice/create',
@@ -676,69 +584,51 @@
                                 tmsLoad: tmsLoads[i]
                             }
                         });
-
                         requests.push(request);
                     }
-
                     $.when.apply(undefined, requests).always(function(){
                         var failed = [];
-
                         for(var i = 0; i < requests.length; i++){
                             var requestStatus = parseInt(requests[i].status);
-                            if(requestStatus < 200 || requestStatus > 299){
+                            if(requestStatus < 200 || requestStatus > 299){
                                 failed.push(requests[i].responseText);
                             }
                         }
-
                         if(failed.length > 0){
                             alert("Some invoices couldn't be created:\n" + failed.join(" | "));
                         }else{
                             alert("Invoices created successfully!");
                         }
-
                         APP.SERVICES.INVOICE.INVOICED();
                     });
                 }
             };
-
             APP.SERVICES.INVOICE.TO_BE_INVOICED = APP.SERVICES.INVOICE.TO_BE_INVOICED || function(){
                 $('button[data-function]').remove();
-
                 $('#a_invoiced, #a_paid')
                     .parent()
                     .removeClass('active');
-
                 $('#a_to_be_invoiced')
                     .parent()
                     .addClass('active');
-
                 $('#tbl_data_grid').bootgrid('destroy');
-
                 $('#thd_data_grid, #tbd_data_grid').html('');
-
                 var headerTitles = [ 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', '', 'Paid Date' ];
                 var rowElement = $('<tr></tr>');
-
                 for(var i = 0; i < headerTitles.length; i++){
                     var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
-
                     if(headerTitles[i] === ''){
                         titleColumn.attr('data-formatter', 'invoiceCheck').attr('data-column-id', 'tid');
                     }
-
                     rowElement.append(titleColumn);
                 }
-
                 $('#thd_data_grid').append(rowElement);
-
                 var rowElementData = $('<tr></tr>');
                 var tdElementData = $('<td></td>')
                     .text('Fetching data...')
                     .attr('colspan', 7)
                     .css('text-align', 'center');
-
                 rowElementData.append(tdElementData);
-
                 $('#tbd_data_grid').append(rowElementData);
     
                 $.ajax({
@@ -754,13 +644,10 @@
                     },
                     success: function(data){
                         $('#tbd_data_grid').html('');
-
                         for(var i = 0; i < data.length; i++){
                             var trElement = $('<tr></tr>');
-
                             for(var j = 0; j < headerTitles.length; j++){
                                 var dataColumn;
-
                                 if(headerTitles[j] === ''){
                                     dataColumn = $('<td></td>').text(data[i]['id']);
                                 }else{
@@ -771,7 +658,6 @@
                                 $('#tbd_data_grid').append(trElement);
                             }
                         }
-
                         $('#tbl_data_grid').bootgrid({
                             rowCount: [50,75,100,-1],
                             labels: {
@@ -785,33 +671,25 @@
                         });
                     }
                 });
-
                 var btnElem = $('<button />')
                     .text('Invoice')
                     .addClass('btn btn-primary')
                     .css('float', 'right')
                     .attr('data-function', 'invoice')
                     .on('click', APP.SERVICES.INVOICE.INVOICE);
-
                 $('#tbl_data_grid').parent().append(btnElem);
             };
-
             APP.EVENTS = APP.EVENTS || {};
-
             APP.EVENTS.UI = APP.EVENTS.UI || {};
-
             APP.EVENTS.UI.TO_BE_INVOICED = APP.EVENTS.UI.TO_BE_INVOICED || function(){
                 $('#a_to_be_invoiced').on('click', APP.SERVICES.INVOICE.TO_BE_INVOICED);
             };
-
             APP.EVENTS.UI.INVOICED = APP.EVENTS.UI.INVOICED || function(){
                 $('#a_invoiced').on('click', APP.SERVICES.INVOICE.INVOICED);
             };
-
             APP.EVENTS.UI.PAID = APP.EVENTS.UI.PAID || function(){
                 $('#a_paid').on('click', APP.SERVICES.INVOICE.PAID);
             };
-
             APP.INIT = APP.INIT || function(){
                 $('li[id="li_sdbr_invoice"]').addClass('active');
                 APP.EVENTS.UI.TO_BE_INVOICED();
@@ -819,7 +697,6 @@
                 APP.EVENTS.UI.INVOICED();
                 APP.EVENTS.UI.PAID();
             };
-
             APP.INIT();
         })(window);
     </script>

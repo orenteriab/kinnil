@@ -4,7 +4,13 @@
 
 <head>
     <%include ../partials/head %>
-        <title>Assets</title>
+    <title>Assets</title>
+    <style>
+    .lnk_view_invoice:visited{
+        color: #333;
+    }
+    </style>
+        
 </head>
 
 <body>
@@ -134,11 +140,11 @@
                             <br>
                             <label for="tx_mttoLast">Mtto. Last:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="date" id="tx_mttoLast" />
+                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="datetime-local" id="tx_mttoLast" />
                             <br>
                             <label for="tx_mttoNext">Mtto. Next:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="date" id="tx_mttoNext" />
+                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="datetime-local" id="tx_mttoNext" />
                             <br>
                             <label for="tx_notes">Notes:</label>
                             <br>
@@ -199,11 +205,11 @@
                             <br>
                             <label for="tx_edit_mttoLast">Mtto. Last:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="date" id="tx_edit_mttoLast" />
+                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="datetime-local" id="tx_edit_mttoLast" />
                             <br>
                             <label for="tx_edit_mttoNext">Mtto. Next:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="date" id="tx_edit_mttoNext" />
+                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="datetime-local" id="tx_edit_mttoNext" />
                             <br>
                             <label for="tx_edit_notes">Notes:</label>
                             <br>
@@ -533,13 +539,15 @@
                                 });
                             },
                             INIT: function () {
+                                $('li[id^="li_sdbr"]').removeClass('active');
+                                $('li[id="li_sdbr_assets"]').addClass('active');
                                 APP.EVENTS.BTN_CREATE_ASSET();
                                 APP.EVENTS.BTN_CANCEL_ASSET();
                                 APP.EVENTS.BTN_SAVE_ASSET();
                                 APP.EVENTS.BTN_SAVE_EDIT_ASSET();
                                 APP.EVENTS.FRM_CSV();
-                                $('li.active').removeClass('active');
-                                $('#AssetsSubmenu').parent().attr('class', 'active');
+                                //$('li.active').removeClass('active');
+                                //$('#AssetsSubmenu').parent().attr('class', 'active');
                             }
                         };
 
