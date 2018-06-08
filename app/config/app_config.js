@@ -25,7 +25,7 @@ const userNameMiddleware = (req, res, next) => {
     res.locals.user = {
         'username': username
     }
-    console.log(req.user)
+
     next()
 }
 
