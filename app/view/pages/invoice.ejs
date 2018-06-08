@@ -231,7 +231,7 @@
                     .addClass('active');
                 $('#tbl_data_grid').bootgrid('destroy');
                 $('#thd_data_grid, #tbd_data_grid').html('');
-                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid ID', 'Paid Date', 'Validate Payment' ];
+                var headerTitles = [ 'Invoice Id', 'Load', 'Date', 'Driver', 'Product', 'Invoice Rate', 'Paid ID', 'Paid Date', 'Validate Payment', 'Print' ];
                 var rowElement = $('<tr></tr>');
                 for(var i = 0; i < headerTitles.length; i++){
                     var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
@@ -241,6 +241,10 @@
                     if(headerTitles[i] === 'Invoice Id'){
                         titleColumn.attr('data-formatter', 'invoiceLink');
                     }
+                    if(headerTitles[i] === 'Print'){
+                        titleColumn.attr('data-formatter', 'invoicePrintCheck').attr('data-column-id', 'id');
+                    }
+
                     rowElement.append(titleColumn);
                 }
                 $('#thd_data_grid').append(rowElement);
@@ -270,7 +274,7 @@
                             var trElement = $('<tr></tr>');
                             for(var j = 0; j < headerTitles.length; j++){
                                 var dataColumn;
-                                if(headerTitles[j] === 'Validate Payment'){
+                                if(headerTitles[j] === 'Validate Payment' || headerTitles[j] === 'Print'){
                                     dataColumn = $('<td></td>').text(data[i]['Invoice Id']);
                                 }else{
                                     dataColumn = $('<td></td>').text(data[i][headerTitles[j]] || 'Not available');
@@ -292,6 +296,9 @@
                                 },
                                 invoiceLink: function(column, row){
                                     return '<a href="#" class="lnk_view_invoice" data-id="' + row['id'] + '" style="" >' + row['id'] + '</a>';
+                                },
+                                invoicePrintCheck: function(column, row){
+                                    return '<input type="checkbox" data-tms-load="' + row['load'] + '" data-id="' + row['id'] + '" data-price="' + invoicePrice[row['id']] + '" data-driver="'+ row['driver'] +'" class="form-check-input to-validate" />';
                                 }
                             }
                         });
@@ -301,9 +308,20 @@
                     .text('Validate Payment')
                     .addClass('btn btn-primary')
                     .css('float', 'right')
+                    .css('margin-right', '3px')
                     .attr('data-function', 'print-invoices')
                     .on('click', APP.SERVICES.INVOICE.PRINT_PDF);
+
+                var btnPrintElem = $('<button />')
+                    .text('Print invoices')
+                    .addClass('btn btn-primary')
+                    .css('float', 'right')
+                    .attr('data-function', 'print-arch-invoices')
+                    .on('click', APP.SERVICES.INVOICE.VALIDATE);
+
+                $('#tbl_data_grid').parent().append(btnPrintElem);
                 $('#tbl_data_grid').parent().append(btnElem);
+                
             };
             APP.SERVICES.INVOICE.PERFORM_VALIDATION = APP.SERVICES.INVOICE.PERFORM_VALIDATION || function(invoiceInformation){
                 return function(){
@@ -351,16 +369,10 @@
                 APP.STORE.PDF.INVOICES_TO_PRINT = [];
                 $('#dv_invoices_preview').html('');
 
-                //$('#invoices_id').html('');
-                //$('#tx_payment_id').val('');
                 var invoiceToValidateElems = $('.to-validate');
                 var tmsLoads = [];
                 var loadInvoiceMap = {};
 
-                // id: $(currentElem).attr('data-id'),
-                // price: $(currentElem).attr('data-price'),
-                // driver: $(currentElem).attr('data-driver')
-                
                 for(var i = 0; i < invoiceToValidateElems.length; i++){
                     var currentElem = invoiceToValidateElems[i];
         
