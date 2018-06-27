@@ -59,7 +59,7 @@ exports.updateAsset = (id, name, type, plate, status, mi, miLastService, mttoLas
 };
 
 exports.pullPageAsset = (offset, size) => {
-    let sql = 'select `id`, `name`, `type`, `plate`, `status`, `mi`, `mi_last_service` from `sandras`.`assets` limit ? offset ?';
+    let sql = 'select `id`, `name`, `type`, `plate`, `status`, `mi`, `mi_last_service`, `up`  from `sandras`.`assets` limit ? offset ?';
 
     return connectionPool.query(sql, [size, offset]);
 };

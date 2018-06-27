@@ -182,12 +182,11 @@ exports.getAvailableAssets = () => {
     return connectionPool.query(statement);
 }
 
-exports.selectedAsset = (truck, trailer, ticketId) => {
+exports.selectedAsset = (truck, trailer, ticketId, new_mil) => {
 
-    console.log(truck, trailer, ticketId)
-    let statement = 'update tickets set truck = ?, trailer = ? where id = ? '; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
+    let statement = 'update tickets set truck = ?, trailer = ?, starting_mi = ? where id = ? '; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
 
-    return connectionPool.query(statement , [truck, trailer, ticketId]);
+    return connectionPool.query(statement , [truck, trailer, new_mil, ticketId]);
 }
 
 exports.active = (hrId) => {
@@ -244,8 +243,8 @@ exports.updateWeightAndBol = (weight, bol, ticketId) => {
     return connectionPool.query(statement, [weight, bol, ticketId])
 }
 
-exports.finishTicket = (ticketId) => {
-    let statement = "update tickets set on_curse = FALSE, status = 3 where id = ?"
+exports.finishTicket = (ticketId, final_mil) => {
+    let statement = "update tickets set on_curse = FALSE, status = 3, end_mi = ? where id = ?"
 
-    return connectionPool.query(statement, [ticketId])
+    return connectionPool.query(statement, [final_mil, ticketId])
 }

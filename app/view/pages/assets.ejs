@@ -53,9 +53,9 @@
                                                     <th data-column-id="name">Name</th>
                                                     <th data-column-id="type">Type</th>
                                                     <th data-column-id="plate">Plate</th>
-                                                    <th data-column-id="status">Status</th>
                                                     <th data-column-id="mi">Miles</th>
                                                     <th data-column-id="miLastService">Miles of Last Service</th>
+                                                    <th data-column-id="up">UP</th>
                                                     <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                                                 </tr>
                                             </thead>
@@ -82,13 +82,13 @@
                                                                 <span><%= asset.plate || 'Plate not available' %></span>
                                                             </td>
                                                             <td>
-                                                                <span><%= asset.status || 'Status not available' %></span>
-                                                            </td>
-                                                            <td>
                                                                 <span><%= asset.mi || 'Miles not available' %></span>
                                                             </td>
                                                             <td>
                                                                 <span><%= asset.mi_last_service || 'Miles last service not available' %></span>
+                                                            </td>
+                                                            <td>
+                                                                <span><%= asset.up ? 'yes' : 'no' || 'No available' %></span>
                                                             </td>
                                                         </tr>
                                                     <% }) %>
@@ -132,19 +132,19 @@
                             <br>
                             <label for="tx_mi">Miles:</label>
                             <br>
-                            <input class="form-control" placeholder="mi" name="mi" type="number" id="tx_mi" />
+                            <input class="form-control" placeholder="mi" name="mi" type="number" id="tx_mi" value="0"/>
                             <br>
                             <label for="tx_miLastService">Miles of last service:</label>
                             <br>
-                            <input class="form-control" placeholder="miLastService" name="miLastService" type="number" id="tx_miLastService" />
+                            <input class="form-control" placeholder="miLastService" name="miLastService" type="number" id="tx_miLastService" value="0"/>
                             <br>
                             <label for="tx_mttoLast">Mtto. Last:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="datetime-local" id="tx_mttoLast" />
+                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="date" id="tx_mttoLast" value="2000-05-05" />
                             <br>
                             <label for="tx_mttoNext">Mtto. Next:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="datetime-local" id="tx_mttoNext" />
+                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="date" id="tx_mttoNext" />
                             <br>
                             <label for="tx_notes">Notes:</label>
                             <br>
@@ -205,11 +205,11 @@
                             <br>
                             <label for="tx_edit_mttoLast">Mtto. Last:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="datetime-local" id="tx_edit_mttoLast" />
+                            <input class="form-control" placeholder="mttoLast" name="mttoLast" type="date" id="tx_edit_mttoLast" />
                             <br>
                             <label for="tx_edit_mttoNext">Mtto. Next:</label>
                             <br>
-                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="datetime-local" id="tx_edit_mttoNext" />
+                            <input class="form-control" placeholder="mttoNext" name="mttoNext" type="date" id="tx_edit_mttoNext" />
                             <br>
                             <label for="tx_edit_notes">Notes:</label>
                             <br>
@@ -500,6 +500,8 @@
 
                             $("#grid-basic")
                                 .bootgrid({
+                                    caseSensitive: false,
+                                    rowCount: [50,75,100,-1],
                                     labels: {
                                         search: "Search (Name, Type, Plate, etc.)"
                                     },

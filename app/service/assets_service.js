@@ -19,7 +19,7 @@ exports.deleteAsset = (id) => {
 
 exports.pullPageAsset = (page, size) => {
     if(!page || !isNumber(page)) page = 1;
-    if(!size || !isNumber(size)) size = 10;
+    if(!size || !isNumber(size)) size = 100;
     let offset = (page - 1) * size;
 
     return model.pullPageAsset(offset, size);

@@ -40,13 +40,15 @@ const onAssets = (socket) => {
     });
 };
 
+
+/* JSON que llega (ejemplo): { id: 83, truck_id: 20, trailer_id: 18, new_mil: 1235, date: '2018-06-11 12:45:14' }*/
 const onSelectedAsset = (socket) => {
     return new SocketEvent('selected-asset', (message) => {
         let jsonPayload = JSON.parse(message);
         console.log(jsonPayload)
 
         dispatcherService
-            .selectedAsset(jsonPayload.truck_id, jsonPayload.trailer_id, jsonPayload.id)
+            .selectedAsset(jsonPayload.truck_id, jsonPayload.trailer_id, jsonPayload.id, jsonPayload.new_mil)
             .then(() => {
                 socket.emit('selected-asset', JSON.stringify({ resivido: true }));
             })
@@ -122,7 +124,9 @@ const onStatus = (socket) => {
                         jsonPayload.silo,
                         jsonPayload.weight,
                         jsonPayload.bol,
-                        jsonPayload.date)
+                        jsonPayload.date,
+                        jsonPayload.final_mil
+                    )
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })
