@@ -25,7 +25,7 @@ const userNameMiddleware = (req, res, next) => {
     res.locals.user = {
         'username': username
     }
-
+    
     next()
 }
 
@@ -45,7 +45,7 @@ app.use(userNameMiddleware)
 app.use(flash());
 
 const PORT = process.env.port || 3000;
-const ENV = process.env.NODE_ENV || 'DEV';
+const ENV = process.env.NODE_ENV || 'PROD';
 
 app.use('/api', apiRouter);
 app.use('/web', webRouter);
