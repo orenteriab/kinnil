@@ -242,3 +242,11 @@ exports.updateClockinById = (entrada, salida, id) => {
     return administrativeModel
             .updateClockinById(entrada, salida, id)
 }
+
+exports.findLocations = () => {
+    return administrativeModel.findLocations();
+}
+
+exports.updateScalesData = (scalesData) => {
+    return administrativeModel.upsertScalesData(scalesData)
+}

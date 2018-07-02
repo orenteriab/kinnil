@@ -192,7 +192,39 @@ const onClockinEvent = (socket) => {
     });
 };
 
+const onLocations = (socket) => {
+    return new SocketEvent('locations', () => {
+        administrativeService
+            .findLocations()
+            .then(
+                (locations) => socket.emit('locations', locations),
+                (err) => socket.emit('locations',
+                    JSON.stringify({ 
+                        locations: null, 
+                        error: 'Error when trying to get locations: ' + err  
+                    })
+                )
+            )
+    })
+}
+
+const onScalesData  = (socket) => {
+    return new SocketEvent('scalesdata', (message) => {
+        let jsonPayload = JSON.parse(message)
+
+        administrativeService
+            .updateScalesData(jsonPayload)
+            .then(() => {
+                socket.emit('scales_data_received', JSON.stringify({ received: true}))
+            },
+            (err) => {
+                socket.emit('scales_data_received', JSON.stringify({ received: false, error: err}))
+            })
+    })
+}
+
 exports.onConnection = new SocketEvent('connection', (socket) => {
+    console.log('received');
 
     const socketEvents = [
         onMessage(socket),
@@ -205,7 +237,9 @@ exports.onConnection = new SocketEvent('connection', (socket) => {
         onStatus(socket),
         onAccountsClockin(socket),
         onSelectedCrew(socket),
-        onClockinEvent(socket)
+        onClockinEvent(socket),
+        onLocations(socket),
+        onScalesData(socket)
     ];
 
     socketEvents.forEach((evt) => {
