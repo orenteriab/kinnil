@@ -2,7 +2,7 @@ let connectionPool = require('../config/database_config').connectionPool;
 let moment = require('moment-timezone');
 
 exports.create = (ticket) => {
-    let query = "INSERT INTO `sandras`.`tickets`(`tms`,`born_date` ,`status`,`substatus`,`invoice_rate`,`load_rate`,`product`,`facility`,`location`,`sand_type`,`pick_date`,`drop_date`,`products_id`,`clients_id`) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    let query = "INSERT INTO `sandras`.`tickets`(`tms`,`born_date` ,`status`,`substatus`,`invoice_rate`,`load_rate`,`product`,`facility`,`location`,`sand_type`,`pick_date`,`drop_date`, `po`, `products_id`,`clients_id`) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     return connectionPool.query(query, [
         ticket["TMS Load #"],
@@ -17,6 +17,7 @@ exports.create = (ticket) => {
         ticket["Sand Type"],
         ticket["Pick Date"],
         ticket["Drop Date"],
+        ticket["PO"],
         1, // TODO: Esto va a cambiar en la 2nda o 3ra etapas 
         1 // 1 porque siempre en esta etapa es halliburton
     ]);

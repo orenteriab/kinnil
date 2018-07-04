@@ -52,11 +52,12 @@
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
-                                        <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
-                                        <th data-column-id="location" data-width="25%">Location</th>
+                                        <th data-column-id="tms" data-formatter="link" data-type="numeric" data-width="10%">Load</th>
                                         <th data-column-id="facility">Facility</th>
+                                        <th data-column-id="location" data-width="25%">Location</th>
+                                        <th data-column-id="product" data-width="10%">Sand</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="options" data-formatter="commands" data-sortable="false" data-width="10%">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (tickets.length > 0) { %>
@@ -71,10 +72,13 @@
                                                 <%= tickets[i].tms %>
                                             </td>
                                             <td id="">
+                                                <%= tickets[i].facility %>
+                                            </td>
+                                            <td id="">
                                                 <%= tickets[i].location %>
                                             </td>
                                             <td id="">
-                                                <%= tickets[i].facility %>
+                                                <%= tickets[i].sand_type %>
                                             </td>
                                             <td id="">
                                                 
@@ -159,6 +163,10 @@
                             <label for="tx_sand_type">Sand Type</label>
                             <br/>
                             <input class="form-control" type="text" id="tx_sand_type"/>
+                            <br/>
+                            <label for="tx_sand_type">PO</label>
+                            <br/>
+                            <input class="form-control" type="text" id="tx_po"/>
                             <br/>
                             <label for="tx_pick_date">Pick Date</label>
                             <br/>
@@ -337,6 +345,11 @@
                     $('#btn_save_ticket').removeAttr('disabled');
                     return;
                 }
+                if($('#tx_po').val() == null || $('#tx_po').val() == undefined || $('#tx_po').val().length == 0){
+                    APP.SERVICE.TICKETS.CREATE_TICKET_WARNING('PO');
+                    $('#btn_save_ticket').removeAttr('disabled');
+                    return;
+                }
                 if($('#tx_pick_date').val() == null || $('#tx_pick_date').val() == undefined || $('#tx_pick_date').val().length == 0){
                     APP.SERVICE.TICKETS.CREATE_TICKET_WARNING('Pick Date');
                     $('#btn_save_ticket').removeAttr('disabled');
@@ -357,6 +370,7 @@
                     "Origin":       $('#tx_origin').val(),
                     "Destination":  $('#tx_destination').val(),
                     "Sand Type":    $('#tx_sand_type').val(),
+                    "PO":    $('#tx_po').val(),
                     "Pick Date":    $('#tx_pick_date').val().replace('T', ' ') + ':00',
                     "Drop Date":    $('#tx_drop_date').val().replace('T', ' ') + ':00'
                 };

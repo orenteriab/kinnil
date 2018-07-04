@@ -284,6 +284,7 @@
                                     document.getElementById('frm_csv').reset();
                                     $('#frm_csv').removeAttr('disabled');
                                     $('#dv_csv_load').modal('toggle');
+                                    location.reload(); // Recarga la pagina para ver el cambio
                                 }
                             });
                         };
@@ -338,6 +339,7 @@
                                     $('#frm_edit_csv').removeAttr('disabled');
                                     $('#dv_edit_asset').modal('toggle');
                                     $('#btn_save_edit_asset').removeAttr('data-id');
+                                    location.reload(); // Recarga la pagina para ver el cambio
                                 },
                                 error: function(){
                                     alert('Error when updating asset. Please try again.');
