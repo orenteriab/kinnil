@@ -45,7 +45,7 @@ app.use(userNameMiddleware)
 app.use(flash());
 
 const PORT = process.env.port || 3000;
-const ENV = process.env.NODE_ENV || 'PROD';
+const ENV = process.env.NODE_ENV || 'development';
 
 app.use('/api', apiRouter);
 app.use('/web', webRouter);
