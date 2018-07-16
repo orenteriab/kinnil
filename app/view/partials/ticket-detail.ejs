@@ -171,8 +171,8 @@
                     $('#client').html('<strong>' + data.ticket[0].client_name +'</strong>') //TODO: Aqui hay que mostar el nombre del clien te
                     $('#address').html('<strong>' + data.ticket[0].client_address +'</strong>'); //TODO: hay que mostrar lso datos del clien te
                     $('#po').html('<strong>' + data.ticket[0].po + '</strong>');
-                    $('#origin').html('<strong>' + data.ticket[0].location + '</strong>');
-                    $('#destination').html('<strong>' + data.ticket[0].facility + '</strong>');
+                    $('#origin').html('<strong>' + data.ticket[0].facility + '</strong>');
+                    $('#destination').html('<strong>' + data.ticket[0].location + '</strong>');
                     $('#bol').html(
                         "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update B.O.L.' "+
                         "data-type='text' class='black-link' "+

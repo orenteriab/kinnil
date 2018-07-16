@@ -378,7 +378,7 @@
                     );
                     $('#editDllsHr').html(
                         "<strong><a id='updateDllsHr' data-pk='" + data.hr[0].id + "' data-title='Update dlls/hr' "+
-                        "data-type='number' step='0.01' value='0.00' class='black-link' "+
+                        "type='number' step='0.01' value='0.00' class='black-link' "+
                         "href='#' data-name='dll_hr'>"+data.hr[0].dll_hr+"</a></strong>"
                     );
                     $('#editMcExp').html(
@@ -416,7 +416,8 @@
                     $('#updateDllsHr').editable({
                         url: '/api/administrative/updatehr/',
                         send: 'always',
-                        step: 'any', // <-- added this line
+                        type : 'number',
+                        step: 'any',
                         success: function(response, newValue) {
                             if (response.status == 'error') 
                                 return response.msg; //msg will be shown in editable form

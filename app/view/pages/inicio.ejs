@@ -338,11 +338,12 @@
         function callEndpointTMSCounter() {
             $.getJSON('/api/dispatcher/gettmscounter', function(data) {
 
+                
                 $('#one').html(data[0].one);
                 $('#two').html(data[0].two);
                 $('#three').html(data[0].three);
                 $('#four').html(data[0].four);
-                $('#five').html(data[0].four);
+                $('#five').html(data[0].five);
                 $('#six').html(data[0].six);
 
             });

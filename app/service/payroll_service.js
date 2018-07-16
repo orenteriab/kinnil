@@ -101,28 +101,40 @@ exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer)
 
     timestap = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD HH:mm:ss')
 
-    /* TODO: Hay que hacer algo para que nos tome la tablita de rates cuando el driver es un company driver
+    // Si el HR es de tipo DRIVER se tienen que hacer los calculos en base a la tabla que nos pasaron
+    // TODO: Ocultar el rate para los COMPANY DRIVERS
     if (type == "DRIVER") {
-        let paymentOptions = 
-    } else {
-        return payrollModel.getPaymentDetailsForDrivers()
-    }*/
-    return payrollModel
-            // se calcula lo que se le tiene que pagar
-            .getPaymentDetailsForDrivers(ticketList, rate)
+        
+        return payrollModel
+            .getPaymentDetailsForCompanyDrivers(ticketList)
             .then((paymentDetails) => { 
                 paymentDetails = paymentDetails[0]
-                console.log(JSON.stringify(paymentDetails))
                 // se crea la entrada en payroll
                 return payrollModel
                     .createPayrollEntryforDrivers(wireTransfer, paymentDetails.amount, timestap, id)
                     .then((return_data) => {
-                        console.log("lo que recibi" + JSON.stringify(return_data))
                         // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)
                         return payrollModel
                                 .relateTicketsWithPaymentEvent(return_data.insertId, timestap, ticketList)
                     })
             })
+
+    } else {
+        return payrollModel
+            // se calcula lo que se le tiene que pagar
+            .getPaymentDetailsForDrivers(ticketList, rate)
+            .then((paymentDetails) => { 
+                paymentDetails = paymentDetails[0]
+                // se crea la entrada en payroll
+                return payrollModel
+                    .createPayrollEntryforDrivers(wireTransfer, paymentDetails.amount, timestap, id)
+                    .then((return_data) => {
+                        // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)
+                        return payrollModel
+                                .relateTicketsWithPaymentEvent(return_data.insertId, timestap, ticketList)
+                    })
+            })
+    }
 }
 
 exports.getPayrollHrById = (hr_id) => {

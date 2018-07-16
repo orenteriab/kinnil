@@ -49,7 +49,7 @@ exports.getBasicTicketsList = () => {
 * Get tickets where status
 */
 exports.getTicketsList = () => {
-    let statement = 'select t.*, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id where t.status';
+    let statement = 'select t.*, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id';
 
     return connectionPool.query(statement);
 };
@@ -215,7 +215,12 @@ exports.addEvent = (substatus, timestamp, latitude, longitude, date, id) => {
 }
 
 exports.tmscounter = () => {
-    let statement = "select (select count(*) from tickets where status = 1) one, (select count(*) from tickets where status = 2) two, (select count(*) from tickets where status = 3) three, (select count(*) from tickets where status = 4) four, (select count(*) from tickets where status = 5) five, (select count(*) from tickets where status = 6) six"
+    let statement = "select (select count(*) from tickets where status = 1) one, \
+(select count(*) from tickets where status = 2) two, \
+(select count(*) from tickets where status = 3) three, \
+(select count(*) from tickets where status = 4 and invoice_date is NULL) four, \
+(select count(*) from tickets where status = 4 and payrolled_date is NULL) five, \
+(select count(*) from tickets where status = 6) six"
 
     return connectionPool.query(statement)
 }

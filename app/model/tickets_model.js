@@ -2,7 +2,7 @@ let connectionPool = require('../config/database_config').connectionPool;
 let moment = require('moment-timezone');
 
 exports.create = (ticket) => {
-    let query = "INSERT INTO `sandras`.`tickets`(`tms`,`born_date` ,`status`,`substatus`,`invoice_rate`,`load_rate`,`product`,`facility`,`location`,`sand_type`,`pick_date`,`drop_date`, `po`, `products_id`,`clients_id`) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    let query = "INSERT INTO `sandras`.`tickets`(`tms`,`born_date` ,`status`,`substatus`,`invoice_rate`,`load_rate`,`product`,`driver_rate`,`facility`,`location`,`sand_type`,`pick_date`,`drop_date`, `po`, `products_id`,`clients_id`) VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     return connectionPool.query(query, [
         ticket["TMS Load #"],
@@ -12,6 +12,7 @@ exports.create = (ticket) => {
         ticket["Rate Invoice"],
         ticket["Load Rate"],
         ticket["Miles"], //product
+        ticket["Driver Rate"],
         ticket["Origin"],
         ticket["Destination"],
         ticket["Sand Type"],
@@ -27,4 +28,10 @@ exports.updateTicketInvoiceDate = (ticket) => {
     var sql = 'UPDATE `sandras`.`tickets` SET `invoice_date` = CURDATE() WHERE id = ?';
 
     return connectionPool.query(sql, [ticket])
+}
+
+exports.getTicketByTms = (ticket) => {
+    let query = "SELECT * from tickets WHERE tms = ?"
+
+    return connectionPool.query(query, [ticket["TMS Load #"]])
 }

@@ -2,6 +2,7 @@ const MODEL = require('../model/tickets_model');
 let moment = require('moment-timezone');
 const DATE_FORMAT = 'MM/D/YYYY HH:mm:ss';
 const CONVERT_DATE_FORMAT = 'YYYY-MM-D HH:mm:ss';
+let Bluebird = require('bluebird');
 
 /** 
  * Me dio pereza andar comprobando campo a campo, mejor
@@ -94,36 +95,111 @@ function decideProduct(uStatus){
     if (uStatus >= 211 && uStatus <= 220){
         return "211-220"
     }
-    if (uStatus >= 110 && uStatus <= 230){
+    if (uStatus >= 221 && uStatus <= 230){
         return "221-230"
     }
-    if (uStatus >= 110 && uStatus <= 240){
+    if (uStatus >= 231 && uStatus <= 240){
         return "231-240"
     }
-    if (uStatus >= 110 && uStatus <= 250){
+    if (uStatus >= 241 && uStatus <= 250){
         return "241-250"
     }
-    if (uStatus >= 110 && uStatus <= 260){
+    if (uStatus >= 251 && uStatus <= 260){
         return "251-260"
     }
-    if (uStatus >= 110 && uStatus <= 270){
+    if (uStatus >= 261 && uStatus <= 270){
         return "261-270"
     }
-    if (uStatus >= 110 && uStatus <= 280){
+    if (uStatus >= 271 && uStatus <= 280){
         return "271-280"
     }
-    if (uStatus >= 110 && uStatus <= 290){
+    if (uStatus >= 281 && uStatus <= 290){
         return "281-290"
     }
-    if (uStatus >= 110 && uStatus <= 300){
+    if (uStatus >= 291 && uStatus <= 300){
         return "291-300"
     }
 }
 
-function decideDriverRate(uStatus){
-    uStatus = parseInt(uStatus)
-
-
+function decideDriverRate(product){
+    if (product == "0-50") {
+        return 0.25
+    }
+    if (product == "51-60") {
+        return 0.25
+    }
+    if (product == "61-70") {
+        return 0.25
+    }
+    if (product == "71-80") {
+        return 0.27
+    }
+    if (product == "81-90") {
+        return 0.27
+    }
+    if (product == "91-100") {
+        return 0.27
+    }
+    if (product == "101-110") {
+        return 0.27
+    }
+    if (product == "111-120") {
+        return 0.27
+    }
+    if (product == "121-130") {
+        return 0.27
+    }
+    if (product == "131-140") {
+        return 0.27
+    }
+    if (product == "141-150") {
+        return 0.27
+    }
+    if (product == "151-160") {
+        return 0.285
+    }
+    if (product == "161-170") {
+        return 0.285
+    }
+    if (product == "171-180") {
+        return 0.285
+    }
+    if (product == "181-190") {
+        return 0.285
+    }
+    if (product == "191-200") {
+        return 0.285
+    }
+    if (product == "201-210") {
+        return 0.285
+    }
+    if (product == "211-220") {
+        return 0.285
+    }
+    if (product == "221-230") {
+        return 0.285
+    }
+    if (product == "231-240") {
+        return 0.285
+    }
+    if (product == "241-250") {
+        return 0.285
+    }
+    if (product == "251-260") {
+        return 0.285
+    }
+    if (product == "261-270") {
+        return 0.285
+    }
+    if (product == "271-280") {
+        return 0.285
+    }
+    if (product == "281-290") {
+        return 0.285
+    }
+    if (product == "291-300") {
+        return 0.285
+    }
 }
 
 function decideDate() {
@@ -154,15 +230,26 @@ function decideDate() {
 }
 
 exports.create = (ticket) => {
-    ticket["Pick Date"] = seekForADate(ticket["Pick Date"]);
-    ticket["Drop Date"] = seekForADate(ticket["Drop Date"]);
-    //ticket["Status"] = decideStatus(ticket["Status"]);
-    ticket["Rate Invoice"] = parseFloat(ticket["Rate Invoice"]);
-    ticket["Load Rate"] = parseFloat(ticket["Load Rate"]);
-    ticket["Miles"] = decideProduct(ticket["Miles"]);
-    ticket['born_date'] = decideDate();
 
-    return MODEL.create(ticket);
+    return MODEL
+        .getTicketByTms(ticket)
+        .then((returnData) => {
+            if (returnData.length >= 1) {
+                console.log("the tms number already exist")
+                return Bluebird.reject('Load Number already exist')            
+            } else {
+                ticket["Pick Date"] = seekForADate(ticket["Pick Date"]);
+                ticket["Drop Date"] = seekForADate(ticket["Drop Date"]);
+                //ticket["Status"] = decideStatus(ticket["Status"]);
+                ticket["Rate Invoice"] = parseFloat(ticket["Rate Invoice"]);
+                ticket["Load Rate"] = parseFloat(ticket["Load Rate"]);
+                ticket["Miles"] = decideProduct(ticket["Miles"]);
+                ticket["Driver Rate"] = decideDriverRate(ticket["Miles"]);
+                ticket['born_date'] = decideDate();
+
+                return MODEL.create(ticket);
+            }
+        })  
 };
 
 exports.updateTicketInvoiceDate = (ticket) => {
