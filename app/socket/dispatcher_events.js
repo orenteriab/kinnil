@@ -17,7 +17,7 @@ const onAccounts = (socket) => {
         dispatcherService
             .getUsersAndPassword()
             .then((returnData) => {
-                socket.emit('accounts', JSON.stringify(returnData));
+                socket.emit('accounts',  utf8.encode(JSON.stringify(returnData)));
             })
             .catch(function (err) {
                 console.error('[/app/socket/Events.js][/accounts/]Error when querying: ', err);
@@ -31,7 +31,7 @@ const onAssets = (socket) => {
         dispatcherService
             .getAvailableAssets()
             .then((returnData) => {
-                socket.emit('assets', JSON.stringify(returnData));
+                socket.emit('assets',  utf8.encode(JSON.stringify(returnData)));
             })
             .catch(function (err) {
                 console.error('[/app/socket/Events.js][/assets/]Error when querying: ', err);
@@ -40,13 +40,15 @@ const onAssets = (socket) => {
     });
 };
 
+
+/* JSON que llega (ejemplo): { id: 83, truck_id: 20, trailer_id: 18, new_mil: 1235, date: '2018-06-11 12:45:14' }*/
 const onSelectedAsset = (socket) => {
     return new SocketEvent('selected-asset', (message) => {
         let jsonPayload = JSON.parse(message);
         console.log(jsonPayload)
 
         dispatcherService
-            .selectedAsset(jsonPayload.truck_id, jsonPayload.trailer_id, jsonPayload.id)
+            .selectedAsset(jsonPayload.truck_id, jsonPayload.trailer_id, jsonPayload.id, jsonPayload.new_mil)
             .then(() => {
                 socket.emit('selected-asset', JSON.stringify({ resivido: true }));
             })
@@ -100,7 +102,7 @@ const onTms = (socket) => {
                 if (JSON.stringify(returnData[0]) == null){
                     socket.emit('tms', '{}');
                 } else {
-                    socket.emit('tms', JSON.stringify(returnData[0]));
+                    socket.emit('tms',  utf8.encode(JSON.stringify(returnData[0])));
                 }
             })
             .catch(function (err) {
@@ -122,7 +124,9 @@ const onStatus = (socket) => {
                         jsonPayload.silo,
                         jsonPayload.weight,
                         jsonPayload.bol,
-                        jsonPayload.date)
+                        jsonPayload.date,
+                        jsonPayload.final_mil
+                    )
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
             })
@@ -188,7 +192,39 @@ const onClockinEvent = (socket) => {
     });
 };
 
+const onLocations = (socket) => {
+    return new SocketEvent('locations', () => {
+        administrativeService
+            .findLocations()
+            .then(
+                (locations) => socket.emit('locations', locations),
+                (err) => socket.emit('locations',
+                    JSON.stringify({ 
+                        locations: null, 
+                        error: 'Error when trying to get locations: ' + err  
+                    })
+                )
+            )
+    })
+}
+
+const onScalesData  = (socket) => {
+    return new SocketEvent('scalesdata', (message) => {
+        let jsonPayload = JSON.parse(message)
+
+        administrativeService
+            .updateScalesData(jsonPayload)
+            .then(() => {
+                socket.emit('scales_data_received', JSON.stringify({ received: true}))
+            },
+            (err) => {
+                socket.emit('scales_data_received', JSON.stringify({ received: false, error: err}))
+            })
+    })
+}
+
 exports.onConnection = new SocketEvent('connection', (socket) => {
+    console.log('received');
 
     const socketEvents = [
         onMessage(socket),
@@ -201,7 +237,9 @@ exports.onConnection = new SocketEvent('connection', (socket) => {
         onStatus(socket),
         onAccountsClockin(socket),
         onSelectedCrew(socket),
-        onClockinEvent(socket)
+        onClockinEvent(socket),
+        onLocations(socket),
+        onScalesData(socket)
     ];
 
     socketEvents.forEach((evt) => {

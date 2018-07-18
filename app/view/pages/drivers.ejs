@@ -56,9 +56,9 @@
                                     <% for(var i=0; i<drivers.length; i++) {%>
                                         <tr class="quote">
                                             <td id=""> <%= drivers[i].id %> </td>
-                                            <td id=""> <%= drivers[i].name %> </td>
-                                            <td id=""> <%= drivers[i].license %> </td>
-                                            <td id=""> <%= drivers[i].type %> </td>
+                                            <td id=""> <%= drivers[i].name || 'Name not available' %></td>
+                                            <td id=""> <%= drivers[i].license || 'License not avaiable' %></td>
+                                            <td id=""> <%= drivers[i].type || 'Type not avaiable' %></td>
                                             <td id=""> 
                                                 <%if (drivers[i].up == 1) { %>
                                                     On line
@@ -143,7 +143,7 @@
                             <option value="PM">pm</option>
                         </select>
                         <label for="rate" class="h4 ">Rate % (example 10 = 10%)</label>
-                        <input type="number" class="form-control" id="rate" min="0" max="100" required>
+                        <input type="number" class="form-control" id="rate" min="0" max="100" step="0.01" value="10" required>
                         <label for="paymentMethod" class="h4 ">Payment Method</label>
                         <select id="shift" class="form-control" required>
                             <option value="PAY PER CHECK">Pay per Check</option>
@@ -289,10 +289,11 @@
 
                 $("#grid-basic")
                     .bootgrid({
+                        caseSensitive: false,
+                        rowCount: [50,75,100,-1],
                         formatters: {
                             "link": linkFormatter
-                        },
-                        caseSensitive: false
+                        }
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
             };
@@ -317,7 +318,7 @@
                                 birth: $("#birth").val(),
                                 laborStatus: $("#laborStatus").val(),
                                 position: $("#position").val(),
-                                rate: $("#rate").val(),
+                                rate: $("#rate").val()/100, // 10% = 0.10
                                 mcExp: $("#mcExp").val(),
                                 ssn: $("#ssn").val(),
                                 type: $("#type").val(),
@@ -345,7 +346,6 @@
                         });
 
                         $('#addSandModal').modal('hide');
-                        refreshPage();
                     });
                 },
                 INIT: function(){
@@ -389,7 +389,7 @@
                         "href='#' data-name='tel'>"+data.hr[0].tel+"</a></strong>"
                     );
                     $('#editBrith').html(
-                        "<strong><a id='updateBrith' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
+                        "<strong><a id='updateBrith' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
                     );
@@ -435,8 +435,8 @@
                     );
                     $('#editRate').html(
                         "<strong><a id='updateRate' data-pk='" + data.hr[0].id + "' data-title='Update rate' "+
-                        "data-type='select' step='0.01' value='0.00' class='black-link' "+
-                        "href='#' data-name='rate'>"+ data.hr[0].rate +" %</a></strong>" // El rate en los drivers es un porcentage asi que le damos formato
+                        "data-type='number' min='0' max='1' step='0.01' class='black-link' "+
+                        "href='#' data-name='rate'>"+ data.hr[0].rate * 100 +"</a> %</strong>" // El rate en los drivers es un porcentage asi que le damos formato
                     );
                     $('#editUser').html(
                         "<strong><a id='updateUser' data-pk='" + data.hr[0].id + "' data-title='Update user' "+
@@ -449,7 +449,7 @@
                         "href='#' data-name='password'>"+data.hr[0].password+"</a></strong>"
                     );
                     $('#editMcExp').html(
-                        "<strong><a id='updateMcExp' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
+                        "<strong><a id='updateMcExp' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='mc_exp'>"+data.hr[0].mc_exp+"</a></strong>"
                     );
@@ -459,7 +459,7 @@
                         "href='#' data-name='license'>"+data.hr[0].license+"</a></strong>"
                     );
                     $('#editLicenseExp').html(
-                        "<strong><a id='updateLicenseExp' data-pk='" + data.hr[0].id + "' data-title='Update license expiration date' "+
+                        "<strong><a id='updateLicenseExp' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update license expiration date' "+
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='license_exp'>"+data.hr[0].license_exp+"</a></strong>"
                     );
@@ -474,12 +474,12 @@
                         "href='#' data-name='state'>"+data.hr[0].state+"</a></strong>"
                     );
                     $('#editHireDate').html(
-                        "<strong><a id='updateHireDate' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
+                        "<strong><a id='updateHireDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='hire_date'>"+data.hr[0].hire_date+"</a></strong>"
                     );
                     $('#editExperienceYears').html(
-                        "<strong><a id='updateExperienceYears' data-pk='" + data.hr[0].id + "' data-title='Update Experience Years' "+
+                        "<strong><a id='updateExperienceYears' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update Experience Years' "+
                         "data-type='date' class='black-link' "+
                         "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
                     );
@@ -529,11 +529,12 @@
                     $('#updateRate').editable({ 
                         url: '/api/administrative/updatehr/',
                         send: 'always',
-                        source: [
-                            {value: ".15", text: '15%'},
-                            {value: ".20", text: '20%'},
-                            {value: ".25", text: '25%'},
-                        ],
+                        type : 'number',
+                        step: 'any',
+                        params: function(params) {
+                            params.value = params.value / 100; // 10 % = 0.10
+                            return params;
+                        },
                         success: function(response, newValue) {
                             if (response.status == 'error') 
                                 return response.msg; //msg will be shown in editable form
@@ -608,7 +609,11 @@
                         url: '/api/administrative/updatehr/',
                         send: 'always',
                         format: 'yyyy-mm-dd',    
-                        viewformat: 'mm-dd-yyyy',    
+                        viewformat: 'mm-dd-yyyy', 
+                        combodate: { 
+                            maxYear: 2025,
+                            minYear:1930
+                         },    
                         datepicker: {
                                 weekStart: 1
                         },

@@ -37,7 +37,7 @@
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="products" data-formatter="products">Product</th>
                                         <th data-column-id="status">Status</th> <!-- Substatus en la DB (on my way to facility, etc) -->
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">To validate</th>
                                     </tr>
                                 </thead>
                                 <%if (tickets.length > 0) { %>
@@ -64,7 +64,23 @@
                                             <%= tickets[i].product_name %>
                                         </td>
                                         <td id="">
-                                            <%= tickets[i].substatus %>
+                                            <%if (tickets[i].substatus == 0) { %>
+                                                ASSIGNED
+                                            <% } else if(tickets[i].substatus == 1) { %>
+                                                ON MY WAY TO FACILITY
+                                            <% } else if(tickets[i].substatus == 2) { %>
+                                                ARRIVED TO FACILITY
+                                            <% } else if(tickets[i].substatus == 3) { %>
+                                                LOADING
+                                            <% } else if(tickets[i].substatus == 4) { %>
+                                                ON MY WAY TO LOCATION
+                                            <% } else if(tickets[i].substatus == 5) { %>
+                                                ARRIVED TO LOCATION
+                                            <% } else if(tickets[i].substatus == 6) { %>
+                                                UNLOADING
+                                            <% } else if(tickets[i].substatus == 7) { %>
+                                                FINISHED
+                                            <% } %>
                                         </td>
                                         <td id="">
 
@@ -130,6 +146,7 @@
     <script>
         var grid = $("#grid-basic").bootgrid({
             caseSensitive: false,
+            rowCount: [50,75,100,-1],
             formatters: {
                 "link": function(column, row)
                 {

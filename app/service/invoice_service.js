@@ -42,3 +42,11 @@ exports.viewInvoice = (invoiceId) => {
         return invoiceModel.viewInvoice(invoiceId)
     }
 };
+
+exports.updatePrinted = (invoiceId) => {
+    if(!invoiceId || String(invoiceId).trim().length == 0){
+        return Bluebird.reject('The invoice id cannot be null or empty')
+    }else{
+        return invoiceModel.updatePrinted(invoiceId)
+    }
+}

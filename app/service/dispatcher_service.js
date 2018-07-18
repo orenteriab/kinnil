@@ -226,9 +226,9 @@ exports.getAvailableAssets = () => {
         });
 };
 
-exports.selectedAsset = (truck, trailer, ticketId) => {
+exports.selectedAsset = (truck, trailer, ticketId, new_mil) => {
     return dispatcherModel
-        .selectedAsset(truck, trailer, ticketId)
+        .selectedAsset(truck, trailer, ticketId, new_mil)
         .then((data) => {
             return true
         })
@@ -263,7 +263,7 @@ exports.tms = (hrId) => {
 /*
 * TODO: AddEvent necesita una refactorizacion, se realizo muy rapido para darle cierre a la primera etapa.
 */
-exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date) => {
+exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil) => {
 
 
     // Esta rutina tiene que correr primero porque el substatus es un numero que vamos a insertar en la columna substatus del ticket
@@ -320,7 +320,7 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
         substatus = "FINISHED"
         // Aqui hay que finalizar el ticket (on_curse = FALSE)
         dispatcherModel
-        .finishTicket(ticketId)
+        .finishTicket(ticketId, final_mil)
         .then((return_data) => {
             return return_data
         })

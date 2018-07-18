@@ -49,7 +49,7 @@ exports.getBasicTicketsList = () => {
 * Get tickets where status
 */
 exports.getTicketsList = () => {
-    let statement = 'select t.*, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id where t.status';
+    let statement = 'select t.*, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id';
 
     return connectionPool.query(statement);
 };
@@ -86,8 +86,8 @@ exports.getTicketById = (ticketId) => {
                         t.products_id, \
                         t.clients_id, \
                         t.on_curse, \
-                        t.truck, \
-                        t.trailer, \
+                        a1.name truck, \
+                        a2.name trailer, \
                         t.load_rate, \
                         t.load_rate_currency, \
                         c.name client_name, \
@@ -98,6 +98,8 @@ exports.getTicketById = (ticketId) => {
                         from tickets t \
                         left join clients c on t.clients_id = c.id \
                         left join hr h on t.hr_id = h.id \
+                        left join assets a1 on t.truck = a1.id\
+                        left join assets a2 on t.trailer = a2.id\
                         where t.id = ?';
 
     return connectionPool.query(statement, [ticketId]);
@@ -180,12 +182,11 @@ exports.getAvailableAssets = () => {
     return connectionPool.query(statement);
 }
 
-exports.selectedAsset = (truck, trailer, ticketId) => {
+exports.selectedAsset = (truck, trailer, ticketId, new_mil) => {
 
-    console.log(truck, trailer, ticketId)
-    let statement = 'update tickets set truck = ?, trailer = ? where id = ? '; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
+    let statement = 'update tickets set truck = ?, trailer = ?, starting_mi = ? where id = ? '; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
 
-    return connectionPool.query(statement , [truck, trailer, ticketId]);
+    return connectionPool.query(statement , [truck, trailer, new_mil, ticketId]);
 }
 
 exports.active = (hrId) => {
@@ -214,7 +215,12 @@ exports.addEvent = (substatus, timestamp, latitude, longitude, date, id) => {
 }
 
 exports.tmscounter = () => {
-    let statement = "select (select count(*) from tickets where status = 1) one, (select count(*) from tickets where status = 2) two, (select count(*) from tickets where status = 3) three, (select count(*) from tickets where status = 4) four, (select count(*) from tickets where status = 5) five, (select count(*) from tickets where status = 6) six"
+    let statement = "select (select count(*) from tickets where status = 1) one, \
+(select count(*) from tickets where status = 2) two, \
+(select count(*) from tickets where status = 3) three, \
+(select count(*) from tickets where status = 4 and invoice_date is NULL) four, \
+(select count(*) from tickets where status = 4 and payrolled_date is NULL) five, \
+(select count(*) from tickets where status = 6) six"
 
     return connectionPool.query(statement)
 }
@@ -242,8 +248,8 @@ exports.updateWeightAndBol = (weight, bol, ticketId) => {
     return connectionPool.query(statement, [weight, bol, ticketId])
 }
 
-exports.finishTicket = (ticketId) => {
-    let statement = "update tickets set on_curse = FALSE, status = 3 where id = ?"
+exports.finishTicket = (ticketId, final_mil) => {
+    let statement = "update tickets set on_curse = FALSE, status = 3, end_mi = ? where id = ?"
 
-    return connectionPool.query(statement, [ticketId])
+    return connectionPool.query(statement, [final_mil, ticketId])
 }

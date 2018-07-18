@@ -262,7 +262,7 @@ exports.getAccountsClockin = () => {
 };
 
 exports.getSelectedCrew = (crewId) => {
-    let statement = 'select id, name, shift from hr where crew = ?';
+    let statement = 'select id, name, shift from hr where position <> "DRIVER" and crew = ?';
 
     return connectionPool.query(statement, [crewId]);
 };
@@ -293,4 +293,124 @@ exports.updateClockinById = (entrada, salida, id) => {
     let statement = " update `sandras`.`clockin` set `in` = ?, `out` = ? where id = ? ";
 
     return connectionPool.query(statement, [entrada, salida, id]);
+}
+
+exports.findLocations = () => {
+    let statement = "select `id`, `name` from `sandras`.`locations` "
+
+    return connectionPool.query(statement)
+}
+
+exports.upsertScalesData = (scalesData) => {
+    let statement = "select count(*) `locationCount` from `sandras`.`scales_data` where locations_id = ? "
+
+    return connectionPool
+        .query(statement, [scalesData.location])
+        .then((row) => {
+            let statement = "";
+
+            if(row[0].locationCount == 0){
+                statement = "INSERT INTO `sandras`.`scales_data`" +
+                "(`id`," +
+                "`sand_name1`," +
+                "`sand_name2`," +
+                "`sand_name3`," +
+                "`sand_name4`," +
+                "`sand_name5`," +
+                "`sand_name6`," +
+                "`weight1`," +
+                "`weight2`," +
+                "`weight3`," +
+                "`weight4`," +
+                "`weight5`," +
+                "`weight6`," +
+                "`status1`," +
+                "`status2`," +
+                "`status3`," +
+                "`status4`," +
+                "`status5`," +
+                "`status6`," +
+                "`porcent1`," +
+                "`porcent2`," +
+                "`porcent3`," +
+                "`porcent4`," +
+                "`porcent5`," +
+                "`porcent6`," +
+                "`locations_id`)" +
+                "VALUES (" +
+                "default, " +
+                "''," +
+                "''," +
+                "''," +
+                "''," +
+                "''," +
+                "''," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?," +
+                "?)";
+            }else{
+                statement = "UPDATE `sandras`.`scales_data` " +
+                "SET " +
+                "`weight1` = ?, " +
+                "`weight2` = ?, " +
+                "`weight3` = ?, " +
+                "`weight4` = ?, " +
+                "`weight5` = ?, " +
+                "`weight6` = ?, " +
+                "`status1` = ?, " +
+                "`status2` = ?, " +
+                "`status3` = ?, " +
+                "`status4` = ?, " +
+                "`status5` = ?, " +
+                "`status6` = ?, " +
+                "`porcent1` = ?, " +
+                "`porcent2` = ?, " +
+                "`porcent3` = ?, " +
+                "`porcent4` = ?, " +
+                "`porcent5` = ?, " +
+                "`porcent6` = ? " +
+                "WHERE `locations_id` = ?; "
+            }
+
+            return connectionPool.query(statement, [
+                scalesData.weight1,
+                scalesData.weight2,
+                scalesData.weight3,
+                scalesData.weight4,
+                scalesData.weight5,
+                scalesData.weight6,
+                scalesData.status1,
+                scalesData.status2,
+                scalesData.status3,
+                scalesData.status4,
+                scalesData.status5,
+                scalesData.status6,
+                scalesData.porcent1,
+                scalesData.porcent2,
+                scalesData.porcent3,
+                scalesData.porcent4,
+                scalesData.porcent5,
+                scalesData.porcent6,
+                scalesData.location
+            ])
+        }
+        ,(err) => {
+            return Promise.reject('Error when updating scales data: ' + err)
+        })
 }

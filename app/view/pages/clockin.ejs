@@ -209,7 +209,7 @@
 
         APP.LOAD.GRID = APP.LOAD.GRID || function () {
             var commandsFormatter = function (column, row) {
-                return "<button type=\"button\" class=\"btn btn-md btn-default command-edit-clockin\" data-row-id=\"" + row.id + "\">Edit</button>";
+                return "<button type=\"button\" class=\"btn btn-md btn-secondary command-edit-clockin\" data-row-id=\"" + row.id + "\">Edit</button>";
                 //return "<button type=\"button\" class=\"btn btn-md btn-default command-edit-asset\" data-row-id=\"" + row.id + "\">Edit</button>" +
                 //    "<button type=\"button\" class=\"btn btn-md btn-default command-delete-asset\" data-row-id=\"" + row.id + "\">Delete</button> ";
             };
@@ -270,6 +270,8 @@
             };
             $("#grid-basic")
                 .bootgrid({
+                    caseSensitive: false,
+                    rowCount: [50,75,100,-1],
                     formatters: {
                         "commands": commandsFormatter,
                         "pixin":  pixinFormatter,

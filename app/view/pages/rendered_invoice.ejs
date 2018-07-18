@@ -1,0 +1,318 @@
+<div style="display:table-row;">
+    <div id="dv_invoices_preview" style="display:table; width: 100%;">
+        <div style="display:table-row; text-align:right;">
+            <div style="display:table-cell; width: 50%;">
+                
+            </div>
+            <div style="display:table-cell; width: 50%;">
+                <span>Invoice No.</span> <input type="text" disabled="disabled" value="<%= invoice.invoice_number %>"/>
+            </div>
+        </div>
+        <div style="display:table-row; border: 5px;">
+            <div style="display:table-cell; width: 50%;">
+                <span>Bill To:</span>
+            </div>
+            <div style="display:table-cell; text-align:right; width: 100%;">
+                &nbsp;
+            </div>
+        </div>
+        <div style="display:table-row; border: 5px;">
+            <div style="display:table-cell; width: 50%;">
+                <div style="display: table; width: 100%;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell; width: 25%;">
+                            <span>Customer</span>
+                        </div>
+                        <div style="display:table-cell; width: 50%;">
+                            <input type="text" disabled="disabled" value="<%= invoice.customer_name %>" style="width: 90%;"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:table-cell; width: 50%;">
+                <div style="display: table; width: 100%;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell; width: 25%;">
+                            <span>Date</span>
+                        </div>
+                        <div style="display:table-cell; width: 50%;">
+                            <input type="text" disabled="disabled" value="<%= invoice.date %>" style="width: 100%;"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display:table-row; border: 5px;">
+            <div style="display:table-cell; width: 50%;">
+                &nbsp;
+            </div>
+            <div style="display:table-cell; width: 50%;">
+                &nbsp;
+            </div>
+        </div>
+        <div style="display:table-row; border: 5px;">
+            <div style="display:table-cell; width: 50%;">
+                <div style="display: table; width: 100%;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell; width: 25%;">
+                            <span>Address</span>
+                        </div>
+                        <div style="display:table-cell; width: 50%;">
+                            <input type="text" disabled="disabled" value="<%= invoice.customer_address %>" style="width: 90%;"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:table-cell; width: 50%;">
+                <div style="display: table; width: 100%;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell; width: 25%;">
+                            <span>Due Date</span>
+                        </div>
+                        <div style="display:table-cell; width: 50%;">
+                            <input type="text" disabled="disabled" value="<%= invoice.completed_date %>" style="width: 100%;"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display:table-row; border: 5px;">
+            <div style="display:table-cell; width: 50%;">
+                &nbsp;
+            </div>
+            <div style="display:table-cell; width: 50%;">
+                &nbsp;
+            </div>
+        </div>
+        <div style="display:table-row; border: 5px;">
+            <div style="display:table-cell; width: 50%;">
+                <div style="display: table; width: 100%;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell; width: 25%;">
+                            &nbsp;
+                        </div>
+                        <div style="display:table-cell; width: 50%;">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:table-cell; width: 50%;">
+                <div style="display: table; width: 100%;">
+                    <div style="display:table-row;">
+                        <div style="display:table-cell; width: 25%;">
+                            <span>Terms</span>
+                        </div>
+                        <div style="display:table-cell; width: 50%;">
+                            <input type="text" disabled="disabled" value="<%= invoice.invoice_terms %>" style="width: 100%;"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div style="display:table-row; border: 5px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row;">
+    <div style="display:table-cell; background-color: #a3a3a3; text-align: center; width: 100%; color: #fff;">
+        <span>STATUS</status>
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px; font-size: 6px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row; border: 5px; text-align: center;">
+    <div style="display: table; width: 100%;">
+        <div style="display: table-row; width: 100%;">
+            <div style="display:table-cell; width: 33%;">
+                <span>To be invoiced</span>
+            </div>
+            <div style="display:table-cell; width: 34%;">
+                <span>Invoiced</span>
+            </div>
+            <div style="display:table-cell; width: 33%;">
+                <span>Paid</span>
+            </div>
+        </div>
+        <div style="display:table-row; border: 3px;">
+            <div style="display:table-cell; width: 33%;">
+                <input type="text" disabled="disabled" value="<%= invoice.to_be_invoiced_date %>"/>
+            </div>
+            <div style="display:table-cell; width: 34%;">
+                <input type="text" disabled="disabled" value="<%= invoice.to_be_invoiced_date %>" />
+            </div>
+            <div style="display:table-cell; width: 33%;">
+                <input type="text" disabled="disabled" value="<%= invoice.to_be_invoiced_date %>" />
+            </div>
+        </div>
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px; font-size: 6px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row;">
+    <div style="display:table-cell; background-color: #a3a3a3; text-align: center; width: 100%; color: #fff;">
+        <span>INFO</status>
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px; font-size: 6px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row; border: 5px; text-align: center;">
+    <div style="display: table; width: 100%;">
+        <div style="display: table-row; width: 100%;">
+            <div style="display:table-cell; width: 24%;">
+                <span>Load</span>
+            </div>
+            <div style="display:table-cell; width: 24%;">
+                <span>P.O.</span>
+            </div>
+            <div style="display:table-cell; width: 24%;">
+                <span>BOL</span>
+            </div>
+            <div style="display:table-cell; width: 24%;">
+                <span>Driver</span>
+            </div>
+        </div>
+        <div style="display:table-row; border: 3px;">
+            <div style="display:table-cell; width: 24%;">
+                <input type="text" disabled="disabled" style="width: 85%;" value="<%= invoice.load %>" />
+            </div>
+            <div style="display:table-cell; width: 24%;">
+                <input type="text" disabled="disabled" style="width: 85%;" value="<%= invoice.po %>" />
+            </div>
+            <div style="display:table-cell; width: 24%;">
+                <input type="text" disabled="disabled" style="width: 85%;" value="<%= invoice.bol %>" />
+            </div>
+            <div style="display:table-cell; width: 24%;">
+                <input type="text" disabled="disabled" style="width: 85%;" value="<%= invoice.driver %>" />
+            </div>
+        </div>
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px; font-size: 6px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row;">
+    <div style="display:table-cell; background-color: #a3a3a3; text-align: center; width: 100%; color: #fff;">
+        <span>PRODUCTS</status>
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px; font-size: 6px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px;">
+    <div style="display:table-cell; width: 100%;">
+        <div style="display: table; width: 100%;">
+            <div style="display: table-row">
+                <div style="display: table-cell; width: 25%">
+                    <span>Ship Date</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" disabled="disabled" value="<%= invoice.ship_date %>"/>
+                </div>
+                <div style="display: table-cell; width: 25%"></div>
+                <div style="display: table-cell; width: 25%"></div>
+            </div>
+            <div style="display: table-row">
+                <div style="display: table-cell; width: 25%">
+                    <span>Origin</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" disabled="disabled" value="<%= invoice.origin %>" />
+                </div>
+                <div style="display: table-cell; width: 25%"></div>
+                <div style="display: table-cell; width: 25%"></div>
+            </div>
+            <div style="display: table-row">
+                <div style="display: table-cell; width: 25%">
+                    <span>Destination</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" disabled="disabled" value="<%= invoice.destination %>"/>
+                </div>
+                <div style="display: table-cell; width: 25%"></div>
+                <div style="display: table-cell; width: 25%"></div>
+            </div>
+            <div style="display: table-row">
+                <div style="display: table-cell; width: 25%">
+                    <span>Weight</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" disabled="disabled" value="<%= invoice.weight %>" />
+                </div>
+                <div style="display: table-cell; width: 25%; text-align: right;">Price</div>
+                <div style="display: table-cell; width: 25%; text-align: right;">
+                    <input type="text" disabled="disabled"  style="width: 90%" value="<%= invoice.price %>"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px; font-size: 6px;">
+    <div style="display:table-cell; width: 100%;">
+        &nbsp;
+    </div>
+    </div>
+    <div style="display:table-row; border: 3px;">
+    <div style="display:table-cell; width: 100%;">
+        <div style="display: table;">
+            <div style="display: table-row; text-align: center;">
+                <div style="display: table-cell; width: 25%">
+                    <span>Amount payrolled</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <span>Trailer</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <span>Date</span>
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    &nbsp;
+                </div>
+            </div>
+            <div style="display: table-row; text-align: center;">
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" style="width: 90%;" disabled="disabled" value="<%= invoice.payrolled %>" />
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" style="width: 90%;" disabled="disabled" value="<%= invoice.trailer %>" />
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    <input type="text" style="width: 90%;" disabled="disabled" value="<%= invoice.date %>" />
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    &nbsp;
+                </div>
+            </div>
+            <div style="display: table-row; text-align: center;">
+                <div style="display: table-cell; width: 25%">
+                    &nbsp;
+                </div>
+                <div style="display: table-cell; width: 25%">
+                    &nbsp;
+                </div>
+                <div style="display: table-cell; width: 25%; text-align:right;">
+                    <span>Total</span>
+                </div>
+                <div style="display: table-cell; width: 25%; text-align:right;">
+                    <input type="text" style="width: 90%;" disabled="disabled" value="<%= invoice.total %>" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

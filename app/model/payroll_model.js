@@ -2,13 +2,13 @@ let connectionPool = require('../config/database_config').connectionPool;
 
 
 exports.getPayrollByPosition = (position) => {
-    let statement = 'select id, name from hr where position = ?';
+    let statement = 'select id, name, substring_index(name, " ", -1) last_name from hr where position = ? order by last_name';
 
     return connectionPool.query(statement, [position]);
 }
 
 exports.getPayrollByType = (type) => {
-    let statement = 'select id, name from hr where type = ?';
+    let statement = 'select id, name, substring_index(name, " ", -1) last_name from hr where type = ? order by last_name';
 
     return connectionPool.query(statement, [type]);
 }
@@ -99,8 +99,13 @@ exports.getTicketsById = (hr_id) => {
 }
 
 
+exports.getPaymentDetailsForCompanyDrivers = (ticketList) => {
+    let statement = 'select SUM(`load_rate` * `driver_rate`) amount from `sandras`.`tickets` where `id` in ('+ ticketList +')'
+
+    return connectionPool.query(statement);
+}
+
 exports.getPaymentDetailsForDrivers = (ticketList, rate) => {
-    console.log(ticketList, rate)
     let statement = 'select SUM(`load_rate` * '+ rate +') amount from `sandras`.`tickets` where `id` in ('+ ticketList +')'
 
     return connectionPool.query(statement);
@@ -125,7 +130,7 @@ exports.getClockinInfoByPayrollId = (payrollId) => {
 }
 
 exports.getPayrollInfoById = (payrollId) => {
-    let statement = 'select * from `sandras`.`payroll_hr` where id = ?'
+    let statement = 'select `id`, `wire_transfer`, `amount`, `seconds_worked`, DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") `date`, `hr_id`  from `sandras`.`payroll_hr` where id = ?'
 
     return connectionPool.query(statement, [payrollId]);
 }
@@ -136,6 +141,8 @@ exports.getTicketsInfoByPayrollId = (payrollId) => {
 `status`, \
 `substatus`, \
 `invoice_rate`, \
+`load_rate`, \
+`driver_rate`, \
 `product`, \
 `base`, \
 `silo`, \
@@ -157,8 +164,7 @@ DATE_FORMAT(`born_date`, "%m-%d-%Y") `born_date`, \
 `notes`, \
 `products_id`, \
 `truck`, \
-`trailer`, \
-`load_rate` \
+`trailer` \
 from tickets  \
 where `payroll_hr_id` in ('+ payrollId +')';
     return connectionPool.query(statement);

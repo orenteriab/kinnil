@@ -111,9 +111,44 @@ ROUTER.get('/view/:invoiceId', (req, res) => {
                 console.error(err);
 
                 res.status(500)
-                res.json({ error: `Unable to get invoice ${rreq.params.invoiceId}. Please try again.` })
+                res.json({ error: `Unable to get invoice ${req.params.invoiceId}. Please try again.` })
             }
         )
 });
+
+ROUTER.get('/view/:invoiceId/render', (req, res) => {
+    invoiceService
+        .viewInvoice(req.params.invoiceId)
+        .then(
+            (invoice) => {
+                let resp = {};
+
+                if(invoice && invoice.length && invoice.length > 0){
+                    resp = invoice[0];
+                }
+
+                res.render('pages/rendered_invoice.ejs', { invoice: resp });
+            },
+            (err) => {
+                console.error(err);
+
+                res.status(500)
+                res.json({ error: `Unable to get invoice ${req.params.invoiceId}. Please try again.` })
+            }
+        )
+});
+
+ROUTER.post('/:invoiceId/printed', (req, res) => {
+    invoiceService
+        .updatePrinted(req.params.invoiceId)
+        .then(() => {
+            res.sendStatus(204);
+        },
+            (err) => { 
+                console.error(err);
+                res.sendStatus(500);
+            }
+        )
+})
 
 exports.router = ROUTER;

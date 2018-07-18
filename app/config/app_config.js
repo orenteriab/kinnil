@@ -15,6 +15,20 @@ const sessionMiddleware = session({
     saveUninitialized: true
 });
 
+const userNameMiddleware = (req, res, next) => {
+    let username = '' 
+    
+    if(req.user != undefined && req.user != null){
+        username = req.user.username
+    }
+
+    res.locals.user = {
+        'username': username
+    }
+    
+    next()
+}
+
 const app = express();
 
 app.set('views', path.join(__dirname, '..', 'view'));
@@ -27,10 +41,11 @@ app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(userNameMiddleware)
 app.use(flash());
 
 const PORT = process.env.port || 3000;
-const ENV = process.env.NODE_ENV || 'DEV';
+const ENV = process.env.NODE_ENV || 'development';
 
 app.use('/api', apiRouter);
 app.use('/web', webRouter);
