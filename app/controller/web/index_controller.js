@@ -7,6 +7,7 @@ let passportVerification = require('../../config/passport_config').isLoggedIn;
 let asssetsRouter = require('./assets_controller').router;
 let invoiceRouter = require('./invoice_controller').router;
 let payrollRouter = require('./payroll_controller').router;
+let goalsRouter = require('./goals_controller').router;
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use('/administrative', passportVerification, administrativeRouter);
 router.use('/assets', passportVerification, asssetsRouter)
 router.use('/invoice', passportVerification, invoiceRouter)
 router.use('/payroll', passportVerification, payrollRouter)
+router.use('/goals', goalsRouter)
 
 exports.router = router;
