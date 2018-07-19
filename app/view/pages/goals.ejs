@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Cedar - Client Query</title>
+        <link rel="stylesheet" href="/assets/css/bootstrap.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div style="margin: auto auto; width: 1024px;">
+            <div class="container-fluid">
+                <div class="row" style="height: 100px;">
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-8">
+                        <h1>ON SITE PROPPANT MANAGEMENT</h1>
+                    </div>
+                    <div class="col-md-2">
+                        <img src="/assets/img/logo.png" style="width:100px;" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-2">
+                        <span>Customer:</span>
+                        <br />
+                        <input id="tx_customer" type="text" disabled="disabled" value="Halliburton" />
+                        <br />
+                        <span>Location:</span>
+                        <br />
+                        <select id="sl_location">
+                            <option value="-1">Select a location</option>
+                        </select>
+                        <button id="btn_load_location">GO!</button>
+                    </div>
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-2">&nbsp;</div>
+                    <div class="col-md-2">
+                        <button id="btn_reload" class="btn btn-primary" style="width: 100%;">Refresh</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/assets/js/jquery.js">
+            (function(APP){
+                APP.UI = APP.UI || {};
+                APP.UI.EVENTS = APP.UI.EVENTS|| {};
+                APP.UI.EVENTS.BTN_RELOAD = APP.UI.EVENTS.BTN_RELOAD || function(){
+                    $('#btn_reload').on('click', function(){
+                        APP.location.reload();
+                    });
+                };
+
+                APP.INIT = APP.INIT || function(){
+                    APP.UI.EVENTS.BTN_RELOAD();
+                }
+
+                APP.INIT();
+            })(window);
+        </script>
+    </body>
+</html>
