@@ -381,6 +381,23 @@ ROUTER.put('/updateClockinById/:pk', (req, res) => {
         });
 });
 
+ROUTER.get('/location/:locationId/scales-data', (req, res) => {
+    administrativeService
+        .fetchScalesData(req.params.locationId)
+        .then(
+            (scalesData) => {
+                res.status(200)
+                res.json(scalesData)
+            },
+            (err) => {
+                console.error('[Api/administrative_controller.js][/location/'+ req.params.locationId + '/scales-data' + ']Error when obtain clockin by id: ', err);
+
+                res.status(500)
+                res.json({ status: 'error', msg: 'Unable to fetch scales location for location id: ' + req.params.locationId + '.' })
+            }
+        )
+})
+
 exports.router = ROUTER;
 
 
