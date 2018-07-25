@@ -250,3 +250,7 @@ exports.findLocations = () => {
 exports.updateScalesData = (scalesData) => {
     return administrativeModel.upsertScalesData(scalesData)
 }
+
+exports.fetchScalesData = (locationId) => {
+    return administrativeModel.fetchScalesData(locationId)
+}
