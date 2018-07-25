@@ -416,7 +416,20 @@ exports.upsertScalesData = (scalesData) => {
 }
 
 exports.fetchScalesData = (locationId) => {
-    let query = "select * from `sandras`.`scales_data` where locations_id = ?";
+    let query = "select * from `sandras`.`scales_data` where locations_id = ?"
 
+    return connectionPool.query(query, [locationId])
+}
+
+exports.fetchGoalsData = (locationId) => {
+    let query = "select     `s`.`name`          `name`                          \
+                            ,`g`.`lbs_goal`     `lbs_goal`                      \
+                            ,`g`.`lbs_current`  `lbs_current`                   \
+                            ,`g`.`loads_goal`   `loads_goal`                    \
+                            ,`g`.`lads_current` `lads_current`                  \
+                from        `sandras`.`goals`   `g`                             \
+                inner join  `sandras`.`sand`    `s` on `g`.`sand_id` = `s`.`id` \
+                where       `g`.`locations_id` = ? "
+    
     return connectionPool.query(query, [locationId])
 }

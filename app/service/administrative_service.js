@@ -254,3 +254,7 @@ exports.updateScalesData = (scalesData) => {
 exports.fetchScalesData = (locationId) => {
     return administrativeModel.fetchScalesData(locationId)
 }
+
+exports.fetchGoalsData = (locationId) => {
+    return administrativeModel.fetchGoalsData(locationId)
+}

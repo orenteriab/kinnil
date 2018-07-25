@@ -390,12 +390,28 @@ ROUTER.get('/location/:locationId/scales-data', (req, res) => {
                 res.json(scalesData)
             },
             (err) => {
-                console.error('[Api/administrative_controller.js][/location/'+ req.params.locationId + '/scales-data' + ']Error when obtain clockin by id: ', err);
+                console.error('[Api/administrative_controller.js][/location/'+ req.params.locationId + '/scales-data' + ']Error when obtain scales data by id: ', err);
 
                 res.status(500)
                 res.json({ status: 'error', msg: 'Unable to fetch scales location for location id: ' + req.params.locationId + '.' })
             }
         )
+})
+
+ROUTER.get('/location/:locationId/goals-data', (req, res) => {
+    administrativeService
+        .fetchGoalsData(req.params.locationId)
+        .then(
+            (goalsData) => {
+                res.status(200)
+                res.json(goalsData)
+            },
+            (err) => {
+                console.error('[Api/administrative_controller.js][/location/'+ req.params.locationId + '/goals-data' + ']Error when obtain goals data by id: ', err);
+
+                res.status(500)
+                res.json({ status: 'error', msg: 'Unable to fetch scales location for location id: ' + req.params.locationId + '.' })
+            })
 })
 
 exports.router = ROUTER;
