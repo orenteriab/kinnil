@@ -414,3 +414,9 @@ exports.upsertScalesData = (scalesData) => {
             return Promise.reject('Error when updating scales data: ' + err)
         })
 }
+
+exports.fetchScalesData = (locationId) => {
+    let query = "select * from `sandras`.`scales_data` where locations_id = ?";
+
+    return connectionPool.query(query, [locationId])
+}
