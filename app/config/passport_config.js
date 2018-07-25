@@ -22,11 +22,25 @@ const AUTHENTICATE_PROCESS = {
     failureFlash: true
 };
 
+const CUSTOMER_AUTHENTICATE_PROCESS = {
+    successRedirect: '/customer/goals',
+    failureRedirect: '/customer/',
+    failureFlash: true
+}
+
 function isLoggedIn(req, res, next){
     if(req !== undefined && req !== null && req.isAuthenticated()){
         next();
     }else{
         res.redirect('/web/login');
+    }
+}
+
+function isLoggedInAsCustomer(req, res, next){
+    if(req !== undefined && req !== null && req.isAuthenticated()){
+        next();
+    }else{
+        res.redirect('/customer/');
     }
 }
 
@@ -46,5 +60,7 @@ passport.use(STRATEGY_NAMES.login, LOCAL_LOGIN_STRATEGY);
 
 exports.passport = passport;
 exports.isLoggedIn = isLoggedIn;
+exports.isLoggedInAsCustomer = isLoggedInAsCustomer
 exports.loginAuthenticator = passport.authenticate(STRATEGY_NAMES.login, AUTHENTICATE_PROCESS);
+exports.customerLoginAuthenticator = passport.authenticate(STRATEGY_NAMES.login, CUSTOMER_AUTHENTICATE_PROCESS)
 exports.signUpAuthenticator = passport.authenticate(STRATEGY_NAMES.signup, AUTHENTICATE_PROCESS);
