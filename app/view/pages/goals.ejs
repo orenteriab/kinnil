@@ -7,7 +7,7 @@
     </head>
 
     <body>
-        <div style="margin: auto auto; width: 1024px;">
+        <div style="margin: auto auto; width: 800px;">
             <div class="container-fluid">
                 <div class="row" style="height: 100px; text-align:center;">
                     <div class="col-md-10">
@@ -146,6 +146,27 @@
                             <div id="dv_silo_percentage_06" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
                         </div>
                     </div>
+                    <div class="col-md-12" style="height: 10px; display:block;"></div>
+                    <div class="col-md-12" style="height: 100px; display:block; border: 2px solid black; text-align: left;">
+                        <h2>Goals - <span class="sp_goals_location_name"></span></h2>
+                        <table style="width: 50%">
+                            <tbody id="dv_goals_per_sand"></tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-12" style="height: 10px; display:block;"></div>
+                    <div class="col-md-12" style="height: 100px; display:block; border: 2px solid black; text-align: left;">
+                        <h2>To this day:</h2>
+                        <table style="width: 50%">
+                            <tbody id="dv_goals_to_this_day"></tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-12" style="height: 10px; display:block;"></div>
+                    <div class="col-md-12" style="height: 100px; display:block; border: 2px solid black; text-align: left;">
+                        <h2>GreenCoreWell - <span class="sp_goals_location_name"></span></h2>
+                        <table style="width: 100%">
+                            <tbody id="dv_goals_green_core_well"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,6 +174,77 @@
         <script type="text/javascript">
             (function(APP){
                 APP.SERVICES = APP.SERVICES || {};
+
+                APP.SERVICES.FETCH_GOALS_DATA = APP.SERVICES.FETCH_GOALS_DATA || function(locationId){
+                    $.ajax({
+                        url: '/api/administrative/location/'+ locationId +'/goals-data',
+                        success: function(goalsData){
+                            $('#dv_goals_green_core_well,#dv_goals_to_this_day,#dv_goals_per_sand').html('');
+
+                            for(var i = 0; i < goalsData.length; i++){
+                                var goal = goalsData[i];
+
+                                var productNameLabel = $('<span></span>').text(goal.name);
+                                var productNameColumn = $('<td></td>').append(productNameLabel);
+                                var productGoalLbsLabel = $('<span></span>').text(parseFloat(goal.lbs_goal).toFixed(2));
+                                var productGoalLbsColumn = $('<td></td>').append(productGoalLbsLabel);
+
+                                var productRow = $('<tr></tr>');
+                                productRow.append(productNameColumn);
+                                productRow.append(productGoalLbsColumn);
+
+                                $('#dv_goals_per_sand').append(productRow);
+
+                                var toThisDayWeightLabel = $('<span></span>').text(goal.lbs_current);
+                                var toThisDayWeightColumn = $('<td></td>').append(toThisDayWeightLabel);
+                                var toThisDayProductDeliveredLabel = $('<span></span>').text(goal.name + ' has been delivered.');
+                                var toThisDayProductDeliveredColumn = $('<td></td>').append(toThisDayProductDeliveredLabel);
+
+                                var deliveredRow = $('<tr></tr>');
+                                deliveredRow.append(toThisDayWeightColumn);
+                                deliveredRow.append(toThisDayProductDeliveredColumn);
+
+                                $('#dv_goals_to_this_day').append(deliveredRow);
+
+                                var greenCoreWeightLabel = $('<span></span>').text(parseInt(goal.loads_goal));
+                                var greenCoreWeightColumn = $('<td></td>')
+                                    .append(greenCoreWeightLabel)
+                                    .css('width', '33%');
+                                
+                                var currentLoads = parseInt(goal.lads_current);
+                                var loadPercentage = parseFloat((loadPercentage / currentLoads) * 100);
+                                var remainingLoads = parseInt(goal.loads_goal) - currentLoads;
+                                var percentageDiv = $('<div></div>')
+                                    .css('width', loadPercentage.toFixed(2) + '%')
+                                    .css('background-color', 'green')
+                                    .css('height', '100%');
+                                
+                                var greenCorePercentage = $('<td></td>')
+                                    .append(percentageDiv)
+                                    .css('width', '66%')
+                                    .css('border', '2px solid black');
+
+                                var greenCoreRemainingLabel = $('<span></span>').text(String(remainingLoads) + ' loads to goal.');
+                                var greenCoreRemainingColumn = $('<td></td>')
+                                    .append(greenCoreRemainingLabel)
+                                    .css('width', '33%');
+                                
+                                var greenCoreRow = $('<tr></tr>')
+                                    .append(greenCoreWeightColumn)
+                                    .append(greenCorePercentage)
+                                    .append(greenCoreRemainingColumn);
+                                
+                            }
+
+                            APP.UI.EVENTS.SP_LAST_DATE();
+                        },
+                        error: function(){
+                            alert('There was an error when pulling scales data. Reloading page.');
+                            APP.location.reload();
+                        }
+                    });
+                };
+
                 APP.SERVICES.FETCH_SCALES_DATA = APP.SERVICES.FETCH_SCALES_DATA || function(locationId){
                     $.ajax({
                         url: '/api/administrative/location/'+ locationId +'/scales-data',
@@ -170,7 +262,8 @@
                             $('#dv_silo_percentage_04').css('height', $('#sp_silo_percentage_04').text() + '%');
                             $('#dv_silo_percentage_05').css('height', $('#sp_silo_percentage_05').text() + '%');
                             $('#dv_silo_percentage_06').css('height', $('#sp_silo_percentage_06').text() + '%');
-                            APP.UI.EVENTS.SP_LAST_DATE();
+                            
+                            APP.SERVICES.FETCH_GOALS_DATA();
                         },
                         error: function(){
                             alert('There was an error when pulling scales data. Reloading page.');
@@ -222,6 +315,7 @@
                     $('#sl_location').on('change', function(){
                         if($(this).val() !== '-1'){
                             APP.SERVICES.FETCH_SCALES_DATA($(this).val());
+                            $('.sp_goals_location_name').text($('#sl_location option:selected').text());
                         }
                     });
                 };
