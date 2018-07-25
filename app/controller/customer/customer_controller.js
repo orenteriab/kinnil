@@ -1,5 +1,6 @@
 let Router = require('express').Router
 const passport = require('../../config/passport_config')
+const administrativeService = require('../../service/administrative_service');
 
 const router = Router()
 
@@ -30,7 +31,14 @@ router.get('/logout', (req, res, next) => {
 });
 
 router.get('/goals', passport.isLoggedInAsCustomer , (req, res) => {
-    res.render('pages/goals.ejs', { message: '' })
+    administrativeService
+        .findLocations()
+        .then((locations) => {
+            res.render('pages/goals.ejs', { message: '', locations: locations })
+        }, (err) => {
+            res.render('pages/goals.ejs', { message: 'Unable to retrieve locations, try again.', locations: [] })
+        })
+    
 })
 
 exports.router = router
