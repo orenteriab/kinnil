@@ -177,7 +177,7 @@ exports.getUsersAndPassword = () => {
 }
 
 exports.getAvailableAssets = () => {
-    let statement = 'select * from assets where type in ("TRAILER","TRUCK") and up = TRUE'; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
+    let statement = 'select * from assets where type in ("TRAILER","TRUCK") and up = TRUE order by name'; // TODO: hay que ver si les vamos a mandar todos o solo los activos, se queda activos por mientras
 
     return connectionPool.query(statement);
 }
