@@ -8,6 +8,7 @@ let asssetsRouter = require('./assets_controller').router;
 let invoiceRouter = require('./invoice_controller').router;
 let payrollRouter = require('./payroll_controller').router;
 let goalsRouter = require('./goals_controller').router;
+let reportsRouter = require('./reports_controller').router;
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use('/assets', passportVerification, asssetsRouter)
 router.use('/invoice', passportVerification, invoiceRouter)
 router.use('/payroll', passportVerification, payrollRouter)
 router.use('/goals', goalsRouter)
+router.use('/reports', passportVerification, reportsRouter)
 
 exports.router = router;

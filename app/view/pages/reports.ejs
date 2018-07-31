@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+   <title>Reports</title>
+</head>
+
+<body>
+
+<%include ../partials/navbar %>
+
+
+<div class="wrapper">
+    <!-- Sidebar Holder -->
+    <%include ../partials/sidebar %>
+
+    <!-- Page Content Holder -->
+    <div id="content" class="main-content">
+        <h4>Reports</h4>
+        <div class="tab-content"> 
+            <div class="content">
+                <div class="row">
+                    <div class="col-md-6">
+                        
+
+                        <form>
+                            <div class="radio">
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="payroll"> Payroll
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="invoice"> Invoice
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="dispatch"> Dispatch
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="assets"> Assets
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="clockin"> Clock in
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="hr"> HR
+                                </label>
+                                <label class="radio">
+                                <input type="radio" name="REPORT_TYPE" value="dispatched"> Dispatched
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <br/>
+                        <br/>
+                        <select class="form-control" id="SELECTED_REPORT">
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 id="report_title"></h4>
+                        <div class="form-group">
+                        <label for="sel1">Date:</label>
+                            <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                            <span></span> <b class="caret"></b>
+                        </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class = "row">
+
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="excel_download" type="button" class="btn btn-secondary pull-right" disabled><i class="fa fa-file-excel-o" aria-hidden="true"> Download</i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+    <%include ../partials/js %>
+    <script lang="javascript" src="/assets/js/xlsx.full.min.js"></script>
+    <script lang="javascript" src="/assets/js/FileSaver.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+
+        
+        $("input[name='REPORT_TYPE']").click(function() {
+
+            if (this.value=="dispatch") {
+                // Aqui vamos a ir poniendo las opciones para el dropdown una vez tengamos el layout
+            }
+
+            var newOptions = {
+                'completed_loads' : 'Completed Loads',
+                'pending_loads' : 'Pending Loads',
+                'goal' : 'Goal vs actual status'
+            };
+            var selectedOption = 'completed_loads';
+
+            var select = $('#SELECTED_REPORT');
+            if(select.prop) {
+                var options = select.prop('options');
+            }
+            else {
+                var options = select.attr('options');
+            }
+            $('option', select).remove();
+
+            $.each(newOptions, function(val, text) {
+                options[options.length] = new Option(text, val);
+            });
+            select.val(selectedOption);
+
+            $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+            $("#excel_download").prop('disabled', false);
+        });
+
+        $("#SELECTED_REPORT").on('change', function() {
+            $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+        })
+
+        $('li[id="li_sdbr_reports"]').addClass('active');
+
+        $(document).ready(function() { // El selector de fechas se despliega hasta que toda la pagina cargo
+
+            $(function() {
+
+                $('#reportrange i').click(function() {
+                    $(this).parent().find('input').click();
+                });
+
+                var start = moment().subtract(29, 'days');
+                var end = moment();
+
+                function cb(start, end) {
+                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                    fechaInicio = start;
+                    fechaFin = end;
+                }
+
+                $('#reportrange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 days': [moment().subtract(29, 'days'), moment()],
+                    'This month': [moment().startOf('month'), moment().endOf('month')]
+                    /*'Anterior mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]*/
+                    },
+                    locale: {
+                        "direction": "ltr",
+                        "format": "MM/DD/YYYY HH:mm",
+                        "separator": " - ",
+                        "applyLabel": "Apply",
+                        "cancelLabel": "Cancel",
+                        "fromLabel": "From",
+                        "toLabel": "To",
+                        "customRangeLabel": "Custom",
+                        "firstDay": 1
+                    }
+
+                }, cb);
+                
+                cb(start, end);
+            });
+        
+
+        $("#excel_download").on('click', function(e) {
+
+        //function consultar(e) {
+            var e = window.event || e;
+	        var targ = e.target || e.srcElement;
+            e.preventDefault();
+            
+            //console.log($( "#SELECTED_REPORT option:selected" ).val());
+            //console.log(fechaInicio.format('YYYY-MM-DD')); 
+            //console.log(fechaFin.format('YYYY-MM-DD'));
+
+            $.ajax({
+                url: '/api/reports/completed_loads/',
+                type: 'POST',
+                data: {
+                    type: $( "#SELECTED_REPORT option:selected" ).val(),
+                    inicio: fechaInicio.format('YYYY-MM-DD'),
+                    fin: fechaFin.format('YYYY-MM-DD')
+                },
+                success: function(returnData){
+                    console.log(returnData)
+
+                    var wb = XLSX.utils.book_new();
+
+                    wb.Props = {
+                        Title: "Completed Loads",
+                        Subject: "Cedar Reports",
+                        Author: "Miguel",
+                        CreatedDate: new Date(2018,07,31)
+                    };
+
+                    wb.SheetNames.push("Completed Loads");
+
+                    var ws_data = [['CLOSE LOAD REPORT'],
+                                    ['TMS','BOL #','TRUCK #','TRAILER #','CONTAINER (BASE - SILO)','DRIVER','LOAD DATE - TIME','UNLOAD DATE-TIME']];  //a row with 2 columns
+                    //var ws_data = returnData;
+
+                    for(i=0;i<returnData.length;i++){
+                        ws_data.push([returnData[i].tms,
+                                      returnData[i].bol,
+                                      returnData[i].truck,
+                                      returnData[i].trailer,
+                                      returnData[i].container,
+                                      returnData[i].name,
+                                      returnData[i].load_date_time,
+                                      returnData[i].unload_date_time])
+                    }
+
+                    console.log(ws_data);
+
+                    var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                    wb.Sheets["Completed Loads"] = ws;
+
+                    var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+                    function s2ab(s) { 
+                        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                        var view = new Uint8Array(buf);  //create uint8array as viewer
+                        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                        return buf;    
+                    }
+                    console.log("se va salvar el archivo");
+                    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Completed_Loads.xlsx');
+                    console.log("se salvo el archivo");
+                },
+                error: function(){
+                    alert('There was an error when obtaining the report, please try again.');
+                }
+            });
+        })
+    });
+
+    </script>
+
+
+
+
+</body>
+</html>
