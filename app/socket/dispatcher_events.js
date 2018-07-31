@@ -220,12 +220,20 @@ const onScalesData  = (socket) => {
         administrativeService
             .updateScalesData(jsonPayload)
             .then(() => {
-                socket.emit('scales_data_received', JSON.stringify({ received: true}))
+                socket.emit('scalesdata_received', JSON.stringify({ received: true}))
             },
             (err) => {
-                socket.emit('scales_data_received', JSON.stringify({ received: false, error: err}))
+                socket.emit('scalesdata_received', JSON.stringify({ received: false, error: err}))
             })
-            .then(() => socket.nsp.emit('scales_data_broadcast', message))
+            .then(() => {
+                socket.nsp.emit('scalesdata', message)
+            })
+    })
+}
+
+const onScalesRequest = (socket) => {
+    return new SocketEvent('scalesrequest', (payload) => {
+        socket.nsp.emit('scalesrequest', payload)
     })
 }
 
@@ -245,7 +253,8 @@ exports.onConnection = new SocketEvent('connection', (socket) => {
         onSelectedCrew(socket),
         onClockinEvent(socket),
         onLocations(socket),
-        onScalesData(socket)
+        onScalesData(socket),
+        onScalesRequest(socket)
     ];
 
     socketEvents.forEach((evt) => {
