@@ -171,6 +171,7 @@
             </div>
         </div>
         <script src="/assets/js/jquery.js" type="text/javascript"></script>
+        <script src="/socket.io/socket.io.js" type="text/javascript"></script>
         <script type="text/javascript">
             (function(APP){
                 APP.SERVICES = APP.SERVICES || {};
@@ -272,6 +273,32 @@
                     });
                 };
 
+                APP.SERVICES.RECEIVE_SCALE_DATA_EVENT = APP.SERVICES.RECEIVE_SCALE_DATA_EVENT || function(){
+                    var socket = io();
+
+                    socket.on('scales_data_broadcast', function(message){
+                        var messageObject = JSON.parse(message);
+
+                        if(String(messageObject.location) == String($('#sl_location option:selected').val())){
+                            $('#sp_silo_percentage_01').text(parseFloat(messageObject.porcent1).toFixed(2));
+                            $('#sp_silo_percentage_02').text(parseFloat(messageObject.porcent2).toFixed(2));
+                            $('#sp_silo_percentage_03').text(parseFloat(messageObject.porcent3).toFixed(2));
+                            $('#sp_silo_percentage_04').text(parseFloat(messageObject.porcent4).toFixed(2));
+                            $('#sp_silo_percentage_05').text(parseFloat(messageObject.porcent5).toFixed(2));
+                            $('#sp_silo_percentage_06').text(parseFloat(messageObject.porcent6).toFixed(2));
+
+                            $('#dv_silo_percentage_01').css('height', $('#sp_silo_percentage_01').text() + '%');
+                            $('#dv_silo_percentage_02').css('height', $('#sp_silo_percentage_02').text() + '%');
+                            $('#dv_silo_percentage_03').css('height', $('#sp_silo_percentage_03').text() + '%');
+                            $('#dv_silo_percentage_04').css('height', $('#sp_silo_percentage_04').text() + '%');
+                            $('#dv_silo_percentage_05').css('height', $('#sp_silo_percentage_05').text() + '%');
+                            $('#dv_silo_percentage_06').css('height', $('#sp_silo_percentage_06').text() + '%');
+                        }
+
+                        APP.UI.EVENTS.SP_LAST_DATE();
+                    });
+                };
+
                 APP.UI = APP.UI || {};
                 APP.UI.EVENTS = APP.UI.EVENTS|| {};
                 APP.UI.EVENTS.BTN_RELOAD = APP.UI.EVENTS.BTN_RELOAD || function(){
@@ -335,6 +362,7 @@
                     APP.UI.EVENTS.SP_DATE();
                     APP.UI.EVENTS.SL_LOCATION();
                     APP.UI.EVENTS.BTN_LOAD_LOCATION();
+                    APP.SERVICES.RECEIVE_SCALE_DATA_EVENT();
                 };
 
                 APP.INIT();
