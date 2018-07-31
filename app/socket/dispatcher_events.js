@@ -208,6 +208,11 @@ const onLocations = (socket) => {
     })
 }
 
+//Documentación: Esta función recibe un socket que se
+//conecta, crea el evento de scalesdata, para cuando el
+//ingeniero envía los datos de las básculas a el server.
+//Pero, recibimos los datos y tal como los recibimos se los
+//pasamos a las páginas que escuchen scales_data_broadcast.
 const onScalesData  = (socket) => {
     return new SocketEvent('scalesdata', (message) => {
         let jsonPayload = JSON.parse(message)
@@ -220,6 +225,7 @@ const onScalesData  = (socket) => {
             (err) => {
                 socket.emit('scales_data_received', JSON.stringify({ received: false, error: err}))
             })
+            .then(() => socket.nsp.emit('scales_data_broadcast', message))
     })
 }
 
