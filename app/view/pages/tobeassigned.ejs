@@ -61,7 +61,7 @@
                                     </tr>
                                 </thead>
                                 <%if (tickets.length > 0) { %>
-                                <tbody>
+                                <tbody id="tbody_tickets">
                                     <% for(var i=0; i<tickets.length; i++) {%>
                                         <%if (tickets[i].status == 1) { %> <!-- status:1 = to be asigned -->
                                         <tr class="quote">
