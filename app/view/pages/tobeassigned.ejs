@@ -414,6 +414,39 @@
                 $('#dv_create_ticket_modal_body').parent().append(elem);
             };
 
+            APP.SERVICE.TICKETS.RELOAD = APP.SERVICE.TICKETS.RELOAD || function(){
+                var previousHtml = $('#tbody_tickets').html();
+
+                $('#grid-basic').bootgrid('destroy');
+
+                var loadingColumn = $('<td></td>')
+                    .attr('colspan', 7)
+                    .css('text-align', 'center')
+                    .css('font-weight', 'bold')
+                    .text('Loading tickets...');
+
+                var loadingRow = $('<tr></tr>').append(loadingColumn);
+                $('#tbody_tickets').html(loadingRow);
+
+                $.ajax({
+                    cache: false,
+                    method: 'GET',
+                    url: '/api/dispatcher/tobeassigned/table',
+                    success: function(partialHtml){
+                        console.log(partialHtml);
+                        $('#tbody_tickets').html(partialHtml);
+                    },
+                    error: function(err){
+                        console.error('[APP][SERVICE][DISPATCHER][RELOAD_TICKETS]: Error when reloading table.', err);
+                        $('#tbody_tickets').html(previousHtml);
+                    },
+                    complete: function(){
+                        APP.LOAD.GRID();
+                    }
+                });
+
+            };
+
             APP.LOAD = APP.LOAD || {};
 
             //page load functionality first!
@@ -583,12 +616,16 @@
                         return false;
                     });
                 },
+                RELOAD_TICKETS: function(){
+                    setInterval(APP.SERVICE.TICKETS.RELOAD, 15000);
+                },
                 INIT: function(){
                     $('li[id="li_sdbr_dispatch"]').addClass('active');
                     APP.EVENTS.PINCHE_BOTON();
                     APP.EVENTS.FRM_CSV();
                     APP.EVENTS.FL_CSV();
                     APP.EVENTS.BTN_SAVE_TICKET();
+                    APP.EVENTS.RELOAD_TICKETS();
                 }
             };
             
