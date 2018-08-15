@@ -59,6 +59,10 @@ exports.passportUserLogin = (passportRequest, username, password, passportDone) 
             }else{
                 passportDone(null, rows[0]);
             }
+        })
+        .catch((err) => {
+            console.error('[user_service.js][passportUserLogin] Error when login user:', err)
+            passportDone(null, false, passportRequest.flash('message', 'Unable to connect to database. Please try again later.'))
         });
 };
 
