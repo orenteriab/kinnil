@@ -196,8 +196,27 @@
     <!--
         Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
     -->
+    <script id="tpl_search" type="text/template">
+        <div class="search form-group">
+            <div class="input-group">
+                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-location" class="form-control" type="text" placeholder="Search by Location">
+            </div>
+        </div>
+        <div class="search form-group">
+            <div class="input-group">
+                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-facility" class="form-control" type="text" placeholder="Search by Facility" disabled="disabled">
+            </div>
+        </div>
+        <div class="search form-group">
+            <div class="input-group">
+                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-load" class="form-control" type="text" placeholder="Search by Load" disabled="disabled">
+            </div>
+        </div>
+    </script>
     <script type="text/javascript">
         (function(APP){
+            APP.STORE = APP.STORE || {};
+
             APP.SERVICE = APP.SERVICE || {};
 
             APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
@@ -447,6 +466,40 @@
 
             };
 
+            APP.SERVICE.TICKETS.FILTER = APP.SERVICE.TICKETS.FILTER || function(){
+                var locationFilter = $('#tx-filter-location').val().trim();
+                var facilityFilter = $('#tx-filter-facility').val().trim();
+                var loadFilter = $('#tx-filter-load').val().trim();
+
+                var backup = APP.STORE.GRID_TICKETS;
+                var filtered = backup;
+
+                if(locationFilter.length > 2){
+                    var locationRegex = new RegExp('.*' + locationFilter + '.*', 'i');
+                    filtered = $.grep(backup, function(ticket, ticketIndex){ 
+                        return locationRegex.test(String(ticket.location).toLowerCase());
+                    });
+                }
+                
+
+                if(facilityFilter.length > 2){
+                    var facilityRegex = new RegExp('.*' + facilityFilter + '.*', 'i');
+                    filtered = $.grep(filtered, function(ticket, ticketIndex){
+                        return facilityRegex.test(String(ticket.facility).toLowerCase());
+                    });
+                }
+
+                if(loadFilter.length > 2){
+                    var loadRegex = new RegExp('.*' + loadFilter + '.*', 'i');
+                    filtered = $.grep(filtered, function(ticket, ticketIndex){
+                        return loadRegex.test(String(ticket.tms).toLowerCase());
+                    });
+                }
+
+                $('#grid-basic').bootgrid().data('.rs.jquery.bootgrid').rows = filtered;
+                $('#grid-basic').bootgrid('reload');
+            };
+
             APP.LOAD = APP.LOAD || {};
 
             //page load functionality first!
@@ -545,9 +598,16 @@
                             "commands": commandsFormatter,
                             "drivers" : driversFormatter,
                             "products" : productsFormatter
-                        }
+                        },
+                        templates: {
+                            search: $('#tpl_search').text()
+                        },
+                        searchField: '#galiley'
+                        
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+
+                APP.STORE.GRID_TICKETS = $("#grid-basic").data('.rs.jquery.bootgrid').rows;
             };
 
             APP.EVENTS = APP.EVENTS || {
@@ -617,7 +677,39 @@
                     });
                 },
                 RELOAD_TICKETS: function(){
-                    setInterval(APP.SERVICE.TICKETS.RELOAD, 15000);
+                    //setInterval(APP.SERVICE.TICKETS.RELOAD, 15000);
+                },
+                TX_FILTER_LOCATION: function(){
+                    $('#tx-filter-location').keyup(function(){
+                        if($(this).val().length < 3){
+                            $('#tx-filter-facility,#tx-filter-load')
+                                .attr('disabled', 'disabled')
+                                .text('');
+                        }else{
+                            $('#tx-filter-facility').removeAttr('disabled');
+                            $('#tx-filter-facility').trigger('change');
+                        }
+
+                        APP.SERVICE.TICKETS.FILTER();
+                    });
+                },
+                TX_FILTER_FACILITY: function(){
+                    $('#tx-filter-facility').keyup(function(){
+                        if($(this).val().length < 3){
+                            $('#tx-filter-load')
+                                .attr('disabled', 'disabled')
+                                .text('');
+                        }else{
+                            $('#tx-filter-load').removeAttr('disabled');
+                        }
+
+                        APP.SERVICE.TICKETS.FILTER();
+                    });
+                },
+                TX_FILTER_LOAD: function(){
+                    $('#tx-filter-load').keyup(function(){
+                        APP.SERVICE.TICKETS.FILTER();
+                    });
                 },
                 INIT: function(){
                     $('li[id="li_sdbr_dispatch"]').addClass('active');
@@ -626,6 +718,9 @@
                     APP.EVENTS.FL_CSV();
                     APP.EVENTS.BTN_SAVE_TICKET();
                     APP.EVENTS.RELOAD_TICKETS();
+                    APP.EVENTS.TX_FILTER_LOCATION();
+                    APP.EVENTS.TX_FILTER_FACILITY();
+                    APP.EVENTS.TX_FILTER_LOAD();
                 }
             };
             
