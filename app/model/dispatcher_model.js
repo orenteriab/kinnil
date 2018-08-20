@@ -29,7 +29,7 @@ exports.getAssetsUp = (type) => {
 * Obtiene el detalle de los drivers que esta UP, de momento solo se necesita el nombre
 */
 exports.listDriversUp = () => {
-    let statement = 'select id, name from hr where up = TRUE';
+    let statement = 'select id, concat_ws( " - ",name, last_location, DATE_FORMAT(last_location_datetime, "%m-%d-%Y %H:%i:%s")) name from hr where up = TRUE order by up_datetime';
 
     return connectionPool.query(statement);
 };
@@ -113,6 +113,21 @@ exports.assignTicket = (hrId, ticketId, timestap) => {
     return connectionPool.query(statement, [hrId, timestap, ticketId]);
 };
 
+
+exports.saveLastlocation = (lastLocation, hrId) => {
+    let statement = 'update hr set last_location = ? where id = ?'
+
+    console.log(statement, [lastLocation, hrId])
+    return connectionPool.query(statement, [lastLocation, hrId]);
+}
+
+exports.updateLastLocationDate = (timestap, hr_id) => {
+    let statement = 'update hr set last_location_datetime = ? where id = ?'
+
+    console.log(statement, [timestap, hr_id])
+    return connectionPool.query(statement, [timestap, hr_id]);
+}
+
 exports.cancelTicket = (ticketId) => {
     let statement = 'update tickets set status = 1, on_curse = FALSE where id = ?';
 
@@ -189,10 +204,10 @@ exports.selectedAsset = (truck, trailer, ticketId, new_mil) => {
     return connectionPool.query(statement , [truck, trailer, new_mil, ticketId]);
 }
 
-exports.active = (hrId) => {
-    let statement = "update hr set up = TRUE where id = ?"
+exports.active = (timestap, hrId) => {
+    let statement = "update hr set up = TRUE, up_datetime = ? where id = ?"
 
-    return connectionPool.query(statement, [hrId])
+    return connectionPool.query(statement, [timestap, hrId])
 }
 
 exports.inactive = (hrId) => {

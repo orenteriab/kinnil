@@ -100,7 +100,7 @@ exports.getToBeAsignedInfo = () => {
         return_data.tickets = data[0];
         return_data.drivers = data[1];
         return_data.products = data[2];
-
+        
         return return_data;
     });
 };
@@ -138,9 +138,15 @@ exports.assignTicket = (hrId, ticketId) => {
     let inactivate = dispatcherModel
         .inactive(hrId)
 
-    return Promise.all([assign,inactivate]).then((data) => {
+    let ticketInformation = dispatcherModel
+        .getTicketById(ticketId)
 
-        return true;
+    return Promise.all([assign,inactivate,ticketInformation]).then((data) => {
+
+        let lastLocation =  data[2][0].location
+        // Guarda la ultima locacion a la que fue asignado ese driver en la tabla de HR
+        return dispatcherModel
+            .saveLastlocation(lastLocation, hrId)
     });
 };
 
@@ -239,8 +245,32 @@ exports.selectedAsset = (truck, trailer, ticketId, new_mil) => {
 };
 
 exports.active = (hrId) => {
+
+    // Se obtiene fecha y hora
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; 
+    var yyyy = today.getFullYear();
+    if(dd<10) 
+        dd='0'+dd;
+    
+    if(mm<10) 
+        mm='0'+mm;
+
+    today = yyyy+'-'+mm+'-'+dd;
+
+    var d = new Date()
+    var h = d.getHours()
+    var m = d.getMinutes()
+    var s = d.getSeconds()
+    var horaActual = h + ":" + m + ":" + s
+
+    // TODO: Ver si nos van a mandar la hora desde la app de drivers o si la vamos a generar nosotros
+    // De momento no nos mandan nada asi que vamos a generarla aqui
+    timestap = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD HH:mm:ss')
+
     return dispatcherModel
-        .active(hrId);
+        .active(timestap, hrId);
 }
 
 exports.inactive = (hrId) => {
@@ -302,6 +332,36 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
         substatus = "ON MY WAY TO LOCATION"
     } else if (substatus == "5") {
         substatus = "ARRIVED TO LOCATION"
+
+        // Se obtiene fecha y hora
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; 
+        var yyyy = today.getFullYear();
+        if(dd<10) 
+            dd='0'+dd;
+        
+        if(mm<10) 
+            mm='0'+mm;
+
+        today = yyyy+'-'+mm+'-'+dd;
+
+        var d = new Date()
+        var h = d.getHours()
+        var m = d.getMinutes()
+        var s = d.getSeconds()
+        var horaActual = h + ":" + m + ":" + s
+
+        timestap = moment(today + " " + horaActual, 'YYYY-MM-DD HH:mm:ss').tz('America/Chihuahua').format('YYYY-MM-DD HH:mm:ss')
+
+        dispatcherModel
+        .getTicketById(ticketId)
+        .then((returnData) => {
+            
+            dispatcherModel
+            .updateLastLocationDate(timestap, returnData[0].hr_id)
+        })
+            
     } else if (substatus == "6") {
         substatus = "UNLOADING"
         // Aqui me mandan base y silo y se guardan
