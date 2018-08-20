@@ -41,7 +41,7 @@
                                 </tr>
                             </thead>
                             <%if (tickets.length > 0) { %>
-                            <tbody>
+                            <tbody id="tbody_tickets">
                             <% for(var i=0; i<tickets.length; i++) {%>
                                 <%if (tickets[i].status == 2) { %> <!-- status:2 = work in progress -->
                                 <tr class="quote">
@@ -134,80 +134,163 @@
     <!-- Ticket detail modal  -->
     <%include ../partials/ticket-detail %>
 
-    <script>
-        //var socket = io.connect('http://localhost:3000');
-    </script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
-            });
-        });
-    </script>
-    <!--
-        Obtiene los drivers, trucks and trailers que estan disponibles
-    -->
-    <script type="text/javascript">
-        function callEndpoint() {
-            $.getJSON('/api/dispatcher/getUps', function(data) {
+        (function(APP){
+            APP.SERVICE = APP.SERVICE || {};
 
-                $('#trailersUp').html(data.trailersUp);
-                $('#trucksUp').html(data.trucksUp);
-                $('#driversUp').html(data.driversUp);
+            APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
 
-            });
-        }
-        callEndpoint();
-    </script>
-
-    <!--
-        Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
-    -->
-    <script>
-        var grid = $("#grid-basic").bootgrid({
-            caseSensitive: false,
-            rowCount: [50,75,100,-1],
-            formatters: {
-                "link": function(column, row)
-                {
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
-                },
-                "commands": function(column, row)
-                {
-                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Cancel</button> "
-                }
-            }
-        }).on("loaded.rs.jquery.bootgrid", function()
-        {
-            
-            /* Executes after data is loaded and rendered */
-            grid.find(".command-edit").on("click", function(e)
-            {
-                //
-                // Cancel ticket logic
-                //
+            APP.SERVICE.DISPATCHER.GET_UPS = APP.SERVICE.DISPATCHER.GET_UPS || function(){
                 $.ajax({
-                    url: '/api/dispatcher/cancelTicket/',    //Your api url
-                    type: 'PUT',   //type is any HTTP method
-                    data: {
-                            ticketId: $(this).data("row-id")
-
-                    },      //Data as js object
-                    success: function (msj) {
-                        alert(msj.message);
-                        location.reload();
+                    cache: false,
+                    method: 'GET',
+                    url: '/api/dispatcher/getUps',
+                    success: function(data){
+                        $('#trailersUp').html(data.trailersUp);
+                        $('#trucksUp').html(data.trucksUp);
+                        $('#driversUp').html(data.driversUp);
                     },
-                    error: function(xhr) { // if error occured
-                        alert("Error occured. please try again");
+                    error: function(e){
+                        console.error(e);
+                        alert('Couldn\'t load data for trailers up, drivers up, and trucks up.');
+                    }
+                });
+            };
+
+            APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL = APP.SERVICE.DISPATCHER.GET_TICKET_DETAIL || function(ticketId){
+                /*var url = "/api/dispatcher/getTicketDetail/" + ticketId;
+                $.ajax({
+                    cache: false,
+                    method: 'GET',
+                    url: url,
+                    dataType: 'application/json',
+                    success: function(data){
+                        $('#trailersUp').html(data.trailersUp);
+                        $('#trucksUp').html(data.trucksUp);
+                        $('#driversUp').html(data.driversUp);
                     },
-                })
+                    error: function(err){
+                        console.error(err);
+                        alert('Couldn\'t load data for ticket ' + ticketId);
+                    }
+                });*/
+            };
 
-            }).end().find(".show-ticket").on("click", function(e) {
-                $($(this).attr("href")).modal("show", $(this));
-            });
-        });
+            APP.SERVICE.DISPATCHER.RELOAD = APP.SERVICE.DISPATCHER.RELOAD || function(){
+                var previousHtml = $('#tbody_tickets').html();
 
-        $('li[id="li_sdbr_dispatch"]').addClass('active');
+                $('#grid-basic').bootgrid('destroy');
+
+                var loadingColumn = $('<td></td>')
+                    .attr('colspan', 8)
+                    .css('text-align', 'center')
+                    .css('font-weight', 'bold')
+                    .text('Updating...');
+
+                var loadingRow = $('<tr></tr>').append(loadingColumn);
+                $('#tbody_tickets').html(loadingRow);
+
+
+                setTimeout(function () {
+                    $.ajax({
+                        cache: false,
+                        method: 'GET',
+                        url: '/api/dispatcher/workinprogress/table',
+                        success: function(partialHtml){
+                            //console.log(partialHtml);
+                            $('#tbody_tickets').html(partialHtml);
+                        },
+                        error: function(err){
+                            console.error('[APP][SERVICE][DISPATCHER][RELOAD_TICKETS]: Error when reloading table.', err);
+                            $('#tbody_tickets').html(previousHtml);
+                        },
+                        complete: function(){
+                            APP.LOAD.GRID();
+                        }
+                    });
+                }, 2000);
+
+            };
+
+            APP.LOAD = APP.LOAD || {};
+
+            //Obtiene los drivers, trucks and trailers que estan disponibles
+            APP.LOAD.UPS = APP.LOAD.UPS || function(){
+                APP.SERVICE.DISPATCHER.GET_UPS();
+            };
+
+            APP.LOAD.GRID = APP.LOAD.GRID || function(){
+                var linkFormatter = function(column, row){
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+                };
+
+                var commandsFormatter = function(column, row) {
+                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Cancel</button>"
+                };
+
+                var loadedRsJQueryBootgrid = function(){
+                    /* Executes after data is loaded and rendered */
+                    var onClickEdit = function(e){
+                        $.ajax({
+                            url: '/api/dispatcher/cancelTicket/',    //Your api url
+                            type: 'PUT',   //type is any HTTP method
+                            data: {
+                                    ticketId: $(this).data("row-id")
+
+                            },      //Data as js object
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        })
+                    };
+
+                    var onClickShow = function(e){
+                        $($(this).attr("href")).modal("show", $(this));
+                    };
+
+                    $("#grid-basic")
+                        .find(".command-edit")
+                        .on("click", onClickEdit)
+                        .end()
+                        .find(".show-ticket")
+                        .on("click", onClickShow);
+                };
+
+                $("#grid-basic")
+                    .bootgrid({
+                        caseSensitive: false,
+                        rowCount: [50,75,100,-1],
+                        formatters: {
+                            "link": linkFormatter,
+                            "commands": commandsFormatter
+                        }
+                    })
+                    .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+            };
+
+            APP.EVENTS = APP.EVENTS || {
+                RELOAD_TICKETS: function(){
+                    setInterval(APP.SERVICE.DISPATCHER.RELOAD, 90000);
+                },
+                RELOAD_UPS: function(){
+                    setInterval(APP.SERVICE.DISPATCHER.GET_UPS, 2000);
+                },
+                INIT: function(){
+                    $('li[id="li_sdbr_dispatch"]').addClass('active');
+                    APP.EVENTS.RELOAD_TICKETS();
+                    APP.EVENTS.RELOAD_UPS();
+                }
+            };
+
+            APP.LOAD.UPS();
+            APP.LOAD.GRID();
+            APP.EVENTS.INIT();
+        })(window);
+
     </script>
 
 
