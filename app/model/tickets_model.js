@@ -24,6 +24,47 @@ exports.create = (ticket) => {
     ]);
 };
 
+exports.update = (ticket, id) => {
+    let query = "UPDATE `sandras`.`tickets` \
+set `tms` = ?, \
+`born_date` = ?, \
+`status` = ?, \
+`substatus` = ?, \
+`invoice_rate` = ?, \
+`load_rate` = ?, \
+`product` = ?, \
+`driver_rate` = ?, \
+`facility` = ?, \
+`location` = ?, \
+`sand_type` = ?, \
+`pick_date` = ?, \
+`drop_date` = ?, \
+`po` = ?, \
+`products_id` = ?, \
+`clients_id` = ? \
+WHERE id = ?";
+
+    return connectionPool.query(query, [
+        ticket["TMS Load #"],
+        ticket["born_date"],
+        1, // El primer status siempre es 1 no importa lo que venga en el cvs
+        0, //substatus (accepted)
+        ticket["Rate Invoice"],
+        ticket["Load Rate"],
+        ticket["Miles"], //product
+        ticket["Driver Rate"],
+        ticket["Origin"],
+        ticket["Destination"],
+        ticket["Sand Type"],
+        ticket["Pick Date"],
+        ticket["Drop Date"],
+        ticket["PO"],
+        1, // TODO: Esto va a cambiar en la 2nda o 3ra etapas 
+        1, // 1 porque siempre en esta etapa es halliburton
+        id
+    ]);
+};
+
 exports.updateTicketInvoiceDate = (ticket) => {
     var sql = 'UPDATE `sandras`.`tickets` SET `invoice_date` = CURDATE() WHERE id = ?';
 
@@ -31,7 +72,9 @@ exports.updateTicketInvoiceDate = (ticket) => {
 }
 
 exports.getTicketByTms = (ticket) => {
-    let query = "SELECT * from tickets WHERE tms = ?"
+    let query = 'SELECT id, \
+DATE_FORMAT(pick_date, "%Y-%m-%d %H:%i:%s") pick_date \
+from tickets WHERE tms = ?'
 
     return connectionPool.query(query, [ticket["TMS Load #"]])
 }
