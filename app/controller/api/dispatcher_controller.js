@@ -159,11 +159,26 @@ ROUTER.get('/gettmscounter/', (req, res) => {
 
 ROUTER.get('/tobeassigned/table', (req, res) => {
     dispatcherService
-    .getTicketsInfo()
+    .getToBeAsignedInfo()
     .then((fulfilled) => {
-        res.render('partials/reload_tickets_partial.ejs', { tickets: fulfilled })
+        res.render('partials/reload_tobeassigned_tickets_partial.ejs', { 
+            tickets: fulfilled.tickets,
+            drivers: fulfilled.drivers,
+        })
     }, (rejected) => {
         console.error('[dispatcher_controller][/tobeassigned/table]: ', rejected)
+        res.status(500)
+        res.json({ error: 'Unable to fetch table.' })
+    })
+})
+
+ROUTER.get('/workinprogress/table', (req, res) => {
+    dispatcherService
+    .getTicketsInfo()
+    .then((fulfilled) => {
+        res.render('partials/reload_workinprogress_tickets_partial.ejs', { tickets: fulfilled })
+    }, (rejected) => {
+        console.error('[dispatcher_controller][/workinprogress/table]: ', rejected)
         res.status(500)
         res.json({ error: 'Unable to fetch table.' })
     })
