@@ -1,0 +1,103 @@
+<% for(var i=0; i<tickets.length; i++) {%>
+    <%if (tickets[i].status == 1) { %> <!-- status:1 = to be asigned -->
+    <tr class="quote">
+        <td id="">
+            <%= tickets[i].id %>
+        </td>
+        <td id="">
+            <%= tickets[i].tms %>
+        </td>
+        <td id="">
+            <%= tickets[i].facility %>
+        </td>
+        <td id="">
+            <%= tickets[i].location %>
+        </td>
+        <td id="">
+            <%= tickets[i].sand_type %>
+        </td>
+        <td id="">
+
+        </td>
+        <td id="">
+            <button type="submit" class="btn btn-default"> Assign</button>
+        </td>
+    </tr>
+    <% } %>
+<% } %>
+
+    <script>
+        function reload(){
+                var linkFormatter = function(column, row){
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+                };
+
+                var commandsFormatter = function(column, row) {
+                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
+                };
+
+                var driversFormatter = function(colum, row){
+                    return "<%if (drivers.length > 0) { %> " +
+                                "<div class='form-group'> " +
+                                    "<select class='form-control' id='driverSelect" + row.id + "'>" +
+                                        "<% for(var x=0; x<drivers.length; x++) {%>" +
+                                        "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
+                                        "<% } %>" +
+                                    "</select>" +
+                                "</div>" +
+                            "<% } else{ %> "+
+                                "No drivers available" +
+                            "<% } %>";
+                };
+
+                var loadedRsJQueryBootgrid = function(){
+                    /* Executes after data is loaded and rendered */
+                    var onClickEdit = function(e){
+                        //APP.SERVICE.DISPATCHER.ASSIGN_TICKET(this);
+
+                        $.ajax({
+                            url: '/api/dispatcher/assignTicket/',    //Your api url
+                            type: 'PUT',   //type is any HTTP method
+                            data: {
+                                    ticketId: $(this).data("row-id"),
+                                    hrId: $("#driverSelect"+$(this).data("row-id")).val(),
+                                    product: $("#productsSelect"+$(this).data("row-id")).val()
+
+                            },      //Data as js object
+                            success: function (msj) {
+                                alert(msj.message);
+                                location.reload();
+                            },
+                            error: function(xhr) { // if error occured
+                                alert("Error occured. please try again");
+                            },
+                        });
+                    };
+
+                    var onClickShow = function(e){
+                        $($(this).attr("href")).modal("show", $(this));
+                    };
+
+                    $("#grid-basic")
+                        .find(".command-edit")
+                        .on("click", onClickEdit)
+                        .end()
+                        .find(".show-ticket")
+                        .on("click", onClickShow);
+                };
+
+                $("#grid-basic")
+                    .bootgrid({
+                        caseSensitive: false,
+                        rowCount: [50,75,100,-1],
+                        formatters: {
+                            "link": linkFormatter,
+                            "commands": commandsFormatter,
+                            "drivers": driversFormatter
+                        }
+                    })
+                    .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+            };
+
+            reload()
+    </script>
