@@ -340,4 +340,11 @@ small {
 .frm {
     width: 50%;
   }
-  
+
+/*
+* Para hacer mas ancho el bootstrap modal
+*/
+.modal-dialog{
+    max-width: 70%;
+    width: 70%;
+}
