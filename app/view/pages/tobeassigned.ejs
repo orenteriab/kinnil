@@ -192,10 +192,6 @@
     <!-- Ticket detail modal  -->
     <%include ../partials/ticket-detail %>
 
-
-    <!--
-        Inicializa el bootgrid y sus opciones, TODO: ver si se puede alimentar esto desde un endpoint
-    -->
     <script id="tpl_search" type="text/template">
         <div class="search form-group">
             <div class="input-group">
@@ -204,12 +200,12 @@
         </div>
         <div class="search form-group">
             <div class="input-group">
-                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-facility" class="form-control" type="text" placeholder="Search by Facility" disabled="disabled">
+                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-sand" class="form-control" type="text" placeholder="Search by Sand" disabled="disabled">
             </div>
         </div>
         <div class="search form-group">
             <div class="input-group">
-                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-load" class="form-control" type="text" placeholder="Search by Load" disabled="disabled">
+                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-facility" class="form-control" type="text" placeholder="Search by Facility" disabled="disabled">
             </div>
         </div>
     </script>
@@ -220,23 +216,6 @@
             APP.SERVICE = APP.SERVICE || {};
 
             APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
-            
-            APP.SERVICE.DISPATCHER.GET_UPS = APP.SERVICE.DISPATCHER.GET_UPS || function(){
-                $.ajax({
-                    cache: false,
-                    method: 'GET',
-                    url: '/api/dispatcher/getUps',
-                    success: function(data){
-                        $('#trailersUp').html(data.trailersUp);
-                        $('#trucksUp').html(data.trucksUp);
-                        $('#driversUp').html(data.driversUp);
-                    },
-                    error: function(e){
-                        console.error(e);
-                        alert('Couldn\'t load data for trailers up, drivers up, and trucks up.');
-                    }
-                });
-            };
 
             APP.SERVICE.DISPATCHER.ASSIGN_TICKET = APP.SERVICE.DISPATCHER.ASSIGN_TICKET || function(){
                 $.ajax({
@@ -442,60 +421,85 @@
                     .attr('colspan', 7)
                     .css('text-align', 'center')
                     .css('font-weight', 'bold')
-                    .text('Loading tickets...');
+                    .text('Updating...');
 
                 var loadingRow = $('<tr></tr>').append(loadingColumn);
                 $('#tbody_tickets').html(loadingRow);
 
+
+                setTimeout(function () {
+                    $.ajax({
+                        cache: false,
+                        method: 'GET',
+                        url: '/api/dispatcher/tobeassigned/table',
+                        success: function(partialHtml){
+                            //console.log(partialHtml);
+                            $('#tbody_tickets').html(partialHtml);
+                        },
+                        error: function(err){
+                            console.error('[APP][SERVICE][DISPATCHER][RELOAD_TICKETS]: Error when reloading table.', err);
+                            $('#tbody_tickets').html(previousHtml);
+                        },
+                        complete: function(){
+                            console.log("ajax reload finished")
+                            //APP.LOAD.GRID(); // Ya no se carga aqui, ahora se carga desde el parcial (reload_tobeassigned_tickets_partial.ejs)
+                        }
+                    });
+                }, 2000);
+
+            };
+
+            APP.SERVICE.DISPATCHER.GET_UPS = APP.SERVICE.DISPATCHER.GET_UPS || function(){
+
+                var driversUp = $('#driversUp').text();
+
                 $.ajax({
                     cache: false,
                     method: 'GET',
-                    url: '/api/dispatcher/tobeassigned/table',
-                    success: function(partialHtml){
-                        console.log(partialHtml);
-                        $('#tbody_tickets').html(partialHtml);
+                    url: '/api/dispatcher/getUps',
+                    success: function(data){
+                        $('#trailersUp').html(data.trailersUp);
+                        $('#trucksUp').html(data.trucksUp);
+                        $('#driversUp').html(data.driversUp);
+
+                        if ( driversUp != data.driversUp && driversUp != "" ){
+                            console.log("The number or drivers up changed, we need to reload the page!");
+                            APP.SERVICE.TICKETS.RELOAD()
+                        } 
                     },
-                    error: function(err){
-                        console.error('[APP][SERVICE][DISPATCHER][RELOAD_TICKETS]: Error when reloading table.', err);
-                        $('#tbody_tickets').html(previousHtml);
-                    },
-                    complete: function(){
-                        APP.LOAD.GRID();
+                    error: function(e){
+                        console.error(e);
+                        console.log('Couldn\'t load data for trailers up, drivers up, and trucks up.');
                     }
                 });
-
             };
 
             APP.SERVICE.TICKETS.FILTER = APP.SERVICE.TICKETS.FILTER || function(){
                 var locationFilter = $('#tx-filter-location').val().trim();
+                var sandFilter = $('#tx-filter-sand').val().trim();
                 var facilityFilter = $('#tx-filter-facility').val().trim();
-                var loadFilter = $('#tx-filter-load').val().trim();
-
                 var backup = APP.STORE.GRID_TICKETS;
                 var filtered = backup;
-
-                if(locationFilter.length > 2){
+                 if(locationFilter.length > 2){
                     var locationRegex = new RegExp('.*' + locationFilter + '.*', 'i');
                     filtered = $.grep(backup, function(ticket, ticketIndex){ 
                         return locationRegex.test(String(ticket.location).toLowerCase());
                     });
                 }
                 
-
-                if(facilityFilter.length > 2){
-                    var facilityRegex = new RegExp('.*' + facilityFilter + '.*', 'i');
+                 if(sandFilter.length > 2){
+                    var facilityRegex = new RegExp('.*' + sandFilter + '.*', 'i');
                     filtered = $.grep(filtered, function(ticket, ticketIndex){
-                        return facilityRegex.test(String(ticket.facility).toLowerCase());
+                        return facilityRegex.test(String(ticket.product).toLowerCase());
                     });
                 }
 
-                if(loadFilter.length > 2){
-                    var loadRegex = new RegExp('.*' + loadFilter + '.*', 'i');
+                 if(facilityFilter.length > 2){
+                    var loadRegex = new RegExp('.*' + facilityFilter + '.*', 'i');
                     filtered = $.grep(filtered, function(ticket, ticketIndex){
-                        return loadRegex.test(String(ticket.tms).toLowerCase());
+                        return loadRegex.test(String(ticket.facility).toLowerCase());
                     });
                 }
-
                 $('#grid-basic').bootgrid().data('.rs.jquery.bootgrid').rows = filtered;
                 $('#grid-basic').bootgrid('reload');
             };
@@ -524,6 +528,7 @@
                 };
 
                 var driversFormatter = function(colum, row){
+                    //debugger;
                     return "<%if (drivers.length > 0) { %> " +
                                 "<div class='form-group'> " +
                                     "<select class='form-control' id='driverSelect" + row.id + "'>" +
@@ -534,20 +539,6 @@
                                 "</div>" +
                             "<% } else{ %> "+
                                 "No drivers available" +
-                            "<% } %>";
-                };
-
-                var productsFormatter = function(colum, row){
-                    return  "<%if (products.length > 0) { %> " +
-                                "<div class='form-group'> " +
-                                    "<select class='form-control' id='productsSelect" + row.id + "'>" +
-                                        "<% for(var x=0; x<products.length; x++) {%>" +
-                                        "<option value = '<%= products[x].id %>'><%= products[x].name %></option> " +
-                                        "<% } %>" +
-                                    "</select>" +
-                                "</div>" +
-                            "<% } else{ %> "+
-                                "No products available" +
                             "<% } %>";
                 };
 
@@ -596,18 +587,16 @@
                         formatters: {
                             "link": linkFormatter,
                             "commands": commandsFormatter,
-                            "drivers" : driversFormatter,
-                            "products" : productsFormatter
+                            "drivers": driversFormatter
                         },
                         templates: {
                             search: $('#tpl_search').text()
                         },
                         searchField: '#galiley'
-                        
                     })
                     .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
 
-                APP.STORE.GRID_TICKETS = $("#grid-basic").data('.rs.jquery.bootgrid').rows;
+                     APP.STORE.GRID_TICKETS = $("#grid-basic").data('.rs.jquery.bootgrid').rows;
             };
 
             APP.EVENTS = APP.EVENTS || {
@@ -677,17 +666,33 @@
                     });
                 },
                 RELOAD_TICKETS: function(){
-                    //setInterval(APP.SERVICE.TICKETS.RELOAD, 15000);
+                    //setInterval(APP.SERVICE.TICKETS.RELOAD, 90000);
+                },
+                RELOAD_UPS: function(){
+                    setInterval(APP.SERVICE.DISPATCHER.GET_UPS, 2000);
                 },
                 TX_FILTER_LOCATION: function(){
                     $('#tx-filter-location').keyup(function(){
                         if($(this).val().length < 3){
-                            $('#tx-filter-facility,#tx-filter-load')
+                            $('#tx-filter-facility,#tx-filter-sand')
                                 .attr('disabled', 'disabled')
-                                .text('');
+                                .val('');
+                        }else{
+                            $('#tx-filter-sand').removeAttr('disabled');
+                            $('#tx-filter-sand').trigger('change');
+                        }
+
+                        APP.SERVICE.TICKETS.FILTER();
+                    });
+                },
+                TX_FILTER_SAND: function(){
+                    $('#tx-filter-sand').keyup(function(){
+                        if($(this).val().length < 3){
+                            $('#tx-filter-facility')
+                                .attr('disabled', 'disabled')
+                                .val('');
                         }else{
                             $('#tx-filter-facility').removeAttr('disabled');
-                            $('#tx-filter-facility').trigger('change');
                         }
 
                         APP.SERVICE.TICKETS.FILTER();
@@ -695,22 +700,9 @@
                 },
                 TX_FILTER_FACILITY: function(){
                     $('#tx-filter-facility').keyup(function(){
-                        if($(this).val().length < 3){
-                            $('#tx-filter-load')
-                                .attr('disabled', 'disabled')
-                                .text('');
-                        }else{
-                            $('#tx-filter-load').removeAttr('disabled');
-                        }
-
                         APP.SERVICE.TICKETS.FILTER();
                     });
-                },
-                TX_FILTER_LOAD: function(){
-                    $('#tx-filter-load').keyup(function(){
-                        APP.SERVICE.TICKETS.FILTER();
-                    });
-                },
+                },	                
                 INIT: function(){
                     $('li[id="li_sdbr_dispatch"]').addClass('active');
                     APP.EVENTS.PINCHE_BOTON();
@@ -718,9 +710,10 @@
                     APP.EVENTS.FL_CSV();
                     APP.EVENTS.BTN_SAVE_TICKET();
                     APP.EVENTS.RELOAD_TICKETS();
+                    APP.EVENTS.RELOAD_UPS();
                     APP.EVENTS.TX_FILTER_LOCATION();
+                    APP.EVENTS.TX_FILTER_SAND();
                     APP.EVENTS.TX_FILTER_FACILITY();
-                    APP.EVENTS.TX_FILTER_LOAD();
                 }
             };
             
