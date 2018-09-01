@@ -25,79 +25,166 @@
     </tr>
     <% } %>
 <% } %>
+<script id="tpl_search" type="text/template">
+    <div class="search form-group">
+        <div class="input-group">
+            <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-location" class="form-control" type="text" placeholder="Search by Location">
+        </div>
+    </div>
+    <div class="search form-group">
+        <div class="input-group">
+            <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-sand" class="form-control" type="text" placeholder="Search by Sand" disabled="disabled">
+        </div>
+    </div>
+    <div class="search form-group">
+        <div class="input-group">
+            <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-facility" class="form-control" type="text" placeholder="Search by Facility" disabled="disabled">
+        </div>
+    </div>
+</script>
+<script>
 
-    <script>
-        function reload(){
-                var linkFormatter = function(column, row){
-                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
-                };
+    var GRID_TICKETS;
 
-                var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
-                };
+    function loadGrid() {
+        var linkFormatter = function(column, row){
+            return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+        };
 
-                var driversFormatter = function(colum, row){
-                    return "<%if (drivers.length > 0) { %> " +
-                                "<div class='form-group'> " +
-                                    "<select class='form-control' id='driverSelect" + row.id + "'>" +
-                                        "<% for(var x=0; x<drivers.length; x++) {%>" +
-                                        "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
-                                        "<% } %>" +
-                                    "</select>" +
-                                "</div>" +
-                            "<% } else{ %> "+
-                                "No drivers available" +
-                            "<% } %>";
-                };
+        var commandsFormatter = function(column, row) {
+            return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-row-id=\"" + row.id + "\">Assign</button> "
+        };
 
-                var loadedRsJQueryBootgrid = function(){
-                    /* Executes after data is loaded and rendered */
-                    var onClickEdit = function(e){
-                        //APP.SERVICE.DISPATCHER.ASSIGN_TICKET(this);
+        var driversFormatter = function(colum, row){
+            return "<%if (drivers.length > 0) { %> " +
+                        "<div class='form-group'> " +
+                            "<select class='form-control' id='driverSelect" + row.id + "'>" +
+                                "<% for(var x=0; x<drivers.length; x++) {%>" +
+                                "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
+                                "<% } %>" +
+                            "</select>" +
+                        "</div>" +
+                    "<% } else{ %> "+
+                        "No drivers available" +
+                    "<% } %>";
+        };
 
-                        $.ajax({
-                            url: '/api/dispatcher/assignTicket/',    //Your api url
-                            type: 'PUT',   //type is any HTTP method
-                            data: {
-                                    ticketId: $(this).data("row-id"),
-                                    hrId: $("#driverSelect"+$(this).data("row-id")).val(),
-                                    product: $("#productsSelect"+$(this).data("row-id")).val()
+        var loadedRsJQueryBootgrid = function(){
+            /* Executes after data is loaded and rendered */
+            var onClickEdit = function(e){
+                //PARTIAL_APP.SERVICE.DISPATCHER.ASSIGN_TICKET(this);
 
-                            },      //Data as js object
-                            success: function (msj) {
-                                alert(msj.message);
-                                location.reload();
-                            },
-                            error: function(xhr) { // if error occured
-                                alert("Error occured. please try again");
-                            },
-                        });
-                    };
+                $.ajax({
+                    url: '/api/dispatcher/assignTicket/',    //Your api url
+                    type: 'PUT',   //type is any HTTP method
+                    data: {
+                            ticketId: $(this).data("row-id"),
+                            hrId: $("#driverSelect"+$(this).data("row-id")).val(),
+                            product: $("#productsSelect"+$(this).data("row-id")).val()
 
-                    var onClickShow = function(e){
-                        $($(this).attr("href")).modal("show", $(this));
-                    };
-
-                    $("#grid-basic")
-                        .find(".command-edit")
-                        .on("click", onClickEdit)
-                        .end()
-                        .find(".show-ticket")
-                        .on("click", onClickShow);
-                };
-
-                $("#grid-basic")
-                    .bootgrid({
-                        caseSensitive: false,
-                        rowCount: [50,75,100,-1],
-                        formatters: {
-                            "link": linkFormatter,
-                            "commands": commandsFormatter,
-                            "drivers": driversFormatter
-                        }
-                    })
-                    .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+                    },      //Data as js object
+                    success: function (msj) {
+                        alert(msj.message);
+                        location.reload();
+                    },
+                    error: function(xhr) { // if error occured
+                        alert("Error occured. please try again");
+                    },
+                });
             };
 
-            reload()
-    </script>
+            var onClickShow = function(e){
+                $($(this).attr("href")).modal("show", $(this));
+            };
+
+            $("#grid-basic")
+                .find(".command-edit")
+                .on("click", onClickEdit)
+                .end()
+                .find(".show-ticket")
+                .on("click", onClickShow);
+        };
+
+        $("#grid-basic")
+            .bootgrid({
+                caseSensitive: false,
+                rowCount: [50,75,100,-1],
+                formatters: {
+                    "link": linkFormatter,
+                    "commands": commandsFormatter,
+                    "drivers": driversFormatter
+                },
+                templates: {
+                    search: $('#tpl_search').text()
+                },
+                searchField: '#galiley'
+            })
+            .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+
+            $( "body" ).data( "foo", 52 );
+            GRID_TICKETS = $("#grid-basic").data('.rs.jquery.bootgrid').rows;
+    };
+
+    loadGrid();
+
+    function filtrar() {
+        var locationFilter = $('#tx-filter-location').val().trim();
+        var sandFilter = $('#tx-filter-sand').val().trim();
+        var facilityFilter = $('#tx-filter-facility').val().trim();
+        var backup = GRID_TICKETS;
+        var filtered = backup;
+            if(locationFilter.length > 2){
+            var locationRegex = new RegExp('.*' + locationFilter + '.*', 'i');
+            filtered = $.grep(backup, function(ticket, ticketIndex){ 
+                return locationRegex.test(String(ticket.location).toLowerCase());
+            });
+        }
+        
+            if(sandFilter.length > 2){
+            var facilityRegex = new RegExp('.*' + sandFilter + '.*', 'i');
+            filtered = $.grep(filtered, function(ticket, ticketIndex){
+                return facilityRegex.test(String(ticket.product).toLowerCase());
+            });
+        }
+
+            if(facilityFilter.length > 2){
+            var loadRegex = new RegExp('.*' + facilityFilter + '.*', 'i');
+            filtered = $.grep(filtered, function(ticket, ticketIndex){
+                return loadRegex.test(String(ticket.facility).toLowerCase());
+            });
+        }
+        $('#grid-basic').bootgrid().data('.rs.jquery.bootgrid').rows = filtered;
+        $('#grid-basic').bootgrid('reload');
+    };
+
+    $('#tx-filter-location').keyup(function(){
+        if($(this).val().length < 3){
+            $('#tx-filter-facility,#tx-filter-sand')
+                .attr('disabled', 'disabled')
+                .val('');
+        }else{
+            $('#tx-filter-sand').removeAttr('disabled');
+            $('#tx-filter-sand').trigger('change');
+        }
+
+        
+        filtrar();
+    });
+
+    $('#tx-filter-sand').keyup(function(){
+        if($(this).val().length < 3){
+            $('#tx-filter-facility')
+                .attr('disabled', 'disabled')
+                .val('');
+        }else{
+            $('#tx-filter-facility').removeAttr('disabled');
+        }
+
+        filtrar();
+    });
+
+    $('#tx-filter-facility').keyup(function(){
+        filtrar();
+    });
+
+</script>
