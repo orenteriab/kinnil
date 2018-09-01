@@ -32,9 +32,9 @@ router.get('/logout', (req, res, next) => {
 
 router.get('/goals', passport.isLoggedInAsCustomer , (req, res) => {
     administrativeService
-        .findLocations()
-        .then((locations) => {
-            res.render('pages/goals.ejs', { message: '', locations: locations })
+        .getClientDetail(1) // There is only one client at the moment
+        .then((clientDetails) => {
+            res.render('pages/goals.ejs', { message: '', crews: clientDetails.crews })
         }, (err) => {
             res.render('pages/goals.ejs', { message: 'Unable to retrieve locations, try again.', locations: [] })
         })
