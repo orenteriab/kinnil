@@ -34,15 +34,19 @@ exports.getClientDetail = (clientId) => {
     let sands = administrativeModel
         .getSands(clientId);
 
+    let crews = administrativeModel
+        .getCrews(clientId);
+
     // Esperamos a que todas las promesas se cumplan para enviar la promesa final
     var return_data = {};
-    return Promise.all([client,locations,facilities,products,sands]).then((data) => {
+    return Promise.all([client,locations,facilities,products,sands,crews]).then((data) => {
         
         return_data.client = data[0];
         return_data.locations = data[1];
         return_data.facilities = data[2];
         return_data.products = data[3];
         return_data.sands = data[4];
+        return_data.crews = data[5];
 
         return return_data;
     });
@@ -98,6 +102,16 @@ exports.addSand = (name, clientId) => {
 exports.deleteSand = (sandId) => {
     return administrativeModel
         .deleteSand(sandId);
+};
+
+exports.addCrew = (name, clientId) => {
+    return administrativeModel
+        .addCrew(name, clientId);
+};
+
+exports.deleteCrew = (crewId) => {
+    return administrativeModel
+        .deleteCrew(crewId);
 };
 
 exports.addProduct = (name, clientId) => {
@@ -205,7 +219,8 @@ exports.getSelectedCrew = (crewId) => {
 // {"id_evento":"123","supervisor_id":1,"worker_id":3,"in":true,"out":false,"date":"2018-04-25 15:52:11","latitude":0,"longitude":0,"img":""}
 exports.saveClockinEvent = (id_evento, entrada, salida, date, lattitud, longitud, img, worker_id) => {
 
-    console.log(entrada)
+    console.log("entrada: " + entrada)
+    console.log("salida: " + salida)
     if (entrada) {
         
         // TODO: ver si se puede hacer este path dinamico
@@ -257,4 +272,17 @@ exports.fetchScalesData = (locationId) => {
 
 exports.fetchGoalsData = (locationId) => {
     return administrativeModel.fetchGoalsData(locationId)
+}
+
+exports.getLocationDetail = (locationId) => {
+    return administrativeModel.getLocationDetail(locationId)
+}
+
+exports.updateLocation = (name, value, pk) => {
+    return administrativeModel
+    .updateLocation(name, value, pk);
+};
+
+exports.getLocationsByCrewId = (crewId) => {
+    return administrativeModel.getLocationsByCrewId(crewId)
 }

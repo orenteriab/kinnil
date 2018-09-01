@@ -21,7 +21,16 @@ exports.deleteClient = (clientId) => {
 };
 
 exports.getLocations = (clientId) => {
-    let statement = 'select * from locations where active = 1 and clients_id = ?';
+    let statement = 'select l.id,\
+l.name, \
+l.status, \
+l.geolocation, \
+DATE_FORMAT(l.start_date, "%m-%d-%Y") start_date, \
+DATE_FORMAT(l.end_date, "%m-%d-%Y") end_date, \
+c.name crewname \
+from locations l \
+left join crews c on l.crews_id = c.id \
+where l.active = 1 and l.clients_id = ?'
 
     return connectionPool.query(statement, [clientId]);
 };
@@ -40,6 +49,12 @@ exports.getProducts = (clientId) => {
 
 exports.getSands = (clientId) => {
     let statement = 'select * from sand where active = 1 and clients_id = ?';
+
+    return connectionPool.query(statement, [clientId]);
+};
+
+exports.getCrews = (clientId) => {
+    let statement = 'select * from crews where active = 1 and clients_id = ?';
 
     return connectionPool.query(statement, [clientId]);
 };
@@ -83,8 +98,20 @@ exports.addSand = (name, clientId) => {
 
 exports.deleteSand = (sandId) => {
     let statement = 'update sand set active = 0 where id = ?';
-    console.log(sandId);
+    
     return connectionPool.query(statement, [sandId]);
+};
+
+exports.addCrew = (name, clientId) => {
+    let statement = 'insert into crews (name, clients_id, active) values (?, ?, 1)';
+
+    return connectionPool.query(statement, [name, clientId]);
+};
+
+exports.deleteCrew = (crewId) => {
+    let statement = 'update crews set active = 0 where id = ?';
+    
+    return connectionPool.query(statement, [crewId]);
 };
 
 exports.addProduct = (name, clientId) => {
@@ -432,4 +459,31 @@ exports.fetchGoalsData = (locationId) => {
                 where       `g`.`locations_id` = ? "
     
     return connectionPool.query(query, [locationId])
+}
+
+exports.getLocationDetail = (locationId) => {
+    let query = 'select l.id,\
+l.name, \
+l.status, \
+l.geolocation, \
+DATE_FORMAT(l.start_date, "%m-%d-%Y") start_date, \
+DATE_FORMAT(l.end_date, "%m-%d-%Y") end_date, \
+c.name crewname \
+from locations l \
+left join crews c on l.crews_id = c.id \
+where l.id = ?'
+    
+    return connectionPool.query(query, [locationId])
+}
+
+exports.updateLocation = (name, value, pk) => {
+    let statement = 'update `sandras`.`locations` set `' + name + '` = ? where `id` = ?';
+
+    return connectionPool.query(statement, [value, pk]);
+};
+
+exports.getLocationsByCrewId = (crewId) => {
+    let query = "select * from `sandras`.`locations` where crews_id = ?"
+
+    return connectionPool.query(query, [crewId])
 }

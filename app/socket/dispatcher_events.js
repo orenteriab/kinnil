@@ -114,7 +114,9 @@ const onTms = (socket) => {
 
 const onStatus = (socket) => {
     return new SocketEvent('status', (message) => {
+        //console.log(message)
         let jsonPayload = JSON.parse(message);
+        //let jsonPayload = message;
         dispatcherService //(substatus, latitude, longitude, ticketId, base, silo, weight, bol)
             .addEvent(jsonPayload.substatus, 
                         jsonPayload.latitude, 
@@ -178,7 +180,7 @@ const onSelectedCrew = (socket) => {
 const onClockinEvent = (socket) => {
     return new SocketEvent('clockinevent', (message) => {
         let jsonPayload = JSON.parse(message);
-        console.log("payload " + jsonPayload)
+        console.log("payload " + JSON.jsonPayload)
         administrativeService
             .saveClockinEvent(jsonPayload.id_evento, jsonPayload.in, jsonPayload.out, jsonPayload.date, jsonPayload.latitude, jsonPayload.longitude, jsonPayload.img, jsonPayload.worker_id)
             .then((returnData) => {
@@ -192,12 +194,16 @@ const onClockinEvent = (socket) => {
     });
 };
 
+/*
+* Goals events
+*/
+
 const onLocations = (socket) => {
     return new SocketEvent('locations', () => {
         administrativeService
             .findLocations()
             .then(
-                (locations) => socket.emit('locations', locations),
+                (locations) => socket.emit('locations', JSON.stringify(locations)),
                 (err) => socket.emit('locations',
                     JSON.stringify({ 
                         locations: null, 
@@ -237,8 +243,8 @@ const onScalesRequest = (socket) => {
     })
 }
 
+
 exports.onConnection = new SocketEvent('connection', (socket) => {
-    console.log('received');
 
     const socketEvents = [
         onMessage(socket),

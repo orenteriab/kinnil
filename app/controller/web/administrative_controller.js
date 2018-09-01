@@ -17,7 +17,7 @@ router.get('/clients', (req, res) => {
         .catch(function (error) {
             console.error('Error when querying: \n', error);
             res.status(500);
-            res.send(JSON.stringify({ error: 'Unable to retrieve data from datbase.' }));
+            res.send(JSON.stringify({ error: 'Unable to retrieve data from database.' }));
         });
 });
 
@@ -32,7 +32,8 @@ router.get('/clients/:clientId', (req, res) => {
                 locations: return_data.locations,
                 facilities: return_data.facilities,
                 products: return_data.products,
-                sands: return_data.sands
+                sands: return_data.sands,
+                crews: return_data.crews
             });
         })
         .catch(function (err) {

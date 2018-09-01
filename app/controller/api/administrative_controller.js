@@ -67,6 +67,49 @@ ROUTER.put('/deletesand/', (req, res) => {
         });
 });
 
+ROUTER.post('/addcrew/', (req, res) => {
+
+    administrativeService
+        .addCrew(req.body.name, 1) // 1 El cliente es halliburton por default
+        .then(() => {
+
+            res.status(200);
+            res.contentType('application/json');
+            res.send(
+                JSON.stringify({ message: 'crew has been added successfully.' })
+            );
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/administrative_controller.js][/addcrew/'+ req.body.name +'] Error: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
+ROUTER.put('/deletecrew/', (req, res) => {
+
+    administrativeService
+        .deleteCrew(req.body.crewId)
+        .then(() => {
+
+            res.status(200);
+            res.contentType('application/json');
+            res.send(
+                JSON.stringify({ message: 'crew has been deleted successfully.' })
+            );
+        })
+        .catch(function (err) {
+            
+            console.log('[Api/administrative_controller.js][/deletecrew/'+ req.body.sandId +'] Error: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
+
 
 ROUTER.post('/addproduct/', (req, res) => {
 
@@ -411,6 +454,56 @@ ROUTER.get('/location/:locationId/goals-data', (req, res) => {
 
                 res.status(500)
                 res.json({ status: 'error', msg: 'Unable to fetch scales location for location id: ' + req.params.locationId + '.' })
+            })
+})
+
+ROUTER.get('/getLocationDetail/:locationId', (req, res) => {
+    administrativeService
+        .getLocationDetail(req.params.locationId)
+        .then(
+            (returnData) => {
+                res.status(200)
+                res.json(returnData)
+            },
+            (err) => {
+                console.error('[Api/administrative_controller.js][/getLocationDetail/'+ req.params.locationId + ']Error when obtain location data by id: ', err);
+
+                res.status(500)
+                res.json({ status: 'error', msg: 'Unable to fetch location data by id: ' + req.params.locationId + '.' })
+            })
+})
+
+ROUTER.post('/updateLocation/', (req, res) => {
+
+    administrativeService
+        .updateLocation(req.body.name, req.body.value, req.body.pk)
+        .then(() => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({status: 'success', msg: 'Record Updated' }));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/updateLocation/]Error when updating location: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ status: 'error', msg: 'field cannot be empty!' }));
+        });
+});
+
+ROUTER.get('/getLocationsByCrewId/:crewId', (req, res) => {
+    administrativeService
+        .getLocationsByCrewId(req.params.crewId)
+        .then(
+            (returnData) => {
+                res.status(200)
+                res.json(returnData)
+            },
+            (err) => {
+                console.error('[Api/administrative_controller.js][/getLocationsByCrewId/'+ req.params.crewId + ']Error when obtain location data by id: ', err);
+
+                res.status(500)
+                res.json({ status: 'error', msg: 'Unable to fetch location data by id: ' + req.params.locationId + '.' })
             })
 })
 
