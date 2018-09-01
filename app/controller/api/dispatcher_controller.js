@@ -15,8 +15,8 @@ ROUTER.get('/getUps', (req, res) => {
             res.status(200);
             res.contentType('application/json');
             res.send(
-                JSON.stringify({ 
-                    message: '', 
+                JSON.stringify({
+                    message: '',
                     driversUp: return_data.driversUp,
                     trucksUp: return_data.trucksUp,
                     trailersUp: return_data.trailersUp
@@ -24,7 +24,7 @@ ROUTER.get('/getUps', (req, res) => {
             );
         })
         .catch(function (err) {
-            
+
             console.log('[Api/dispatcher_controller.js][/getUps] Error cuando obtenemos los drivers, trucks y trailers disponibles: ', err);
             res.status(404);
             res.contentType('application/json');
@@ -45,7 +45,7 @@ ROUTER.get('/getTicketDetail/:ticketId', (req, res) => {
             res.send(JSON.stringify({ ticket: return_data }));
         })
         .catch(function (err) {
-            
+
             console.log('[Api/dispatcher_controller.js][/getTicketDetail/:ticketId] Error cuando obtenemos el detalle de un ticket: ', err);
             res.status(404);
             res.contentType('application/json');
@@ -66,7 +66,7 @@ ROUTER.get('/getEventsDetail/:ticketId', (req, res) => {
             res.send(JSON.stringify({ events: return_data }));
         })
         .catch(function (err) {
-            
+
             console.log('[Api/dispatcher_controller.js][/getUps] Error cuando obtenemos los eventos de un ticket: ', err);
             res.status(404);
             res.contentType('application/json');
@@ -159,29 +159,29 @@ ROUTER.get('/gettmscounter/', (req, res) => {
 
 ROUTER.get('/tobeassigned/table', (req, res) => {
     dispatcherService
-    .getToBeAsignedInfo()
-    .then((fulfilled) => {
-        res.render('partials/reload_tobeassigned_tickets_partial.ejs', { 
-            tickets: fulfilled.tickets,
-            drivers: fulfilled.drivers,
+        .getToBeAsignedInfo()
+        .then((fulfilled) => {
+            res.render('partials/reload_tobeassigned_tickets_partial.ejs', {
+                tickets: fulfilled.tickets,
+                drivers: fulfilled.drivers,
+            })
+        }, (rejected) => {
+            console.error('[dispatcher_controller][/tobeassigned/table]: ', rejected)
+            res.status(500)
+            res.json({ error: 'Unable to fetch table.' })
         })
-    }, (rejected) => {
-        console.error('[dispatcher_controller][/tobeassigned/table]: ', rejected)
-        res.status(500)
-        res.json({ error: 'Unable to fetch table.' })
-    })
 })
 
 ROUTER.get('/workinprogress/table', (req, res) => {
     dispatcherService
-    .getTicketsInfo()
-    .then((fulfilled) => {
-        res.render('partials/reload_workinprogress_tickets_partial.ejs', { tickets: fulfilled })
-    }, (rejected) => {
-        console.error('[dispatcher_controller][/workinprogress/table]: ', rejected)
-        res.status(500)
-        res.json({ error: 'Unable to fetch table.' })
-    })
+        .getTicketsInfo()
+        .then((fulfilled) => {
+            res.render('partials/reload_workinprogress_tickets_partial.ejs', { tickets: fulfilled })
+        }, (rejected) => {
+            console.error('[dispatcher_controller][/workinprogress/table]: ', rejected)
+            res.status(500)
+            res.json({ error: 'Unable to fetch table.' })
+        })
 })
 
 exports.router = ROUTER;
