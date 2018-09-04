@@ -5,6 +5,8 @@
         <title>Cedar - Client Query</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/assets/css/bootstrap.css" rel="stylesheet">
+        <!-- bootstrap-editable -->
+        <link rel="stylesheet" href="/assets/css/bootstrap-editable.css">
         <style>
             .row-flex {
                display: flex;
@@ -205,6 +207,43 @@
                                 </div>
                             </div>
                     </div>
+                    <div class="row row-flex" style="text-align:center;">
+                        <div class="col-md-2" style="width:16%;">
+                            <h3>
+                                <span id="sp_silo_sand_01"></span>
+                            </h3>
+                        </div>
+
+                        <div class="col-md-2" style="width:16%;">
+                            <h3>
+                                <span id="sp_silo_sand_02"></span>
+                            </h3>
+                        </div>
+
+                        <div class="col-md-2" style="width:16%;">
+                            <h3>
+                                <span id="sp_silo_sand_03"></span>
+                            </h3>
+                        </div>
+
+                        <div class="col-md-2" style="width:16%;">
+                            <h3>
+                                <span id="sp_silo_sand_04"></span>
+                            </h3>
+                        </div>
+
+                        <div class="col-md-2" style="width:16%;">
+                            <h3>
+                                <span id="sp_silo_sand_05"></span>
+                            </h3>
+                        </div>
+
+                        <div class="col-md-2" style="width:16%;">
+                            <h3>
+                                <span id="sp_silo_sand_06"></span>
+                            </h3>
+                        </div>
+                    </div>
                     <div class="col-md-12" style="height: 10px; display:block;"></div>
                     <div class="col-md-12" style="height: 130px; display:block; border: 2px solid black; text-align: left;">
                         <h2>Goals - <span class="sp_goals_location_name"></span></h2>
@@ -231,6 +270,10 @@
         </div>
         <script src="/assets/js/jquery.js" type="text/javascript"></script>
         <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+        <!-- Bootstrap Core JavaScript -->
+        <script src="/assets/js/bootstrap.min.js"></script>
+        <!-- X editable -->
+        <script type="text/javascript" src="/assets/js/bootstrap-editable.min.js"></script>
         <script type="text/javascript">
         const numberWithCommas = (x) => {
           return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -333,6 +376,41 @@
                             $('#sp_silo_percentage_04').text(parseFloat(scalesData[0].porcent4).toFixed(2));
                             $('#sp_silo_percentage_05').text(parseFloat(scalesData[0].porcent5).toFixed(2));
                             $('#sp_silo_percentage_06').text(parseFloat(scalesData[0].porcent6).toFixed(2));
+
+
+
+                            $('#sp_silo_sand_01').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                            "data-type='text' class='black-link' "+
+                            "href='#' id='update-sand1' data-name='sand_name1'>"+scalesData[0].sand_name1+"</a></strong>");
+
+                            $('#sp_silo_sand_02').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                            "data-type='text' class='black-link' "+
+                            "href='#' id='update-sand2' data-name='sand_name2'>"+scalesData[0].sand_name2+"</a></strong>");
+
+                            $('#sp_silo_sand_03').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                            "data-type='text' class='black-link' "+
+                            "href='#' id='update-sand3' data-name='sand_name3'>"+scalesData[0].sand_name3+"</a></strong>");
+
+                            $('#sp_silo_sand_04').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                            "data-type='text' class='black-link' "+
+                            "href='#' id='update-sand4' data-name='sand_name4'>"+scalesData[0].sand_name4+"</a></strong>");
+
+                            $('#sp_silo_sand_05').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                            "data-type='text' class='black-link' "+
+                            "href='#' id='update-sand5' data-name='sand_name5'>"+scalesData[0].sand_name5+"</a></strong>");
+
+                            $('#sp_silo_sand_06').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                            "data-type='text' class='black-link' "+
+                            "href='#' id='update-sand6' data-name='sand_name6'>"+scalesData[0].sand_name6+"</a></strong>");
+
+
+                            $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6').editable({
+                                url: '/api/administrative/updateSandName/',
+                                send: 'always',
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') return response.msg; //msg will be shown in editable form
+                                }
+                            });
                             
                             var color;
                             if(parseFloat($('#sp_silo_percentage_01').text())<25){

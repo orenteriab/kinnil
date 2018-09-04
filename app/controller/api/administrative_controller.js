@@ -507,6 +507,23 @@ ROUTER.get('/getLocationsByCrewId/:crewId', (req, res) => {
             })
 })
 
+ROUTER.post('/updateSandName/', (req, res) => {
+    administrativeService
+        .updateSandName(req.body.name, req.body.value, req.body.pk)
+        .then(() => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({status: 'success', msg: 'Record Updated' }));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/updateSandName/' + req.body.pk + ']Error when updating sand name: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ status: 'error', msg: 'field cannot be empty!' }));
+        });
+});
+
 exports.router = ROUTER;
 
 

@@ -286,3 +286,9 @@ exports.updateLocation = (name, value, pk) => {
 exports.getLocationsByCrewId = (crewId) => {
     return administrativeModel.getLocationsByCrewId(crewId)
 }
+
+exports.updateSandName = (name, value, pk) => {
+    return administrativeModel
+    .updateSandName(name, value, pk);
+};
+

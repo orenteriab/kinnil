@@ -487,3 +487,9 @@ exports.getLocationsByCrewId = (crewId) => {
 
     return connectionPool.query(query, [crewId])
 }
+
+exports.updateSandName = (name, value, pk) => {
+    let statement = 'update `sandras`.`scales_data` set `' + name + '` = ? where `id` = ?';
+
+    return connectionPool.query(statement, [value, pk]);
+};
