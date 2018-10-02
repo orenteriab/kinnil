@@ -254,9 +254,8 @@ exports.create = (ticket) => {
                     return MODEL.update(ticket, returnData[0].id);
                 }
                 if (ticket["Pick Date"] == pickDate) {
-                    // Si el pick_date es igual al que esta en la DB significa que el TMS si existe pero no ha sido reciclado, entonces no se guarda nada.
-                    console.log(" el ticket existe pero la pick_date es igual")
-                    return Bluebird.reject('Load Number already exist but is not recycled') 
+
+                    return Bluebird.reject('Load Number already exist') 
                 } 
             } else { // Si el ticket no existe se crea en la DB
                return MODEL.create(ticket);

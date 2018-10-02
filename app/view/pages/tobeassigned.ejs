@@ -195,8 +195,9 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">Upload details</h4>
     </div>
-    <div class="modal-body" id="uploadTicketsDetail">
-        
+    <div class="modal-body">
+        <div id="uploadTicketsDetail">
+        </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -280,6 +281,7 @@
             APP.SERVICE.TICKETS.UPLOAD_CSV = APP.SERVICE.TICKETS.UPLOAD_CSV || function(csvArray){
 
                 $("#uploadTicketsDetail").html("");
+
                 var ajaxRequests = [];
                 for(var i = 0; i < csvArray.length; i++){
                     ajaxRequests.push(
@@ -293,12 +295,24 @@
                             success: function(data){
                                 console.log(data);
                                 $("#uploadTicketsDetail").append("<p>" + data + "</p>");
+                                
+                                
+                                //localStorage.setItem('good', 0);
+                                //console.log('bad ' + );
+                                //console.log('good ' + localStorage.getItem('good'));
+
                             },
                             error: function(e, d, f){
                                 //console.error(e);
                                 console.error(d);
                                 //console.error(f);
                                 $("#uploadTicketsDetail").append("<p>" + e.responseText + "</p>");
+                                
+                                //var currentBadCount = localStorage.getItem('bad');
+                                //currentBadCount ++;
+                                //localStorage.setItem('bad', currentBadCount);
+
+                                //console.log("local bad " + localStorage.getItem('bad'));
                             }
                         })
                     );
@@ -315,7 +329,12 @@
                         }
 
                         if(failed.length > 0){
-                            $("#uploadTicketsDetail").prepend("<p>Some records couldn't be saved:</p>");
+
+                            // Si fallan todas de golpe solo ocurre una vez el apply y ocurre antes de se procesen todos los errores......
+                            //var badItems = localStorage.getItem('bad');
+                            $("#uploadTicketsDetail").prepend("<p>Some records couldn't be saved</p>");
+                            //$("#uploadTicketsDetail").prepend("<p>"+ APP.STORE.GOOD_COUNTER + " records were saved successfully!</p>");
+                            //$("#uploadTicketsDetail").prepend("<p>"+ badItems + " records already exist</p>");
                         }else{
                             $("#uploadTicketsDetail").prepend("<p>All records were saved successfully!</p>");
                         }
@@ -671,6 +690,12 @@
 
                             fileReader.onload = function(evt){
                                 var jsonObjects = $.csv.toObjects(evt.target.result);
+
+                                //localStorage.setItem('bad', 0);
+                                //localStorage.setItem('good', 0);
+                                //console.log('bad ' + localStorage.getItem('bad'));
+                                //console.log('good ' + localStorage.getItem('good'));
+
                                 APP.SERVICE.TICKETS.UPLOAD_CSV(jsonObjects);
                             };
 
@@ -758,5 +783,6 @@
 
 </body>
 </html>
+
 
 
