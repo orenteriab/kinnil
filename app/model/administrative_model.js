@@ -269,7 +269,7 @@ exports.updateTicket = (name, value, pk) => {
 exports.getClockin = () => {
     let statement = 'select c.id, h.name, DATE_FORMAT(c.in, "%m-%d-%Y %H:%i:%s") "in", \
                         DATE_FORMAT(c.out, "%m-%d-%Y %H:%i:%s") "out", \
-                        TIMESTAMPDIFF(hour, c.in, c.out) "hours_worked", \
+                        ROUND(TIMESTAMPDIFF(MINUTE, c.in, c.out)/60,2) "hours_worked", \
                         h.shift, \
                         c.img_in_name, \
                         c.img_out_name \
@@ -328,7 +328,7 @@ exports.findLocations = () => {
     return connectionPool.query(statement)
 }
 
-exports.upsertScalesData = (scalesData) => {
+exports.upsertScalesData = (scalesData, timestap) => {
     let statement = "select count(*) `locationCount` from `sandras`.`scales_data` where locations_id = ? "
 
     return connectionPool
@@ -363,6 +363,7 @@ exports.upsertScalesData = (scalesData) => {
                 "`porcent4`," +
                 "`porcent5`," +
                 "`porcent6`," +
+                "`last_date`," +
                 "`locations_id`)" +
                 "VALUES (" +
                 "default, " +
@@ -372,6 +373,7 @@ exports.upsertScalesData = (scalesData) => {
                 "''," +
                 "''," +
                 "''," +
+                "?," +
                 "?," +
                 "?," +
                 "?," +
@@ -412,6 +414,7 @@ exports.upsertScalesData = (scalesData) => {
                 "`porcent4` = ?, " +
                 "`porcent5` = ?, " +
                 "`porcent6` = ? " +
+                "`last_date` = ? " +
                 "WHERE `locations_id` = ?; "
             }
 
@@ -434,6 +437,7 @@ exports.upsertScalesData = (scalesData) => {
                 scalesData.porcent4,
                 scalesData.porcent5,
                 scalesData.porcent6,
+                timestap,
                 scalesData.location
             ])
         }
@@ -443,7 +447,34 @@ exports.upsertScalesData = (scalesData) => {
 }
 
 exports.fetchScalesData = (locationId) => {
-    let query = "select * from `sandras`.`scales_data` where locations_id = ?"
+    let query = "select `id`, \
+    `sand_name1`, \
+    `sand_name2`, \
+    `sand_name3`, \
+    `sand_name4`, \
+    `sand_name5`, \
+    `sand_name6`, \
+    `weight1`, \
+    `weight2`, \
+    `weight3`, \
+    `weight4`, \
+    `weight5`, \
+    `weight6`, \
+    `status1`, \
+    `status2`, \
+    `status3`, \
+    `status4`, \
+    `status5`, \
+    `status6`, \
+    `porcent1`, \
+    `porcent2`, \
+    `porcent3`, \
+    `porcent4`, \
+    `porcent5`, \
+    `porcent6`, \
+    DATE_FORMAT(`last_date`, '%m-%d-%Y %H:%i:%s') start_date, \
+    `locations_id` \
+    from `sandras`.`scales_data` where locations_id = ?"
 
     return connectionPool.query(query, [locationId])
 }
@@ -456,9 +487,23 @@ exports.fetchGoalsData = (locationId) => {
                             ,`g`.`lads_current` `lads_current`                  \
                 from        `sandras`.`goals`   `g`                             \
                 inner join  `sandras`.`sand`    `s` on `g`.`sand_id` = `s`.`id` \
-                where       `g`.`locations_id` = ? "
+                where       `g`.`locations_id` = ? \
+                order by  `s`.`name`"
     
     return connectionPool.query(query, [locationId])
+}
+
+exports.fetchToThisDayData = (locationName) => {
+    let query = "select `sand_type`, \
+sum(`weight`) current_lbs \
+from `tickets` \
+where `location` = ? and `status` >= 3 \
+group by `sand_type` \
+order by `sand_type`"
+
+console.log(query, [locationName])
+    
+    return connectionPool.query(query, [locationName])
 }
 
 exports.getLocationDetail = (locationId) => {
@@ -483,7 +528,7 @@ exports.updateLocation = (name, value, pk) => {
 };
 
 exports.getLocationsByCrewId = (crewId) => {
-    let query = "select * from `sandras`.`locations` where crews_id = ?"
+    let query = "select * from `sandras`.`locations` where crews_id = ? and status = 'ON GOING'"
 
     return connectionPool.query(query, [crewId])
 }

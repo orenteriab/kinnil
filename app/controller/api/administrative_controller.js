@@ -457,6 +457,24 @@ ROUTER.get('/location/:locationId/goals-data', (req, res) => {
             })
 })
 
+ROUTER.get('/location/:locationName/to-this-day', (req, res) => {
+
+    console.log(req.params.locationName)
+    administrativeService
+        .fetchToThisDayData(req.params.locationName)
+        .then(
+            (goalsData) => {
+                res.status(200)
+                res.json(goalsData)
+            },
+            (err) => {
+                console.error('[Api/administrative_controller.js][/location/'+ req.params.locationName + '/to-this-day' + ']Error when obtain to this day data: ', err);
+
+                res.status(500)
+                res.json({ status: 'error', msg: 'Unable to fetch to this day data info for location name: ' + req.params.locationName + '.' })
+            })
+})
+
 ROUTER.get('/getLocationDetail/:locationId', (req, res) => {
     administrativeService
         .getLocationDetail(req.params.locationId)
