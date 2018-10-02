@@ -162,32 +162,64 @@ exports.getPayrollHrById = (hr_id) => {
 }
 
 exports.getTicketsById = (hr_id) => {
-    return payrollModel
-                .getTicketsById(hr_id)
-                .then((data) => {
-                    console.log(data)
 
-                    // Formato necesarios para jquery-bootgrid
-                    return_data = {}
+    return payrollModel
+        .getTicketsById(hr_id)
+        .then((ticketData) => {
+
+            console.log(ticketData)
+
+            let ticketsId = []
+            for (var i = 0; i < ticketData.length; i++) { 
+                ticketsId.push(ticketData[i].id)
+            }
+
+            console.log(ticketsId)
+
+            return payrollModel
+                .getEventDataByTicketId(ticketsId)
+                .then((eventData) => {
+
+                    console.log("----")
+                    console.log(eventData)
+                    console.log("----")
+                    console.log(ticketData)
+                    console.log("----")
+                    // Formatos necesarios para jquery-bootgrid
+                    var return_data = {}
                     return_data.current = 1
                     return_data.rowCount = 10
                     return_data.rows = []
-                    return_data.total = data.length
+                    return_data.total = ticketData.length
 
-                    data.forEach((row, index, value) => {
-                        
-                        return_data.rows.push({"id":+value[index].id, 
-                                                "tms": value[index].tms,
-                                                "location": value[index].location,
-                                                "facility": value[index].facility,
-                                                "driver-rate": value[index].driver_rate,
-                                                "load-rate": value[index].load_rate})
-                    });
+                    for (var i = 0; i < ticketData.length; i++) { 
+                        return_data.rows.push({"id": ticketData[i].id, // data del ticket
+                            "tms": ticketData[i].tms,
+                            "location": ticketData[i].location,
+                            "facility": ticketData[i].facility,
+                            "driver-rate": ticketData[i].driver_rate,
+                            "load-rate": ticketData[i].load_rate,
+                            "load-date": eventData[i].load_date, // data de los evntos
+                            "standby-hours": eventData[i].standby_hours, // data de los eventos
+                        })
+                    }
 
                     console.log(return_data)
-
                     return return_data
-                });	
+                })
+
+        })
+
+    /*let ticketInfo = payrollModel.getTicketsById(hr_id)
+    let eventInfo = payrollModel.getEventDataByTicketId(hr_id)
+
+    
+    return Promise.all([ticketInfo,eventInfo]).then((data) => {
+
+        
+        
+        return return_data;
+    });*/
 }
 
 

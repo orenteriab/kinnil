@@ -61,7 +61,7 @@ ROUTER.get('/getClockinById/:hrId', (req, res) => {
             res.json(return_data);
         })
         .catch(function (err) {
-            console.log('[Api/payroll_controller.js][/getClockinById/:hrId] error when obtaining Obtiene las entradas de clockin de ese HR: ', err);
+            console.log('[Api/payroll_controller.js][/getClockinById/'+ req.params.hrId +'] error when obtaining Obtiene las entradas de clockin de ese HR: ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: err }));
@@ -111,7 +111,7 @@ ROUTER.get('/getPayrollHrById/:hrId', (req, res) => {
             res.json(return_data);
         })
         .catch(function (err) {
-            console.log('[Api/payroll_controller.js][/createPayrollEntryforDriver] error when Obtiene las entradas de pyroll por hr_id: ', err);
+            console.log('[Api/payroll_controller.js][/getPayrollHrById' + req.params.hrId + '] error when Obtiene las entradas de pyroll por hr_id: ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: err }));
@@ -128,7 +128,7 @@ ROUTER.get('/getTicketsById/:hrId', (req, res) => {
             res.json(return_data);
         })
         .catch(function (err) {
-            console.log('[Api/payroll_controller.js][/getTicketsById/:hrId] Obtiene lot tickets que a echo el driver ', err);
+            console.log('[Api/payroll_controller.js][/getTicketsById/:hrId] Unable to obtain ticket information ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: err }));
@@ -147,7 +147,7 @@ ROUTER.get('/getPDFInformationHr/:payrollId', (req, res) => {
             res.json(return_data);
         })
         .catch(function (err) {
-            console.log('[Api/payroll_controller.js][/getClockinById/:hrId] error when obtaining the Payroll information for the PDF: ', err);
+            console.log('[Api/payroll_controller.js][/getPDFInformationHr/'+ req.params.payrollId +'] error when obtaining the Payroll information for the PDF: ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: err }));
@@ -164,7 +164,7 @@ ROUTER.get('/getPDFInformationDrivers/:payrollId', (req, res) => {
             res.json(return_data);
         })
         .catch(function (err) {
-            console.log('[Api/payroll_controller.js][/getClockinById/:hrId] error when obtaining the Payroll information for the PDF: ', err);
+            console.log('[Api/payroll_controller.js][/getPDFInformationDrivers/'+ req.params.payrollId +'] error when obtaining the Payroll information for the PDF: ', err);
             res.status(404);
             res.contentType('application/json');
             res.send(JSON.stringify({ message: err }));

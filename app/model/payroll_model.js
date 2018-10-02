@@ -58,11 +58,11 @@ exports.getHrInformation = (id) => {
 
 exports.getClockinById = (hr_id) => {
     let statement = 'select `c`.`id`, `c`.`id_evento`, \
-                    DATE_FORMAT(`c`.`in`, "%m-%d-%Y %H:%i:%s") "in" , \
-                    DATE_FORMAT(`c`.`out`, "%m-%d-%Y %H:%i:%s") "out", \
-                    TIMESTAMPDIFF(hour, `c`.`in`, `c`.`out`) "hours_worked", \
-                    `h`.`dll_hr` \
-                    from `sandras`.`clockin` `c` join `sandras`.`hr` h on `c`.`hr_id` = `h`.`id` where `c`.`paid` != true and `c`.`hr_id` = ?'
+DATE_FORMAT(`c`.`in`, "%m-%d-%Y %H:%i:%s") "in" , \
+DATE_FORMAT(`c`.`out`, "%m-%d-%Y %H:%i:%s") "out", \
+ROUND(TIMESTAMPDIFF(minute, `c`.`in`, `c`.`out`)/60,2) "hours_worked", \
+`h`.`dll_hr` \
+from `sandras`.`clockin` `c` join `sandras`.`hr` h on `c`.`hr_id` = `h`.`id` where `c`.`paid` != true and `c`.`hr_id` = ?'
 
     return connectionPool.query(statement, [hr_id]);
 }
@@ -87,7 +87,13 @@ exports.relateClockinEventWithPaymentEvent = (newPaymentId,clockinList) => {
 }
 
 exports.getPayrollHrById = (hr_id) => {
-    let statement = 'select `id`, `amount`, `seconds_worked`, DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") date, `wire_transfer` from `sandras`.`payroll_hr` where hr_id = ? order by `date` desc'
+    let statement = 'select `id`, \
+`amount`, \
+`seconds_worked`, \
+DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") date, \
+`wire_transfer` \
+from `sandras`.`payroll_hr` \
+where hr_id = ? order by `date` desc'
 
     return connectionPool.query(statement, [hr_id]);
 }
@@ -96,6 +102,18 @@ exports.getTicketsById = (hr_id) => {
     let statement = 'select id, tms, location, facility, load_rate, driver_rate from tickets where status = 4 and payrolled_date is null and hr_id = ?'
 
     return connectionPool.query(statement, [hr_id]);
+}
+
+exports.getEventDataByTicketId = (ticketsId) => {
+    let statement = "select (select DATE_FORMAT(`date`, '%m-%d-%Y %H:%i:%s') from eventos where evento = 'LOADING' and tickets_id in ("+ ticketsId +")) load_date, \
+(select date from eventos where evento = 'ARRIVED TO LOCATION' and tickets_id in ("+ ticketsId +")) arrived, \
+(select date from eventos where evento = 'UNLOADING' and tickets_id in ("+ ticketsId +")) unloading, \
+TIMESTAMPDIFF(MINUTE,(select date from eventos where evento = 'ARRIVED TO LOCATION' and tickets_id in ("+ ticketsId +")),(select date from eventos where evento = 'UNLOADING' and tickets_id in ("+ ticketsId +"))) / 60 standby_hours \
+from dual"
+
+    console.log(statement)
+
+    return connectionPool.query(statement);
 }
 
 
