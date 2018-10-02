@@ -27,7 +27,7 @@
 
                     <div class="row">
                         <div class="col-md-12">
-                            <table id="grid-basic" border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                            <table id="grid-basic" border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
@@ -36,7 +36,7 @@
                                         <th data-column-id="facility">Facility</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="products" data-formatter="products">Product</th>
-                                        <th data-column-id="status">Status</th> <!-- Substatus en la DB (on my way to facility, etc) -->
+                                        <th data-column-id="loading-date">Loading date</th> <!-- Substatus en la DB (on my way to facility, etc) -->
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">To validate</th>
                                     </tr>
                                 </thead>
@@ -45,25 +45,14 @@
                                 <% for(var i=0; i<tickets.length; i++) {%>
                                     <%if (tickets[i].status == 3) { %> <!-- status:3 completed -->
                                     <tr class="quote">
-                                        <td id="">
-                                            <%= tickets[i].id %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].tms %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].location %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].facility %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].driver_name %>
-                                        </td>
-                                        <td id="">
-                                            <%= tickets[i].product_name %>
-                                        </td>
-                                        <td id="">
+                                        <td><%= tickets[i].id %></td>
+                                        <td><%= tickets[i].tms %></td>
+                                        <td><%= tickets[i].location %></td>
+                                        <td><%= tickets[i].facility %></td>
+                                        <td><%= tickets[i].driver_name %></td>
+                                        <td><%= tickets[i].product %></td>
+                                        <td><%= tickets[i].loading_date %></td>
+                                        <td>
                                             <%if (tickets[i].substatus == 0) { %>
                                                 ASSIGNED
                                             <% } else if(tickets[i].substatus == 1) { %>
@@ -82,9 +71,7 @@
                                                 FINISHED
                                             <% } %>
                                         </td>
-                                        <td id="">
-
-                                        </td>
+                                        <td></td>
                                     </tr>
                                     <% } %>
                                 <% } %>
@@ -97,6 +84,12 @@
                             </table>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="select_all" type="button" class="btn btn-secondary pull-right">Select All</button>
+                        </div>
+                    </div>
+                    </br>
                     <div class="row">
                         <div class="col-md-12">
                             <button id="validate" type="button" class="btn btn-secondary pull-right">Validate</button>
@@ -147,6 +140,11 @@
         var grid = $("#grid-basic").bootgrid({
             caseSensitive: false,
             rowCount: [50,75,100,-1],
+            selection: true,
+            rowSelect: true,
+            multiSelect: true,
+            keepSelection: true,
+            
             formatters: {
                 "link": function(column, row)
                 {
@@ -163,7 +161,6 @@
             /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
-                
                 //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
             }).end().find(".show-ticket").on("click", function(e) {
                 $($(this).attr("href")).modal("show", $(this));
@@ -203,6 +200,10 @@
         });
 
         $('li[id="li_sdbr_dispatch"]').addClass('active');
+
+        $('#select_all').click(function() {
+            $('.validate:checkbox').prop('checked', true);
+        });
     </script>
 
 </body>
