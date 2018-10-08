@@ -32,6 +32,7 @@
                                 <tr>
                                     <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
                                     <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
+                                    <th data-column-id="loading_date_formatted" data-type="datetime">Loading Date</th>
                                     <th data-column-id="location"  data-width="25%">Location</th>
                                     <th data-column-id="facility">Facility</th>
                                     <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
@@ -50,6 +51,9 @@
                                     </td>
                                     <td id="">
                                         <%= tickets[i].tms %>
+                                    </td>
+                                    <td id="">
+                                        <%= tickets[i].loading_date_formatted %>
                                     </td>
                                     <td id="">
                                         <%= tickets[i].location %>
