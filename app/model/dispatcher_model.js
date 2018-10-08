@@ -49,7 +49,8 @@ exports.getBasicTicketsList = () => {
 * Get tickets where status
 */
 exports.getTicketsList = () => {
-    let statement = 'select t.*, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id';
+    console.log('Loading date formatted');
+    let statement = 'select t.*, DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date_formatted, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id';
 
     return connectionPool.query(statement);
 };
@@ -60,6 +61,7 @@ exports.getTicketsList = () => {
 exports.getTicketById = (ticketId) => {
     let statement = 'select t.id, \
                         t.tms, \
+                        DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date,\
                         t.status, \
                         t.substatus, \
                         t.invoice_rate, \
@@ -247,8 +249,18 @@ exports.tmscounter = () => {
 // substatus aqui es un numero (0,1,2,3,4,5,6 o 7)
 exports.updateSubstatus = (sustatus , ticketId) => {
     let statement = "update tickets set substatus = ? where id = ?"
+    let params = [sustatus, ticketId]
 
-    return connectionPool.query(statement, [sustatus , ticketId])
+    if(sustatus == 3){
+        statement = "update `tickets` \
+                    set     `substatus` = ? \
+                            ,`loading_date` = current_timestamp()  \
+                    where   id = ?"
+    }
+
+    
+
+    return connectionPool.query(statement, params)
 }
 
 exports.updateBaseAndSilo = (base, silo, ticketId) => {
