@@ -247,18 +247,17 @@ exports.tmscounter = () => {
 */
 
 // substatus aqui es un numero (0,1,2,3,4,5,6 o 7)
-exports.updateSubstatus = (sustatus , ticketId) => {
+exports.updateSubstatus = (sustatus , ticketId, date) => {
     let statement = "update tickets set substatus = ? where id = ?"
     let params = [sustatus, ticketId]
 
     if(sustatus == 3){
         statement = "update `tickets` \
                     set     `substatus` = ? \
-                            ,`loading_date` = current_timestamp()  \
+                            ,`loading_date` = ?  \
                     where   id = ?"
+        params = [sustatus, date, ticketId]
     }
-
-    
 
     return connectionPool.query(statement, params)
 }

@@ -298,7 +298,7 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
 
     // Esta rutina tiene que correr primero porque el substatus es un numero que vamos a insertar en la columna substatus del ticket
     dispatcherModel
-        .updateSubstatus(substatus, ticketId)
+        .updateSubstatus(substatus, ticketId, date)
         .then((return_data) => {
             return return_data
         })
