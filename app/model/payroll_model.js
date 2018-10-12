@@ -105,11 +105,31 @@ exports.getTicketsById = (hr_id) => {
 }
 
 exports.getEventDataByTicketId = (ticketsId) => {
-    let statement = "select (select DATE_FORMAT(`date`, '%m-%d-%Y %H:%i:%s') from eventos where evento = 'LOADING' and tickets_id in ("+ ticketsId +")) load_date, \
-(select date from eventos where evento = 'ARRIVED TO LOCATION' and tickets_id in ("+ ticketsId +")) arrived, \
-(select date from eventos where evento = 'UNLOADING' and tickets_id in ("+ ticketsId +")) unloading, \
-TIMESTAMPDIFF(MINUTE,(select date from eventos where evento = 'ARRIVED TO LOCATION' and tickets_id in ("+ ticketsId +")),(select date from eventos where evento = 'UNLOADING' and tickets_id in ("+ ticketsId +"))) / 60 standby_hours \
-from dual"
+    if(ticketsId == undefined || ticketsId == null || !ticketsId.length || ticketsId.length == 0){
+        return Promise.resolve('[]');
+    }
+
+    let statement = "select `p`.`tickets_id`                                                                        \
+                            ,date_format(max(`p`.`load_date`), '%m/%d/%Y %H:%i')    `load_date`                     \
+                            ,max(`p`.`arrived`)                                     `arrived`                       \
+                            ,max(`p`.`unloading`)                                   `unloading`                     \
+                            ,timestampdiff( second                                                                  \
+                                            ,max(`p`.`arrived`)                                                     \
+                                            ,max(`p`.`unloading`)                                                   \
+                            ) / 3600                                                `standby_hours`                 \
+                     from   (   select  `e`.`tickets_id`                                                            \
+                                        ,`e`.`evento`                                                    `evento`   \
+                                        ,max(if(`e`.`evento` = 'LOADING'            , `date`, null))    `load_date` \
+                                        ,max(if(`e`.`evento` = 'ARRIVED TO LOCATION', `date`, null))    `arrived`   \
+                                        ,max(if(`e`.`evento` = 'UNLOADING'          , `date`, null))    `unloading` \
+                                from        `eventos` `e`                                                           \
+                                where       `e`.`tickets_id`    in ("+ ticketsId +")                                \
+                                    and     `e`.`evento`        in (    'LOADING'                                   \
+                                                                        ,'ARRIVED TO LOCATION'                      \
+                                                                        ,'UNLOADING'                                \
+                                                                    )                                               \
+                                group by    `e`.`evento`                                                            \
+                            ) `p`                                                                                   "
 
     console.log(statement)
 

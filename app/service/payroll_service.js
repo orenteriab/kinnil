@@ -179,7 +179,6 @@ exports.getTicketsById = (hr_id) => {
             return payrollModel
                 .getEventDataByTicketId(ticketsId)
                 .then((eventData) => {
-
                     console.log("----")
                     console.log(eventData)
                     console.log("----")
@@ -192,15 +191,25 @@ exports.getTicketsById = (hr_id) => {
                     return_data.rows = []
                     return_data.total = ticketData.length
 
-                    for (var i = 0; i < ticketData.length; i++) { 
+                    for (var i = 0; i < ticketData.length; i++) {
+
+                        let ticketEventData = eventData
+                                                .filter(event => event.tickets_id == ticketData[i].id);
+
+                        let loadDate = ticketEventData[0] && ticketEventData[0].load_date ? 
+                            ticketEventData[0].load_date : 'N/A'
+
+                        let standbyHours = ticketEventData[0] && ticketEventData[0].standby_hours ? 
+                            ticketEventData[0].standby_hours : 'N/A'
+
                         return_data.rows.push({"id": ticketData[i].id, // data del ticket
                             "tms": ticketData[i].tms,
                             "location": ticketData[i].location,
                             "facility": ticketData[i].facility,
                             "driver-rate": ticketData[i].driver_rate,
                             "load-rate": ticketData[i].load_rate,
-                            "load-date": eventData[i].load_date, // data de los evntos
-                            "standby-hours": eventData[i].standby_hours, // data de los eventos
+                            "load-date": loadDate, // data de los evntos
+                            "standby-hours": standbyHours, // data de los eventos
                         })
                     }
 
