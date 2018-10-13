@@ -433,7 +433,6 @@
 
             // Segunda columna
             doc.text(100, 55, 'Type: ' + msj.hr[0].type);
-            //doc.text(100, 60, 'Rate: ' + msj.hr[0].rate);
 
 
             doc.text(20, 70, 'Loads.');
@@ -444,7 +443,9 @@
             doc.text(120, 75, 'Facility');
             doc.text(170, 75, 'Product');
             var actualLine = 80;
+            var greatestDate = '00-00-0000';
             for (var i = 0; i < msj.tickets.length; i++) {
+                greatestDate = greatestDate > msj.tickets[i].completed_date ? greatestDate : msj.tickets[i].completed_date;
                 doc.text(20, actualLine, '' + msj.tickets[i].id);
                 doc.text(40, actualLine, '' + msj.tickets[i].tms);
                 doc.text(60, actualLine, '' + msj.tickets[i].location);
@@ -453,6 +454,15 @@
 
                 actualLine = actualLine + 5; // salto de linea en el PDF
             }
+
+            var refSunDate = moment(greatestDate, 'MM-DD-YYYY');
+            var refSatDate = moment(greatestDate, 'MM-DD-YYYY');
+
+            var sunDay = refSunDate.day(-7).format('MM/DD/YYYY');
+            var satDay = refSatDate.day(-1).format('MM/DD/YYYY');
+            var perDay = [sunDay, satDay].join(' - ');
+            doc.setFontSize(10);
+            doc.text(100, 60, 'Week period: ' + perDay);
 
             doc.setFontSize(10);
             actualLine = actualLine + 10;
