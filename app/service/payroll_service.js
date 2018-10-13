@@ -196,11 +196,15 @@ exports.getTicketsById = (hr_id) => {
                         let ticketEventData = eventData
                                                 .filter(event => event.tickets_id == ticketData[i].id);
 
-                        let loadDate = ticketEventData[0] && ticketEventData[0].load_date ? 
-                            ticketEventData[0].load_date : 'N/A'
+                        let loadDate = ticketEventData 
+                                        && ticketEventData[0] 
+                                        && ticketEventData[0].load_date ? 
+                                            ticketEventData[0].load_date : 'N/A'
 
-                        let standbyHours = ticketEventData[0] && ticketEventData[0].standby_hours ? 
-                            ticketEventData[0].standby_hours : 'N/A'
+                        let standbyHours = ticketEventData 
+                                            && ticketEventData[0] 
+                                            && ticketEventData[0].standby_hours ? 
+                                                ticketEventData[0].standby_hours : 'N/A'
 
                         return_data.rows.push({"id": ticketData[i].id, // data del ticket
                             "tms": ticketData[i].tms,

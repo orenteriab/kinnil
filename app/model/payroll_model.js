@@ -109,31 +109,35 @@ exports.getEventDataByTicketId = (ticketsId) => {
         return Promise.resolve('[]');
     }
 
-    let statement = "select `p`.`tickets_id`                                                                        \
-                            ,date_format(max(`p`.`load_date`), '%m/%d/%Y %H:%i')    `load_date`                     \
-                            ,max(`p`.`arrived`)                                     `arrived`                       \
-                            ,max(`p`.`unloading`)                                   `unloading`                     \
-                            ,timestampdiff( second                                                                  \
-                                            ,max(`p`.`arrived`)                                                     \
-                                            ,max(`p`.`unloading`)                                                   \
-                            ) / 3600                                                `standby_hours`                 \
-                     from   (   select  `e`.`tickets_id`                                                            \
-                                        ,`e`.`evento`                                                    `evento`   \
-                                        ,max(if(`e`.`evento` = 'LOADING'            , `date`, null))    `load_date` \
-                                        ,max(if(`e`.`evento` = 'ARRIVED TO LOCATION', `date`, null))    `arrived`   \
-                                        ,max(if(`e`.`evento` = 'UNLOADING'          , `date`, null))    `unloading` \
-                                from        `eventos` `e`                                                           \
-                                where       `e`.`tickets_id`    in ("+ ticketsId +")                                \
-                                    and     `e`.`evento`        in (    'LOADING'                                   \
-                                                                        ,'ARRIVED TO LOCATION'                      \
-                                                                        ,'UNLOADING'                                \
-                                                                    )                                               \
-                                group by    `e`.`evento`                                                            \
-                            ) `p`                                                                                   "
+    let statement = "select     `p`.`tickets_id`                                                                            \
+                                ,date_format(max(`p`.`load_date`), '%m/%d/%Y %H:%i')    `load_date`                         \
+                                ,max(`p`.`arrived`)                                     `arrived`                           \
+                                ,max(`p`.`unloading`)                                   `unloading`                         \
+                                ,timestampdiff( second                                                                      \
+                                                ,max(`p`.`arrived`)                                                         \
+                                                ,max(`p`.`unloading`)                                                       \
+                                ) / 3600                                                `standby_hours`                     \
+                    from        (   select      `e`.`tickets_id`                                                            \
+                                                ,`e`.`evento`                                                   `evento`    \
+                                                ,max(if(`e`.`evento` = 'LOADING'            , `date`, null))    `load_date` \
+                                                ,max(if(`e`.`evento` = 'ARRIVED TO LOCATION', `date`, null))    `arrived`   \
+                                                ,max(if(`e`.`evento` = 'UNLOADING'          , `date`, null))    `unloading` \
+                                    from        `eventos` `e`                                                               \
+                                    where       `e`.`tickets_id`    =   ?                                                   \
+                                        and     `e`.`evento`        in  (   'LOADING'                                       \
+                                                                            ,'ARRIVED TO LOCATION'                          \
+                                                                            ,'UNLOADING'                                    \
+                                                                        )                                                   \
+                                    group by    `e`.`evento`                                                                \
+                                ) `p`                                                                                       \
+                    group by    `p`.`tickets_id`                                                                            "
 
-    console.log(statement)
+    return Promise.all(ticketsId.map(async (ticketId) => {
+        let result = await connectionPool.query(statement, [ticketId])
+        result = result && result[0] ? result[0] : {}
+        return result
+    }))
 
-    return connectionPool.query(statement);
 }
 
 
