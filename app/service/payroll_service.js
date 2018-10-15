@@ -39,7 +39,7 @@ exports.getClockinById = (hr_id) => {
                 });	
 }
 
-exports.createPayrollEntry = (clockinList, id, dllsHr, wireTransfer) => {
+exports.createPayrollEntry = (clockinList, id, dllsHr, wireTransfer, demergeAmount) => {
     // Se obtiene fecha y hora actuales
     var today = new Date();
     var dd = today.getDate();
@@ -69,7 +69,7 @@ exports.createPayrollEntry = (clockinList, id, dllsHr, wireTransfer) => {
                 console.log(JSON.stringify(paymentDetails))
                 // se crea la entrada en payroll
                 return payrollModel
-                    .createPayrollEntry(wireTransfer, paymentDetails.amount, paymentDetails.seconds_worked, timestap, id)
+                    .createPayrollEntry(wireTransfer, paymentDetails.amount, paymentDetails.seconds_worked, timestap, id, demergeAmount)
                     .then((return_data) => {
                         console.log("lo que recibi" + JSON.stringify(return_data))
                         // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)

@@ -122,11 +122,13 @@
                             <th data-column-id="in" >In</th>
                             <th data-column-id="out">Out</th>
                             <th data-column-id="hours-worked">Hours worked</th>
+                            <th data-column-id="demerge-amount" data-formatter="demerge">Demerge amount</th>
                             <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="quote">
+                            <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
@@ -295,11 +297,19 @@
                     "commands": function(column, row)
                     {
                         return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                    },
+                    "demerge": function(column, row){
+                        return "<input class=\"form-control cedar-dmg\" type=\"number\" value=\"0.00\" data-row-id=\""+ row.id +"\" step=\"0.01\" placeholder=\"0.00\">" 
                     }
                 }
             }).on("loaded.rs.jquery.bootgrid", function()
             {
                 /* Executes after data is loaded and rendered */
+                grid.find('.cedar-dmg').on('change', function(){
+                    var currentValue = $(this).val() == '' ? 0 : $(this).val();
+                    var convertedValue = parseFloat(currentValue).toFixed(2);
+                    $(this).val(convertedValue);
+                });
                 grid.find(".command-edit").on("click", function(e)
                 {
                     //alert("You pressed edit on row with the Id: " + $(this).data("row-id") + " and driver Id: " + $("#driverSelect").val() + "and product Id: " + $("#productsSelect").val());
@@ -355,6 +365,13 @@
                 clockinList.push($(this).val());
             });
 
+            var demergeAmount = clockinList
+                                    .reduce((demergeAmt, current) => {
+                                        var toAdd = parseFloat($('.cedar-dmg[data-row-id="'+ current +'"]').val());
+                                        return demergeAmt + toAdd;
+                                    }, 0)
+                                    .toFixed(2);
+
             if($("#dllshr").val() == null || $("#dllshr").val() == undefined || $("#dllshr").val() == ""){
                 alert("please define dlls/hr for selected user");
                 return // TODO: hacer una prueba con un hr sin dlls_hr para ver si corre el codigo de abajo (en distintos navegadores)!!
@@ -369,10 +386,11 @@
                         clockinList: clockinList,
                         id: $("#id").val(),
                         dllsHr: $("#dllshr").val(),
-                        wireTransfer: $("#wireTransferInput").val()
+                        wireTransfer: $("#wireTransferInput").val(),
+                        demergeAmount: demergeAmount
                     },      //Data as js object
                     success: function (msj) {
-                        alert(msj.message);
+                        alert(msj.message || msj);
                         $('#grid-basic').bootgrid('destroy');
                         $('#grid-payroll').bootgrid('destroy');
                         initGrid($("#id").val());
@@ -447,6 +465,10 @@
             }
 
             actualLine = actualLine + 10;
+            doc.text(100, actualLine, 'Demerge Amount:');
+            doc.text(130, actualLine, '$ ' + msj.payroll[0].demerge.toFixed(2));
+
+            actualLine = actualLine + 5;
             doc.text(100, actualLine, 'Total:');
             doc.text(130, actualLine, '$ ' + msj.payroll[0].amount.toFixed(2));
             

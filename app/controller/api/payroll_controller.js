@@ -71,7 +71,7 @@ ROUTER.get('/getClockinById/:hrId', (req, res) => {
 // Crea una entrada en payroll_hr
 ROUTER.post('/createPayrollEntry/', (req, res) => {
     payrollService
-        .createPayrollEntry(req.body.clockinList, req.body.id, req.body.dllsHr, req.body.wireTransfer)
+        .createPayrollEntry(req.body.clockinList, req.body.id, req.body.dllsHr, req.body.wireTransfer, req.body.demergeAmount)
         .then((return_data) => {
             res.status(200)
             // TODO: hacer alguna validacion de que si se inserto correctamente devolver el mensaje adecuado

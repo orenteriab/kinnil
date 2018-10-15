@@ -74,10 +74,10 @@ exports.getPaymentDetails = (clockinList, dllsHr) => {
     return connectionPool.query(statement);
 }
 
-exports.createPayrollEntry = (wireTransfer, amount, seconds_worked, timestap, id) => {
-    let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `seconds_worked`, `date`, `hr_id`) values (?,?,?,?,?)'
+exports.createPayrollEntry = (wireTransfer, amount, seconds_worked, timestap, id, demergeAmount) => {
+    let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `seconds_worked`, `date`, `hr_id`, `demerge`) values (?,?,?,?,?,?)'
 
-    return connectionPool.query(statement, [wireTransfer, amount, seconds_worked, timestap, id]);
+    return connectionPool.query(statement, [wireTransfer, amount, seconds_worked, timestap, id, demergeAmount]);
 }
 
 exports.relateClockinEventWithPaymentEvent = (newPaymentId,clockinList) => {
@@ -172,7 +172,7 @@ exports.getClockinInfoByPayrollId = (payrollId) => {
 }
 
 exports.getPayrollInfoById = (payrollId) => {
-    let statement = 'select `id`, `wire_transfer`, `amount`, `seconds_worked`, DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") `date`, `hr_id`  from `sandras`.`payroll_hr` where id = ?'
+    let statement = 'select `id`, `wire_transfer`, `amount`, `seconds_worked`, DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") `date`, `hr_id`, `demerge` from `sandras`.`payroll_hr` where id = ?'
 
     return connectionPool.query(statement, [payrollId]);
 }
