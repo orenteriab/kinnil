@@ -578,7 +578,7 @@
                                 "<div class='form-group'> " +
                                     "<select class='form-control' id='driverSelect" + row.id + "'>" +
                                         "<% for(var x=0; x<drivers.length; x++) {%>" +
-                                        "<option value = '<%= drivers[x].id %>'><%= drivers[x].name %></option> " +
+                                        "<option value = '<%= drivers[x].id %>' data-simple-name='<%= drivers[x].simple_name %>'><%= drivers[x].name %></option> " +
                                         "<% } %>" +
                                     "</select>" +
                                 "</div>" +
@@ -591,6 +591,7 @@
                     /* Executes after data is loaded and rendered */
                     var onClickEdit = function(e){
                         //APP.SERVICE.DISPATCHER.ASSIGN_TICKET(this);
+                        debugger;
 
                         $.ajax({
                             url: '/api/dispatcher/assignTicket/',    //Your api url
@@ -600,7 +601,8 @@
                                     //hrId: $(this).data("row-driver").value(),
                                     //product: $(this).data("row-product").value(),
                                     hrId: $("#driverSelect"+$(this).data("row-id")).val(),
-                                    product: $("#productsSelect"+$(this).data("row-id")).val()
+                                    product: $("#productsSelect"+$(this).data("row-id")).val(),
+                                    driverName: $("#driverSelect" + $(this).data("row-id") + ">option:selected").attr('data-simple-name')
 
                             },      //Data as js object
                             success: function (msj) {

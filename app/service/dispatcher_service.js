@@ -105,7 +105,7 @@ exports.getToBeAsignedInfo = () => {
     });
 };
 
-exports.assignTicket = (hrId, ticketId) => {
+exports.assignTicket = (hrId, ticketId, driverName) => {
 
     // Se obtiene fecha y hora
     var today = new Date();
@@ -141,7 +141,10 @@ exports.assignTicket = (hrId, ticketId) => {
     let ticketInformation = dispatcherModel
         .getTicketById(ticketId)
 
-    return Promise.all([assign,inactivate,ticketInformation]).then((data) => {
+    //Crea el evento de assigned to
+    let eventAdded = exports.addEvent(0, 0, 0, ticketId, null, null, null, null, timestap, null, 'Assigned to ' + driverName);
+
+    return Promise.all([assign, inactivate, ticketInformation, eventAdded]).then((data) => {
 
         let lastLocation =  data[2][0].location
         // Guarda la ultima locacion a la que fue asignado ese driver en la tabla de HR
@@ -293,7 +296,7 @@ exports.tms = (hrId) => {
 /*
 * TODO: AddEvent necesita una refactorizacion, se realizo muy rapido para darle cierre a la primera etapa.
 */
-exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil) => {
+exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil, statusOverride) => {
 
 
     // Esta rutina tiene que correr primero porque el substatus es un numero que vamos a insertar en la columna substatus del ticket
@@ -309,7 +312,7 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
 
         // Se cambia el substatus de un numero a texto para guardarlo en la tabla de eventos con su nombre correspondiente
     if (substatus == "0") {
-        substatus = "TMS ACCEPTED"
+        substatus = statusOverride
     } else if (substatus == "1") {
         substatus = "ON MY WAY TO FACILITY"
     } else if (substatus == "2") {

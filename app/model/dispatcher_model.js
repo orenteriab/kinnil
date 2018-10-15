@@ -29,7 +29,7 @@ exports.getAssetsUp = (type) => {
 * Obtiene el detalle de los drivers que esta UP, de momento solo se necesita el nombre
 */
 exports.listDriversUp = () => {
-    let statement = 'select id, concat_ws( " - ",name, last_location, DATE_FORMAT(last_location_datetime, "%m-%d-%Y %H:%i:%s")) name from hr where up = TRUE order by up_datetime';
+    let statement = 'select id, concat_ws( " - ",name, last_location, DATE_FORMAT(last_location_datetime, "%m-%d-%Y %H:%i:%s")) name, name `simple_name` from hr where up = TRUE order by up_datetime';
 
     return connectionPool.query(statement);
 };

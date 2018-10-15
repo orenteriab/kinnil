@@ -81,7 +81,7 @@ ROUTER.get('/getEventsDetail/:ticketId', (req, res) => {
 ROUTER.put('/assignTicket/', (req, res) => {
 
     dispatcherService
-        .assignTicket(req.body.hrId, req.body.ticketId)
+        .assignTicket(req.body.hrId, req.body.ticketId, req.body.driverName)
         .then(() => {
             res.status(200);
             res.contentType('application/json');
