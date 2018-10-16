@@ -1,118 +1,87 @@
 <!-- views/login.ejs -->
 <!DOCTYPE html>
-
-<html>
+<html class="fixed">
 <head>
-   <title>Cedar Logistics Customer Login</title>
-   <link rel="stylesheet" href="/assets/css/bootstrap.css" rel="stylesheet">
-   <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="PID Electronics">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no" />
 
-   <style>
+    <title>Cedar Logistics Customer | Login</title>
 
-      * {
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-                  box-sizing: border-box;
-            outline: none;
-      }
-      body {
-            background: url('../assets/img/bg.jpg');
-            background-image: url("../assets/img/bg.jpg");
-            /*background: url('../img/bg.jpg') no-repeat center center fixed;*/
-            /*background-color: #1B405D;*/
-      -webkit-background-size: cover;
-      -moz-background-size: cover;
-      -o-background-size: cover;
-      background-size: cover;
-      }
-            
-      .login-form {
-            text-align: center;
-            margin: 0 auto;
-            margin-top: 100px;
-            margin-bottom: 100px;
-            max-width: 460px;
-      }
-            .login-form > section {
-                  padding: 35px 35px 25px 35px;
-                  border-radius: 5px;
-            }
-            .login-form a {
-                  color: #fff;
-            }
-            .login-form img {
-                  display: block;
-                  margin: 0 auto;
-                  margin-bottom: 55px;
-            }
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="http://sandrevolution.com/assets/frontend/img/icons/favicon.png" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="http://sandrevolution.com/assets/frontend/img/icons/favicon.png">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/backend/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/backend/css/theme.css" />
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/backend/css/style-switcher.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/backend/css/custom.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/cedar/style.css">
 
-      form[role=login] {
-            font: 14px/2.2em Lato, serif;
-            color: #aaa;
-      }	
-            form[role=login] input,
-            form[role=login] > button {
-                  font-size: 15px;
-                  padding: 10px 30px;
-            }
-            form[role=login] input {
-                  color: #777;
-                  background: rgba(180,180,180,.9);
-                  border: none;
-                  height: 2.6em;
-                  padding: 10px 40px;
-                  border-radius: 3px;
-                  -webkit-box-shadow: inset 0 0 1px 1px rgba(150, 150, 150, .1);
-                  -moz-box-shadow: inset 0 0 1px 1px rgba(150, 150, 150, .1);
-                        box-shadow: inset 0 0 1px 1px rgba(150, 150, 150, .1);
-            }
-            form[role=login] > div {
-                  margin: 30px 0;
-                  position: relative; 
-            }
-            form[role=login] > button {
-                  margin-top: 15px;
-                  margin-bottom: 15px;
-                  background: #3A3937;
-                  border: 1px solid #555;
-                  color: #fff;
-            }
-            
-      .form-control + .glyphicon {
-      position: absolute;
-      left: 0;
-            top: 14%;
-      padding: 8px 0 0 17px;
-            font-size: 15px;
-            color: #757575;
-      }
-
-        
-   </style>
 </head>
 
 <body>
-      <section class="container login-form">
-            <section>
-                  <form class="" action="/customer/sing-in" method="post" role="login">
-                        <img src="assets/images/logo.png" alt="" class="img-responsive" />
-                  
-                        <div class="form-group">
-                              <input id="username" name="username" type="text" name="text" required class="form-control" placeholder="Enter username"/>
-                              <span class="glyphicon glyphicon-user"></span>
+
+<!-- start: login page -->
+<div class="container-fluid bg-cedar">
+    <section class="body-sign">
+        <div class="center-sign">
+            <a href="#" class="logo float-left">
+                <img src="http://sandrevolution.com/assets/backend/img/logos/logo.png" height="60" alt="Logo" />
+            </a>
+
+            <div class="panel card-sign">
+                <div class="card-title-sign mt-3 text-right">
+                    <h2 class="title text-uppercase font-weight-bold m-0"><i class="fas fa-user mr-1"></i> Login </h2>
+                </div>
+                <div class="card-body">
+                    <form action="/customer/sing-in" method="post" role="login">
+                        <div class="form-group mb-3">
+                            <label>Username</label>
+                            <div class="input-group">
+                                <input id="username" name="username" type="text"  class="form-control" placeholder="Enter username" required autofocus/>
+                                <span class="input-group-append">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                </span>
+                            </div>
+                    </div>
+
+                        <div class="form-group mb-3">
+                            <div class="clearfix">
+                                <label class="float-left">Password</label>
+                                <div class="input-group">
+                                    <input type="password" id="password" name="password" required class="form-control" placeholder="Enter password" />
+                                    <span class="input-group-append">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="form-group">
-                              <input type="password" id="password" name="password" required class="form-control" placeholder="Enter password" />
-                              <span class="glyphicon glyphicon-lock"></span>
+
+                        <div class="row">
+                            <div class="col text-right">
+                                <button type="submit" name="go" class="btn btn-primary mt-3">Login</button>
+                            </div>
                         </div>
-                        
-                        <button type="submit" name="go" class="btn btn-secondary btn-block">Login</button>
-                  </form>
-            </section>
-      </section>
-   <script type="text/javascript">
-      document.getElementById('username').focus();
-   </script>
+
+                    </form>
+                </div>
+            </div>
+            <p class="text-center text-muted mt-3 mb-3">© Copyright 2018. All rights reserved.</p>
+        </div>
+    </section>
+</div>
+<!-- end: login page -->
+
+<script src="http://sandrevolution.com/assets/backend/vendor/jquery/jquery.js"></script>
+<script src="http://sandrevolution.com/assets/backend/vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--<script src="http://sandrevolution.com/assets/backend/js/theme.js"></script>-->
+
 </body>
 </html>
+

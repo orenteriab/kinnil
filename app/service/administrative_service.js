@@ -306,9 +306,18 @@ exports.getLocationDetail = (locationId) => {
     return administrativeModel.getLocationDetail(locationId)
 }
 
+exports.getFacilityDetail = (facilityId) => {
+    return administrativeModel.getFacilityDetail(facilityId)
+}
+
 exports.updateLocation = (name, value, pk) => {
     return administrativeModel
     .updateLocation(name, value, pk);
+};
+
+exports.updateFacility = (name, value, pk) => {
+    return administrativeModel
+    .updateFacility(name, value, pk);
 };
 
 exports.getLocationsByCrewId = (crewId) => {

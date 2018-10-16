@@ -1,634 +1,542 @@
 <!DOCTYPE html>
-
 <html lang="en">
-    <head>
-        <title>Cedar - Goals</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/assets/css/bootstrap.css" rel="stylesheet">
-        <!-- bootstrap-editable -->
-        <link rel="stylesheet" href="/assets/css/bootstrap-editable.css">
-        <style>
-            .row-flex {
-               display: flex;
-            }
-            .col-md-2 {
-                flex-direction: column;
-            }
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="PID Electronics">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
 
-            .col-md-12 {
-                flex-direction: column;
-            }
-        </style>
-    </head>
+    <title>Sand Revolution | CEDAR - Goals</title>    <!-- Web Fonts  -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,600,600,800" rel="stylesheet" type="text/css">
 
-    <body>
-        <div style="margin: auto auto; width: 800px;">
-            <div class="container-fluid">
-                <div class="row" style="height: 100px; text-align:center;">
-                    <div class="col-md-10">
-                        <h1>ON SITE PROPPANT MANAGEMENT</h1>
-                    </div>
-                    <div class="col-md-2">
-                        <img src="/assets/img/logo.png" style="width:100px;" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://sandrevolution.com/assets/frontend/img/icons/favicon.png" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="http://sandrevolution.com/assets/frontend/img/icons/favicon.png">
+
+    <!-- Vendor Base CSS -->
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/vendor/animate/animate.min.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/css/theme.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/css/theme-elements.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/css/style-switcher.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/css/custom.css">
+    <link rel="stylesheet" href="http://sandrevolution.com/cedar/style.css">
+
+    <style>
+        .row-flex {
+            display: flex;
+        }
+        .col-md-2 {
+            flex-direction: column;
+        }
+
+        .col-md-12 {
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="body">
+    <!-- begin: page header top bar-->
+    <header id="header" data-plugin-options=" {'stickyEnabled': true, 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': true, 'stickyStartAt': 40, 'stickySetTop': '-20px', 'stickyChangeLogo': true }">
+        <div class="header-body">
+            <div class="header-top">
+                <div class="container">
+                    <div class="header-row">
+                        <div class="header-column justify-content-end">
+                            <div class="header-row">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <span>Customer:</span>
-                        <br />
-                        <input id="tx_customer" type="text" class="form-control" disabled="disabled" value="Halliburton" />
-                        <br />
-                        <span>Crew:</span>
-                        <select id="sl_crew" class="form-control">
-                            <option value="-1">Select a crew</option>
-                            <% crews.forEach((crew) => { %>
-                            <option value="<%= crew.id %>"><%= crew.name %></option>
-                            <% }) %>
-                        </select>
-                        <br />
-                        <span>Location:</span>
-                        <br />
-                        <select id="sl_location" disabled="disabled" class="form-control">
-                            <option value="-1">Select a location</option>
-                        </select>
-                        <!--<button id="btn_load_crew">GO!</button>-->
+            </div>
+            <div class="header-container container">
+                <div class="header-row">
+                    <div class="header-column">
+                        <div class="header-row">
+                            <div class="header-logo shadow-box-md">
+                                <a href="#">
+                                    <img height="80" data-sticky-height="80" data-sticky-top="10" src="http://sandrevolution.com/assets/frontend/img/logos/logo.png" alt="Logo">
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <!--<div class="col-md-2">&nbsp;</div>-->
-                    
-                    <div class="col-md-3 text-right">
-                        <span>Date: </span>
-                        <br />
-                        <br />
-                        <span>Last date received: </span>
-                    </div>
-                    <div class="col-md-3">
-                        <span id="sp_date"></span>
-                        <br />
-                        <br />
-                        <span id="sp_last_date">Select a location first.</span>
-                    </div>
-                    <div class="col-md-2">
-                        <button id="btn_reload" class="btn btn-primary" style="width: 100%;">Refresh</button>
+                    <div class="header-column justify-content-end">
+                        <div class="header-row appear-animation" data-appear-animation="slideInDown" data-appear-animation-delay="0" data-appear-animation-duration=".5s">
+                            <div class="header-nav header-nav-stripe">
+                                <!-- Main navigation -->
+
+                                <div class="header-nav-main header-nav-main-effect-1 header-nav-main-sub-effect-1">
+                                    <nav class="collapse">
+                                        <ul class="nav nav-pills nav-pills-quaternary" id="mainNav">
+                                            <li><a class="dropdown-item" href="#">About</a></li>
+                                            <li><a class="dropdown-item" href="#">Support</a></li>
+                                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <!-- end Main navigation -->
+                            </div>
+
+                            <button class="btn header-btn-collapse-nav" data-toggle="collapse" data-target=".header-nav-main nav">
+                                Menu
+                            </button>
+
+                        </div>
                     </div>
                 </div>
-                <!--<div id="dv_scales_data" class="row" style="text-align:center;"> -->
-                    <div class="row row-flex" style="text-align:center;">
-                        <div class="col-md-2" style="width:16%;">
-                            <h2>Silo 1</h2>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h2>Silo 2</h2>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h2>Silo 3</h2>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h2>Silo 4</h2>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h2>Silo 5</h2>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h2>Silo 6</h2>
-                        </div>
-                    </div>
-                    <div class="row row-flex" style="text-align:center;">
-                        <div class="col-md-2" style="width:16%;">
-                            <h4>
-                                <span id="sp_silo_weight_01"></span><span>lbs</span>
-                            </h4>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h4>
-                                <span id="sp_silo_weight_02"></span><span>lbs</span>
-                            </h4>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h4>
-                                <span id="sp_silo_weight_03"></span><span>lbs</span>
-                            </h4>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h4>
-                                <span id="sp_silo_weight_04"></span><span>lbs</span>
-                            </h4>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h4>
-                                <span id="sp_silo_weight_05"></span><span>lbs</span>
-                            </h4>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h4>
-                                <span id="sp_silo_weight_06"></span><span>lbs</span>
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="row row-flex" style="text-align:center;">
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_percentage_01"></span><span>%</span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_percentage_02"></span><span>%</span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_percentage_03"></span><span>%</span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_percentage_04"></span><span>%</span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_percentage_05"></span><span>%</span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_percentage_06"></span><span>%</span>
-                            </h3>
-                        </div>
-                    </div>
-                    <div class="row row-flex" style="text-align:center;">
-                            <div class="col-md-2" style="height: 200px; display:block; width:16%;">
-                                <div style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
-                                    <div id="dv_silo_percentage_01" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
-                                </div>
-                                
-                            </div>
-
-                            <div class="col-md-2" style="height: 200px; display:block; width:16%;">
-                                <div style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
-                                    <div id="dv_silo_percentage_02" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: green;"></div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2" style="height: 200px; display:block; width:16%;">
-                                <div style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
-                                    <div id="dv_silo_percentage_03" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: orange;"></div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2" style="height: 200px; display:block; width:16%;">
-                                <div style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
-                                    <div id="dv_silo_percentage_04" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: orange;"></div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2" style="height: 200px; display:block; width:16%;">
-                                <div style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
-                                    <div id="dv_silo_percentage_05" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: green;"></div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2" style="height: 200px; display:block; width:16%;">
-                                <div style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
-                                    <div id="dv_silo_percentage_06" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
-                                </div>
-                            </div>
-                    </div>
-                    <div class="row row-flex" style="text-align:center;">
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_sand_01"></span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_sand_02"></span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_sand_03"></span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_sand_04"></span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_sand_05"></span>
-                            </h3>
-                        </div>
-
-                        <div class="col-md-2" style="width:16%;">
-                            <h3>
-                                <span id="sp_silo_sand_06"></span>
-                            </h3>
-                        </div>
-                    </div>
-                    <div class="col-md-12" style="height: 10px; display:block;"></div>
-                    <div class="col-md-12" style="padding-bottom: 20px; display:block; border: 2px solid black; text-align: left;">
-                        <h2>Goals - <span class="sp_goals_location_name"></span></h2>
-                        <table style="width: 50%">
-                            <tbody id="dv_goals_per_sand"></tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-12" style="height: 10px; display:block;"></div>
-                    <div class="col-md-12" style="padding-bottom: 20px; display:block; border: 2px solid black; text-align: left;">
-                        <h2>To this day:</h2>
-                        <table style="width: 50%">
-                            <tbody id="dv_goals_to_this_day"></tbody>
-                        </table>
-                    </div>
-                    <div class="col-md-12" style="height: 10px; display:block;"></div>
-                    <div class="col-md-12" style="padding-bottom: 20px; display:block; border: 2px solid black; text-align: left;">
-                        <h2>Loads - <span class="sp_goals_location_name"></span></h2>
-                        <table style="width: 100%">
-                            <tbody id="dv_goals_green_core_well"></tbody>
-                        </table>
-                    </div>
-                    </br>
-                    </br>
-                    </br>
-                    </br>
-                <!--</div> Scales data row TEST-->
             </div>
         </div>
-        <script src="/assets/js/jquery.js" type="text/javascript"></script>
-        <script src="/socket.io/socket.io.js" type="text/javascript"></script>
-        <!-- Bootstrap Core JavaScript -->
-        <script src="/assets/js/bootstrap.min.js"></script>
-        <!-- X editable -->
-        <script type="text/javascript" src="/assets/js/bootstrap-editable.min.js"></script>
-        <script type="text/javascript">
-        const numberWithCommas = (x) => {
-          return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-        (function(APP){
-            APP.STATE = APP.STATE || {};
+    </header>
+    <!-- end: page header -->
 
-            APP.STATE.SOCKET = APP.STATE.SOCKET || io();
+    <div role="main" class="main">
 
-            APP.SERVICES = APP.SERVICES || {};
+        <!-- begin: page title -->
+        <section class="page-header page-header-light">
+            <div class="container pt-3">
+                <div class="row align-items-center appear-animation animated fadeInLeft appear-animation-visible"
+                     data-appear-animation-delay="500">
+                    <div class="col-md-9 col-12">
+                        <h1>ON SITE PROPPANT MANAGEMENT</h1>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <img src="http://sandrevolution.com/assets/backend/img/logos/cedar.png" height="60" alt="logo cedar" class="d-none d-md-inline-block">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- end: page title -->
 
-            APP.SERVICES.FETCH_GOALS_DATA = APP.SERVICES.FETCH_GOALS_DATA || function(locationId){
+        <div class="container">
 
-                var sandName = [];
-                var goalPerSand = [];
-                var currentSandPerGoal = [];
+            <div class="row">
+                <div class="col-lg-3 col-md-4 pr-4 bg-cedar appear-animation" data-appear-animation="fadeInUp" data-appear-animation-delay="500" data-appear-animation-duration="1s">
+                    <aside class="sidebar" data-plugin-sticky data-plugin-options="{'minWidth': 991, 'containerSelector': '.container', 'padding': {'top': 110}}">
 
-                var ajaxRequests = [];
+                        <div class="form-row mt-3">
+                            <div class="form-group col">
+                                <label class="text-primary font-weight-bold">Customer</label>
+                                <input id="tx_customer" type="text" class="form-control" disabled="disabled" value="Halliburton" />
+                            </div>
+                        </div>
 
-                ajaxRequests.push(
-                    $.ajax({
-                        url: '/api/administrative/location/'+ locationId +'/goals-data',
-                        success: function(goalsData){
-                            $('#dv_goals_per_sand').html('');
+                        <div class="form-row mt-3">
+                            <div class="form-group col">
+                                <label class="text-primary font-weight-bold">Crew</label>
+                                <select id="sl_crew" class="form-control">
+                                    <option value="-1">Select a crew</option>
+                                    <% crews.forEach((crew) => { %>
+                                    <option value="<%= crew.id %>"><%= crew.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                        </div>
 
-                            for(var i = 0; i < goalsData.length; i++){
-                                var goal = goalsData[i];
+                        <div class="form-row mt-3">
+                            <div class="form-group col">
+                                <label class="text-primary font-weight-bold">Location</label>
+                                <select id="sl_location" disabled="disabled" class="form-control">
+                                    <option value="-1">Select a location</option>
+                                </select>
+                            </div>
+                        </div>
 
-                                var productNameLabel = $('<span></span>').text(goal.name);
-                                var productNameColumn = $('<td></td>').append(productNameLabel);
-                                var productGoalLbsLabel = $('<span></span>').text(numberWithCommas(parseFloat(goal.lbs_goal).toFixed(2)) + " lbs");
-                                var productGoalLbsColumn = $('<td></td>').append(productGoalLbsLabel);
+                        <!--<button id="btn_load_crew">GO!</button>-->
 
-                                var productRow = $('<tr></tr>');
-                                productRow.append(productNameColumn);
-                                productRow.append(productGoalLbsColumn);
+                        <div class="form-row mt-3">
+                            <div class="col-xl-6 col-lg-12 mt-4">
+                                <label class="font-weight-bold">Date:</label>
+                                <span id="sp_date" class="form-control"></span>
 
-                                $('#dv_goals_per_sand').append(productRow);
+                            </div>
+                            <div class="col-xl-6 col-lg-12 mt-4">
+                                <label class="font-weight-bold">Last date received:</label>
+                                <span id="sp_last_date" class="form-control"></span>
+                            </div>
+                            <div class="col-lg-12 mt-4">
+                                <button id="btn_reload" class="btn btn-tertiary pull-right mb-4">Refresh</button>
+                            </div>
+                    </div>
 
-                                sandName.push(goal.name);
-                                goalPerSand.push(parseFloat(goal.lbs_goal).toFixed(2));
-                                                            
-                            }
 
-                            
-                        },
-                        error: function(){
-                            alert('There was an error when pulling scales data. Reloading page.');
-                            APP.location.reload();
-                        }
-                    })
-                );
+                    </aside>
+                </div>
 
-                ajaxRequests.push(
-                    $.ajax({
-                        url: '/api/administrative/location/'+ $(".sp_goals_location_name").first().text() +'/to-this-day',
-                        success: function(toThisDayData){
-                            $('#dv_goals_green_core_well,#dv_goals_to_this_day').html('');
+                <div class="col-lg-9 col-md-8 pl-4" style="border-left: 1px solid #CCC;">
 
-                            for(var i = 0; i < toThisDayData.length; i++){
-                                var goal = toThisDayData[i];
+                    <div class="row my-4">
 
-                                var toThisDayWeightLabel = $('<span></span>').text(numberWithCommas(parseFloat(goal.current_lbs).toFixed(2)) + " lbs");
-                                var toThisDayWeightColumn = $('<td></td>').append(toThisDayWeightLabel);
-                                var toThisDayProductDeliveredLabel = $('<span></span>').text(goal.sand_type + ' has been delivered.');
-                                var toThisDayProductDeliveredColumn = $('<td></td>').append(toThisDayProductDeliveredLabel);
+                        
 
-                                var deliveredRow = $('<tr></tr>');
-                                deliveredRow.append(toThisDayWeightColumn);
-                                deliveredRow.append(toThisDayProductDeliveredColumn);
+                        <div class="col-xl-2 col-lg-4 col-6">
+                            <div class="featured-box featured-box-primary featured-box-effect-1">
+                                <div class="box-content">
+                                    <h4>Silo 1</h4>
+                                    <span id="sp_silo_weight_01"></span><span> lbs.</span><br>
+                                    <span id="sp_silo_percentage_01"></span><span> %</span>
+                                    <div style="height: 200px; display:block;">
+                                        <div class="bar-container" style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
+                                            <div id="dv_silo_percentage_01" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="sp_silo_sand_01"  class="font-weight-bold text-color-primary"></span>
+                                </div>
+                            </div>
+                        </div>
 
-                                $('#dv_goals_to_this_day').append(deliveredRow);
+                        <div class="col-xl-2 col-lg-4 col-6">
+                            <div class="featured-box featured-box-primary featured-box-effect-1">
+                                <div class="box-content">
+                                    <h4>Silo 2</h4>
+                                    <span id="sp_silo_weight_02"></span><span> lbs.</span><br>
+                                    <span id="sp_silo_percentage_02"></span><span> %</span>
+                                    <div style="height: 200px; display:block;">
+                                        <div class="bar-container" style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
+                                            <div id="dv_silo_percentage_02" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="sp_silo_sand_02"  class="font-weight-bold text-color-primary"></span>
+                                </div>
+                            </div>
+                        </div>
 
-                                currentSandPerGoal.push(parseFloat(goal.current_lbs).toFixed(2))
-                            }
+                        <div class="col-xl-2 col-lg-4 col-6">
+                            <div class="featured-box featured-box-primary featured-box-effect-1">
+                                <div class="box-content">
+                                    <h4>Silo 3</h4>
+                                    <span id="sp_silo_weight_03"></span><span> lbs.</span><br>
+                                    <span id="sp_silo_percentage_03"></span><span> %</span>
+                                    <div style="height: 200px; display:block;">
+                                        <div class="bar-container" style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
+                                            <div id="dv_silo_percentage_03" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="sp_silo_sand_03"  class="font-weight-bold text-color-primary"></span>
+                                </div>
+                            </div>
+                        </div>
 
-                            
-                        },
-                        error: function(){
-                            alert('There was an error when pulling "to this day" data. Reloading page.');
-                            APP.location.reload();
-                        }
-                    })
-                );
+                        <div class="col-xl-2 col-lg-4 col-6">
+                            <div class="featured-box featured-box-primary featured-box-effect-1">
+                                <div class="box-content">
+                                    <h4>Silo 4</h4>
+                                    <span id="sp_silo_weight_04"></span><span> lbs.</span><br>
+                                    <span id="sp_silo_percentage_04"></span><span> %</span>
+                                    <div style="height: 200px; display:block;">
+                                        <div class="bar-container" style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
+                                            <div id="dv_silo_percentage_04" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="sp_silo_sand_04"  class="font-weight-bold text-color-primary"></span>
+                                </div>
+                            </div>
+                        </div>
 
-                console.log(sandName);
-                console.log(goalPerSand);
-                console.log(currentSandPerGoal);
+                        <div class="col-xl-2 col-lg-4 col-6">
+                            <div class="featured-box featured-box-primary featured-box-effect-1">
+                                <div class="box-content">
+                                    <h4>Silo 5</h4>
+                                    <span id="sp_silo_weight_05"></span><span> lbs.</span><br>
+                                    <span id="sp_silo_percentage_05"></span><span> %</span>
+                                    <div style="height: 200px; display:block;">
+                                        <div class="bar-container" style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
+                                            <div id="dv_silo_percentage_05" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="sp_silo_sand_05"  class="font-weight-bold text-color-primary"></span>
+                                </div>
+                            </div>
+                        </div>
 
-                $.when
-                    .apply(undefined, ajaxRequests).always(function(){
-                     
-                        if (sandName.length > 0 && goalPerSand.length > 0 && currentSandPerGoal.length > 0 ){
+                        <div class="col-xl-2 col-lg-4 col-6">
+                            <div class="featured-box featured-box-primary featured-box-effect-1">
+                                <div class="box-content">
+                                    <h4>Silo 6</h4>
+                                    <span id="sp_silo_weight_06"></span><span> lbs.</span><br>
+                                    <span id="sp_silo_percentage_06"></span><span> %</span>
+                                    <div style="height: 200px; display:block;">
+                                        <div class="bar-container" style="position:relative; height: 100%; width: 80%; margin: auto auto; border: 2px solid black;">
+                                            <div id="dv_silo_percentage_06" style="position:absolute; bottom: 0px; width: 100%; margin-left: auto; margin-right:auto; height: 0px; background-color: red;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="sp_silo_sand_06"  class="font-weight-bold text-color-primary"></span>
+                                </div>
+                            </div>
+                        </div>
 
-                            for(var i = 0; i < sandName.length; i++){
+                    </div>
 
-                                var weightLabel = $('<span></span>').text(numberWithCommas(parseFloat(goalPerSand[i]).toFixed(2)) + " lbs");
-                                var weightColumn = $('<td align="center"></td>')
-                                    .append(weightLabel)
-                                    .css('width', '20%');
-                                
-                                var goalSand = parseInt(goalPerSand[i]);
-                                var currentSand = parseInt(currentSandPerGoal[i]);
+                    <hr class="light">
 
-                                var currentPercent = currentSand * 100 / goalSand;
-                                var remainingLoads = Math.ceil((goalSand - currentSand) / 50000);
+                    <div class="row">
 
-                                if (currentPercent > 100) {
-                                    currentPercent = 100;
-                                }
+                        <div class="col-lg-12 col-xl-6">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h4>Goals: <span class="sp_goals_location_name"></span></h4>
+                                    <table width="100%">
+                                        <tbody id="dv_goals_per_sand"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
-                                var percentageDiv = $('<div></div>')
-                                    .css('width', currentPercent.toFixed(2) + '%')
-                                    .css('background-color', 'green')
-                                    .css('height', '20px');
-                                
-                                var percentage = $('<td></td>')
-                                    .append(percentageDiv)
-                                    .css('width', '60%')
-                                    .css('border', '2px solid black');
+                        <div class="col-lg-12 col-xl-6">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h4>To this day:</h4>
+                                    <table width="100%">
+                                        <tbody id="dv_goals_to_this_day"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
-                                var remainingLabel = $('<span></span>').text(String(remainingLoads) + ' loads to goal.');
-                                var remainingColumn = $('<td align="center"></td>')
-                                    .append(remainingLabel)
-                                    .css('width', '20%');
-                                
-                                var greenCoreRow = $('<tr></tr>')
-                                    .append(weightColumn)
-                                    .append(percentage)
-                                    .append(remainingColumn);
+                        <div class="col">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h4>Loads: <span class="sp_goals_location_name"></span></h4>
+                                    <table width="100%">
+                                        <tbody id="dv_goals_green_core_well"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
-                                $("#dv_goals_green_core_well").append(greenCoreRow);
-                            }
-                        }           
-                    });
-            };
+                    </div>
 
-            APP.SERVICES.FETCH_SCALES_DATA = APP.SERVICES.FETCH_SCALES_DATA || function(locationId){
+            </div>
+
+        </div>
+
+    </div>
+
+        <footer id="footer" class="default narrow">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8">
+                        <p class="text-color-light" style="font-size: 90%; line-height: 20px;">
+                            <i class="fas fa-copyright"></i>&nbsp; Copyright 2018. All rights reserved.<br>
+                            <i class="fas fa-fw"></i>&nbsp; Designed by <b><a href="mailto:info@compasso.com.mx" target="_blank">Compasso</a> &
+                            <a href="http://pidelectronics.com" target="_blank">PID Electronics</a></b>.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="http://sandrevolution.com/assets/frontend/img/logos/logo-footer.png" class="img-fluid" style="max-width: 240px;">
+                    </div>
+
+                </div>
+            </div>
+        </footer>
+
+    <script src="http://sandrevolution.com/assets/frontend/vendor/jquery/jquery.min.js"></script>
+    <script src="http://sandrevolution.com/assets/frontend/vendor/jquery.appear/jquery.appear.min.js"></script>
+    <script src="http://sandrevolution.com/assets/frontend/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="http://sandrevolution.com/assets/frontend/js/theme.js"></script>
+    <script src="http://sandrevolution.com/assets/frontend/js/custom.js"></script>
+    <script src="http://sandrevolution.com/assets/frontend/js/theme.init.js"></script>
+
+    <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+    <!-- X editable -->
+    <script type="text/javascript" src="/assets/js/bootstrap-editable.min.js"></script>
+    <script type="text/javascript">
+    const numberWithCommas = (x) => {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    (function(APP){
+        APP.STATE = APP.STATE || {};
+
+        APP.STATE.SOCKET = APP.STATE.SOCKET || io();
+
+        APP.SERVICES = APP.SERVICES || {};
+
+        APP.SERVICES.FETCH_GOALS_DATA = APP.SERVICES.FETCH_GOALS_DATA || function(locationId){
+
+            var sandName = [];
+            var goalPerSand = [];
+            var currentSandPerGoal = [];
+
+            var ajaxRequests = [];
+
+            ajaxRequests.push(
                 $.ajax({
-                    url: '/api/administrative/location/'+ locationId +'/scales-data',
-                    success: function(scalesData){
-                        if(scalesData.length>0){
+                    url: '/api/administrative/location/'+ locationId +'/goals-data',
+                    success: function(goalsData){
+                        $('#dv_goals_per_sand').html('');
 
-                            $('#sp_last_date').text(scalesData[0].last_date);
+                        for(var i = 0; i < goalsData.length; i++){
+                            var goal = goalsData[i];
 
-                            $('#sp_silo_weight_01').text(numberWithCommas(parseFloat(scalesData[0].weight1).toFixed(0)));
-                            $('#sp_silo_weight_02').text(numberWithCommas(parseFloat(scalesData[0].weight2).toFixed(0)));
-                            $('#sp_silo_weight_03').text(numberWithCommas(parseFloat(scalesData[0].weight3).toFixed(0)));
-                            $('#sp_silo_weight_04').text(numberWithCommas(parseFloat(scalesData[0].weight4).toFixed(0)));
-                            $('#sp_silo_weight_05').text(numberWithCommas(parseFloat(scalesData[0].weight5).toFixed(0)));
-                            $('#sp_silo_weight_06').text(numberWithCommas(parseFloat(scalesData[0].weight6).toFixed(0)));
+                            var productNameLabel = $('<span></span>').text(goal.name);
+                            var productNameColumn = $('<td></td>').append(productNameLabel);
+                            var productGoalLbsLabel = $('<span></span>').text(numberWithCommas(parseFloat(goal.lbs_goal).toFixed(2)) + " lbs");
+                            var productGoalLbsColumn = $('<td></td>').append(productGoalLbsLabel);
 
+                            var productRow = $('<tr></tr>');
+                            productRow.append(productNameColumn);
+                            productRow.append(productGoalLbsColumn);
 
-                            $('#sp_silo_percentage_01').text(parseFloat(scalesData[0].porcent1).toFixed(2));
-                            $('#sp_silo_percentage_02').text(parseFloat(scalesData[0].porcent2).toFixed(2));
-                            $('#sp_silo_percentage_03').text(parseFloat(scalesData[0].porcent3).toFixed(2));
-                            $('#sp_silo_percentage_04').text(parseFloat(scalesData[0].porcent4).toFixed(2));
-                            $('#sp_silo_percentage_05').text(parseFloat(scalesData[0].porcent5).toFixed(2));
-                            $('#sp_silo_percentage_06').text(parseFloat(scalesData[0].porcent6).toFixed(2));
+                            $('#dv_goals_per_sand').append(productRow);
 
-
-
-                            $('#sp_silo_sand_01').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
-                            "data-type='text' class='black-link' "+
-                            "href='#' id='update-sand1' data-name='sand_name1'>"+scalesData[0].sand_name1+"</a></strong>");
-
-                            $('#sp_silo_sand_02').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
-                            "data-type='text' class='black-link' "+
-                            "href='#' id='update-sand2' data-name='sand_name2'>"+scalesData[0].sand_name2+"</a></strong>");
-
-                            $('#sp_silo_sand_03').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
-                            "data-type='text' class='black-link' "+
-                            "href='#' id='update-sand3' data-name='sand_name3'>"+scalesData[0].sand_name3+"</a></strong>");
-
-                            $('#sp_silo_sand_04').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
-                            "data-type='text' class='black-link' "+
-                            "href='#' id='update-sand4' data-name='sand_name4'>"+scalesData[0].sand_name4+"</a></strong>");
-
-                            $('#sp_silo_sand_05').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
-                            "data-type='text' class='black-link' "+
-                            "href='#' id='update-sand5' data-name='sand_name5'>"+scalesData[0].sand_name5+"</a></strong>");
-
-                            $('#sp_silo_sand_06').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
-                            "data-type='text' class='black-link' "+
-                            "href='#' id='update-sand6' data-name='sand_name6'>"+scalesData[0].sand_name6+"</a></strong>");
-
-
-                            $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6').editable({
-                                url: '/api/administrative/updateSandName/',
-                                send: 'always',
-                                success: function(response, newValue) {
-                                    if (response.status == 'error') return response.msg; //msg will be shown in editable form
-                                }
-                            });
-                            
-                            var color;
-                            if(parseFloat($('#sp_silo_percentage_01').text())<25){
-                                color = 'red';
-                            }else if(parseFloat($('#sp_silo_percentage_01').text())<75){
-                                color = 'orange';
-                            }else{
-                                color = 'green';
-                            }
-                            $('#dv_silo_percentage_01').css('background-color', color);
-                            if(parseFloat($('#sp_silo_percentage_02').text())<25){
-                                color = 'red';
-                            }else if(parseFloat($('#sp_silo_percentage_02').text())<75){
-                                color = 'orange';
-                            }else{
-                                color = 'green';
-                            }
-                            $('#dv_silo_percentage_02').css('background-color', color);
-                            if(parseFloat($('#sp_silo_percentage_03').text())<25){
-                                color = 'red';
-                            }else if(parseFloat($('#sp_silo_percentage_03').text())<75){
-                                color = 'orange';
-                            }else{
-                                color = 'green';
-                            }
-                            $('#dv_silo_percentage_03').css('background-color', color);
-                            if(parseFloat($('#sp_silo_percentage_04').text())<25){
-                                color = 'red';
-                            }else if(parseFloat($('#sp_silo_percentage_04').text())<75){
-                                color = 'orange';
-                            }else{
-                                color = 'green';
-                            }
-                            $('#dv_silo_percentage_04').css('background-color', color);
-                            if(parseFloat($('#sp_silo_percentage_05').text())<25){
-                                color = 'red';
-                            }else if(parseFloat($('#sp_silo_percentage_05').text())<75){
-                                color = 'orange';
-                            }else{
-                                color = 'green';
-                            }
-                            $('#dv_silo_percentage_05').css('background-color', color);
-                            if(parseFloat($('#sp_silo_percentage_06').text())<25){
-                                color = 'red';
-                            }else if(parseFloat($('#sp_silo_percentage_06').text())<75){
-                                color = 'orange';
-                            }else{
-                                color = 'green';
-                            }
-                            $('#dv_silo_percentage_06').css('background-color', color);
-                            var height;
-                            if(parseFloat( $('#sp_silo_percentage_01').text())>100){
-                                height = 100;
-                            }else{
-                                height = $('#sp_silo_percentage_01').text()
-                            }
-                            $('#dv_silo_percentage_01').css('height', height + '%');
-                            var height;
-                            if(parseFloat( $('#sp_silo_percentage_02').text())>100){
-                                height = 100;
-                            }else{
-                                height = $('#sp_silo_percentage_02').text()
-                            }
-                            $('#dv_silo_percentage_02').css('height', height + '%');
-                            var height;
-                            if(parseFloat( $('#sp_silo_percentage_03').text())>100){
-                                height = 100;
-                            }else{
-                                height = $('#sp_silo_percentage_03').text()
-                            }
-                            $('#dv_silo_percentage_03').css('height', height + '%');
-                            var height;
-                            if(parseFloat( $('#sp_silo_percentage_04').text())>100){
-                                height = 100;
-                            }else{
-                                height = $('#sp_silo_percentage_04').text()
-                            }
-                            $('#dv_silo_percentage_04').css('height', height + '%');
-                            var height;
-                            if(parseFloat( $('#sp_silo_percentage_05').text())>100){
-                                height = 100;
-                            }else{
-                                height = $('#sp_silo_percentage_05').text()
-                            }
-                            $('#dv_silo_percentage_05').css('height', height + '%');
-                            var height;
-                            if(parseFloat( $('#sp_silo_percentage_06').text())>100){
-                                height = 100;
-                            }else{
-                                height = $('#sp_silo_percentage_06').text()
-                            }
-                            $('#dv_silo_percentage_06').css('height', height + '%');
-                            
-                        }else{
-                            $('#sp_silo_weight_01').text('');
-                            $('#sp_silo_weight_02').text('');
-                            $('#sp_silo_weight_03').text('');
-                            $('#sp_silo_weight_04').text('');
-                            $('#sp_silo_weight_05').text('');
-                            $('#sp_silo_weight_06').text('');
-
-                            $('#sp_silo_percentage_01').text('');
-                            $('#sp_silo_percentage_02').text('');
-                            $('#sp_silo_percentage_03').text('');
-                            $('#sp_silo_percentage_04').text('');
-                            $('#sp_silo_percentage_05').text('');
-                            $('#sp_silo_percentage_06').text('');
-                            
-                            var color = '#FFF';
-                            $('#dv_silo_percentage_01').css('background-color', color);
-                            $('#dv_silo_percentage_02').css('background-color', color);
-                            $('#dv_silo_percentage_03').css('background-color', color);
-                            $('#dv_silo_percentage_04').css('background-color', color);
-                            $('#dv_silo_percentage_05').css('background-color', color);
-                            $('#dv_silo_percentage_06').css('background-color', color);
-
-                            $('#dv_silo_percentage_01').css('height', '0px');
-                            $('#dv_silo_percentage_02').css('height', '0px');
-                            $('#dv_silo_percentage_03').css('height', '0px');
-                            $('#dv_silo_percentage_04').css('height', '0px');
-                            $('#dv_silo_percentage_05').css('height', '0px');
-                            $('#dv_silo_percentage_06').css('height', '0px');
-                            
+                            sandName.push(goal.name);
+                            goalPerSand.push(parseFloat(goal.lbs_goal).toFixed(2));
+                                                        
                         }
-                        
-                        
 
-                        APP.SERVICES.FETCH_GOALS_DATA(locationId);
+                        
                     },
                     error: function(){
                         alert('There was an error when pulling scales data. Reloading page.');
                         APP.location.reload();
                     }
+                })
+            );
+
+            ajaxRequests.push(
+                $.ajax({
+                    url: '/api/administrative/location/'+ $(".sp_goals_location_name").first().text() +'/to-this-day',
+                    success: function(toThisDayData){
+                        $('#dv_goals_green_core_well,#dv_goals_to_this_day').html('');
+
+                        for(var i = 0; i < toThisDayData.length; i++){
+                            var goal = toThisDayData[i];
+
+                            var toThisDayWeightLabel = $('<span></span>').text(numberWithCommas(parseFloat(goal.current_lbs).toFixed(2)) + " lbs");
+                            var toThisDayWeightColumn = $('<td></td>').append(toThisDayWeightLabel);
+                            var toThisDayProductDeliveredLabel = $('<span></span>').text(goal.sand_type + ' has been delivered.');
+                            var toThisDayProductDeliveredColumn = $('<td></td>').append(toThisDayProductDeliveredLabel);
+
+                            var deliveredRow = $('<tr></tr>');
+                            deliveredRow.append(toThisDayWeightColumn);
+                            deliveredRow.append(toThisDayProductDeliveredColumn);
+
+                            $('#dv_goals_to_this_day').append(deliveredRow);
+
+                            currentSandPerGoal.push(parseFloat(goal.current_lbs).toFixed(2))
+                        }
+
+                        
+                    },
+                    error: function(){
+                        alert('There was an error when pulling "to this day" data. Reloading page.');
+                        APP.location.reload();
+                    }
+                })
+            );
+
+            console.log(sandName);
+            console.log(goalPerSand);
+            console.log(currentSandPerGoal);
+
+            $.when
+                .apply(undefined, ajaxRequests).always(function(){
+                    
+                    if (sandName.length > 0 && goalPerSand.length > 0 && currentSandPerGoal.length > 0 ){
+
+                        for(var i = 0; i < sandName.length; i++){
+
+                            var weightLabel = $('<span></span>').text(numberWithCommas(parseFloat(goalPerSand[i]).toFixed(2)) + " lbs");
+                            var weightColumn = $('<td align="center"></td>')
+                                .append(weightLabel)
+                                .css('width', '20%');
+                            
+                            var goalSand = parseInt(goalPerSand[i]);
+                            var currentSand = parseInt(currentSandPerGoal[i]);
+
+                            var currentPercent = currentSand * 100 / goalSand;
+                            var remainingLoads = Math.ceil((goalSand - currentSand) / 50000);
+
+                            if (currentPercent > 100) {
+                                currentPercent = 100;
+                            }
+
+                            var percentageDiv = $('<div></div>')
+                                .css('width', currentPercent.toFixed(2) + '%')
+                                .css('background-color', 'green')
+                                .css('height', '20px');
+                            
+                            var percentage = $('<td></td>')
+                                .append(percentageDiv)
+                                .css('width', '60%')
+                                .css('border', '2px solid black');
+
+                            var remainingLabel = $('<span></span>').text(String(remainingLoads) + ' loads to goal.');
+                            var remainingColumn = $('<td align="center"></td>')
+                                .append(remainingLabel)
+                                .css('width', '20%');
+                            
+                            var greenCoreRow = $('<tr></tr>')
+                                .append(weightColumn)
+                                .append(percentage)
+                                .append(remainingColumn);
+
+                            $("#dv_goals_green_core_well").append(greenCoreRow);
+                        }
+                    }           
                 });
-            };
+        };
 
-            APP.SERVICES.RECEIVE_SCALE_DATA_EVENT = APP.SERVICES.RECEIVE_SCALE_DATA_EVENT || function(){
+        APP.SERVICES.FETCH_SCALES_DATA = APP.SERVICES.FETCH_SCALES_DATA || function(locationId){
+            $.ajax({
+                url: '/api/administrative/location/'+ locationId +'/scales-data',
+                success: function(scalesData){
+                    if(scalesData.length>0){
 
-                APP.STATE.SOCKET.on('scalesdata', function(message){
-                    var messageObject = JSON.parse(message);
+                        $('#sp_last_date').text(scalesData[0].last_date);
 
-                    if(String(messageObject.location) == String($('#sl_location option:selected').val())){
-                        $('#sp_silo_percentage_01').text(parseFloat(messageObject.porcent1).toFixed(2));
-                        $('#sp_silo_percentage_02').text(parseFloat(messageObject.porcent2).toFixed(2));
-                        $('#sp_silo_percentage_03').text(parseFloat(messageObject.porcent3).toFixed(2));
-                        $('#sp_silo_percentage_04').text(parseFloat(messageObject.porcent4).toFixed(2));
-                        $('#sp_silo_percentage_05').text(parseFloat(messageObject.porcent5).toFixed(2));
-                        $('#sp_silo_percentage_06').text(parseFloat(messageObject.porcent6).toFixed(2));
+                        $('#sp_silo_weight_01').text(numberWithCommas(parseFloat(scalesData[0].weight1).toFixed(0)));
+                        $('#sp_silo_weight_02').text(numberWithCommas(parseFloat(scalesData[0].weight2).toFixed(0)));
+                        $('#sp_silo_weight_03').text(numberWithCommas(parseFloat(scalesData[0].weight3).toFixed(0)));
+                        $('#sp_silo_weight_04').text(numberWithCommas(parseFloat(scalesData[0].weight4).toFixed(0)));
+                        $('#sp_silo_weight_05').text(numberWithCommas(parseFloat(scalesData[0].weight5).toFixed(0)));
+                        $('#sp_silo_weight_06').text(numberWithCommas(parseFloat(scalesData[0].weight6).toFixed(0)));
 
-                        $('#sp_silo_weight_01').text(numberWithCommas(parseFloat(messageObject.weight1).toFixed(0)));
-                        $('#sp_silo_weight_02').text(numberWithCommas(parseFloat(messageObject.weight2).toFixed(0)));
-                        $('#sp_silo_weight_03').text(numberWithCommas(parseFloat(messageObject.weight3).toFixed(0)));
-                        $('#sp_silo_weight_04').text(numberWithCommas(parseFloat(messageObject.weight4).toFixed(0)));
-                        $('#sp_silo_weight_05').text(numberWithCommas(parseFloat(messageObject.weight5).toFixed(0)));
-                        $('#sp_silo_weight_06').text(numberWithCommas(parseFloat(messageObject.weight6).toFixed(0)));
+
+                        $('#sp_silo_percentage_01').text(parseFloat(scalesData[0].porcent1).toFixed(2));
+                        $('#sp_silo_percentage_02').text(parseFloat(scalesData[0].porcent2).toFixed(2));
+                        $('#sp_silo_percentage_03').text(parseFloat(scalesData[0].porcent3).toFixed(2));
+                        $('#sp_silo_percentage_04').text(parseFloat(scalesData[0].porcent4).toFixed(2));
+                        $('#sp_silo_percentage_05').text(parseFloat(scalesData[0].porcent5).toFixed(2));
+                        $('#sp_silo_percentage_06').text(parseFloat(scalesData[0].porcent6).toFixed(2));
+
+
+
+                        $('#sp_silo_sand_01').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-sand1' data-name='sand_name1'>"+scalesData[0].sand_name1+"</a></strong>");
+
+                        $('#sp_silo_sand_02').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-sand2' data-name='sand_name2'>"+scalesData[0].sand_name2+"</a></strong>");
+
+                        $('#sp_silo_sand_03').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-sand3' data-name='sand_name3'>"+scalesData[0].sand_name3+"</a></strong>");
+
+                        $('#sp_silo_sand_04').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-sand4' data-name='sand_name4'>"+scalesData[0].sand_name4+"</a></strong>");
+
+                        $('#sp_silo_sand_05').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-sand5' data-name='sand_name5'>"+scalesData[0].sand_name5+"</a></strong>");
+
+                        $('#sp_silo_sand_06').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-sand6' data-name='sand_name6'>"+scalesData[0].sand_name6+"</a></strong>");
+
+
+                        $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6').editable({
+                            url: '/api/administrative/updateSandName/',
+                            send: 'always',
+                            success: function(response, newValue) {
+                                if (response.status == 'error') return response.msg; //msg will be shown in editable form
+                            }
+                        });
                         
                         var color;
                         if(parseFloat($('#sp_silo_percentage_01').text())<25){
@@ -679,8 +587,6 @@
                             color = 'green';
                         }
                         $('#dv_silo_percentage_06').css('background-color', color);
-
-
                         var height;
                         if(parseFloat( $('#sp_silo_percentage_01').text())>100){
                             height = 100;
@@ -723,104 +629,261 @@
                             height = $('#sp_silo_percentage_06').text()
                         }
                         $('#dv_silo_percentage_06').css('height', height + '%');
-                    }
-
-                    
-                });
-            };
-
-            APP.SERVICES.FETCH_LOCATIONS = APP.SERVICES.FETCH_LOCATIONS || function(crewId){
-                $.ajax({
-                    url: '/api/administrative/getLocationsByCrewId/'+ crewId,
-                    success: function(locations){
-                        $('#sl_location').html('');
-                        $('#sl_location').append('<option value="-1">Select a location</option>');
-
-                        console.log(locations)
-                        if(locations !== undefined && locations !== null){
-                            for(var i = 0; i < locations.length; i++){
-                                $('#sl_location').append('<option value="'+locations[i].id+'">'+locations[i].name+'</option>');
-                            }                            
-                        }
-
-                    },
-                    error: function(){
-                        alert('There was an error when pulling locations data. Reloading page.');
-                        APP.location.reload();
-                    }
-                });
-            }
-
-            APP.UI = APP.UI || {};
-
-            APP.UI.EVENTS = APP.UI.EVENTS|| {};
-
-            APP.UI.EVENTS.BTN_RELOAD = APP.UI.EVENTS.BTN_RELOAD || function(){
-
-                $('#btn_reload').on('click', function(){
-                    var selectedLocation = String($('#sl_location option:selected').val());
-
-                    if(selectedLocation !== undefined && selectedLocation !== null && selectedLocation !== "-1" && parseFloat(selectedLocation) > 0){
-                        APP.STATE.SOCKET.emit('scalesrequest', JSON.stringify({'location': selectedLocation }));
-                    }
-                });
-            };
-
-            APP.UI.EVENTS.SP_DATE = APP.UI.EVENTS.SP_DATE || function(){
-                var currentDate = new Date();
-                var month = currentDate.getMonth() + 1;
-                var day = currentDate.getDate();
-                var year = currentDate.getFullYear();
-
-                var sMonth = (month < 10 ? "0" : "") + String(month) ;
-                var sDay = (day < 10 ? "0" : "") + String(day) ;
-                var sYear = String(year);
-
-                $('#sp_date').text(sMonth + '/' + sDay + '/' + sYear);
-            };
-
-            APP.UI.EVENTS.SL_LOCATION = APP.UI.EVENTS.SL_LOCATION || function(){
-                $('#sl_location').on('change', function(){
-                    if($(this).val() !== '-1'){
-                        APP.SERVICES.FETCH_SCALES_DATA($(this).val());
-                        $('.sp_goals_location_name').text($('#sl_location option:selected').text());
-                    }
-                });
-            };
-
-            APP.UI.EVENTS.SL_CREW = APP.UI.EVENTS.SL_CREW || function(){
-                $('#sl_crew').on('change', function(){
-                    if($(this).val() !== '-1'){
-                        $('#sl_location').removeAttr('disabled');
-                        APP.SERVICES.FETCH_LOCATIONS($(this).val());
-                        //$('.sp_goals_location_name').text($('#sl_location option:selected').text());
-                    } else {
-                        $('#sl_location').attr('disabled', 'disabled')
-                    }
-                });
-            };
-
-            APP.UI.EVENTS.BTN_LOAD_LOCATION = APP.UI.EVENTS.BTN_LOAD_LOCATION || function(){
-                $('#btn_load_location').on('click', function(){
-                    if($('#sl_location').val() === '-1'){
-                        alert('Select a location first, please.');
+                        
                     }else{
-                        APP.SERVICES.FETCH_SCALES_DATA($('#sl_location').val());
+                        $('#sp_silo_weight_01').text('');
+                        $('#sp_silo_weight_02').text('');
+                        $('#sp_silo_weight_03').text('');
+                        $('#sp_silo_weight_04').text('');
+                        $('#sp_silo_weight_05').text('');
+                        $('#sp_silo_weight_06').text('');
+
+                        $('#sp_silo_percentage_01').text('');
+                        $('#sp_silo_percentage_02').text('');
+                        $('#sp_silo_percentage_03').text('');
+                        $('#sp_silo_percentage_04').text('');
+                        $('#sp_silo_percentage_05').text('');
+                        $('#sp_silo_percentage_06').text('');
+                        
+                        var color = '#FFF';
+                        $('#dv_silo_percentage_01').css('background-color', color);
+                        $('#dv_silo_percentage_02').css('background-color', color);
+                        $('#dv_silo_percentage_03').css('background-color', color);
+                        $('#dv_silo_percentage_04').css('background-color', color);
+                        $('#dv_silo_percentage_05').css('background-color', color);
+                        $('#dv_silo_percentage_06').css('background-color', color);
+
+                        $('#dv_silo_percentage_01').css('height', '0px');
+                        $('#dv_silo_percentage_02').css('height', '0px');
+                        $('#dv_silo_percentage_03').css('height', '0px');
+                        $('#dv_silo_percentage_04').css('height', '0px');
+                        $('#dv_silo_percentage_05').css('height', '0px');
+                        $('#dv_silo_percentage_06').css('height', '0px');
+                        
                     }
-                });
-            };
+                    
+                    
 
-            APP.INIT = APP.INIT || function(){
-                APP.UI.EVENTS.BTN_RELOAD();
-                APP.UI.EVENTS.SP_DATE();
-                APP.UI.EVENTS.SL_LOCATION();
-                APP.UI.EVENTS.SL_CREW();
-                APP.UI.EVENTS.BTN_LOAD_LOCATION();
-                APP.SERVICES.RECEIVE_SCALE_DATA_EVENT();
-            };
+                    APP.SERVICES.FETCH_GOALS_DATA(locationId);
+                },
+                error: function(){
+                    alert('There was an error when pulling scales data. Reloading page.');
+                    APP.location.reload();
+                }
+            });
+        };
 
-            APP.INIT();
-        })(window);
-    </script>
-    </body>
+        APP.SERVICES.RECEIVE_SCALE_DATA_EVENT = APP.SERVICES.RECEIVE_SCALE_DATA_EVENT || function(){
+
+            APP.STATE.SOCKET.on('scalesdata', function(message){
+                var messageObject = JSON.parse(message);
+
+                if(String(messageObject.location) == String($('#sl_location option:selected').val())){
+                    $('#sp_silo_percentage_01').text(parseFloat(messageObject.porcent1).toFixed(2));
+                    $('#sp_silo_percentage_02').text(parseFloat(messageObject.porcent2).toFixed(2));
+                    $('#sp_silo_percentage_03').text(parseFloat(messageObject.porcent3).toFixed(2));
+                    $('#sp_silo_percentage_04').text(parseFloat(messageObject.porcent4).toFixed(2));
+                    $('#sp_silo_percentage_05').text(parseFloat(messageObject.porcent5).toFixed(2));
+                    $('#sp_silo_percentage_06').text(parseFloat(messageObject.porcent6).toFixed(2));
+
+                    $('#sp_silo_weight_01').text(numberWithCommas(parseFloat(messageObject.weight1).toFixed(0)));
+                    $('#sp_silo_weight_02').text(numberWithCommas(parseFloat(messageObject.weight2).toFixed(0)));
+                    $('#sp_silo_weight_03').text(numberWithCommas(parseFloat(messageObject.weight3).toFixed(0)));
+                    $('#sp_silo_weight_04').text(numberWithCommas(parseFloat(messageObject.weight4).toFixed(0)));
+                    $('#sp_silo_weight_05').text(numberWithCommas(parseFloat(messageObject.weight5).toFixed(0)));
+                    $('#sp_silo_weight_06').text(numberWithCommas(parseFloat(messageObject.weight6).toFixed(0)));
+                    
+                    var color;
+                    if(parseFloat($('#sp_silo_percentage_01').text())<25){
+                        color = 'red';
+                    }else if(parseFloat($('#sp_silo_percentage_01').text())<75){
+                        color = 'orange';
+                    }else{
+                        color = 'green';
+                    }
+                    $('#dv_silo_percentage_01').css('background-color', color);
+                    if(parseFloat($('#sp_silo_percentage_02').text())<25){
+                        color = 'red';
+                    }else if(parseFloat($('#sp_silo_percentage_02').text())<75){
+                        color = 'orange';
+                    }else{
+                        color = 'green';
+                    }
+                    $('#dv_silo_percentage_02').css('background-color', color);
+                    if(parseFloat($('#sp_silo_percentage_03').text())<25){
+                        color = 'red';
+                    }else if(parseFloat($('#sp_silo_percentage_03').text())<75){
+                        color = 'orange';
+                    }else{
+                        color = 'green';
+                    }
+                    $('#dv_silo_percentage_03').css('background-color', color);
+                    if(parseFloat($('#sp_silo_percentage_04').text())<25){
+                        color = 'red';
+                    }else if(parseFloat($('#sp_silo_percentage_04').text())<75){
+                        color = 'orange';
+                    }else{
+                        color = 'green';
+                    }
+                    $('#dv_silo_percentage_04').css('background-color', color);
+                    if(parseFloat($('#sp_silo_percentage_05').text())<25){
+                        color = 'red';
+                    }else if(parseFloat($('#sp_silo_percentage_05').text())<75){
+                        color = 'orange';
+                    }else{
+                        color = 'green';
+                    }
+                    $('#dv_silo_percentage_05').css('background-color', color);
+                    if(parseFloat($('#sp_silo_percentage_06').text())<25){
+                        color = 'red';
+                    }else if(parseFloat($('#sp_silo_percentage_06').text())<75){
+                        color = 'orange';
+                    }else{
+                        color = 'green';
+                    }
+                    $('#dv_silo_percentage_06').css('background-color', color);
+
+
+                    var height;
+                    if(parseFloat( $('#sp_silo_percentage_01').text())>100){
+                        height = 100;
+                    }else{
+                        height = $('#sp_silo_percentage_01').text()
+                    }
+                    $('#dv_silo_percentage_01').css('height', height + '%');
+                    var height;
+                    if(parseFloat( $('#sp_silo_percentage_02').text())>100){
+                        height = 100;
+                    }else{
+                        height = $('#sp_silo_percentage_02').text()
+                    }
+                    $('#dv_silo_percentage_02').css('height', height + '%');
+                    var height;
+                    if(parseFloat( $('#sp_silo_percentage_03').text())>100){
+                        height = 100;
+                    }else{
+                        height = $('#sp_silo_percentage_03').text()
+                    }
+                    $('#dv_silo_percentage_03').css('height', height + '%');
+                    var height;
+                    if(parseFloat( $('#sp_silo_percentage_04').text())>100){
+                        height = 100;
+                    }else{
+                        height = $('#sp_silo_percentage_04').text()
+                    }
+                    $('#dv_silo_percentage_04').css('height', height + '%');
+                    var height;
+                    if(parseFloat( $('#sp_silo_percentage_05').text())>100){
+                        height = 100;
+                    }else{
+                        height = $('#sp_silo_percentage_05').text()
+                    }
+                    $('#dv_silo_percentage_05').css('height', height + '%');
+                    var height;
+                    if(parseFloat( $('#sp_silo_percentage_06').text())>100){
+                        height = 100;
+                    }else{
+                        height = $('#sp_silo_percentage_06').text()
+                    }
+                    $('#dv_silo_percentage_06').css('height', height + '%');
+                }
+
+                
+            });
+        };
+
+        APP.SERVICES.FETCH_LOCATIONS = APP.SERVICES.FETCH_LOCATIONS || function(crewId){
+            $.ajax({
+                url: '/api/administrative/getLocationsByCrewId/'+ crewId,
+                success: function(locations){
+                    $('#sl_location').html('');
+                    $('#sl_location').append('<option value="-1">Select a location</option>');
+
+                    console.log(locations)
+                    if(locations !== undefined && locations !== null){
+                        for(var i = 0; i < locations.length; i++){
+                            $('#sl_location').append('<option value="'+locations[i].id+'">'+locations[i].name+'</option>');
+                        }                            
+                    }
+
+                },
+                error: function(){
+                    alert('There was an error when pulling locations data. Reloading page.');
+                    APP.location.reload();
+                }
+            });
+        }
+
+        APP.UI = APP.UI || {};
+
+        APP.UI.EVENTS = APP.UI.EVENTS|| {};
+
+        APP.UI.EVENTS.BTN_RELOAD = APP.UI.EVENTS.BTN_RELOAD || function(){
+
+            $('#btn_reload').on('click', function(){
+                var selectedLocation = String($('#sl_location option:selected').val());
+
+                if(selectedLocation !== undefined && selectedLocation !== null && selectedLocation !== "-1" && parseFloat(selectedLocation) > 0){
+                    APP.STATE.SOCKET.emit('scalesrequest', JSON.stringify({'location': selectedLocation }));
+                }
+            });
+        };
+
+        APP.UI.EVENTS.SP_DATE = APP.UI.EVENTS.SP_DATE || function(){
+            var currentDate = new Date();
+            var month = currentDate.getMonth() + 1;
+            var day = currentDate.getDate();
+            var year = currentDate.getFullYear();
+
+            var sMonth = (month < 10 ? "0" : "") + String(month) ;
+            var sDay = (day < 10 ? "0" : "") + String(day) ;
+            var sYear = String(year);
+
+            $('#sp_date').text(sMonth + '/' + sDay + '/' + sYear);
+        };
+
+        APP.UI.EVENTS.SL_LOCATION = APP.UI.EVENTS.SL_LOCATION || function(){
+            $('#sl_location').on('change', function(){
+                if($(this).val() !== '-1'){
+                    APP.SERVICES.FETCH_SCALES_DATA($(this).val());
+                    $('.sp_goals_location_name').text($('#sl_location option:selected').text());
+                }
+            });
+        };
+
+        APP.UI.EVENTS.SL_CREW = APP.UI.EVENTS.SL_CREW || function(){
+            $('#sl_crew').on('change', function(){
+                if($(this).val() !== '-1'){
+                    $('#sl_location').removeAttr('disabled');
+                    APP.SERVICES.FETCH_LOCATIONS($(this).val());
+                    //$('.sp_goals_location_name').text($('#sl_location option:selected').text());
+                } else {
+                    $('#sl_location').attr('disabled', 'disabled')
+                }
+            });
+        };
+
+        APP.UI.EVENTS.BTN_LOAD_LOCATION = APP.UI.EVENTS.BTN_LOAD_LOCATION || function(){
+            $('#btn_load_location').on('click', function(){
+                if($('#sl_location').val() === '-1'){
+                    alert('Select a location first, please.');
+                }else{
+                    APP.SERVICES.FETCH_SCALES_DATA($('#sl_location').val());
+                }
+            });
+        };
+
+        APP.INIT = APP.INIT || function(){
+            APP.UI.EVENTS.BTN_RELOAD();
+            APP.UI.EVENTS.SP_DATE();
+            APP.UI.EVENTS.SL_LOCATION();
+            APP.UI.EVENTS.SL_CREW();
+            APP.UI.EVENTS.BTN_LOAD_LOCATION();
+            APP.SERVICES.RECEIVE_SCALE_DATA_EVENT();
+        };
+
+        APP.INIT();
+    })(window);
+</script>
+</body>
 </html>
