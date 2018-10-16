@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <%include ../partials/head %>
+   <title>Divert</title>
+</head>
+
+<body>
+
+<%include ../partials/navbar %>
+
+<div class="wrapper">
+    <!-- Sidebar Holder -->
+    <%include ../partials/sidebar %>
+
+    <!-- Page Content Holder -->
+    <div id="content" class="main-content">
+        <%include ../partials/up %>
+        <ul class="nav nav-tabs">
+            <li role="presentation"><a href="../dispatcher/tobeassigned">To be Assigned</a></li>
+            <li role="presentation"><a href="../dispatcher/workinprogress">Work in progress</a></li>
+            <li role="presentation"><a href="../dispatcher/completed">Completed</a></li>
+            <li role="presentation" class="active"><a href="../dispatcher/divert">Divert</a></li>
+        </ul>
+        <div class="tab-content"> 
+            <div class="content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped" id=''>
+                            <thead>
+                                <tr>
+                                    <th data-column-id="id" data-type="numeric" data-width="5%">Id</th>
+                                    <th data-column-id="divert_id" data-type="numeric" data-visible="false">divert_id</th>
+                                    <th data-column-id="divert_tms" data-formatter="link_divert" data-type="numeric" >Divert Load</th>
+                                    <th data-column-id="divert_ticket_id" data-type="numeric" >Divert Ticket Id</th>
+                                    <th data-column-id="divert_date"  >Date</th>
+                                    <th data-column-id="new_id" data-visible="false">new id</th>
+                                    <th data-column-id="new_tms" data-formatter="link_new" d>New Load</th>
+                                    <th data-column-id="new_ticket_id" >New Ticket Id</th>
+                                    <th data-column-id="driver_id" data-visible="false">Driver Id</th>
+                                    <th data-column-id="driver" >Driver</th>
+                                    <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                </tr>
+                            </thead>
+                            <%if (diverts.length > 0) { %>
+                            <tbody id="tbody_diverts">
+                            <% for(var i=0; i<diverts.length; i++) {%>
+                                <tr class="quote" style="height: 0;">
+                                    <td><%= diverts[i].id %></td>
+                                    <td><%= diverts[i].divert_id %></td>
+                                    <td><%= diverts[i].divert_tms %></td>
+                                    <td><%= diverts[i].divert_ticket_id %></td>
+                                    <td><%= diverts[i].divert_date %></td>
+                                    <td><%= diverts[i].new_id || 'Not jet assigned' %></td>
+                                    <td><%= diverts[i].new_tms || 'Not jet assigned' %></td>
+                                    <td><%= diverts[i].new_ticket_id || 'Not jet assigned' %></td>
+                                    <td><%= diverts[i].driver_id %></td>
+                                    <td><%= diverts[i].driver %></td>
+                                    <td></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                        <% } else{ %>  
+                            <tbody>
+                                <p>No divert events</p>
+                            </tbody>
+                        <% } %>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <%include ../partials/manual-input-modal %>
+    
+    <!-- Taken from Bootstrap's documentation -->
+    <div class="modal fade" id="ticketDetail">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+              <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+
+      <!--   http://jschr.github.io/bootstrap-modal/    Stackable modal -->
+      <!-- divert modal -->
+    <div class="modal fade" id="divertModal" class="overflow-y:scroll;">
+        <div class="modal-dialog" class="overflow-y: initial !important">
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Assing Load</h4>
+            </div>
+            <div class="modal-body" class="height:800px; overflow-y:auto;">
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="tbl_data_grid" class="table table-bordered table-condensed table-hover table-striped">
+                        <thead id="thd_data_grid">
+                        </thead>
+                        <tbody id="tbd_data_grid">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+
+
+    <!-- <script src="/socket.io/socket.io.js"></script>  -->
+    <%include ../partials/js %>
+    <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+
+    <!-- Ticket detail modal  -->
+    <%include ../partials/ticket-detail %>
+
+    <script type="text/javascript">
+        (function(APP){
+
+            APP.STORE = APP.STORE || {};
+
+            APP.SERVICE = APP.SERVICE || {};
+
+            APP.SERVICE.DISPATCHER = APP.SERVICE.DISPATCHER || {};
+
+            APP.SERVICE.DISPATCHER.GET_UPS = APP.SERVICE.DISPATCHER.GET_UPS || function(){
+                $.ajax({
+                    cache: false,
+                    method: 'GET',
+                    url: '/api/dispatcher/getUps',
+                    success: function(data){
+                        $('#trailersUp').html(data.trailersUp);
+                        $('#trucksUp').html(data.trucksUp);
+                        $('#driversUp').html(data.driversUp);
+                    },
+                    error: function(e){
+                        console.error(e);
+                        console.log('Couldn\'t load data for trailers up, drivers up, and trucks up.');
+                    }
+                });
+            };
+
+            APP.LOAD = APP.LOAD || {};
+
+            //Obtiene los drivers, trucks and trailers que estan disponibles
+            APP.LOAD.UPS = APP.LOAD.UPS || function(){
+                APP.SERVICE.DISPATCHER.GET_UPS();
+            };
+
+            APP.LOAD.GRID = APP.LOAD.GRID || function(){
+                
+                var linkDivertFormatter = function(column, row){
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.divert_id +  "\" class=\"text-center black-link show-ticket\">" + row.divert_tms + "</a>";
+                };
+
+                var linkNewFormatter = function(column, row){
+                    return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.new_id +  "\" class=\"text-center black-link show-ticket\">" + row.new_tms + "</a>";
+                };
+
+                var commandsFormatter = function(column, row) {
+                    return "<a href=\"#divertModal\" data-toggle=\"modal\" data-driver-id='"+ row.driver_id +"' data-tms='"+ row.tms +"' data-row-id=\"" + row.id + "\" class=\"btn btn-md btn-default text-center black-link command-edit\">Assing load</a>";
+                    //return "<button type=\"button\" class=\"btn btn-md btn-default command-edit\" data-tms='"+ row.tms +"' data-row-id=\"" + row.id + "\">Cancel</button>"
+                };
+
+                var loadedRsJQueryBootgrid = function(){
+                    /* Executes after data is loaded and rendered */
+                    var onClickEdit = function(e){
+                        $("#divertModal").modal("show", $(this));
+                        //APP.SERVICES.DISPATCHER.LIST_TICKETS_ON_MODAL()
+                    };
+
+                    var onClickShow = function(e){
+                        $("#myModal").modal("show", $(this));
+                    };
+
+                    $("#grid-basic")
+                        .find(".command-edit")
+                        .on("click", onClickEdit)
+                        .end()
+                        .find(".show-ticket")
+                        .on("click", onClickShow);
+                };
+
+                $("#grid-basic")
+                    .bootgrid({
+                        caseSensitive: false,
+                        rowCount: [50,75,100,-1],
+                        formatters: {
+                            "link_divert": linkDivertFormatter,
+                            "link_new": linkNewFormatter,
+                            "commands": commandsFormatter
+                        }
+                    })
+                    .on("loaded.rs.jquery.bootgrid", loadedRsJQueryBootgrid);
+            };
+
+            APP.EVENTS = APP.EVENTS || {
+                RELOAD_UPS: function(){
+                    setInterval(APP.SERVICE.DISPATCHER.GET_UPS, 2000);
+                },
+                MODAL_DIVERT: function(){
+                    $('#divertModal').on('shown.bs.modal', function (e) {
+                        var $trigger = $(e.relatedTarget);
+
+                        APP.STORE.DIVERT_ID = $trigger.data('row-id');
+                        APP.STORE.DRIVER_ID = $trigger.data('driver-id');
+
+                        $('#tbl_data_grid').bootgrid('destroy');
+                        $('#thd_data_grid, #tbd_data_grid').html('');
+                        var headerTitles = [ 'id', 'ticket_id', 'tms', 'facility', 'location', 'product', 'options' ];
+                        var rowElement = $('<tr></tr>');
+                        for(var i = 0; i < headerTitles.length; i++){
+                            var titleColumn = $('<th></th>').text(headerTitles[i]).attr('data-column-id', headerTitles[i].toLowerCase());
+                            if(headerTitles[i] === 'tms'){
+                                titleColumn.attr('data-formatter', 'link').attr('data-column-id', 'tms');
+                            }
+                            if(headerTitles[i] === 'options'){
+                                titleColumn.attr('data-formatter', 'options').attr('data-column-id', 'options');
+                            }
+                            rowElement.append(titleColumn);
+                        }
+                        
+                        $('#thd_data_grid').append(rowElement);
+                        var rowElementData = $('<tr></tr>');
+                        var tdElementData = $('<td></td>')
+                            .text('Fetching data...')
+                            .attr('colspan', 7)
+                            .css('text-align', 'center');
+                        rowElementData.append(tdElementData);
+                        $('#tbd_data_grid').append(rowElementData);
+            
+                        $.ajax({
+                            url: '/api/dispatcher/getTobeAssignTickets',
+                            method: 'GET',
+                            error: function(){
+                                $('#tbl_data_grid').bootgrid({
+                                    rowCount: [50,75,100,-1],
+                                    labels: {
+                                        noResults: 'No tickets found.'
+                                    }
+                                });
+                            },
+                            success: function(data){
+
+                                data = data.tickets;
+                                $('#tbd_data_grid').html('');
+                                for(var i = 0; i < data.length; i++){
+
+                                    if (data[i].status == 1) {
+                                        var trElement = $('<tr></tr>');
+                                        for(var j = 0; j < headerTitles.length; j++){
+                                            var dataColumn;
+                                            if(headerTitles[j] === 'Tickets'){
+                                                dataColumn = $('<td></td>').text(data[i]['id']);
+                                            }else{
+                                                dataColumn = $('<td></td>').text(data[i][headerTitles[j]] || 'Not available');
+                                            }
+                                            
+                                            trElement.append(dataColumn);
+                                            $('#tbd_data_grid').append(trElement);
+                                        }
+                                    }                                    
+                                }
+                                $('#tbl_data_grid').bootgrid({
+                                    rowCount: [50,75,100,-1],
+                                    labels: {
+                                        noResults: 'No tickets found.'
+                                    },
+                                    formatters: {
+                                        link: function(column, row){
+                                            return "<a href=\"#myModal\" data-toggle=\"modal\" data-ticket=\"" + row.id +  "\" class=\"text-center black-link show-ticket\">" + row.tms + "</a>";
+                                        },
+                                        options: function(column, row){
+                                            return "<a data-tms='"+ row.tms +"' data-row-id=\"" + row.id + "\" class=\"btn btn-md btn-default text-center black-link command-edit\">Assing load</a>";
+                                        }
+                                    }
+                                })
+                                .on("loaded.rs.jquery.bootgrid", function(){
+                                    $("#tbl_data_grid")
+                                    .find(".command-edit")
+                                    .on("click", function() {
+                                        //alert("you clicked: " +$(this).data("row-id") + " and divert id is:" + APP.STORE.DIVERT_ID + "driver id: " + APP.STORE.DRIVER_ID);
+                                        $.ajax({
+                                            method: 'POST',
+                                            url: '/api/dispatcher/assignDivert',
+                                            dataType: 'json',
+                                            data: {
+                                                new_ticket: $(this).data("row-id"),
+                                                id: APP.STORE.DIVERT_ID,
+                                                driver_id: APP.STORE.DRIVER_ID
+                                            },
+                                            success: function(data){
+                                                alert("Divert record updated");
+                                                location.reload();
+                                            },
+                                            error: function(e, d, f){
+                                                alert('Unable to update divert record.');
+                                            }
+                                        });
+                                    })
+                                    .end()
+                                    .find(".show-ticket")
+                                    .on("click", function() {
+                                        $("#myModal").modal("show", $(this));
+                                    });
+                                });
+                            }
+                        });
+                        $('#myModal').on('hide.bs.modal', function (e) {
+                            $(".bs-wizard-step").each(function (index,element) {
+                                $(this).removeClass("complete");
+                                $(this).removeClass("active");
+                                $(this).removeClass("disabled");
+                            });
+                
+                            $(".bs-wizard-step").each(function (index,element) {
+                                $(this).addClass("disabled");
+                            });
+            
+                            $("#timeline").html("");
+
+                            // Workaround: Espera 1 segundo para volver a asignar el scroll al divert modal y hacerle focus, si no se pierde el scroll para ese modal.
+                            setTimeout(function(){
+                                $('body').addClass('modal-open');
+                                $("#divertModal").focus();
+                            },1000);
+                        });
+                    });
+                },
+                INIT: function(){
+                    $('li[id="li_sdbr_dispatch"]').addClass('active');
+                    APP.EVENTS.RELOAD_UPS();
+                    APP.EVENTS.MODAL_DIVERT();
+
+                }
+            };
+
+            APP.LOAD.UPS();
+            APP.LOAD.GRID();
+            APP.EVENTS.INIT();
+        })(window);
+
+    </script>
+
+
+</body>
+</html>

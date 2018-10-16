@@ -12,7 +12,8 @@
                 <div id="to-print" >
                 <div class="row">
                     <div class="col-md-6">
-                        <p>Ticket No.  <span id="ticketId"> </span></p>
+                        <p>Id  <span id="ticketId"> </span></p>
+                        <p>Ticket No.  <span id="ticket_id"> </span></p>
                         <p>Job Created <span id="born_date"> </span></p>
                         <p>Completed on <span id=""> </span></p>
                         <p>Invoice Rate <span id="invoice_rate"> </span></p>
@@ -20,7 +21,6 @@
                         <p>Base <span id="base"> </span></p>
                         <p>Silo <span id="silo"> </span></p>
                         <p>Coments <span id="comments"> </span></p>
-                        
                     </div>
                     <div class="col-md-6">
                         <p>Load No. <span id="tmsNo"> </span></p>
@@ -149,6 +149,7 @@
     
                     //console.log(data);
                     $('#ticketId').html('<strong>' + data.ticket[0].id + '</strong>');
+                    $('#ticket_id').html('<strong>' + data.ticket[0].ticket_id + '</strong>');
                     $('#born_date').html('<strong>' + data.ticket[0].born_date + '</strong>');
                     $('#invoice_rate').html('<strong>' + data.ticket[0].invoice_rate + '</strong>');
                     $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
@@ -273,7 +274,42 @@
                 });
 
                 $("#timeline").html("");
+
+                // Cleans the modal
+                $('#ticketId').html("")
+                $('#ticket_id').html("");
+                $('#born_date').html("");
+                $('#invoice_rate').html("");
+                $('#product').html("");
+                $('#base').html("");
+                $('#silo').html("");
+                $('#comments').html("");
+                $('#tmsNo').html("");
+                $('#client').html("");
+                $('#address').html("");
+                $('#po').html("");
+                $('#origin').html("");
+                $('#destination').html("");
+                $('#bol').html("");
+                $('#sand').html("");
+                $('#weight').html("");
+                $('#assigned').html("");
+                $('#workInProgress').html("");
+                $('#completed').html("");
+                $('#invoiced').html("");
+                $('#payrolled').html("");
+                $('#paid').html("");
+                $('#driver').html("");
+                $('#crew').html("");
+                $('#shift').html("");
+                $('#truck').html("");
+                $('#trailer').html("");
+                $('#amountPayrolled').html("");
+                $('#starttingMilles').html("");
+                $('#endingMilles').html("");
+                $('#date').html("");
             });
+
 
             $('#ticket-to-pdf').on('click', function(){
 
@@ -285,7 +321,7 @@
                 var doc = new jsPDF('p', 'mm', 'letter'); // tamaño carta por default
                 doc.setFontSize(14);
                 // First column
-                doc.text(20, 30, 'Ticket No. ' + $('#ticketId').text());
+                doc.text(20, 30, 'Ticket No. ' + $('#ticket_id').text());
                 doc.setFontSize(10);
                 doc.text(20, 40, 'Job created on: ' + $('#born_date').text());
                 doc.text(20, 45, 'Completed on: ' + $('#completed_date').text());

@@ -1,4 +1,5 @@
 let dispatcherModel = require('../model/dispatcher_model');
+let dateUtils = require('../helpers/date')
 
 // Se agrega moment porque hay que guardar a la hora a la que ocurrio el evento
 // TODO: hay que ver en que sona horaria van a estar para hacer una conversion si es necesario (que no se guarden los eventos con la hora que tiene el server)
@@ -153,9 +154,54 @@ exports.assignTicket = (hrId, ticketId, driverName) => {
     });
 };
 
-exports.cancelTicket = (ticketId) => {
-    return dispatcherModel
-        .cancelTicket(ticketId);
+exports.cancelTicket = (razon, ticketId) => {
+
+    if(razon == "MISASSIGNED"){
+        
+        var currentDate = dateUtils.getCurrentDateAndTime()
+
+        dispatcherModel
+            .addEvent("Canceled due misassigned", currentDate, "", "", currentDate, ticketId)
+        
+        return dispatcherModel
+            .cancelTicket(ticketId)
+            .then(() => {
+                return "Ticket has been cancelled successfully."
+            })
+
+    } else if(razon == "NOSAND"){
+
+        var currentDate = dateUtils.getCurrentDateAndTime()
+
+        dispatcherModel
+            .addEvent("Cenceled due to lack of sand", currentDate, "", "", currentDate, ticketId)
+
+        return dispatcherModel
+            .cancelTicket(ticketId)
+            .then(() => {
+                return "Ticket has been cancelled successfully."
+            })
+
+    } else if(razon == "DIVERT"){
+
+        
+
+        var currentDate = dateUtils.getCurrentDateAndTime()
+
+        dispatcherModel
+            .addEvent("Diverted", currentDate, "", "", currentDate, ticketId)
+
+        dispatcherModel
+            .addDivert(currentDate, ticketId)
+
+        // Cuando se hace divert el ticket se marca como completed y se hace invoie|payroll como se se hubiera terminado normal
+        return dispatcherModel
+            .finishTicket(ticketId)
+            .then(() => {
+                return "Load completed and divert record created"
+            })
+
+    } 
 };
 
 // Uno o muchos tickets a la vez en un arreglo []
@@ -296,7 +342,7 @@ exports.tms = (hrId) => {
 /*
 * TODO: AddEvent necesita una refactorizacion, se realizo muy rapido para darle cierre a la primera etapa.
 */
-exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil, statusOverride) => {
+exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil, fevid, statusOverride) => {
 
 
     // Esta rutina tiene que correr primero porque el substatus es un numero que vamos a insertar en la columna substatus del ticket
@@ -322,7 +368,7 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
         // Aqui es cuando tengo que guardar peso y bol
         //"weight":100000,"bol":"36"
         dispatcherModel
-        .updateWeightAndBol(weight, bol, ticketId)
+        .updateWeightAndBol(weight, bol, fevid, ticketId)
         .then((return_data) => {
             return return_data
         })
@@ -436,4 +482,36 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
 exports.tmscounter = () => {
     return dispatcherModel
         .tmscounter()
+}
+
+exports.getDivert = () => {
+    return dispatcherModel
+        .getDivert()
+}
+
+exports.assignDivert = (new_ticket, id, driver_id) => {
+
+    let assignDivert = dispatcherModel
+        .assignDivert(new_ticket, id)
+
+    var timestap = dateUtils.getCurrentDateAndTime()
+
+    // Asigna el ticket
+    let assign = dispatcherModel
+        .assignTicket(driver_id, new_ticket, timestap);
+
+    // Marca el driver como inactive
+    let inactivate = dispatcherModel
+        .inactive(driver_id)
+
+    let ticketInformation = dispatcherModel
+        .getTicketById(new_ticket)
+
+    return Promise.all([assign,inactivate,ticketInformation, assignDivert]).then((data) => {
+
+        let lastLocation =  data[2][0].location
+        // Guarda la ultima locacion a la que fue asignado ese driver en la tabla de HR
+        return dispatcherModel
+            .saveLastlocation(lastLocation, driver_id)
+    });
 }
