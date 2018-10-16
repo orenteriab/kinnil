@@ -1,27 +1,14 @@
 <% for(var i=0; i<tickets.length; i++) {%>
     <%if (tickets[i].status == 1) { %> <!-- status:1 = to be asigned -->
     <tr class="quote">
-        <td id="">
-            <%= tickets[i].id %>
-        </td>
-        <td id="">
-            <%= tickets[i].tms %>
-        </td>
-        <td id="">
-            <%= tickets[i].facility %>
-        </td>
-        <td id="">
-            <%= tickets[i].location %>
-        </td>
-        <td id="">
-            <%= tickets[i].sand_type %>
-        </td>
-        <td id="">
-
-        </td>
-        <td id="">
-            <button type="submit" class="btn btn-default"> Assign</button>
-        </td>
+        <td><%= tickets[i].id %></td>
+        <td><%= tickets[i].ticket_id %></td>
+        <td><%= tickets[i].tms %>
+        <td><%= tickets[i].facility %></td>
+        <td><%= tickets[i].location %></td>
+        <td><%= tickets[i].sand_type %></td>
+        <td></td>
+        <td><button type="submit" class="btn btn-default"> Assign</button></td>
     </tr>
     <% } %>
 <% } %>

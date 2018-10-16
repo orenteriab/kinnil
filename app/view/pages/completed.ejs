@@ -21,6 +21,7 @@
                 <li role="presentation"><a href="../dispatcher/tobeassigned">To be Assigned</a></li>
                 <li role="presentation"><a href="../dispatcher/workinprogress">Work in progress</a></li>
                 <li role="presentation" class="active"><a href="../dispatcher/completed">Completed</a></li>
+                <li role="presentation"><a href="../dispatcher/divert">Divert</a></li>
             </ul>
             <div class="tab-content"> 
                 <div class="content">
@@ -30,12 +31,13 @@
                             <table id="grid-basic" border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric" data-width="10%">Ticket No.</th>
+                                        <th data-column-id="id" data-type="numeric" data-width="5%">Id</th>
+                                        <th data-column-id="ticket_id" data-type="numeric" data-width="10%">Ticket No.</th>
                                         <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
-                                        <th data-column-id="location">Location</th>
+                                        <th data-column-id="location" data-width="25%">Location</th>
                                         <th data-column-id="facility">Facility</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
-                                        <th data-column-id="products" data-formatter="products">Product</th>
+                                        <th data-column-id="products" data-formatter="products" data-width="10%">Sand</th>
                                         <th data-column-id="loading_date_formatted" data-width="11%">Loading date</th> <!-- Substatus en la DB (on my way to facility, etc) -->
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">To validate</th>
                                     </tr>
@@ -46,6 +48,7 @@
                                     <%if (tickets[i].status == 3) { %> <!-- status:3 completed -->
                                     <tr class="quote">
                                         <td><%= tickets[i].id %></td>
+                                        <td><%= tickets[i].ticket_id %></td>
                                         <td><%= tickets[i].tms %></td>
                                         <td><%= tickets[i].location %></td>
                                         <td><%= tickets[i].facility %></td>
