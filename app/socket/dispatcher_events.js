@@ -127,7 +127,8 @@ const onStatus = (socket) => {
                         jsonPayload.weight,
                         jsonPayload.bol,
                         jsonPayload.date,
-                        jsonPayload.final_mil
+                        jsonPayload.final_mil,
+                        jsonPayload.fevid
                     )
             .then(() => {
                 socket.emit('status', JSON.stringify({ resivido: true }));
@@ -243,6 +244,11 @@ const onScalesRequest = (socket) => {
     })
 }
 
+const onCancelTms = (socket) => {
+    return new SocketEvent('cancel-tms', (payload) => {
+        socket.broadcast.emit('cancel-tms', payload)
+    })
+}
 
 exports.onConnection = new SocketEvent('connection', (socket) => {
 
@@ -260,7 +266,8 @@ exports.onConnection = new SocketEvent('connection', (socket) => {
         onClockinEvent(socket),
         onLocations(socket),
         onScalesData(socket),
-        onScalesRequest(socket)
+        onScalesRequest(socket),
+        onCancelTms(socket)
     ];
 
     socketEvents.forEach((evt) => {
