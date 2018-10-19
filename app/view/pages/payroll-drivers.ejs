@@ -128,12 +128,14 @@
                             <th data-column-id="location"  data-width="25%">Location</th>
                             <th data-column-id="facility">Facility</th>
                             <th data-column-id="standby-hours">Stand by Time</th>
+                            <th data-column-id="demerge-amount" data-formatter="demerge">Demerge amount</th>
                             <th data-column-id="load-rate">Load rate</th>
                             <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="quote">
+                            <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
@@ -308,6 +310,9 @@
                     "commands": function(column, row)
                     {
                         return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
+                    },
+                    "demerge": function(column, row){
+                        return "<input class=\"form-control cedar-dmg\" type=\"number\" value=\"0.00\" data-row-id=\""+ row.id +"\" step=\"0.01\" placeholder=\"0.00\">" 
                     }
                 }
             }).on("loaded.rs.jquery.bootgrid", function()
@@ -366,10 +371,18 @@
         });
 
         $("#accepted").click(function() {
+            debugger;
             var ticketList = [];
             $('.validate:checkbox:checked').each(function() {
                 ticketList.push($(this).val());
             });
+
+            var demergeAmount = ticketList
+                        .reduce((demergeAmt, current) => {
+                            var toAdd = parseFloat($('.cedar-dmg[data-row-id="'+ current +'"]').val());
+                            return demergeAmt + toAdd;
+                        }, 0)
+                        .toFixed(2);
 
             if($("#rate").val() == null || $("#rate").val() == undefined || $("#rate").val() == ""){
                 alert("please define driver rate for selected user");
@@ -386,7 +399,8 @@
                         id: $("#id").val(),
                         rate: $("#rate").val(),
                         type: $("#type").val(),
-                        wireTransfer: $("#wireTransferInput").val()
+                        wireTransfer: $("#wireTransferInput").val(),
+                        demergeAmount: demergeAmount
                     },      //Data as js object
                     success: function (msj) {
                         alert(msj);
@@ -411,6 +425,7 @@
         $('li[id="li_sdbr_payroll"]').addClass('active');
 
         function payrollToPdf(msj) {
+            debugger;
             console.log(msj);
             // Default export is a4 paper, portrait, using milimeters for units
             // Default export is a4 paper, portrait, using milimeters for units
@@ -466,6 +481,9 @@
 
             doc.setFontSize(10);
             actualLine = actualLine + 10;
+            doc.text(120, actualLine, 'Demerge Amount:');
+            doc.text(170, actualLine, '$ ' + msj.payroll[0].demerge.toFixed(2));
+            actualLine = actualLine + 5;
             doc.text(120, actualLine, 'Amount:');
             doc.text(170, actualLine, '$ ' + msj.payroll[0].amount.toFixed(2));
 

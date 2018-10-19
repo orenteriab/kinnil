@@ -153,10 +153,16 @@ exports.getPaymentDetailsForDrivers = (ticketList, rate) => {
     return connectionPool.query(statement);
 }
 
-exports.createPayrollEntryforDrivers = (wireTransfer, amount, timestap, id) => {
-    let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `date`, `hr_id`) values (?,?,?,?)'
+exports.createPayrollEntryforDrivers = (wireTransfer, amount, timestap, id, demergeAmount) => {
+    var demerge = parseFloat(demergeAmount)
 
-    return connectionPool.query(statement, [wireTransfer, amount, timestap, id]);
+    if(isNaN(demerge)){
+        demerge = 0.0
+    }
+
+    let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `date`, `hr_id`, `demerge`) values (?,?,?,?,?)'
+
+    return connectionPool.query(statement, [wireTransfer, amount, timestap, id, demerge]);
 }
 
 exports.relateTicketsWithPaymentEvent = (newPaymentId, timestap, ticketList) => {

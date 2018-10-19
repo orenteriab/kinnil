@@ -122,7 +122,7 @@
                             <th data-column-id="in" >In</th>
                             <th data-column-id="out">Out</th>
                             <th data-column-id="hours-worked">Hours worked</th>
-                            <th data-column-id="demerge-amount" data-formatter="demerge">Demerge amount</th>
+                            <!-- th data-column-id="demerge-amount" data-formatter="demerge">Demerge amount</th -->
                             <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
                         </tr>
                     </thead>
@@ -133,7 +133,7 @@
                             <td id=""></td>
                             <td id=""></td>
                             <td id=""></td>
-                            <td id=""></td>
+                            <!--td id=""></td-->
                             <td id=""></td>
                         </tr>
                     </tbody>
@@ -297,10 +297,10 @@
                     "commands": function(column, row)
                     {
                         return "<input class=\"validate\" type=\"checkbox\" value=\"" + row.id + "\"></label>" 
-                    },
-                    "demerge": function(column, row){
-                        return "<input class=\"form-control cedar-dmg\" type=\"number\" value=\"0.00\" data-row-id=\""+ row.id +"\" step=\"0.01\" placeholder=\"0.00\">" 
-                    }
+                    }//,
+                    //"demerge": function(column, row){
+                    //    return "<input class=\"form-control cedar-dmg\" type=\"number\" value=\"0.00\" data-row-id=\""+ row.id +"\" step=\"0.01\" placeholder=\"0.00\">" 
+                    //}
                 }
             }).on("loaded.rs.jquery.bootgrid", function()
             {
@@ -365,12 +365,12 @@
                 clockinList.push($(this).val());
             });
 
-            var demergeAmount = clockinList
-                                    .reduce((demergeAmt, current) => {
-                                        var toAdd = parseFloat($('.cedar-dmg[data-row-id="'+ current +'"]').val());
-                                        return demergeAmt + toAdd;
-                                    }, 0)
-                                    .toFixed(2);
+            //var demergeAmount = clockinList
+            //                        .reduce((demergeAmt, current) => {
+            //                            var toAdd = parseFloat($('.cedar-dmg[data-row-id="'+ current +'"]').val());
+            //                            return demergeAmt + toAdd;
+            //                        }, 0)
+            //                        .toFixed(2);
 
             if($("#dllshr").val() == null || $("#dllshr").val() == undefined || $("#dllshr").val() == ""){
                 alert("please define dlls/hr for selected user");
@@ -386,8 +386,8 @@
                         clockinList: clockinList,
                         id: $("#id").val(),
                         dllsHr: $("#dllshr").val(),
-                        wireTransfer: $("#wireTransferInput").val(),
-                        demergeAmount: demergeAmount
+                        wireTransfer: $("#wireTransferInput").val()
+                        //demergeAmount: demergeAmount
                     },      //Data as js object
                     success: function (msj) {
                         alert(msj.message || msj);
@@ -465,10 +465,10 @@
             }
 
             actualLine = actualLine + 10;
-            doc.text(100, actualLine, 'Demerge Amount:');
-            doc.text(130, actualLine, '$ ' + msj.payroll[0].demerge.toFixed(2));
+            //doc.text(100, actualLine, 'Demerge Amount:');
+            //doc.text(130, actualLine, '$ ' + msj.payroll[0].demerge.toFixed(2));
 
-            actualLine = actualLine + 5;
+            //actualLine = actualLine + 5;
             doc.text(100, actualLine, 'Total:');
             doc.text(130, actualLine, '$ ' + msj.payroll[0].amount.toFixed(2));
             
