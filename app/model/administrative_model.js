@@ -25,6 +25,7 @@ exports.getLocations = (clientId) => {
 l.name, \
 l.status, \
 l.geolocation, \
+l.long_name, \
 DATE_FORMAT(l.start_date, "%m-%d-%Y") start_date, \
 DATE_FORMAT(l.end_date, "%m-%d-%Y") end_date, \
 c.name crewname \
@@ -511,6 +512,7 @@ exports.getLocationDetail = (locationId) => {
 l.name, \
 l.status, \
 l.geolocation, \
+l.long_name, \
 DATE_FORMAT(l.start_date, "%m-%d-%Y") start_date, \
 DATE_FORMAT(l.end_date, "%m-%d-%Y") end_date, \
 c.name crewname \
@@ -521,8 +523,20 @@ where l.id = ?'
     return connectionPool.query(query, [locationId])
 }
 
+exports.getFacilityDetail = (facilityId) => {
+    let query = 'select * from facilities where id = ?'
+    
+    return connectionPool.query(query, [facilityId])
+}
+
 exports.updateLocation = (name, value, pk) => {
     let statement = 'update `sandras`.`locations` set `' + name + '` = ? where `id` = ?';
+
+    return connectionPool.query(statement, [value, pk]);
+};
+
+exports.updateFacility = (name, value, pk) => {
+    let statement = 'update `sandras`.`facilities` set `' + name + '` = ? where `id` = ?';
 
     return connectionPool.query(statement, [value, pk]);
 };

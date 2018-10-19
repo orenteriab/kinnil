@@ -491,6 +491,22 @@ ROUTER.get('/getLocationDetail/:locationId', (req, res) => {
             })
 })
 
+ROUTER.get('/getFacilityDetail/:facilityId', (req, res) => {
+    administrativeService
+        .getFacilityDetail(req.params.facilityId)
+        .then(
+            (returnData) => {
+                res.status(200)
+                res.json(returnData)
+            },
+            (err) => {
+                console.error('[Api/administrative_controller.js][/getFacilityDetail/'+ req.params.facilityId + ']Error when obtain Facility data by id: ', err);
+
+                res.status(500)
+                res.json({ status: 'error', msg: 'Unable to fetch Facility data by id: ' + req.params.facilityId + '.' })
+            })
+})
+
 ROUTER.post('/updateLocation/', (req, res) => {
 
     administrativeService
@@ -502,6 +518,24 @@ ROUTER.post('/updateLocation/', (req, res) => {
         })
         .catch((err) => {
             console.error('[Api/dispatcher_controller.js][/updateLocation/]Error when updating location: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ status: 'error', msg: 'field cannot be empty!' }));
+        });
+});
+
+ROUTER.post('/updateFacility/', (req, res) => {
+
+    administrativeService
+        .updateFacility(req.body.name, req.body.value, req.body.pk)
+        .then(() => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({status: 'success', msg: 'Record Updated' }));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/updateFacility/]Error when updating Facility: ', err);
 
             res.status(500);
             res.contentType('application/json');

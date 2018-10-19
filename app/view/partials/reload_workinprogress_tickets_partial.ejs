@@ -1,25 +1,14 @@
 <% for(var i=0; i<tickets.length; i++) {%>
     <%if (tickets[i].status == 2) { %> <!-- status:1 = to be asigned -->
         <tr class="quote">
-            <td id="">
-                <%= tickets[i].id %>
-            </td>
-            <td id="">
-                <%= tickets[i].tms %>
-            </td>
-            <td id="">
-                <%= tickets[i].location %>
-            </td>
-            <td id="">
-                <%= tickets[i].facility %>
-            </td>
-            <td id="">
-                <%= tickets[i].driver_name %>
-            </td>
-            <td id="">
-                <%= tickets[i].product %>
-            </td>
-            <td id="">
+            <td><%= tickets[i].id %></td>
+            <td><%= tickets[i].ticket_id %></td>
+            <td><%= tickets[i].tms %></td>
+            <td><%= tickets[i].location %></td>
+            <td><%= tickets[i].facility %></td>
+            <td><%= tickets[i].driver_name %></td>
+            <td><%= tickets[i].product %></td>
+            <td>
                 <%if (tickets[i].substatus == 0) { %>
                     ASSIGNED
                 <% } else if(tickets[i].substatus == 1) { %>
@@ -38,9 +27,7 @@
                     FINISHED
                 <% } %>
             </td>
-            <td id="">
-
-            </td>
+            <td></td>
         </tr>
     <% } %>
 <% } %>

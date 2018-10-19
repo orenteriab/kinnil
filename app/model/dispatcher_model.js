@@ -62,6 +62,7 @@ exports.getTicketById = (ticketId) => {
     let statement = 'select t.id, \
                         t.tms, \
                         DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date,\
+                        t.ticket_id, \
                         t.status, \
                         t.substatus, \
                         t.invoice_rate, \
@@ -111,7 +112,6 @@ exports.getTicketById = (ticketId) => {
 exports.assignTicket = (hrId, ticketId, timestap) => {
     let statement = 'update tickets set hr_id = ?, status = 2, on_curse = TRUE, assign_date = ? where id = ?';
 
-    console.log(statement, [hrId, timestap, ticketId])
     return connectionPool.query(statement, [hrId, timestap, ticketId]);
 };
 
@@ -119,14 +119,12 @@ exports.assignTicket = (hrId, ticketId, timestap) => {
 exports.saveLastlocation = (lastLocation, hrId) => {
     let statement = 'update hr set last_location = ? where id = ?'
 
-    console.log(statement, [lastLocation, hrId])
     return connectionPool.query(statement, [lastLocation, hrId]);
 }
 
 exports.updateLastLocationDate = (timestap, hr_id) => {
     let statement = 'update hr set last_location_datetime = ? where id = ?'
 
-    console.log(statement, [timestap, hr_id])
     return connectionPool.query(statement, [timestap, hr_id]);
 }
 
@@ -139,7 +137,6 @@ exports.cancelTicket = (ticketId) => {
 exports.completeTicket = (ticketId, timestap) => {
     let statement =  'update tickets set status = 4, completed_date = ? where id in ('+ ticketId +')'; // es un in () porque se pueden completar varios a la vez
 
-    console.log(statement, [timestap])
     return connectionPool.query(statement, [timestap]);
 };
 
@@ -268,14 +265,46 @@ exports.updateBaseAndSilo = (base, silo, ticketId) => {
     return connectionPool.query(statement, [base, silo, ticketId])
 }
 
-exports.updateWeightAndBol = (weight, bol, ticketId) => {
-    let statement = "update tickets set weight = ?, bol = ? where id = ?"
+exports.updateWeightAndBol = (weight, bol, fevid, ticketId) => {
+    let statement = "update tickets set weight = ?, bol = ?, ticket_id = ? where id = ?"
 
-    return connectionPool.query(statement, [weight, bol, ticketId])
+    return connectionPool.query(statement, [weight, bol, fevid, ticketId])
 }
 
 exports.finishTicket = (ticketId, final_mil) => {
     let statement = "update tickets set on_curse = FALSE, status = 3, end_mi = ? where id = ?"
 
     return connectionPool.query(statement, [final_mil, ticketId])
+}
+
+exports.getDivert = () => {
+    let statement = "select d.id, \
+DATE_FORMAT(d.date, '%m-%d-%Y %H:%i:%s') divert_date, \
+t1.id divert_id, \
+t1.tms divert_tms, \
+t1.ticket_id divert_ticket_id, \
+t2.id new_id, \
+t2.tms new_tms, \
+t2.ticket_id new_ticket_id, \
+h.id driver_id, \
+h.name driver \
+from divert d \
+left join tickets t1 on d.divert_tickets_id = t1.id \
+left join tickets t2 on d.new_tickets_id = t2.id \
+left join hr h on t1.hr_id = h.id \
+where d.status < 3"
+
+    return connectionPool.query(statement)
+}
+
+exports.addDivert = (currentDate, ticketId) => {
+    let statement = "insert into divert (date, status, divert_tickets_id) values (?, 1, ?)"
+
+    return connectionPool.query(statement, [currentDate, ticketId])
+}
+
+exports.assignDivert = (new_ticket, id) => {
+    let statement = "update divert set new_tickets_id = ?, status = 2 where id = ?"
+
+    return connectionPool.query(statement, [new_ticket, id])
 }

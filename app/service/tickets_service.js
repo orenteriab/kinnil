@@ -202,6 +202,87 @@ function decideDriverRate(product){
     }
 }
 
+function decideLoadRate(product){
+    if (product == "0-50") {
+        return 446.01
+    }
+    if (product == "51-60") {
+        return 453.57
+    }
+    if (product == "61-70") {
+        return 468.70
+    }
+    if (product == "71-80") {
+        return 483.83
+    }
+    if (product == "81-90") {
+        return 502.75
+    }
+    if (product == "91-100") {
+        return 514.09
+    }
+    if (product == "101-110") {
+        return 525.45
+    }
+    if (product == "111-120") {
+        return 559.49
+    }
+    if (product == "121-130") {
+        return 578.40
+    }
+    if (product == "131-140") {
+        return 597.31
+    }
+    if (product == "141-150") {
+        return 623.80
+    }
+    if (product == "151-160") {
+        return 642.71
+    }
+    if (product == "161-170") {
+        return 661.62
+    }
+    if (product == "171-180") {
+        return 680.53
+    }
+    if (product == "181-190") {
+        return 699.45
+    }
+    if (product == "191-200") {
+        return 710.79
+    }
+    if (product == "201-210") {
+        return 741.06
+    }
+    if (product == "211-220") {
+        return 771.32
+    }
+    if (product == "221-230") {
+        return 801.58
+    }
+    if (product == "231-240") {
+        return 831.84
+    }
+    if (product == "241-250") {
+        return 862.10
+    }
+    if (product == "251-260") {
+        return 892.36
+    }
+    if (product == "261-270") {
+        return 922.63
+    }
+    if (product == "271-280") {
+        return 952.89
+    }
+    if (product == "281-290") {
+        return 983.15
+    }
+    if (product == "291-300") {
+        return 1013.41
+    }
+}
+
 function decideDate() {
     // Se obtiene fecha y hora
     var today = new Date();
@@ -238,9 +319,10 @@ exports.create = (ticket) => {
             ticket["Pick Date"] = seekForADate(ticket["Pick Date"]);
             ticket["Drop Date"] = seekForADate(ticket["Drop Date"]);
             //ticket["Status"] = decideStatus(ticket["Status"]);
-            ticket["Rate Invoice"] = parseFloat(ticket["Rate Invoice"]);
-            ticket["Load Rate"] = parseFloat(ticket["Load Rate"]);
+            ticket["Rate Invoice"] = parseFloat(ticket["Rate Invoice"]); // HB lo proporciona
             ticket["Miles"] = decideProduct(ticket["Miles"]);
+            //ticket["Load Rate"] = parseFloat(ticket["Load Rate"]);
+            ticket["Load Rate"] = decideLoadRate(ticket["Miles"]);
             ticket["Driver Rate"] = decideDriverRate(ticket["Miles"]);
             ticket['born_date'] = decideDate();
 

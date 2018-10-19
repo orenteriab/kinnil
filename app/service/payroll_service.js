@@ -222,17 +222,6 @@ exports.getTicketsById = (hr_id) => {
                 })
 
         })
-
-    /*let ticketInfo = payrollModel.getTicketsById(hr_id)
-    let eventInfo = payrollModel.getEventDataByTicketId(hr_id)
-
-    
-    return Promise.all([ticketInfo,eventInfo]).then((data) => {
-
-        
-        
-        return return_data;
-    });*/
 }
 
 

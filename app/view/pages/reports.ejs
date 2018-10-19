@@ -99,32 +99,76 @@
         $("input[name='REPORT_TYPE']").click(function() {
 
             if (this.value=="dispatch") {
-                // Aqui vamos a ir poniendo las opciones para el dropdown una vez tengamos el layout
+                    var newOptions = {
+                    'completed_loads' : 'Completed Loads',
+                    'pending_loads' : 'Pending Loads',
+                    'goal' : 'Goal vs actual status'
+                };
+                var selectedOption = 'completed_loads';
+
+                var select = $('#SELECTED_REPORT');
+                if(select.prop) {
+                    var options = select.prop('options');
+                }
+                else {
+                    var options = select.attr('options');
+                }
+                $('option', select).remove();
+
+                $.each(newOptions, function(val, text) {
+                    options[options.length] = new Option(text, val);
+                });
+                select.val(selectedOption);
+
+                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                $("#excel_download").prop('disabled', false);
+            } else if(this.value=="invoice"){
+                var newOptions = {
+                    'quickbooks_import' : 'Quickbooks import'
+                };
+                var selectedOption = 'quickbooks_import';
+
+                var select = $('#SELECTED_REPORT');
+                if(select.prop) {
+                    var options = select.prop('options');
+                }
+                else {
+                    var options = select.attr('options');
+                }
+                $('option', select).remove();
+
+                $.each(newOptions, function(val, text) {
+                    options[options.length] = new Option(text, val);
+                });
+                select.val(selectedOption);
+
+                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                $("#excel_download").prop('disabled', false);
+            } else {
+                var newOptions = {
+                    'no_report_available' : 'No report available'
+                };
+                var selectedOption = 'no_report_available';
+
+                var select = $('#SELECTED_REPORT');
+                if(select.prop) {
+                    var options = select.prop('options');
+                }
+                else {
+                    var options = select.attr('options');
+                }
+                $('option', select).remove();
+
+                $.each(newOptions, function(val, text) {
+                    options[options.length] = new Option(text, val);
+                });
+                select.val(selectedOption);
+
+                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                $("#excel_download").prop('disabled', false);
             }
 
-            var newOptions = {
-                'completed_loads' : 'Completed Loads',
-                'pending_loads' : 'Pending Loads',
-                'goal' : 'Goal vs actual status'
-            };
-            var selectedOption = 'completed_loads';
-
-            var select = $('#SELECTED_REPORT');
-            if(select.prop) {
-                var options = select.prop('options');
-            }
-            else {
-                var options = select.attr('options');
-            }
-            $('option', select).remove();
-
-            $.each(newOptions, function(val, text) {
-                options[options.length] = new Option(text, val);
-            });
-            select.val(selectedOption);
-
-            $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
-            $("#excel_download").prop('disabled', false);
+            
         });
 
         $("#SELECTED_REPORT").on('change', function() {
@@ -186,69 +230,209 @@
 	        var targ = e.target || e.srcElement;
             e.preventDefault();
             
-            //console.log($( "#SELECTED_REPORT option:selected" ).val());
-            //console.log(fechaInicio.format('YYYY-MM-DD')); 
-            //console.log(fechaFin.format('YYYY-MM-DD'));
+        
+        
+        
 
-            $.ajax({
-                url: '/api/reports/completed_loads/',
-                type: 'POST',
-                data: {
-                    type: $( "#SELECTED_REPORT option:selected" ).val(),
-                    inicio: fechaInicio.format('YYYY-MM-DD'),
-                    fin: fechaFin.format('YYYY-MM-DD')
-                },
-                success: function(returnData){
-                    console.log(returnData)
+            if($("#SELECTED_REPORT").val() == "completed_loads"){
+                $.ajax({
+                    url: '/api/reports/completed_loads/',
+                    type: 'POST',
+                    data: {
+                        type: $( "#SELECTED_REPORT option:selected" ).val(),
+                        inicio: fechaInicio.format('YYYY-MM-DD'),
+                        fin: fechaFin.format('YYYY-MM-DD')
+                    },
+                    success: function(returnData){
 
-                    var wb = XLSX.utils.book_new();
+                        var wb = XLSX.utils.book_new();
 
-                    wb.Props = {
-                        Title: "Completed Loads",
-                        Subject: "Cedar Reports",
-                        Author: "Miguel",
-                        CreatedDate: new Date(2018,07,31)
-                    };
+                        wb.Props = {
+                            Title: "Quickbooks import",
+                            Subject: "Cedar Reports",
+                            Author: "Miguel",
+                            CreatedDate: new Date(2018,07,31)
+                        };
 
-                    wb.SheetNames.push("Completed Loads");
+                        wb.SheetNames.push("Completed Loads");
 
-                    var ws_data = [['CLOSE LOAD REPORT'],
-                                    ['TMS','BOL #','TRUCK #','TRAILER #','CONTAINER (BASE - SILO)','DRIVER','LOAD DATE - TIME','UNLOAD DATE-TIME']];  //a row with 2 columns
-                    //var ws_data = returnData;
+                        var ws_data = [['CLOSE LOAD REPORT'],
+                                        ['TMS','BOL #','TRUCK #','TRAILER #','CONTAINER (BASE - SILO)','DRIVER','LOAD DATE - TIME','UNLOAD DATE-TIME']];  //a row with 2 columns
+                        //var ws_data = returnData;
 
-                    for(i=0;i<returnData.length;i++){
-                        ws_data.push([returnData[i].tms,
-                                      returnData[i].bol,
-                                      returnData[i].truck,
-                                      returnData[i].trailer,
-                                      returnData[i].container,
-                                      returnData[i].name,
-                                      returnData[i].load_date_time,
-                                      returnData[i].unload_date_time])
+                        for(i=0;i<returnData.length;i++){
+                            ws_data.push([returnData[i].tms,
+                                        returnData[i].bol,
+                                        returnData[i].truck,
+                                        returnData[i].trailer,
+                                        returnData[i].container,
+                                        returnData[i].name,
+                                        returnData[i].load_date_time,
+                                        returnData[i].unload_date_time])
+                        }
+
+
+                        var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                        wb.Sheets["Completed Loads"] = ws;
+
+                        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+                        function s2ab(s) { 
+                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                            var view = new Uint8Array(buf);  //create uint8array as viewer
+                            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                            return buf;    
+                        }
+                        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Completed_Loads.xlsx');
+                    },
+                    error: function(){
+                        alert('There was an error when obtaining the report, please try again.');
                     }
+                });
+            } else if($("#SELECTED_REPORT").val() == "quickbooks_import") {
 
-                    console.log(ws_data);
+                /*
+                    Quickbooks import new report
+                 */
 
-                    var ws = XLSX.utils.aoa_to_sheet(ws_data);
+                $.ajax({
+                    url: '/api/reports/quickbooks-import/',
+                    type: 'POST',
+                    data: {
+                        type: $( "#SELECTED_REPORT option:selected" ).val(),
+                        inicio: fechaInicio.format('YYYY-MM-DD'),
+                        fin: fechaFin.format('YYYY-MM-DD')
+                    },
+                    success: function(returnData){
+                        var wb = XLSX.utils.book_new();
 
-                    wb.Sheets["Completed Loads"] = ws;
+                        wb.Props = {
+                            Title: "Completed Loads",
+                            Subject: "Cedar Reports",
+                            Author: "Miguel",
+                            CreatedDate: new Date(2018,07,31)
+                        };
 
-                    var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+                        wb.SheetNames.push("Completed Loads");
 
-                    function s2ab(s) { 
-                        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-                        var view = new Uint8Array(buf);  //create uint8array as viewer
-                        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                        return buf;    
+                        var ws_data = [['RefNumber','TrackingNum','TxnDate','LineServiceDate','SalesTerm','Charge Code','Driver Ticket #','Bill of Lading','Customer','LineItem','LineDesc','ShipMethodName','LineAmount']];  //a row with 2 columns
+                        //var ws_data = returnData;
+
+                        for(var i=0; i<returnData.length; i++){
+
+                            var { ticket_id, completed_date, tms, bol, location_name, facility_long_name, location_long_name, driver_name, weight, sand_type, product, fuel_surcharge } = returnData[i]
+
+                            ws_data.push([`S- ${ticket_id}`,
+                                        `S- ${ticket_id}`,
+                                        completed_date,
+                                        completed_date,
+                                        "Net 45",
+                                        tms,
+                                        tms,
+                                        bol,
+                                        `Halliburton Energy Services (${location_name})`,
+                                        "Hauling Sand",
+                                        `ORIGIN \n ${facility_long_name} \n\n DESTINATION \n ${location_long_name}` ,
+                                        driver_name,
+                                        ""]);
+
+                            ws_data.push([`S- ${ticket_id}`,
+                                        `S- ${ticket_id}`,
+                                        completed_date,
+                                        completed_date,
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "Equipment Type:Sand Dry Bulk",
+                                        "",
+                                        "",
+                                        ""]);
+
+                            ws_data.push([`S- ${ticket_id}`,
+                                        `S- ${ticket_id}`,
+                                        completed_date,
+                                        completed_date,
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        weight,
+                                        "WEIGHT (lbs)",
+                                        "",
+                                        ""]);
+
+                            ws_data.push([`S- ${ticket_id}`,
+                                        `S- ${ticket_id}`,
+                                        completed_date,
+                                        completed_date,
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        `SAND TYPE: ${sand_type}`,
+                                        "",
+                                        "",
+                                        ""]);
+                            
+                            ws_data.push([`S- ${ticket_id}`,
+                                        `S- ${ticket_id}`,
+                                        completed_date,
+                                        completed_date,
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        `Sand # of Miles: ${product}`,
+                                        "",
+                                        "",
+                                        ""]);
+
+                            ws_data.push([`S- ${ticket_id}`,
+                                        `S- ${ticket_id}`,
+                                        completed_date,
+                                        completed_date,
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                                        "Fuel Surcharge",
+                                        "",
+                                        "",
+                                        fuel_surcharge]);
+                        }
+
+
+                        var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                        wb.Sheets["Completed Loads"] = ws;
+
+                        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+                        function s2ab(s) { 
+                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                            var view = new Uint8Array(buf);  //create uint8array as viewer
+                            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                            return buf;    
+                        }
+                        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Quickbooks import.xlsx');
+                    },
+                    error: function(){
+                        alert('There was an error when obtaining the report, please try again.');
                     }
-                    console.log("se va salvar el archivo");
-                    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Completed_Loads.xlsx');
-                    console.log("se salvo el archivo");
-                },
-                error: function(){
-                    alert('There was an error when obtaining the report, please try again.');
-                }
-            });
+                });
+            } 
+            else {
+                alert("No report available, please select another option");
+            }
+
+            
         })
     });
 

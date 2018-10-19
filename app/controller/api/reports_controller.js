@@ -15,4 +15,18 @@ ROUTER.post('/completed_loads', (req, res) => {
         });
 });
 
+ROUTER.post('/quickbooks-import', (req, res) => {
+    SERVICE
+        .getQuickbooksReport(req.body.inicio, req.body.fin, req.body.locationName)
+        .then((returnData) => {
+            res.status(201);
+            res.json(returnData);
+        })
+        .catch((err) => {
+            res.status(400);
+            console.log(err)
+            res.json({ message: `The report could not be created, please try again later.` });
+        });
+});
+
 exports.router = ROUTER;

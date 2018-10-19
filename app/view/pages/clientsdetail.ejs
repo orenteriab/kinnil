@@ -57,6 +57,7 @@
                             <li><a href="../../dispatcher/tobeassigned">To be asigned</a></li>
                             <li><a href="../../dispatcher/workinprogress">Work in Progress</a></li>
                             <li><a href="../../dispatcher/completed">Completed</a></li>
+                            <li><a href="../../dispatcher/divert">Divert</a></li>
                         </ul>
                     </li>
                     <li class="active">
@@ -77,7 +78,7 @@
                             <li><a href="../../payroll/drivers">Drivers</a></li>
                         </ul>
                     <li><a href="../../invoice/home">Invoice</a></li>
-                    <li><a href="../../maintenance/home">Maintenance</a></li>
+                    <li><a href="../../reports/home">Reports</a></li>
                 </ul>
             
                 <!--
@@ -118,9 +119,9 @@
                             <table id='grid-crews' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="id" data-width="5%" data-type="numeric">#</th>
                                         <th data-column-id="name" data-formatter="link">Name</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="options" data-width="10%" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (crews.length > 0) { %>
@@ -147,13 +148,14 @@
                             <table id='grid-locations' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="id" data-width="5%" data-type="numeric">#</th>
                                         <th data-column-id="name" data-formatter="link">Name</th>
-                                        <th data-column-id="status">Status</th>
-                                        <th data-column-id="start">Start Date</th>
-                                        <th data-column-id="end">End Date</th>
-                                        <th data-column-id="crewname">Crew</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="long_name">Long name</th>
+                                        <th data-column-id="status" data-width="8%">Status</th>
+                                        <th data-column-id="start"  data-width="8%">Start Date</th>
+                                        <th data-column-id="end"  data-width="8%">End Date</th>
+                                        <th data-column-id="crewname"  data-width="10%">Crew</th>
+                                        <th data-column-id="options" data-width="15%" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (locations.length > 0) { %>
@@ -162,6 +164,7 @@
                                         <tr class="quote">
                                             <td> <%= locations[i].id %> </td>
                                             <td> <%= locations[i].name %> </td>
+                                            <td> <%= locations[i].long_name %> </td>
                                             <td> <%= locations[i].status %> </td>
                                             <td> <%= locations[i].start_date %> </td>
                                             <td> <%= locations[i].end_date %> </td>
@@ -184,9 +187,10 @@
                                 <table id='grid-facilities' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                     <thead>
                                         <tr>
-                                            <th data-column-id="id" data-type="numeric">#</th>
+                                            <th data-column-id="id" data-width="5%" data-type="numeric">#</th>
                                             <th data-column-id="name">Name</th>
-                                            <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                            <th data-column-id="long_name">Long name</th>
+                                            <th data-column-id="options" data-width="15%" data-formatter="commands" data-sortable="false">Options</th>
                                         </tr>
                                     </thead>
                                     <%if (facilities.length > 0) { %>
@@ -195,6 +199,7 @@
                                             <tr class="quote">
                                                 <td> <%= facilities[i].id %> </td>
                                                 <td> <%= facilities[i].name %> </td>
+                                                <td> <%= facilities[i].long_name %> </td>
                                             </tr>
                                         <% } %>
                                     </tbody>
@@ -213,9 +218,9 @@
                             <table id='grid-products' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="id" data-width="5%" data-type="numeric">#</th>
                                         <th data-column-id="name">Name</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="options" data-width="10%" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (products.length > 0) { %>
@@ -242,9 +247,9 @@
                             <table id='grid-sands' border="1" class="table table-bordered table-condensed table-hover table-striped" >
                                 <thead>
                                     <tr>
-                                        <th data-column-id="id" data-type="numeric">#</th>
+                                        <th data-column-id="id" data-width="5%" data-type="numeric">#</th>
                                         <th data-column-id="name">Name</th>
-                                        <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                                        <th data-column-id="options" data-width="10%" data-formatter="commands" data-sortable="false">Options</th>
                                     </tr>
                                 </thead>
                                 <%if (sands.length > 0) { %>
@@ -403,8 +408,32 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- Edit Facilities Modal -->
+<div class="modal fade" id="editFacilitiesModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add crew</h4>
+        </div>
+        <form role="form" id="addCrewForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <!-- TODO: agregar validacion y limpieza de caracteres para no guardar en la base de datos basura -->
+                    <p>Name <span id="editNameFacility"> </span></p>
+                    <p>Long Name <span id="editLongNameFacility"> </span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- Edit Locations Modal -->
-<div class="modal fade" id="editLocationsModal" role="dialog">
+<div class="modal fade" id="editLocationsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
 
         <!-- Modal content-->
@@ -414,10 +443,11 @@
             <h4>Location Details</h4>
         </div>
         <div class="modal-body">
-        <div id="to-print">
+        <div>
             <div class="row">
                 <div class="col-md-12">
                     <p>Name <span id="editName"> </span></p>
+                    <p>Long Name <span id="editLongName"> </span></p>
                     <p>Status <span id="editStatus"> </span></p>
                     <p>Start Date <span id="editStartDate"> </span></p>
                     <p>End Date <span id="editEndDate"> </span></p>
@@ -431,6 +461,9 @@
         </div>
     </div>
 </div> 
+
+
+
 
     <!-- <script src="/socket.io/socket.io.js"></script>  -->
     <%include ../partials/js %>
@@ -491,7 +524,10 @@
                     };
 
                     var onEditShow = function(e){
-                        $($(this).attr("href")).modal("show", $(this));
+                        console.log("edit locations clicked");
+                        $("#editLocationsModal").modal({
+                            show: true
+                        }, $(this));
                     };
 
                     $("#grid-locations")
@@ -562,7 +598,8 @@
             APP.LOAD.GRID_FACILITIES = APP.LOAD.GRID_FACILITIES || function(){
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-secondary command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span> Delete</button>";
+                    return "<button type=\"button\" class=\"btn btn-xs btn-secondary command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span> Delete</button> &nbsp;"  +
+                    "<a href=\"#editFacilitiesModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-facilities\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
                 };
 
                 var loadedRsJQueryBootgrid = function(){
@@ -587,9 +624,19 @@
                         }
                     };
 
+                    var onEditShow = function(e){
+                        console.log("edit facilities clicked")
+                        $("#editFacilitiesModal").modal({
+                            show: true
+                        }, $(this));
+                    };
+
                     $("#grid-facilities")
                         .find(".command-delete")
-                        .on("click", onClickDelete);
+                        .on("click", onClickDelete)
+                        .end()
+                        .find(".show-edit-facilities")
+                        .on("click", onEditShow);;
                 };
 
                 $("#grid-facilities")
@@ -815,8 +862,159 @@
                     });
 
                 },
+                MODAL_FACILITIES: function(){
+                    //$(document).on('shown.bs.modal','#editFacilitiesModal', function(e) {
+                    $('#editFacilitiesModal').on('shown.bs.modal', function (e) {
+                        
+                        var $trigger = $(e.relatedTarget);
+
+                        console.log("modal facilities")
+
+                        $.getJSON('/api/administrative/getFacilityDetail/' + $trigger.data('hr'), function(data) {
+            
+                            $('#editNameFacility').html(
+                                "<strong><a id='updateNameFacility' data-pk='" + data[0].id + "' data-title='Update name' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='name'>"+data[0].name+"</a></strong>"    
+                            );
+                            $('#editLongNameFacility').html(
+                                "<strong><a id='updateLongNameFacility' data-pk='" + data[0].id + "' data-title='Update long name' "+
+                                "data-type='textarea' class='black-link' "+
+                                "href='#' data-name='long_name'>"+data[0].long_name+"</a></strong>"    
+                            );
+            
+                            // x-editable
+                            $('#updateNameFacility, #updateLongNameFacility').editable({
+                                url: '/api/administrative/updateFacility/',
+                                send: 'always',
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                                
+                            });
+                        });
+
+                    });
+                    
+                    // Recarga la pagina para que se vean los cambios
+                    $('#editFacilitiesModal').on('hide.bs.modal', function (e) {
+                                location.reload();
+                    });
+                },
+                MODAL_LOCATIONS: function(){
+                    //$(document).on('shown.bs.modal','#editLocationsModal', function(e) {
+                    $('#editLocationsModal').on('shown.bs.modal', function (e) {
+
+                        var $trigger = $(e.relatedTarget);
+
+                        console.log("modal locations");
+                        
+                        // Obtiene el detalle del ticket
+                        $.getJSON('/api/administrative/getLocationDetail/' + $trigger.data('hr'), function(data) {
+
+                            $('#editName').html(
+                                "<strong><a id='updateName' data-pk='" + data[0].id + "' data-title='Update name' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='name'>"+data[0].name+"</a></strong>"    
+                            );
+                            $('#editLongName').html(
+                                "<strong><a id='updateLongName' data-pk='" + data[0].id + "' data-title='Update long name' "+
+                                "data-type='textarea' class='black-link' "+
+                                "href='#' data-name='long_name'>"+data[0].long_name+"</a></strong>"    
+                            );
+                            $('#editStatus').html(
+                                "<strong><a id='updateStatus' data-pk='" + data[0].id + "' data-title='Update Status' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='status'>"+data[0].status+"</a></strong>"
+                            );
+                            $('#editStartDate').html(
+                                "<strong><a id='updateStartDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data[0].id + "' data-title='Update StartDate' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='start_date'>"+data[0].start_date+"</a></strong>"
+                            );
+                            $('#editEndDate').html(
+                                "<strong><a id='updateEndDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data[0].id + "' data-title='Update EndDate' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='end_date'>"+data[0].end_date+"</a></strong>"    
+                            );
+                            $('#editCrew').html(
+                                "<strong><a id='updateCrew' data-pk='" + data[0].id + "' data-title='Update Crew' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='crews_id'>"+data[0].crewname+"</a></strong>"    
+                            );
+
+                            // x-editable
+                            $('#updateName, #updateLongName').editable({
+                                url: '/api/administrative/updateLocation/',
+                                send: 'always',
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                                
+                            });
+
+                            $('#updateStatus').editable({   
+                                url: '/api/administrative/updateLocation/',
+                                send: 'always',
+                                source: [
+                                    {value: "ON GOING", text: 'ON GOING'},
+                                    {value: "FINISHED", text: 'FINISHED'}
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+
+                            $('#updateStartDate, #updateEndDate').editable({
+                                url: '/api/administrative/updateLocation/',
+                                send: 'always',
+                                format: 'yyyy-mm-dd',    
+                                viewformat: 'mm-dd-yyyy',
+                                combodate: { 
+                                    maxYear: 2035,
+                                    minYear:1930
+                                }, 
+                                datepicker: {
+                                        weekStart: 1
+                                },
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+
+                            var sources = []
+                            <%if (crews.length > 0) { %>
+                                <% for(var i=0; i<crews.length; i++) {%>
+                                        sources.push({value: "<%= crews[i].id %>", text: "<%= crews[i].name %>"});
+                                <% } %>
+                            <% } %>
+
+                            $('#updateCrew').editable({   
+                                url: '/api/administrative/updateLocation/',
+                                send: 'always',
+                                source: sources,
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+                        });
+
+                    });
+                    
+                    // Recarga la pagina para que se vean los cambios
+                    $('#editLocationsModal').on('hide.bs.modal', function (e) {
+                        location.reload();
+                    });
+                },
                 INIT: function(){
                     APP.EVENTS.MODALS_SUBMIT();
+                    APP.EVENTS.MODAL_FACILITIES();
+                    APP.EVENTS.MODAL_LOCATIONS();
                 }
             };
              
@@ -831,107 +1029,14 @@
     </script>
 
     <script>
-    $( document ).ready(function() {
-            $('#editLocationsModal').on('shown.bs.modal', function (e) {
 
-                var $trigger = $(e.relatedTarget);
-                
-                // Obtiene el detalle del ticket
-                $.getJSON('/api/administrative/getLocationDetail/' + $trigger.data('hr'), function(data) {
-    
-                    $('#editName').html(
-                        "<strong><a id='updateName' data-pk='" + data[0].id + "' data-title='Update name' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='name'>"+data[0].name+"</a></strong>"    
-                    );
-                    $('#editStatus').html(
-                        "<strong><a id='updateStatus' data-pk='" + data[0].id + "' data-title='Update Status' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='status'>"+data[0].status+"</a></strong>"
-                    );
-                    $('#editStartDate').html(
-                        "<strong><a id='updateStartDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data[0].id + "' data-title='Update StartDate' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='start_date'>"+data[0].start_date+"</a></strong>"
-                    );
-                    $('#editEndDate').html(
-                        "<strong><a id='updateEndDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data[0].id + "' data-title='Update EndDate' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='end_date'>"+data[0].end_date+"</a></strong>"    
-                    );
-                    $('#editCrew').html(
-                        "<strong><a id='updateCrew' data-pk='" + data[0].id + "' data-title='Update Crew' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='crews_id'>"+data[0].crewname+"</a></strong>"    
-                    );
-    
-                    // x-editable
-                    $('#updateName').editable({
-                        url: '/api/administrative/updateLocation/',
-                        send: 'always',
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        }
-                        
-                    });
-
-                    $('#updateStatus').editable({   
-                        url: '/api/administrative/updateLocation/',
-                        send: 'always',
-                        source: [
-                            {value: "ON GOING", text: 'ON GOING'},
-                            {value: "FINISHED", text: 'FINISHED'}
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-
-                    $('#updateStartDate, #updateEndDate').editable({
-                        url: '/api/administrative/updateLocation/',
-                        send: 'always',
-                        format: 'yyyy-mm-dd',    
-                        viewformat: 'mm-dd-yyyy',
-                        combodate: { 
-                            maxYear: 2035,
-                            minYear:1930
-                         }, 
-                        datepicker: {
-                                weekStart: 1
-                        },
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-
-                    var sources = []
-                    <%if (crews.length > 0) { %>
-                        <% for(var i=0; i<crews.length; i++) {%>
-                                sources.push({value: "<%= crews[i].id %>", text: "<%= crews[i].name %>"});
-                        <% } %>
-                    <% } %>
-
-                    $('#updateCrew').editable({   
-                        url: '/api/administrative/updateLocation/',
-                        send: 'always',
-                        source: sources,
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-                });
-
-            })
             
-            // Recarga la pagina para que se vean los cambios
-            $('#editLocationsModal').on('hide.bs.modal', function (e) {
-                location.reload();
-            });
-        });
+
+
+            // Facilities
+
+            
+
     </script>
 
 

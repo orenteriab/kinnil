@@ -102,11 +102,11 @@ ROUTER.put('/assignTicket/', (req, res) => {
 ROUTER.put('/cancelTicket/', (req, res) => {
 
     dispatcherService
-        .cancelTicket(req.body.ticketId)
-        .then(() => {
+        .cancelTicket(req.body.razon, req.body.ticketId)
+        .then((result) => {
             res.status(200);
             res.contentType('application/json');
-            res.send(JSON.stringify({ message: 'Ticket has been cancelled successfully.' }));
+            res.send(JSON.stringify({ message: result }));
         })
         .catch((err) => {
             console.error('[Api/dispatcher_controller.js][/cancelTicket/' + req.body.ticketId + ']Error when updating ticket: ', err);
@@ -182,6 +182,44 @@ ROUTER.get('/workinprogress/table', (req, res) => {
             res.status(500)
             res.json({ error: 'Unable to fetch table.' })
         })
+})
+
+ROUTER.get('/getTobeAssignTickets/', (req, res) => {
+
+    dispatcherService
+        .getToBeAsignedInfo()
+        .then((return_data) => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send({ message: '',
+                    tickets: return_data.tickets,
+                    drivers: return_data.drivers,
+                    products : return_data.products });
+        })
+        .catch(function (err) {
+
+            console.log('[Api/dispatcher_controller.js][/getTobeAssignTickets/] Error when trying to list tobeassign tickets: ', err);
+            res.status(404);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: err }));
+        });
+});
+
+ROUTER.post('/assignDivert', (req, res) => {
+    dispatcherService
+        .assignDivert(req.body.new_ticket, req.body.id, req.body.driver_id)
+        .then(() => {
+            res.status(200);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: 'Divert record has been completed successfully.' }));
+        })
+        .catch((err) => {
+            console.error('[Api/dispatcher_controller.js][/assignDivert/]Error when updating divertRecord: ', err);
+
+            res.status(500);
+            res.contentType('application/json');
+            res.send(JSON.stringify({ message: 'Ticket(s) couldn\'t be completed. Please retry.' }));
+        });
 })
 
 exports.router = ROUTER;

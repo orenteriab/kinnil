@@ -70,4 +70,20 @@ router.get('/completed', (req, res) => {
         });
 });
 
+router.get('/divert', (req, res) => {
+    dispatcherService
+        .getDivert()
+        .then((return_data) => {
+
+            console.log(return_data)
+            res.render('pages/divert.ejs', { 
+                message: '',
+                diverts: return_data
+            });
+        })
+        .catch(function (error) {
+            console.error('something went wrong!!! ', error);
+        });
+});
+
 exports.router = router;
