@@ -248,10 +248,20 @@ exports.updateSubstatus = (sustatus , ticketId, date) => {
     let statement = "update tickets set substatus = ? where id = ?"
     let params = [sustatus, ticketId]
 
+    // Alimentando el campo de loading_date
     if(sustatus == 3){
         statement = "update `tickets` \
                     set     `substatus` = ? \
                             ,`loading_date` = ?  \
+                    where   id = ?"
+        params = [sustatus, date, ticketId]
+    }
+
+    //Alimentando el campo de unloading_date
+    if(sustatus == 6){
+        statement = "update `tickets` \
+                    set     `substatus` = ? \
+                            ,`unloading_date` = ?  \
                     where   id = ?"
         params = [sustatus, date, ticketId]
     }
