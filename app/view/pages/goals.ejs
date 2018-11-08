@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/css/style-switcher.css">
     <link rel="stylesheet" href="http://sandrevolution.com/assets/frontend/css/custom.css">
     <link rel="stylesheet" href="http://sandrevolution.com/cedar/style.css">
+    <!-- font awsome -->
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
 
     <style>
         .row-flex {
@@ -33,6 +35,44 @@
 
         .col-md-12 {
             flex-direction: column;
+        }
+
+        .glyphicon-ok:before {
+            content: "\f00c";
+        }
+
+        .glyphicon-remove:before {
+            content: "\f00d";
+        }
+
+        .glyphicon {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+        }
+
+        .not-a-secret-button {
+            width: 50px;
+            height: 50px;
+            opacity: 1;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        .indicador {
+            color: #6d767b;
+            font-size: 25px;
+            text-align: center;
+            padding: 5px 0px;
+        }
+
+        .indicador > .measure {
+            color: #6d767b;
+            font-size: 18px;
+            text-align: center;
+            padding: 5px 0px;
         }
     </style>
 </head>
@@ -160,8 +200,7 @@
                             <div class="col-lg-12 mt-4">
                                 <button id="btn_reload" class="btn btn-tertiary pull-right mb-4">Refresh</button>
                             </div>
-                    </div>
-
+                        </div>
 
                     </aside>
                 </div>
@@ -175,7 +214,7 @@
                         <div class="col-xl-2 col-lg-4 col-6">
                             <div class="featured-box featured-box-primary featured-box-effect-1">
                                 <div class="box-content">
-                                    <h4>Silo 1</h4>
+                                    <h4><span id="sp_silo_silo_01">Silo 1</span></h4>
                                     <span id="sp_silo_weight_01"></span><span> lbs.</span><br>
                                     <span id="sp_silo_percentage_01"></span><span> %</span>
                                     <div style="height: 200px; display:block;">
@@ -191,7 +230,7 @@
                         <div class="col-xl-2 col-lg-4 col-6">
                             <div class="featured-box featured-box-primary featured-box-effect-1">
                                 <div class="box-content">
-                                    <h4>Silo 2</h4>
+                                    <h4><span id="sp_silo_silo_02">Silo 2</span></h4>
                                     <span id="sp_silo_weight_02"></span><span> lbs.</span><br>
                                     <span id="sp_silo_percentage_02"></span><span> %</span>
                                     <div style="height: 200px; display:block;">
@@ -207,7 +246,7 @@
                         <div class="col-xl-2 col-lg-4 col-6">
                             <div class="featured-box featured-box-primary featured-box-effect-1">
                                 <div class="box-content">
-                                    <h4>Silo 3</h4>
+                                    <h4><span id="sp_silo_silo_03">Silo 3</span></h4>
                                     <span id="sp_silo_weight_03"></span><span> lbs.</span><br>
                                     <span id="sp_silo_percentage_03"></span><span> %</span>
                                     <div style="height: 200px; display:block;">
@@ -223,7 +262,7 @@
                         <div class="col-xl-2 col-lg-4 col-6">
                             <div class="featured-box featured-box-primary featured-box-effect-1">
                                 <div class="box-content">
-                                    <h4>Silo 4</h4>
+                                    <h4><span id="sp_silo_silo_04">Silo 4</span></h4>
                                     <span id="sp_silo_weight_04"></span><span> lbs.</span><br>
                                     <span id="sp_silo_percentage_04"></span><span> %</span>
                                     <div style="height: 200px; display:block;">
@@ -239,7 +278,7 @@
                         <div class="col-xl-2 col-lg-4 col-6">
                             <div class="featured-box featured-box-primary featured-box-effect-1">
                                 <div class="box-content">
-                                    <h4>Silo 5</h4>
+                                    <h4><span id="sp_silo_silo_05">Silo 5</span></h4>
                                     <span id="sp_silo_weight_05"></span><span> lbs.</span><br>
                                     <span id="sp_silo_percentage_05"></span><span> %</span>
                                     <div style="height: 200px; display:block;">
@@ -255,7 +294,7 @@
                         <div class="col-xl-2 col-lg-4 col-6">
                             <div class="featured-box featured-box-primary featured-box-effect-1">
                                 <div class="box-content">
-                                    <h4>Silo 6</h4>
+                                    <h4><span id="sp_silo_silo_06">Silo 6</span></h4>
                                     <span id="sp_silo_weight_06"></span><span> lbs.</span><br>
                                     <span id="sp_silo_percentage_06"></span><span> %</span>
                                     <div style="height: 200px; display:block;">
@@ -308,6 +347,55 @@
                         </div>
 
                     </div>
+                    
+                    <!-- New KPIs -->
+                    <div class="row">
+                        <div class="col-lg-12 col-xl-4">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h6>Average Loads per Day: <span class="sp_goals_location_name"></span></h6>
+                                    <div id="avgLoads" class="indicador">0.0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-xl-4">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h6>Average Miles Added per Day:</h6>
+                                    <div id="avgMiles" class="indicador">0.0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-xl-4">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h6>Average Net Weight per Truck: <span class="sp_goals_location_name"></span></h6>
+                                    <div id="avgWeight" class="indicador">0.0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-xl-6">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h6>Facility  Detention Time: <span class="sp_goals_location_name"></span></h6>
+                                    <div id="sumFacility" class="indicador">0.0<span class="measure"> hrs</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-xl-6">
+                            <div class="featured-box">
+                                <div class="box-content">
+                                    <h6>Wellsite Detention Time: <span class="sp_goals_location_name"></span></h6>
+                                    <div id="sumWellsite" class="indicador">0.0<span class="measure"> hrs</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
 
             </div>
 
@@ -319,6 +407,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-8">
+                    <div class="not-a-secret-button" id="nothing-to-hide"></div>
                         <p class="text-color-light" style="font-size: 90%; line-height: 20px;">
                             <i class="fas fa-copyright"></i>&nbsp; Copyright 2018. All rights reserved.<br>
                             <i class="fas fa-fw"></i>&nbsp; Designed by <b><a href="mailto:info@compasso.com.mx" target="_blank">Compasso</a> &
@@ -335,7 +424,9 @@
 
     <script src="http://sandrevolution.com/assets/frontend/vendor/jquery/jquery.min.js"></script>
     <script src="http://sandrevolution.com/assets/frontend/vendor/jquery.appear/jquery.appear.min.js"></script>
-    <script src="http://sandrevolution.com/assets/frontend/vendor/bootstrap/js/bootstrap.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.0.4/popper.js"></script>
+    <script src="http://sandrevolution.com/assets/frontend/vendor/bootstrap/js/bootstrap.js"></script>
     <script src="http://sandrevolution.com/assets/frontend/js/theme.js"></script>
     <script src="http://sandrevolution.com/assets/frontend/js/custom.js"></script>
     <script src="http://sandrevolution.com/assets/frontend/js/theme.init.js"></script>
@@ -504,7 +595,9 @@
                         $('#sp_silo_percentage_06').text(parseFloat(scalesData[0].porcent6).toFixed(2));
 
 
-
+                        /*
+                        * Sand Names
+                        */
                         $('#sp_silo_sand_01').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update Sand Name' "+
                         "data-type='text' class='black-link' "+
                         "href='#' id='update-sand1' data-name='sand_name1'>"+scalesData[0].sand_name1+"</a></strong>");
@@ -529,14 +622,45 @@
                         "data-type='text' class='black-link' "+
                         "href='#' id='update-sand6' data-name='sand_name6'>"+scalesData[0].sand_name6+"</a></strong>");
 
+                        /*
+                        * Silo anmes
+                        */
 
-                        $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6').editable({
+                        $('#sp_silo_silo_01').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update silo Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo1' data-name='silo_name1'>"+scalesData[0].silo_name1+"</a></strong>");
+
+                        $('#sp_silo_silo_02').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update silo Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo2' data-name='silo_name2'>"+scalesData[0].silo_name2+"</a></strong>");
+
+                        $('#sp_silo_silo_03').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update silo Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo3' data-name='silo_name3'>"+scalesData[0].silo_name3+"</a></strong>");
+
+                        $('#sp_silo_silo_04').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update silo Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo4' data-name='silo_name4'>"+scalesData[0].silo_name4+"</a></strong>");
+
+                        $('#sp_silo_silo_05').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update silo Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo5' data-name='silo_name5'>"+scalesData[0].silo_name5+"</a></strong>");
+
+                        $('#sp_silo_silo_06').html("<strong><a data-pk=" + scalesData[0].id + " data-title='Update silo Name' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-silo6' data-name='silo_name6'>"+scalesData[0].silo_name6+"</a></strong>");
+
+                        $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6, #update-silo1, #update-silo2, #update-silo3, #update-silo4, #update-silo5, #update-silo6').editable({
                             url: '/api/administrative/updateSandName/',
                             send: 'always',
+                            mode: 'inline',
                             success: function(response, newValue) {
                                 if (response.status == 'error') return response.msg; //msg will be shown in editable form
                             }
                         });
+
+                        $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6, #update-silo1, #update-silo2, #update-silo3, #update-silo4, #update-silo5, #update-silo6')
+                        .editable('option', 'disabled', true);
                         
                         var color;
                         if(parseFloat($('#sp_silo_percentage_01').text())<25){
@@ -679,6 +803,9 @@
                 var messageObject = JSON.parse(message);
 
                 if(String(messageObject.location) == String($('#sl_location option:selected').val())){
+
+                    $('#sp_last_date').text(messageObject.last_date);
+
                     $('#sp_silo_percentage_01').text(parseFloat(messageObject.porcent1).toFixed(2));
                     $('#sp_silo_percentage_02').text(parseFloat(messageObject.porcent2).toFixed(2));
                     $('#sp_silo_percentage_03').text(parseFloat(messageObject.porcent3).toFixed(2));
@@ -873,12 +1000,21 @@
             });
         };
 
+        APP.UI.EVENTS.ENABLE_EDIT_NAMES = APP.UI.EVENTS.ENABLE_EDIT_NAMES || function(){
+            
+            $(document).on('click','#nothing-to-hide', function() {
+                alert(".");
+                $('#update-sand1, #update-sand2, #update-sand3, #update-sand4, #update-sand5, #update-sand6, #update-silo1, #update-silo2, #update-silo3, #update-silo4, #update-silo5, #update-silo6').editable('option', 'disabled', false);
+            });
+        };
+
         APP.INIT = APP.INIT || function(){
             APP.UI.EVENTS.BTN_RELOAD();
             APP.UI.EVENTS.SP_DATE();
             APP.UI.EVENTS.SL_LOCATION();
             APP.UI.EVENTS.SL_CREW();
             APP.UI.EVENTS.BTN_LOAD_LOCATION();
+            APP.UI.EVENTS.ENABLE_EDIT_NAMES();
             APP.SERVICES.RECEIVE_SCALE_DATA_EVENT();
         };
 
