@@ -143,7 +143,7 @@ exports.assignTicket = (hrId, ticketId, driverName) => {
         .getTicketById(ticketId)
 
     //Crea el evento de assigned to
-    let eventAdded = exports.addEvent(0, 0, 0, ticketId, null, null, null, null, timestap, null, 'Assigned to ' + driverName);
+    let eventAdded = exports.addEvent(0, 0, 0, ticketId, null, null, null, null, timestap, null, null,  'Assigned to ' + driverName);
 
     return Promise.all([assign, inactivate, ticketInformation, eventAdded]).then((data) => {
 
@@ -344,6 +344,8 @@ exports.tms = (hrId) => {
 */
 exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil, fevid, statusOverride) => {
 
+    console.log(substatus, latitude, longitude, ticketId, base, silo, weight, bol, date, final_mil, fevid, statusOverride)
+
 
     // Esta rutina tiene que correr primero porque el substatus es un numero que vamos a insertar en la columna substatus del ticket
     dispatcherModel
@@ -358,7 +360,12 @@ exports.addEvent = (substatus, latitude, longitude, ticketId, base, silo, weight
 
         // Se cambia el substatus de un numero a texto para guardarlo en la tabla de eventos con su nombre correspondiente
     if (substatus == "0") {
-        substatus = statusOverride
+        // Cuando es null es porque el ticket se acepto desde la app de android y cuando tiene datos es que se va a guardar el status 
+        if (statusOverride == null) {
+            substatus = "TMS ACCEPTED"
+        } else {
+            substatus = statusOverride
+        }
     } else if (substatus == "1") {
         substatus = "ON MY WAY TO FACILITY"
     } else if (substatus == "2") {
