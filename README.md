@@ -8,19 +8,19 @@
 1.- To be Assigned  
 2.- Work in Progress  
 3.- Completed  
-4.- Invoice & Payroll   
+4.- Invoice & Payroll
 5.- Paid  
 
 
 ### Substatus
-0.- TMS ACCEPTED  
-1.- ON MY WAY TO FACILITY  
-2.- ARRIVED TO FACILITY	  
-3.- LOADING  
-4.- ON MY WAY TO LOCATION  
-5.- ARRIVED TO LOCATION  
-6.- UNLOADING  
-7.- FINISHED  
+0.- TMS ACCEPTED
+1.- ON MY WAY TO FACILITY
+2.- ARRIVED TO FACILITY
+3.- LOADING
+4.- ON MY WAY TO LOCATION
+5.- ARRIVED TO LOCATION
+6.- UNLOADING
+7.- FINISHED
 
 Invoice_rate -> desde el csvOWNER OPERATOR  
 Load_rate = company rate -> desde el csv  
@@ -39,6 +39,8 @@ DRIVER
 HELPER TRUCK  
 OWNER OPERATOR  
 
+
+### Tabla de comparacion (Millas -> Company Rate -> Driver Rate -> Driver rate percent)
 
 |   miles | company rate | driver rate  | 
 | ------- | ------------ | ------------ |
@@ -68,3 +70,14 @@ OWNER OPERATOR
 | 271-280 |    952.89    |    288.82    |
 | 281-290 |    983.15    |              |
 | 291-300 |    1013.4    |              |
+
+
+### Locations status
+ON GOING
+FINISHED
+
+
+### Divert status
+1.- PENDING ASSIGN TICKET
+2.- TICKET ASSIGNED
+3.- COMPLETED
