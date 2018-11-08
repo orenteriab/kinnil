@@ -283,6 +283,87 @@ function decideLoadRate(product){
     }
 }
 
+function decideFixedRate(product){
+    if (product == "0-50") {
+        return 633.75
+    }
+    if (product == "51-60") {
+        return 644.50
+    }
+    if (product == "61-70") {
+        return 666.00
+    }
+    if (product == "71-80") {
+        return 687.50
+    }
+    if (product == "81-90") {
+        return 714.38
+    }
+    if (product == "91-100") {
+        return 730.50
+    }
+    if (product == "101-110") {
+        return 746.63
+    }
+    if (product == "111-120") {
+        return 795.00
+    }
+    if (product == "121-130") {
+        return 821.88
+    }
+    if (product == "131-140") {
+        return 848.75
+    }
+    if (product == "141-150") {
+        return 886.38
+    }
+    if (product == "151-160") {
+        return 913.25
+    }
+    if (product == "161-170") {
+        return 940.13
+    }
+    if (product == "171-180") {
+        return 967.00
+    }
+    if (product == "181-190") {
+        return 993.88
+    }
+    if (product == "191-200") {
+        return 1010.00
+    }
+    if (product == "201-210") {
+        return 1053.00
+    }
+    if (product == "211-220") {
+        return 1096.00
+    }
+    if (product == "221-230") {
+        return 1139.00
+    }
+    if (product == "231-240") {
+        return 1182.00
+    }
+    if (product == "241-250") {
+        return 1225.00
+    }
+    if (product == "251-260") {
+        return 1268.00
+    }
+    if (product == "261-270") {
+        return 1311.00
+    }
+    if (product == "271-280") {
+        return 1354.00
+    }
+    if (product == "281-290") {
+        return 1397.00
+    }
+    if (product == "291-300") {
+        return 1440.00
+    }
+}
+
 function decideDate() {
     // Se obtiene fecha y hora
     var today = new Date();
@@ -320,28 +401,37 @@ exports.create = (ticket) => {
             ticket["Drop Date"] = seekForADate(ticket["Drop Date"]);
             //ticket["Status"] = decideStatus(ticket["Status"]);
             ticket["Rate Invoice"] = parseFloat(ticket["Rate Invoice"]); // HB lo proporciona
+            ticket["Actual Miles"] = parseInt(ticket["Miles"]) // Guarda las millas como un entero en vez de como un producto, se necesito para un KPI de Goals
             ticket["Miles"] = decideProduct(ticket["Miles"]);
             //ticket["Load Rate"] = parseFloat(ticket["Load Rate"]);
             ticket["Load Rate"] = decideLoadRate(ticket["Miles"]);
             ticket["Driver Rate"] = decideDriverRate(ticket["Miles"]);
+            ticket["Fixed Rate"] = decideFixedRate(ticket["Miles"]);
             ticket['born_date'] = decideDate();
 
-            if (returnData.length >= 1) { // El tms esta repetido en la DB
 
-                let pickDate = seekForADate(returnData[0].pick_date)
+            let facility = MODEL
+                .getFacility(ticket["Origin"])
 
-                if (ticket["Pick Date"] != pickDate) {
-                    // Si el pick_date es diferente al que esta en la DB significa que es un ticket reciclado y hay que actualizar la informacion del ticket
-                    console.log(" el ticket existe pero la pick_date es diferente")
-                    return MODEL.update(ticket, returnData[0].id);
+            let location = MODEL
+                .getLocation(ticket["Destination"])
+
+            return Promise.all([facility, location]).then((data) => {
+
+                if (data[0] == 0){
+                    return Bluebird.reject('Facility does not exists') 
                 }
-                if (ticket["Pick Date"] == pickDate) {
+                if (data[1] == 0){
+                    return Bluebird.reject('Location does not exists') 
+                }
 
-                    return Bluebird.reject('Load Number already exist') 
-                } 
-            } else { // Si el ticket no existe se crea en la DB
-               return MODEL.create(ticket);
-            }
+                if (returnData.length >= 1) { // El tms esta repetido en la DB
+                    return MODEL.update(ticket, returnData[0].id); // Si el ticket existe hay que actualizarlo con lo que venga del CSV
+                } else { // Verifica si el facility y la locacion existen en la DB, de no ser asi rechaza la promesa
+                    return MODEL.create(ticket);
+                }
+                
+            });
         })  
 };
 
