@@ -53,11 +53,11 @@
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-width="5%">Id</th>
-                                        <th data-column-id="ticket_id" data-type="numeric" data-width="10%">Ticket No.</th>
-                                        <th data-column-id="tms" data-formatter="link" data-type="numeric" data-width="10%">Load</th>
-                                        <th data-column-id="facility">Facility</th>
-                                        <th data-column-id="location" data-width="25%">Location</th>
-                                        <th data-column-id="product" data-width="10%">Sand</th>
+                                        <th data-column-id="ticket_id" data-type="numeric" data-width="8%">Ticket No.</th>
+                                        <th data-column-id="tms" data-formatter="link" data-type="numeric" data-width="8%">Load</th>
+                                        <th data-column-id="facility" data-width="20%">Facility</th>
+                                        <th data-column-id="location" data-width="20%">Location</th>
+                                        <th data-column-id="product" data-width="8%">Sand</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false" data-width="10%">Options</th>
                                     </tr>
@@ -564,13 +564,11 @@
                 var driversFormatter = function(colum, row){
                     //debugger;
                     return "<%if (drivers.length > 0) { %> " +
-                                "<div class='form-group'> " +
-                                    "<select class='form-control' id='driverSelect" + row.id + "'>" +
-                                        "<% for(var x=0; x<drivers.length; x++) {%>" +
-                                        "<option value = '<%= drivers[x].id %>' data-simple-name='<%= drivers[x].simple_name %>'><%= drivers[x].name %></option> " +
-                                        "<% } %>" +
-                                    "</select>" +
-                                "</div>" +
+                                "<select class='form-control' id='driverSelect" + row.id + "'>" +
+                                    "<% for(var x=0; x<drivers.length; x++) {%>" +
+                                    "<option value = '<%= drivers[x].id %>' data-simple-name='<%= drivers[x].simple_name %>'><%= drivers[x].name %></option> " +
+                                    "<% } %>" +
+                                "</select>" +
                             "<% } else{ %> "+
                                 "No drivers available" +
                             "<% } %>";

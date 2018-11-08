@@ -32,13 +32,13 @@
                                 <thead>
                                     <tr>
                                         <th data-column-id="id" data-type="numeric" data-width="5%">Id</th>
-                                        <th data-column-id="ticket_id" data-type="numeric" data-width="10%">Ticket No.</th>
-                                        <th data-column-id="tms" data-formatter="link" data-type="numeric">Load</th>
-                                        <th data-column-id="location" data-width="25%">Location</th>
-                                        <th data-column-id="facility">Facility</th>
+                                        <th data-column-id="ticket_id" data-type="numeric" data-width="8%">Ticket No.</th>
+                                        <th data-column-id="tms" data-formatter="link" data-type="numeric"  data-width="8%">Load</th>
+                                        <th data-column-id="loading_date_formatted"data-width="10%">Loading date</th> <!-- Substatus en la DB (on my way to facility, etc) -->
+                                        <th data-column-id="facility" data-width="18%">Facility</th>
+                                        <th data-column-id="location" data-width="18%">Location</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="products" data-formatter="products" data-width="10%">Sand</th>
-                                        <th data-column-id="loading_date_formatted" data-width="11%">Loading date</th> <!-- Substatus en la DB (on my way to facility, etc) -->
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">To validate</th>
                                     </tr>
                                 </thead>
@@ -50,11 +50,11 @@
                                         <td><%= tickets[i].id %></td>
                                         <td><%= tickets[i].ticket_id %></td>
                                         <td><%= tickets[i].tms %></td>
-                                        <td><%= tickets[i].location %></td>
+                                        <td><%= tickets[i].loading_date_formatted %> </td>
                                         <td><%= tickets[i].facility %></td>
+                                        <td><%= tickets[i].location %></td>
                                         <td><%= tickets[i].driver_name %></td>
                                         <td><%= tickets[i].product %></td>
-                                        <td><%= tickets[i].loading_date_formatted %> </td>
                                         <td>
                                             <%if (tickets[i].substatus == 0) { %>
                                                 ASSIGNED
