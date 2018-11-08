@@ -149,7 +149,11 @@
     
                     //console.log(data);
                     $('#ticketId').html('<strong>' + data.ticket[0].id + '</strong>');
-                    $('#ticket_id').html('<strong>' + data.ticket[0].ticket_id + '</strong>');
+                    $('#ticket_id').html(
+                        "<strong><a data-pk=" + data.ticket[0].id + " data-title='Update Ticket No.' "+
+                        "data-type='text' class='black-link' "+
+                        "href='#' id='update-ticket_id' data-name='ticket_id'>"+data.ticket[0].ticket_id+"</a></strong>"  
+                    );
                     $('#born_date').html('<strong>' + data.ticket[0].born_date + '</strong>');
                     $('#invoice_rate').html('<strong>' + data.ticket[0].invoice_rate + '</strong>');
                     $('#product').html('<strong>' + data.ticket[0].product+ '</strong>'); //TODO: hay que ver si este producto es el correc to
@@ -224,7 +228,7 @@
                     });
     
                     // x-editable
-                    $('#update-comments, #update-silo, #update-base, #update-bol, #update-weight').editable({
+                    $('#update-comments, #update-silo, #update-base, #update-bol, #update-weight, #update-ticket_id').editable({
                         url: '/api/administrative/updateticket/',
                         send: 'always',
                         success: function(response, newValue) {
