@@ -88,7 +88,8 @@ exports.relateClockinEventWithPaymentEvent = (newPaymentId,clockinList) => {
 
 exports.getPayrollHrById = (hr_id) => {
     let statement = 'select `id`, \
-`amount`, \
+ROUND(`amount`, 2) amount, \
+ROUND(`demerge`, 2) demerge, \
 `seconds_worked`, \
 DATE_FORMAT(`date`, "%m-%d-%Y %H:%i:%s") date, \
 `wire_transfer` \
