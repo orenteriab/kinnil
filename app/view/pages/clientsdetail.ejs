@@ -497,8 +497,10 @@
                 };  
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-secondary command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span> Delete</button> &nbsp;"  +
-                    "<a href=\"#editLocationsModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-locations\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
+                    //return "<button type=\"button\" class=\"btn btn-xs btn-secondary command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span> Delete</button> &nbsp;"  +
+                    //"<a href=\"#editLocationsModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-locations\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
+
+                    return "<a href=\"#editLocationsModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-locations\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
                         
                 };
 
@@ -598,8 +600,10 @@
             APP.LOAD.GRID_FACILITIES = APP.LOAD.GRID_FACILITIES || function(){
 
                 var commandsFormatter = function(column, row) {
-                    return "<button type=\"button\" class=\"btn btn-xs btn-secondary command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span> Delete</button> &nbsp;"  +
-                    "<a href=\"#editFacilitiesModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-facilities\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
+                    //return "<button type=\"button\" class=\"btn btn-xs btn-secondary command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash-o\"></span> Delete</button> &nbsp;"  +
+                    //"<a href=\"#editFacilitiesModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-facilities\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
+
+                    return "<a href=\"#editFacilitiesModal\" data-toggle=\"modal\" data-hr=\"" + row.id +  "\" class=\"text-center black-link btn btn-default show-edit-facilities\"><span class=\"fa fa-edit\"></span> Edit &nbsp;</a>" ;
                 };
 
                 var loadedRsJQueryBootgrid = function(){
