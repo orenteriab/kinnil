@@ -152,6 +152,7 @@ exports.getPayrollHrById = (hr_id) => {
                         
                         return_data.rows.push({"id":+value[index].id, 
                                                 "amount": value[index].amount,
+                                                "demerge": value[index].demerge,
                                                 "hours-worked": value[index].seconds_worked / 60 / 60,
                                                 "date": value[index].date,
                                                 "wire-transfer": value[index].wire_transfer})
@@ -187,7 +188,7 @@ exports.getTicketsById = (hr_id) => {
                     // Formatos necesarios para jquery-bootgrid
                     var return_data = {}
                     return_data.current = 1
-                    return_data.rowCount = 10
+                    return_data.rowCount = 50
                     return_data.rows = []
                     return_data.total = ticketData.length
 
