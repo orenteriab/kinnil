@@ -95,6 +95,10 @@
             });
         });
 
+        const numberWithCommas = (x) => {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
         
         $("input[name='REPORT_TYPE']").click(function() {
 
@@ -323,8 +327,8 @@
 
                             var { ticket_id, completed_date, tms, bol, location_name, facility_long_name, location_long_name, driver_name, weight, sand_type, product, fuel_surcharge } = returnData[i]
 
-                            ws_data.push([`S- ${ticket_id}`,
-                                        `S- ${ticket_id}`,
+                            ws_data.push([`S-${ticket_id}`,
+                                        `S-${ticket_id}`,
                                         completed_date,
                                         completed_date,
                                         "Net 45",
@@ -333,12 +337,12 @@
                                         bol,
                                         `Halliburton Energy Services (${location_name})`,
                                         "Hauling Sand",
-                                        `ORIGIN \n ${facility_long_name} \n\n DESTINATION \n ${location_long_name}` ,
+                                        `ORIGIN\n${facility_long_name}\n\nDESTINATION\n${location_long_name}` ,
                                         driver_name,
                                         ""]);
 
-                            ws_data.push([`S- ${ticket_id}`,
-                                        `S- ${ticket_id}`,
+                            ws_data.push([`S-${ticket_id}`,
+                                        `S-${ticket_id}`,
                                         completed_date,
                                         completed_date,
                                         "",
@@ -351,8 +355,8 @@
                                         "",
                                         ""]);
 
-                            ws_data.push([`S- ${ticket_id}`,
-                                        `S- ${ticket_id}`,
+                            ws_data.push([`S-${ticket_id}`,
+                                        `S-${ticket_id}`,
                                         completed_date,
                                         completed_date,
                                         "",
@@ -360,13 +364,13 @@
                                         "",
                                         "",
                                         "",
-                                        weight,
+                                        numberWithCommas(parseFloat(weight)),
                                         "WEIGHT (lbs)",
                                         "",
                                         ""]);
 
-                            ws_data.push([`S- ${ticket_id}`,
-                                        `S- ${ticket_id}`,
+                            ws_data.push([`S-${ticket_id}`,
+                                        `S-${ticket_id}`,
                                         completed_date,
                                         completed_date,
                                         "",
@@ -374,13 +378,13 @@
                                         "",
                                         "",
                                         "",
-                                        `SAND TYPE: ${sand_type}`,
+                                        `SAND TYPE:${sand_type}`,
                                         "",
                                         "",
                                         ""]);
                             
-                            ws_data.push([`S- ${ticket_id}`,
-                                        `S- ${ticket_id}`,
+                            ws_data.push([`S-${ticket_id}`,
+                                        `S-${ticket_id}`,
                                         completed_date,
                                         completed_date,
                                         "",
@@ -388,13 +392,13 @@
                                         "",
                                         "",
                                         "",
-                                        `Sand # of Miles: ${product}`,
+                                        `Sand # of Miles:${product}`,
                                         "",
                                         "",
                                         ""]);
 
-                            ws_data.push([`S- ${ticket_id}`,
-                                        `S- ${ticket_id}`,
+                            ws_data.push([`S-${ticket_id}`,
+                                        `S-${ticket_id}`,
                                         completed_date,
                                         completed_date,
                                         "",
@@ -408,10 +412,28 @@
                                         fuel_surcharge]);
                         }
 
-
+                        
                         var ws = XLSX.utils.aoa_to_sheet(ws_data);
 
                         wb.Sheets["Completed Loads"] = ws;
+                        
+                        debugger;
+
+                        var C = XLSX.utils.decode_col("C"); // 2
+                        var fmt = 'mm/dd/yyyy'; // or '"$"#,##0.00_);[Red]\\("$"#,##0.00\\)' or any Excel number format
+
+                        var range = XLSX.utils.decode_range(ws['!ref']);
+
+                        for(var i = range.s.r + 1; i <= range.e.r; ++i) {
+                            /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
+                            var ref = XLSX.utils.encode_cell({r:i, c:C});
+                            /* if the particular row did not contain data for the column, the cell will not be generated */
+                            if(!ws[ref]) continue;
+                            /* `.t == "n"` for number cells */
+                            //if(ws[ref].t != 'n') continue;
+                            /* assign the `.z` number format */
+                            ws[ref].z = fmt;
+                        }
 
                         var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
 
