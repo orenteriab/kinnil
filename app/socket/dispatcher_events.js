@@ -131,7 +131,7 @@ const onStatus = (socket) => {
                         jsonPayload.fevid
                     )
             .then(() => {
-                socket.emit('status', JSON.stringify({ resivido: true }));
+                socket.emit('status', JSON.stringify({ resivido: true, substatus: jsonPayload.substatus }));
             })
             .catch(function (err) {
                 console.error('[/app/socket/Events.js][/status/]Error when querying: ', err);
