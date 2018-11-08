@@ -290,7 +290,7 @@ exports.getAccountsClockin = () => {
 };
 
 exports.getSelectedCrew = (crewId) => {
-    let statement = 'select id, name, shift from hr where position <> "DRIVER" and crew = ?';
+    let statement = 'select id, name, shift from hr where position <> "DRIVER" and labor_status = "WORKING WITH US" and crew = ?';
 
     return connectionPool.query(statement, [crewId]);
 };
@@ -298,7 +298,6 @@ exports.getSelectedCrew = (crewId) => {
 exports.saveClockInEvent = (id_evento, date, lattitud, longitud, name, id_hr) => {
     let statement = 'insert into `sandras`.`clockin` (`id_evento`, `in`, `lat_in`, `long_in`, `img_in_name`, `hr_id`,  `paid`) values (?,?,?,?,?,?,?)';
 
-    console.log("save clockin " + statement, [id_evento, date, lattitud, longitud, name, id_hr, 0])
     return connectionPool.query(statement, [id_evento, date, lattitud, longitud, name, id_hr, 0]);
 };
 
@@ -340,12 +339,6 @@ exports.upsertScalesData = (scalesData, timestap) => {
             if(row[0].locationCount == 0){
                 statement = "INSERT INTO `sandras`.`scales_data`" +
                 "(`id`," +
-                "`sand_name1`," +
-                "`sand_name2`," +
-                "`sand_name3`," +
-                "`sand_name4`," +
-                "`sand_name5`," +
-                "`sand_name6`," +
                 "`weight1`," +
                 "`weight2`," +
                 "`weight3`," +
@@ -368,12 +361,6 @@ exports.upsertScalesData = (scalesData, timestap) => {
                 "`locations_id`)" +
                 "VALUES (" +
                 "default, " +
-                "''," +
-                "''," +
-                "''," +
-                "''," +
-                "''," +
-                "''," +
                 "?," +
                 "?," +
                 "?," +
@@ -392,7 +379,7 @@ exports.upsertScalesData = (scalesData, timestap) => {
                 "?," +
                 "?," +
                 "?," +
-                "?," +
+                "'" + timestap + "'," +
                 "?)";
             }else{
                 statement = "UPDATE `sandras`.`scales_data` " +
@@ -414,8 +401,8 @@ exports.upsertScalesData = (scalesData, timestap) => {
                 "`porcent3` = ?, " +
                 "`porcent4` = ?, " +
                 "`porcent5` = ?, " +
-                "`porcent6` = ? " +
-                "`last_date` = ? " +
+                "`porcent6` = ?, " +
+                "`last_date` = '" + timestap + "' " +
                 "WHERE `locations_id` = ?; "
             }
 
@@ -438,7 +425,6 @@ exports.upsertScalesData = (scalesData, timestap) => {
                 scalesData.porcent4,
                 scalesData.porcent5,
                 scalesData.porcent6,
-                timestap,
                 scalesData.location
             ])
         }
@@ -455,6 +441,12 @@ exports.fetchScalesData = (locationId) => {
     `sand_name4`, \
     `sand_name5`, \
     `sand_name6`, \
+    `silo_name1`, \
+    `silo_name2`, \
+    `silo_name3`, \
+    `silo_name4`, \
+    `silo_name5`, \
+    `silo_name6`, \
     `weight1`, \
     `weight2`, \
     `weight3`, \
@@ -473,7 +465,7 @@ exports.fetchScalesData = (locationId) => {
     `porcent4`, \
     `porcent5`, \
     `porcent6`, \
-    DATE_FORMAT(`last_date`, '%m-%d-%Y %H:%i:%s') start_date, \
+    DATE_FORMAT(`last_date`, '%m-%d-%Y %H:%i:%s') last_date, \
     `locations_id` \
     from `sandras`.`scales_data` where locations_id = ?"
 
@@ -501,8 +493,6 @@ from `tickets` \
 where `location` = ? and `status` >= 3 \
 group by `sand_type` \
 order by `sand_type`"
-
-console.log(query, [locationName])
     
     return connectionPool.query(query, [locationName])
 }
