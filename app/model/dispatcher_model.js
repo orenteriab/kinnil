@@ -50,7 +50,15 @@ exports.getBasicTicketsList = () => {
 */
 exports.getTicketsList = () => {
     console.log('Loading date formatted');
-    let statement = 'select t.*, DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date_formatted, p.name `product_name`, h.name `driver_name` from tickets t left join products p on t.product = p.id left join hr h on t.hr_id = h.id';
+    let statement = 'select         t.*                                                                     \
+                                    ,DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date_formatted   \
+                                    ,p.name `product_name`                                                  \
+                                    ,h.name `driver_name`                                                   \
+                                    ,concat(c.id, \': \', c.name) `customer`                                 \
+                    from            tickets     t                                                           \
+                        left join   products    p on t.product  = p.id                                      \
+                        left join   hr          h on t.hr_id    = h.id                                      \
+                        left join   clients     c on c.id = t.clients_id';
 
     return connectionPool.query(statement);
 };
@@ -59,51 +67,52 @@ exports.getTicketsList = () => {
 * Obtiene tickets por Id
 */
 exports.getTicketById = (ticketId) => {
-    let statement = 'select t.id, \
-                        t.tms, \
-                        DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date,\
-                        t.ticket_id, \
-                        t.status, \
-                        t.substatus, \
-                        t.invoice_rate, \
-                        t.product, \
-                        t.base, \
-                        t.silo, \
-                        t.po, \
-                        t.facility, \
-                        t.location, \
-                        t.bol, \
-                        t.sand_type, \
-                        t.weight, \
-                        DATE_FORMAT(t.assign_date, "%m-%d-%Y") assign_date, \
-                        DATE_FORMAT(t.completed_date, "%m-%d-%Y") completed_date, \
-                        DATE_FORMAT(t.invoice_date, "%m-%d-%Y") invoice_date, \
-                        DATE_FORMAT(t.payrolled_date, "%m-%d-%Y") payrolled_date, \
-                        DATE_FORMAT(t.born_date, "%m-%d-%Y") born_date, \
-                        t.starting_mi, \
-                        t.end_mi, \
-                        t.pick_date, \
-                        t.drop_date, \
-                        t.notes, \
-                        t.hr_id, \
-                        t.products_id, \
-                        t.clients_id, \
-                        t.on_curse, \
-                        a1.name truck, \
-                        a2.name trailer, \
-                        t.load_rate, \
-                        t.load_rate_currency, \
-                        c.name client_name, \
-                        c.address client_address, \
-                        h.name driver_name, \
-                        h.shift shift, \
-                        h.crew crew \
-                        from tickets t \
-                        left join clients c on t.clients_id = c.id \
-                        left join hr h on t.hr_id = h.id \
-                        left join assets a1 on t.truck = a1.id\
-                        left join assets a2 on t.trailer = a2.id\
-                        where t.id = ?';
+    let statement = 'select         t.id, \
+                                    t.tms, \
+                                    DATE_FORMAT(t.loading_date, "%m-%d-%Y %H:%i") loading_date,\
+                                    t.ticket_id, \
+                                    t.status, \
+                                    t.substatus, \
+                                    t.invoice_rate, \
+                                    t.product, \
+                                    t.base, \
+                                    t.silo, \
+                                    t.po, \
+                                    t.facility, \
+                                    t.location, \
+                                    t.bol, \
+                                    t.sand_type, \
+                                    t.weight, \
+                                    DATE_FORMAT(t.assign_date, "%m-%d-%Y") assign_date, \
+                                    DATE_FORMAT(t.completed_date, "%m-%d-%Y") completed_date, \
+                                    DATE_FORMAT(t.invoice_date, "%m-%d-%Y") invoice_date, \
+                                    DATE_FORMAT(t.payrolled_date, "%m-%d-%Y") payrolled_date, \
+                                    DATE_FORMAT(t.born_date, "%m-%d-%Y") born_date, \
+                                    t.starting_mi, \
+                                    t.end_mi, \
+                                    t.pick_date, \
+                                    t.drop_date, \
+                                    t.notes, \
+                                    t.hr_id, \
+                                    t.products_id, \
+                                    t.clients_id, \
+                                    t.on_curse, \
+                                    a1.name truck, \
+                                    a2.name trailer, \
+                                    t.load_rate, \
+                                    t.load_rate_currency, \
+                                    c.name client_name, \
+                                    c.address client_address, \
+                                    h.name driver_name, \
+                                    h.shift shift, \
+                                    h.crew crew, \
+                                    concat(c.id, \':\', c.name) `customer`\
+                    from            tickets t \
+                        left join   clients c   on t.clients_id = c.id \
+                        left join   hr      h   on t.hr_id      = h.id \
+                        left join   assets  a1  on t.truck      = a1.id\
+                        left join   assets  a2  on t.trailer    = a2.id\
+                    where           t.id = ?';
 
     return connectionPool.query(statement, [ticketId]);
 };

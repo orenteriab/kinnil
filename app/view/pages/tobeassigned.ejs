@@ -59,6 +59,7 @@
                                         <th data-column-id="location" data-width="20%">Location</th>
                                         <th data-column-id="product" data-width="8%">Sand</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
+                                        <th data-column-id="customer">Customer</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false" data-width="10%">Options</th>
                                     </tr>
                                 </thead>
@@ -74,6 +75,7 @@
                                             <td><%= tickets[i].location %></td>
                                             <td><%= tickets[i].sand_type %></td>
                                             <td></td>
+                                            <td><%= tickets[i].customer || 'NA' %></td>
                                             <td><button type="submit" class="btn btn-default"> Assign</button></td>
                                         </tr>
                                         <% } %>
@@ -202,6 +204,11 @@
     <%include ../partials/ticket-detail %>
 
     <script id="tpl_search" type="text/template">
+         <div class="search form-group">
+            <div class="input-group">
+                <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-customer" class="form-control" type="text" placeholder="Search by Customer">
+            </div>
+        </div>
         <div class="search form-group">
             <div class="input-group">
                 <span class="icon fa input-group-addon fa-search"></span><input id="tx-filter-location" class="form-control" type="text" placeholder="Search by Location">
@@ -512,28 +519,38 @@
                 var locationFilter = $('#tx-filter-location').val().trim();
                 var sandFilter = $('#tx-filter-sand').val().trim();
                 var facilityFilter = $('#tx-filter-facility').val().trim();
+                var customerFilter = $('#tx-filter-customer').val().trim();
+
                 var backup = APP.STORE.GRID_TICKETS;
                 var filtered = backup;
-                 if(locationFilter.length > 2){
+                if(locationFilter.length > 2){
                     var locationRegex = new RegExp('.*' + locationFilter + '.*', 'i');
                     filtered = $.grep(backup, function(ticket, ticketIndex){ 
                         return locationRegex.test(String(ticket.location).toLowerCase());
                     });
                 }
                 
-                 if(sandFilter.length > 2){
+                if(sandFilter.length > 2){
                     var facilityRegex = new RegExp('.*' + sandFilter + '.*', 'i');
                     filtered = $.grep(filtered, function(ticket, ticketIndex){
                         return facilityRegex.test(String(ticket.product).toLowerCase());
                     });
                 }
 
-                 if(facilityFilter.length > 2){
+                if(facilityFilter.length > 2){
                     var loadRegex = new RegExp('.*' + facilityFilter + '.*', 'i');
                     filtered = $.grep(filtered, function(ticket, ticketIndex){
                         return loadRegex.test(String(ticket.facility).toLowerCase());
                     });
                 }
+
+                if(customerFilter.length > 2){
+                    var loadRegex = new RegExp('.*' + customerFilter + '.*', 'i');
+                    filtered = $.grep(filtered, function(ticket, ticketIndex){
+                        return loadRegex.test(String(ticket.customer).toLowerCase());
+                    });
+                }
+
                 $('#grid-basic').bootgrid().data('.rs.jquery.bootgrid').rows = filtered;
                 $('#grid-basic').bootgrid('reload');
             };
@@ -742,6 +759,11 @@
                         APP.SERVICE.TICKETS.FILTER();
                     });
                 },
+                TX_FILTER_CUSTOMER: function(){
+                    $('#tx-filter-customer').keyup(function(){
+                        APP.SERVICE.TICKETS.FILTER();
+                    });
+                },
                 ERROR_MODAL_HIDE: function(){
                     $('#errorModal').on('hide.bs.modal', function (e) {
                         APP.location.reload();
@@ -758,6 +780,7 @@
                     APP.EVENTS.TX_FILTER_LOCATION();
                     APP.EVENTS.TX_FILTER_SAND();
                     APP.EVENTS.TX_FILTER_FACILITY();
+                    APP.EVENTS.TX_FILTER_CUSTOMER();
                     APP.EVENTS.ERROR_MODAL_HIDE();
                 }
             };
