@@ -39,6 +39,8 @@
                                         <th data-column-id="location" data-width="18%">Location</th>
                                         <th data-column-id="drivers"  data-formatter="drivers">Driver</th>
                                         <th data-column-id="products" data-formatter="products" data-width="10%">Sand</th>
+                                        <th data-column-id="substatus">Substatus</th>
+                                        <th data-column-id="customer">Customer</th>
                                         <th data-column-id="options" data-formatter="commands" data-sortable="false">To validate</th>
                                     </tr>
                                 </thead>
@@ -74,6 +76,7 @@
                                                 FINISHED
                                             <% } %>
                                         </td>
+                                        <td><%= tickets[i].customer %></td>
                                         <td></td>
                                     </tr>
                                     <% } %>
