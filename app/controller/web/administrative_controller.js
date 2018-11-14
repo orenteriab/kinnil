@@ -22,7 +22,7 @@ router.get('/clients', (req, res) => {
 });
 
 router.get('/clients/:clientId', (req, res) => {
-
+    
     administrativeService
         .getClientDetail(req.params.clientId)
         .then((return_data) => {
@@ -33,7 +33,8 @@ router.get('/clients/:clientId', (req, res) => {
                 facilities: return_data.facilities,
                 products: return_data.products,
                 sands: return_data.sands,
-                crews: return_data.crews
+                crews: return_data.crews,
+                clientId: req.params.clientId
             });
         })
         .catch(function (err) {
