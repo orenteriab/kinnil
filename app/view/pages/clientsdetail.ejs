@@ -477,6 +477,9 @@
     -->
     <script>
         (function(APP){
+            APP.STORE = APP.STORE || {};
+            APP.STORE.CLIENT_ID = '<%= clientId %>';
+
             APP.SERVICE = APP.SERVICE || {};
 
             APP.SERVICE.ADMINISTRATIVE = APP.SERVICE.ADMINISTRATIVE || {};
@@ -754,7 +757,8 @@
                             url: '/api/administrative/addcrew/',
                             type: 'POST',
                             data: {
-                                name: $("#crewName").val()
+                                name: $("#crewName").val(),
+                                clientId: APP.STORE.CLIENT_ID
                             },
                             success: function (msj) {
                                 alert(msj.message);
@@ -778,7 +782,8 @@
                             url: '/api/administrative/addsand/',
                             type: 'POST',
                             data: {
-                                name: $("#sandName").val()
+                                name: $("#sandName").val(),
+                                clientId: APP.STORE.CLIENT_ID
                             },
                             success: function (msj) {
                                 alert(msj.message);
@@ -801,7 +806,8 @@
                             url: '/api/administrative/addproduct/',
                             type: 'POST',
                             data: {
-                                name: $("#productName").val()
+                                name: $("#productName").val(),
+                                clientId: APP.STORE.CLIENT_ID
                             },
                             success: function (msj) {
                                 alert(msj.message);
@@ -824,7 +830,8 @@
                             url: '/api/administrative/addfacilitie/',
                             type: 'POST',
                             data: {
-                                name: $("#facilitieName").val()
+                                name: $("#facilitieName").val(),
+                                clientId: APP.STORE.CLIENT_ID
                             },
                             success: function (msj) {
                                 alert(msj.message);
@@ -850,7 +857,8 @@
                                 name: $("#locationName").val(),
                                 geolocation: $("#locationGeo").val(),
                                 startDate: $("#locationStartDate").val(),
-                                endDate: $("#locationEndDate").val()
+                                endDate: $("#locationEndDate").val(),
+                                clientId: APP.STORE.CLIENT_ID
                             },
                             success: function (msj) {
                                 alert(msj.message);
