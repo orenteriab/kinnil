@@ -28,7 +28,7 @@ ROUTER.put('/clients/delete/:clientId', (req, res) => {
 ROUTER.post('/addsand/', (req, res) => {
 
     administrativeService
-        .addSand(req.body.name, 1) // 1 El cliente es halliburton por default
+        .addSand(req.body.name, req.body.clientId) // 1 El cliente es halliburton por default
         .then(() => {
 
             res.status(200);
@@ -70,7 +70,7 @@ ROUTER.put('/deletesand/', (req, res) => {
 ROUTER.post('/addcrew/', (req, res) => {
 
     administrativeService
-        .addCrew(req.body.name, 1) // 1 El cliente es halliburton por default
+        .addCrew(req.body.name, req.body.clientId) // 1 El cliente es halliburton por default
         .then(() => {
 
             res.status(200);
@@ -114,7 +114,7 @@ ROUTER.put('/deletecrew/', (req, res) => {
 ROUTER.post('/addproduct/', (req, res) => {
 
     administrativeService
-        .addProduct(req.body.name, 1)
+        .addProduct(req.body.name, req.body.clientId)
         .then(() => {
 
             res.status(200);
@@ -156,7 +156,7 @@ ROUTER.put('/deleteproduct/', (req, res) => {
 ROUTER.post('/addfacilitie/', (req, res) => {
 
     administrativeService
-        .addFacilitie(req.body.name, 1)
+        .addFacilitie(req.body.name, req.body.clientId)
         .then(() => {
 
             res.status(200);
@@ -198,7 +198,7 @@ ROUTER.put('/deletefacility/', (req, res) => {
 ROUTER.post('/addlocation/', (req, res) => {
 
     administrativeService
-        .addLocation(req.body.name, 'ON GOING', req.body.geolocation ,req.body.startDate, req.body.endDate, 1)
+        .addLocation(req.body.name, 'ON GOING', req.body.geolocation ,req.body.startDate, req.body.endDate, req.body.clientId)
         .then(() => {
 
             res.status(200);
