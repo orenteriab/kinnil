@@ -29,4 +29,17 @@ ROUTER.post('/quickbooks-import', (req, res) => {
         });
 });
 
+ROUTER.post('/diamonback-report', (req, res) => {
+    SERVICE.getDiamonBackReport(req.body.inicio, req.body.fin)
+            .then(values => {
+                res.status(200)
+                res.json(values)
+            })
+            .catch(err => {
+                console.error(`[reports_controller][diamonback-report]: Error when generating report \n`, err.sql)
+                res.status(500)
+                res.json({message: "The report couldn't be created, please try again later."})
+            })
+})
+
 exports.router = ROUTER;
