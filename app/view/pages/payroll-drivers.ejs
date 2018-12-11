@@ -121,32 +121,96 @@
                 <div class = "row">
                     <h4>Loads</h4>
                     <table id='grid-basic' border="1" class="table table-bordered table-condensed table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th data-column-id="id" data-type="numeric" data-type="numeric" data-width="10%">Ticket No.</th>
-                            <th data-column-id="tms" data-formatter="link">Load</th>
-                            <th data-column-id="location"  data-width="25%">Location</th>
-                            <th data-column-id="facility">Facility</th>
-                            <th data-column-id="standby-hours">Stand by Time</th>
-                            <th data-column-id="demerge-amount" data-formatter="demerge">Demerge amount</th>
-                            <th data-column-id="load-rate">Load rate</th>
-                            <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="quote">
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                            <td id=""></td>
-                        </tr>
-                    </tbody>
+                        <thead>
+                            <tr>
+                                <th data-column-id="id" data-type="numeric" data-type="numeric" data-width="10%">Ticket No.</th>
+                                <th data-column-id="tms" data-formatter="link">Load</th>
+                                <th data-column-id="location"  data-width="25%">Location</th>
+                                <th data-column-id="facility">Facility</th>
+                                <th data-column-id="standby-hours">Stand by Time</th>
+                                <th data-column-id="demerge-amount" data-formatter="demerge">Demerge amount</th>
+                                <th data-column-id="load-rate">Load rate</th>
+                                <th data-column-id="options" data-formatter="commands" data-sortable="false">Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="quote">
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                                <td id=""></td>
+                            </tr>
+                        </tbody>
                     </table>
+                </div>
+                <div class="row">
+                    <input type="checkbox" id="chk_others"> <label for="chk_others">Others</label>
+                    &nbsp;
+                    
+                    <input type="checkbox" id="chk_reinbursment"> <label for="chk_reinbursment">Reinbursment</label>
+                    &nbsp;
+                    
+                    <input type="checkbox" id="chk_deductions"> <label for="chk_deductions">Deductions</label>
+
+                    <div style="display:block; width:100%; height:5px;"></div>
+
+                    <div class="dv_others" style="display:none; float:right; width: 80%;">
+                        <h5>Others</h5>
+                        <table class="table table-bordered table-condensed table-hover table-striped">
+                            <thead>
+                                <tr class="quote">
+                                    <th>Amount</th>
+                                    <th>Truck</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Options</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-others">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display:block; width:100%; height:5px;"></div>
+
+                    <div class="dv_reinbursment" style="display:none; float:right; width: 60%;">
+                        <h5>Reinburstment</h5>
+                        <table class="table table-bordered table-condensed table-hover table-striped">
+                            <thead>
+                                <tr class="quote">
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Options</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-reinbursment">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display:block; width:100%; height:5px;"></div>
+
+                    <div class="dv_deductions" style="display:none; float:right; width: 60%;">
+                        <h5>Deductions</h5>
+                        <table class="table table-bordered table-condensed table-hover table-striped">
+                            <thead>
+                                <tr class="quote">
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Options</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-deductions">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
@@ -495,7 +559,224 @@
             
             doc.save('payroll_'+ msj.payroll[0].id +'.pdf');
         }
+
+        function addRowToOthers(myId){
+            var amountField = $('<input />')
+                .attr('type', 'number')
+                .attr('step', '0.01')
+                .attr('data-other-id', myId)
+                .attr('value', '0.00')
+                .attr('name', 'amount');
+
+            var columnAmountField = $('<td></td>').append(amountField);
+
+            var truckField = $('<input />')
+                .attr('type', 'text')
+                .attr('data-other-id', myId)
+                .attr('name', 'truck');
+
+            var columnTruckField = $('<td></td>').append(truckField);
+
+            var descriptionField = $('<input />')
+                .attr('type', 'text')
+                .attr('data-other-id', myId)
+                .attr('name', 'description');
+
+            var columnDescriptionField = $('<td></td>').append(descriptionField);
+
+            var dateField = $('<input />')
+                .attr('type', 'date')
+                .attr('data-other-id', myId)
+                .attr('name', 'date');
+
+            var columnDateField = $('<td></td>').append(dateField);
+
+            var optionsField = $('<input />')
+                .attr('type', 'checkbox')
+                .attr('data-other-id', myId)
+                .attr('name', 'appendOther')
+                .attr('class', 'appendOtherClz');
+
+            var columnOptionsField = $('<td></td>').append(optionsField);
+
+            var row = $('<tr></tr>')
+                .attr('data-others-row-id', myId)
+                .append(columnAmountField)
+                .append(columnTruckField)
+                .append(columnDescriptionField)
+                .append(columnDateField)
+                .append(columnOptionsField)
+                .attr('class', 'other-data-row');
+
+            $('#tbody-others').append(row);
+
+            $(optionsField).on('change', function(e){
+                e.preventDefault();
+                if($('#tbody-others').children().length < 10 && e.target.checked){
+                    addRowToOthers($('#tbody-others').children().length);
+                }else if(!e.target.checked){
+                    $('.other-data-row:last').remove();
+                    $('.appendOtherClz:not(:last)').prop('checked', true);
+                    $('.appendOtherClz:last').prop('checked', false);
+                }else{
+                    $('.appendOtherClz:last').prop('checked', false);
+                }
+                
+            });
+        }
         
+        $('#chk_others').on('change', function(e){
+            if(e.target.checked){
+                $('#tbody-others').html('');
+                $('.dv_others').css('display', 'inherit');
+                addRowToOthers($('#tbody-others').children().length);
+            }else{
+                $('#tbody-others').html('');
+                $('.dv_others').css('display', 'none');
+            }
+        });
+
+        function addRowToReinbursment(myId){
+            var amountField = $('<input />')
+                .attr('type', 'number')
+                .attr('step', '0.01')
+                .attr('data-reinbursment-id', myId)
+                .attr('value', '0.00')
+                .attr('name', 'amount');
+
+            var columnAmountField = $('<td></td>').append(amountField);
+
+            var descriptionField = $('<input />')
+                .attr('type', 'text')
+                .attr('data-reinbursment-id', myId)
+                .attr('name', 'description');
+
+            var columnDescriptionField = $('<td></td>').append(descriptionField);
+
+            var dateField = $('<input />')
+                .attr('type', 'date')
+                .attr('data-reinbursment-id', myId)
+                .attr('name', 'date');
+
+            var columnDateField = $('<td></td>').append(dateField);
+
+            var optionsField = $('<input />')
+                .attr('type', 'checkbox')
+                .attr('data-reinbursment-id', myId)
+                .attr('name', 'appendReinbursment')
+                .attr('class', 'appendReinbursmentClz');
+
+            var columnOptionsField = $('<td></td>').append(optionsField);
+
+            var row = $('<tr></tr>')
+                .attr('data-reinbursment-row-id', myId)
+                .append(columnAmountField)
+                .append(columnDescriptionField)
+                .append(columnDateField)
+                .append(columnOptionsField)
+                .attr('class', 'reinbursment-data-row');
+
+            $('#tbody-reinbursment').append(row);
+
+            $(optionsField).on('change', function(e){
+                e.preventDefault();
+
+                if($('#tbody-reinbursment').children().length < 10 && e.target.checked){
+                    addRowToReinbursment($('#tbody-reinbursment').children().length);
+                }else if(!e.target.checked){
+                    $('.reinbursment-data-row:last').remove();
+                    $('.appendReinbursmentClz:not(:last)').prop('checked', true);
+                    $('.appendReinbursmentClz:last').prop('checked', false);
+                }else{
+                    $('.appendReinbursmentClz:last').prop('checked', false);
+                }
+                
+            });
+
+        }
+
+        $('#chk_reinbursment').on('change', function(e){
+            if(e.target.checked){
+                $('#tbody-reinbursment').html('');
+                $('.dv_reinbursment').css('display', 'inherit');
+                addRowToReinbursment($('#tbody-reinbursment').children().length);
+            }else{
+                $('#tbody-reinbursment').html('');
+                $('.dv_reinbursment').css('display', 'none');
+            }
+        });
+
+        function addRowToDeductions(myId){
+            var amountField = $('<input />')
+                .attr('type', 'number')
+                .attr('step', '0.01')
+                .attr('data-deductions-id', myId)
+                .attr('value', '0.00')
+                .attr('name', 'amount');
+
+            var columnAmountField = $('<td></td>').append(amountField);
+
+            var descriptionField = $('<input />')
+                .attr('type', 'text')
+                .attr('data-deductions-id', myId)
+                .attr('name', 'description');
+
+            var columnDescriptionField = $('<td></td>').append(descriptionField);
+
+            var dateField = $('<input />')
+                .attr('type', 'date')
+                .attr('data-deductions-id', myId)
+                .attr('name', 'date');
+
+            var columnDateField = $('<td></td>').append(dateField);
+
+            var optionsField = $('<input />')
+                .attr('type', 'checkbox')
+                .attr('data-deductions-id', myId)
+                .attr('name', 'appendDeductions')
+                .attr('class', 'appendDeductionsClz');
+
+            var columnOptionsField = $('<td></td>').append(optionsField);
+
+            var row = $('<tr></tr>')
+                .attr('data-deductions-row-id', myId)
+                .append(columnAmountField)
+                .append(columnDescriptionField)
+                .append(columnDateField)
+                .append(columnOptionsField)
+                .attr('class', 'deductions-data-row');
+
+            $('#tbody-deductions').append(row);
+
+            $(optionsField).on('change', function(e){
+                e.preventDefault();
+
+                if($('#tbody-deductions').children().length < 10 && e.target.checked){
+                    addRowToDeductions($('#tbody-deductions').children().length);
+                }else if(!e.target.checked){
+                    $('.deductions-data-row:last').remove();
+                    $('.appendDeductionsClz:not(:last)').prop('checked', true);
+                    $('.appendDeductionsClz:last').prop('checked', false);
+                }else{
+                    $('.appendDeductionsClz:last').prop('checked', false);
+                }
+                
+            });
+
+        }
+
+        $('#chk_deductions').on('change', function(e){
+            if(e.target.checked){
+                $('#tbody-deductions').html('');
+                $('.dv_deductions').css('display', 'inherit');
+                addRowToDeductions($('#tbody-deductions').children().length);
+            }else{
+                $('#tbody-deductions').html('');
+                $('.dv_deductions').css('display', 'none');
+            }
+        });
+
+
     </script>
 
 
