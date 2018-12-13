@@ -171,4 +171,17 @@ ROUTER.get('/getPDFInformationDrivers/:payrollId', (req, res) => {
         })
 })
 
+ROUTER.get('/getXLSInformationDrivers/:payrollId', (req, res) => {
+    payrollService
+        .getXlsInformationDrivers(req.params.payrollId)
+        .then((data) => {
+            res.json(200, data)
+        })
+        .catch((err) => {
+            console.error(`[Api/payroll_controller.js][/getXLSInformationDrivers/${req.params.payrollId}] Error when gathering XLS data:`, err)
+            console.error(err.sql.replace(/\s{2,}/g,' '));
+            res.json(404, err)
+        })
+})
+
 exports.router = ROUTER;

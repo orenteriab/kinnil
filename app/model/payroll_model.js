@@ -255,3 +255,89 @@ exports.createConcepts = (concepts, payrollId) => {
 
     return Promise.all(promises)
 }
+
+const fecthLoads = (payrollId) => {
+    let sql =   "   select          row_number() over (order by `t`.`assign_date`)  `#`                 \
+                                    ,DATE_FORMAT(`t`.`assign_date`, '%m/%d/%Y')     `Date`               \
+                                    ,`t`.`truck`                                     `Truck #`           \
+                                    ,`t`.`bol`                                       `BOL#`              \
+                                    ,`t`.`ticket_id`                                 `FEVID #`           \
+                                    ,`t`.`tms`                                       `TMS ID`            \
+                                    ,`t`.`facility`                                  `Facility`          \
+                                    ,`t`.`location`                                  `Location`          \
+                                    ,format(`t`.`load_rate`, 2)                     `Load Rate`         \
+                                    ,format(`t`.`driver_rate`, 2)                   `Driver Rate`       \
+                                    ,format(coalesce(`p`.`demerge`, 0), 2)          `Demerge Payment`   \
+                     from           `sandras`.`tickets`     `t`                                         \
+                         inner join `sandras`.`payroll_hr`  `p` on `t`.`payroll_hr_id` = `p`.`id`       \
+                     where          `p`.`id` = ?                                                        "
+
+    return connectionPool.query(sql, [payrollId])
+                        .then((rows) => {
+                            const totalLoadRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Load Rate"] || 0), 0.0)
+                            const totalDriversRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Driver Rate"] || 0), 0.0)
+                            const totalDemerge = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Demerge Payment"] || 0), 0.0)
+
+                            return Promise.resolve({
+                                result: rows,
+                                totals: {
+                                    loadRate: parseFloat(totalLoadRate).toFixed(2),
+                                    driversRate: parseFloat(totalDriversRate).toFixed(2),
+                                    demerge: parseFloat(totalDemerge).toFixed(2)
+                                }
+                            })
+                        })
+}
+
+
+const fecthConcept = (concept, payrollId) => {
+    let sql = "";
+
+    if(concept === 'others'){
+        sql = "select  row_number() over(order by `o`.`date`)   `#`             \
+                        ,DATE_FORMAT(`o`.`date`, '%m/%d/%Y')    `Date`          \
+                        ,`o`.`truck`                            `Truck #`       \
+                        ,`o`.`description`                      `Description`   \
+                        ,format(`o`.`amount`,2)                 `Amount`        \
+                from    `sandras`.`other_concepts` `o`                          \
+                where   `o`.`payroll_hr_id` = ?                                 \
+                    and `o`.`type` = ?                                          "
+    }else{
+        sql = "select  row_number() over(order by `o`.`date`)   `#`             \
+                        ,DATE_FORMAT(`o`.`date`, '%m/%d/%Y')    `Date`          \
+                        ,`o`.`description`                      `Description`   \
+                        ,format(`o`.`amount`,2)                 `Amount`        \
+                from    `sandras`.`other_concepts` `o`                          \
+                where   `o`.`payroll_hr_id` = ?                                 \
+                    and `o`.`type` = ?                                          "
+    }
+
+    return connectionPool.query(sql, [payrollId, concept])
+                        .then((rows) => {
+                            const total = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Amount"] || 0), 0)
+                            
+                            return Promise.resolve({
+                                result: rows,
+                                total: parseFloat(total).toFixed(2)
+                            })
+                        })
+}
+
+exports.fetchXLSData = (payrollId) => {
+    let promises = [
+        fecthLoads(payrollId), 
+        fecthConcept('others', payrollId), 
+        fecthConcept('reinbursment', payrollId), 
+        fecthConcept('deduction', payrollId)
+    ]
+
+    return Promise.all(promises)
+                .then((data) => {
+                    return Promise.resolve({
+                        loads: data[0],
+                        others: data[1],
+                        reinbursment: data[2],
+                        deductions: data[3]
+                    })
+                })
+}

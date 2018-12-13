@@ -285,3 +285,7 @@ exports.getPdfIinformationDrivers = (payrollId) => {
                 })
             })
 }
+
+exports.getXlsInformationDrivers = (payrollId) => {
+    return payrollModel.fetchXLSData(payrollId)
+}
