@@ -79,7 +79,7 @@ exports.createPayrollEntry = (clockinList, id, dllsHr, wireTransfer, demergeAmou
             })
 }
 
-exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer, demergeAmount) => {
+exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer, demergeAmount, concepts) => {
     // Se obtiene fecha y hora actuales
     var today = new Date();
     var dd = today.getDate();
@@ -112,6 +112,11 @@ exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer,
                 // se crea la entrada en payroll
                 return payrollModel
                     .createPayrollEntryforDrivers(wireTransfer, paymentDetails.amount, timestap, id, demergeAmount)
+                    .then(returnData => {
+                        return payrollModel
+                                .createConcepts(concepts, returnData.insertId)
+                                .then(() => Promise.resolve(returnData))
+                    })
                     .then((return_data) => {
                         // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)
                         return payrollModel
@@ -128,6 +133,11 @@ exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer,
                 // se crea la entrada en payroll
                 return payrollModel
                     .createPayrollEntryforDrivers(wireTransfer, paymentDetails.amount, timestap, id, demergeAmount)
+                    .then(returnData => {
+                        return payrollModel
+                            .createConcepts(concepts, returnData.insertId)
+                            .then(() => Promise.resolve(returnData))
+                    })
                     .then((return_data) => {
                         // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)
                         return payrollModel

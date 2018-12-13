@@ -219,3 +219,39 @@ where `payroll_hr_id` in ('+ payrollId +')';
     return connectionPool.query(statement);
 }
 
+const prepareConcepts = (concepts, type, payrollId) => {
+    let promises = []
+    let sql = 'insert into `sandras`.`other_concepts`(`type`,`amount`,`description`,`date`,`truck`,`payroll_hr_id`)VALUES(?,?,?,?,?,?)'
+
+    for(let c in concepts){
+        let params = [
+            type,
+            parseFloat(concepts[c].amount).toFixed(2),
+            concepts[c].description || '',
+            concepts[c].date,
+            concepts[c].truck || '',
+            payrollId
+        ]
+        promises.push(connectionPool.query(sql, params))
+    }
+
+    return promises;
+}
+
+exports.createConcepts = (concepts, payrollId) => {  
+    let promises = []
+
+    if(concepts.deductions){
+        promises = promises.concat(prepareConcepts(concepts.deductions, 'deduction', payrollId))
+    }
+
+    if(concepts.others){
+        promises = promises.concat(prepareConcepts(concepts.others, 'others', payrollId))
+    }
+
+    if(concepts.reinbursment){
+        promises = promises.concat(prepareConcepts(concepts.reinbursment, 'reinbursment', payrollId))
+    }
+
+    return Promise.all(promises)
+}
