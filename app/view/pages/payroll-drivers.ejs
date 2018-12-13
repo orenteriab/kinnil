@@ -454,6 +454,7 @@
             }
 
             if (ticketList != ''){
+                var concepts = buildAll();
 
                 $.ajax({
                     url: '/api/payroll/createPayrollEntryforDriver/',    
@@ -464,7 +465,8 @@
                         rate: $("#rate").val(),
                         type: $("#type").val(),
                         wireTransfer: $("#wireTransferInput").val(),
-                        demergeAmount: demergeAmount
+                        demergeAmount: demergeAmount,
+                        concepts: concepts
                     },      //Data as js object
                     success: function (msj) {
                         alert(msj);
@@ -776,7 +778,50 @@
             }
         });
 
+        function buildConcepts(indexField, appendField){
+            var concepts = {};
+            var conceptFields = $('input['+ indexField +'][name!="'+ appendField +'"]');
 
+            $.each(conceptFields, function(index, elem){
+                var jElem = $(elem);
+                var name = jElem.attr('name');
+                var value = jElem.val();
+                var elemIndex = jElem.attr(indexField);
+
+                var field = {};
+                field[name] = value;
+
+                if(!concepts[elemIndex]){
+                    var other = {};
+                    other[elemIndex] = field;
+                    concepts = Object.assign(other, concepts);
+                }else{
+                    concepts[elemIndex] = Object.assign(field, concepts[elemIndex]);
+                }
+            });
+
+            return concepts;
+        }
+
+        function buildOthers(){
+            return buildConcepts('data-other-id', 'appendOther');
+        }
+
+        function buildReinbursment(){
+            return buildConcepts('data-reinbursment-id', 'appendReinbursment');
+        }
+
+        function buildDeductions(){
+            return buildConcepts('data-deductions-id', 'appendDeductions');
+        }
+
+        function buildAll(){
+            return {
+                others: buildOthers(),
+                reinbursment: buildReinbursment(),
+                deductions: buildDeductions()
+            };
+        }
     </script>
 
 
