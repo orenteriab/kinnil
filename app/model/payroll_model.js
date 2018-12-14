@@ -1,4 +1,5 @@
 let connectionPool = require('../config/database_config').connectionPool;
+let moment = require('moment-timezone')
 
 
 exports.getPayrollByPosition = (position) => {
@@ -256,34 +257,43 @@ exports.createConcepts = (concepts, payrollId) => {
     return Promise.all(promises)
 }
 
+const unformatNumber = (amount) => {
+    if(amount && amount.length && amount.length > 0){
+        return amount.replace(/,/g, '')
+    }
+
+    return 0
+}
+
 const fecthLoads = (payrollId) => {
     let sql =   "   select          row_number() over (order by `t`.`assign_date`)  `#`                 \
-                                    ,DATE_FORMAT(`t`.`assign_date`, '%m/%d/%Y')     `Date`               \
-                                    ,`t`.`truck`                                     `Truck #`           \
-                                    ,`t`.`bol`                                       `BOL#`              \
-                                    ,`t`.`ticket_id`                                 `FEVID #`           \
-                                    ,`t`.`tms`                                       `TMS ID`            \
-                                    ,`t`.`facility`                                  `Facility`          \
-                                    ,`t`.`location`                                  `Location`          \
+                                    ,DATE_FORMAT(`t`.`assign_date`, '%m/%d/%Y')     `Date`              \
+                                    ,`t`.`truck`                                    `Truck #`           \
+                                    ,`t`.`bol`                                      `BOL#`              \
+                                    ,`t`.`ticket_id`                                `FEVID #`           \
+                                    ,`t`.`tms`                                      `TMS ID`            \
+                                    ,`t`.`facility`                                 `Facility`          \
+                                    ,`t`.`location`                                 `Location`          \
                                     ,format(`t`.`load_rate`, 2)                     `Load Rate`         \
                                     ,format(`t`.`driver_rate`, 2)                   `Driver Rate`       \
                                     ,format(coalesce(`p`.`demerge`, 0), 2)          `Demerge Payment`   \
                      from           `sandras`.`tickets`     `t`                                         \
-                         inner join `sandras`.`payroll_hr`  `p` on `t`.`payroll_hr_id` = `p`.`id`       \
-                     where          `p`.`id` = ?                                                        "
+                        inner join  `sandras`.`payroll_hr`  `p` on `t`.`payroll_hr_id` = `p`.`id`       \
+                     where          `p`.`id` = ?                                                        \
+                     order by       `t`.`assign_date`                                                   "
 
     return connectionPool.query(sql, [payrollId])
                         .then((rows) => {
-                            const totalLoadRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Load Rate"] || 0), 0.0)
-                            const totalDriversRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Driver Rate"] || 0), 0.0)
-                            const totalDemerge = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Demerge Payment"] || 0), 0.0)
+                            const totalLoadRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Load Rate"]) || 0), 0.0)
+                            const totalDriversRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Driver Rate"]) || 0), 0.0)
+                            const totalDemerge = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Demerge Payment"]) || 0), 0.0)
 
                             return Promise.resolve({
                                 result: rows,
                                 totals: {
-                                    loadRate: parseFloat(totalLoadRate).toFixed(2),
-                                    driversRate: parseFloat(totalDriversRate).toFixed(2),
-                                    demerge: parseFloat(totalDemerge).toFixed(2)
+                                    loadRate: parseFloat(totalLoadRate).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
+                                    driversRate: parseFloat(totalDriversRate).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
+                                    demerge: parseFloat(totalDemerge).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
                                 }
                             })
                         })
@@ -314,7 +324,7 @@ const fecthConcept = (concept, payrollId) => {
 
     return connectionPool.query(sql, [payrollId, concept])
                         .then((rows) => {
-                            const total = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(row["Amount"] || 0), 0)
+                            const total = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Amount"]) || 0), 0)
                             
                             return Promise.resolve({
                                 result: rows,
@@ -323,21 +333,59 @@ const fecthConcept = (concept, payrollId) => {
                         })
 }
 
+const fecthDriverNameAndPayrollPeriod = (payrollId) => {
+    let sql = " select          `h`.`name`  `driverName`                                \
+                                ,`p`.`date` `date`                                      \
+                from            `sandras`.`payroll_hr`  `p`                             \
+                    inner join  `sandras`.`hr`          `h` on `p`.`hr_id` = `h`.`id`   \
+                where           `p`.`id` = ?                                            "
+    
+    return connectionPool.query(sql, [payrollId]);
+}
+
 exports.fetchXLSData = (payrollId) => {
     let promises = [
         fecthLoads(payrollId), 
         fecthConcept('others', payrollId), 
         fecthConcept('reinbursment', payrollId), 
-        fecthConcept('deduction', payrollId)
+        fecthConcept('deduction', payrollId),
+        fecthDriverNameAndPayrollPeriod(payrollId)
     ]
 
     return Promise.all(promises)
                 .then((data) => {
+                    const driverRate = data[0].totals.driversRate && data[0].totals.driversRate.length > 0 ? data[0].totals.driversRate : 0
+
+                    const demerge = data[0].totals.demerge && data[0].totals.demerge.length > 0 ? data[0].totals.demerge : 0
+
+                    const others = data[1].total && data[1].total.length > 0 ? data[1].total : 0
+                    const reinbursment = data[2].total && data[2].total.length > 0 ? data[2].total : 0
+                    const deduction = data[3].total && data[3].total.length > 0 ? data[3].total : 0
+
+                    const grandTotal = parseFloat(
+                        (parseFloat(unformatNumber(driverRate))) + 
+                        (parseFloat(unformatNumber(demerge))) +
+                        (parseFloat(unformatNumber(others))) +
+                        (parseFloat(unformatNumber(reinbursment))) -
+                        (parseFloat(unformatNumber(deduction)))
+                    ).toFixed(2)
+                    .replace(/\d(?=(\d{3})+\.)/g, '$&,')
+
+                    const driverName = String(data[4][0].driverName || "").replace(/\s+/g, ' ').trim()
+                    const sunday = moment(data[4][0].date, "YYYY-MM-DD HH:mm:ss").isoWeekday(0).format('MM/DD/YYYY')
+                    const saturday = moment(data[4][0].date, "YYYY-MM-DD HH:mm:ss").isoWeekday(6).format('MM/DD/YYYY')
+                    const payrollPeriod = `${sunday}-${saturday}`;
+                    const payDate = moment(data[4][0].date, "YYYY-MM-DD HH:mm:ss").format('MM/DD/YYYY')
+
                     return Promise.resolve({
                         loads: data[0],
                         others: data[1],
                         reinbursment: data[2],
-                        deductions: data[3]
+                        deductions: data[3],
+                        driverName: driverName,
+                        total: grandTotal,
+                        payrollPeriod: payrollPeriod,
+                        payDate: payDate
                     })
                 })
 }
