@@ -495,6 +495,7 @@
                         initGridPayroll($("#id").val());
                         $('#wireTransferModal').modal('hide');
                         $("#wireTransferInput").val("");
+                        location.reload(true);
                     },
                     error: function(xhr) {
                         $('#wireTransferModal').modal('hide');
@@ -815,14 +816,21 @@
             var demergeTotalRow = ["","","","","","","","","","Demerge Total:", "$ " + totalDemerge ];
             workSheetData.push(demergeTotalRow);
 
-            var othersTotalRow = ["","","","","","","","","","Others Total:", "$ " + totalOthers ];
-            workSheetData.push(othersTotalRow);
+            if(totalOthers !== "0.00"){
+                var othersTotalRow = ["","","","","","","","","","Others Total:", "$ " + totalOthers ];
+                workSheetData.push(othersTotalRow);
+            }
+            
 
-            var reinbursmentTotalRow = ["","","","","","","","","","Reinbursment Total:", "$ " + totalReinbursment ];
-            workSheetData.push(reinbursmentTotalRow);
+            if(totalReinbursment !== "0.00"){
+                var reinbursmentTotalRow = ["","","","","","","","","","Reinbursment Total:", "$ " + totalReinbursment ];
+                workSheetData.push(reinbursmentTotalRow);
+            }
 
-            var deductionsTotalRow = ["","","","","","","","","","Deductions Total:", "$ " + totalDeductions ];
-            workSheetData.push(deductionsTotalRow);
+            if(totalDeductions !== "0.00"){
+                var deductionsTotalRow = ["","","","","","","","","","Deductions Total:", "$ " + totalDeductions ];
+                workSheetData.push(deductionsTotalRow);
+            }
 
             var grandTotalRow = ["","","","","","","","","","Total:", "$ " + msj.total ];
             workSheetData.push(grandTotalRow);
