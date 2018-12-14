@@ -279,6 +279,8 @@
     <script>
         //var socket = io.connect('http://localhost:3000');
     </script>
+    <script lang="javascript" src="/assets/js/xlsx.full.min.js"></script>
+    <script lang="javascript" src="/assets/js/FileSaver.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -407,7 +409,9 @@
                 formatters: {
                     "commands": function(column, row)
                     {
-                        return "<button type=\"button\" class=\"btn btn-md btn-secondary command-payroll-to-pdf\" data-row-id=\"" + row.id + "\">PDF</button>" 
+                        return "<button type=\"button\" class=\"btn btn-md btn-secondary command-payroll-to-pdf\" data-row-id=\"" + row.id + "\">PDF</button>" +
+                                "&nbsp;" +
+                                "<button type=\"button\" class=\"btn btn-md btn-secondary command-payroll-to-xls\" data-row-id=\"" + row.id + "\">XLS</button>";
                     }
                 }
             }).on("loaded.rs.jquery.bootgrid", function()
@@ -421,6 +425,21 @@
                         data: {},      //Data as js object
                         success: function (msj) {
                             payrollToPdf(msj);
+                        },
+                        error: function(err) {
+                            alert("Error occured. please try again: " + err);
+                        },
+                    })
+                });
+
+                grid.find(".command-payroll-to-xls").on("click", function(e)
+                {
+                    $.ajax({
+                        url: '/api/payroll/getXLSInformationDrivers/' + $(this).data("row-id"),    
+                        type: 'GET',   
+                        data: {},      //Data as js object
+                        success: function (msj) {
+                            payrollToXls(msj);
                         },
                         error: function(err) {
                             alert("Error occured. please try again: " + err);
@@ -560,6 +579,271 @@
             doc.addImage(imgData , 125, 240, 73, 25);
             
             doc.save('payroll_'+ msj.payroll[0].id +'.pdf');
+        }
+
+        function payrollToXls(msj){
+            var workSheetData = [];
+            var merges = [];
+
+            var addressRow = ["", "Address: 10800 WCR 72", "", "", "", "", "", "", "", "", "",]
+            workSheetData.push(addressRow);
+            merges.push(XLSX.utils.decode_range("B1:F1"));
+
+            var addressTwoRow = ["", "Midland, TX 79707", "", "", "", "", "", "Phone: (432 305-5277)", "", "", ""];
+            workSheetData.push(addressTwoRow);
+            merges.push(XLSX.utils.decode_range("B2:F2"));
+            workSheetData.push([]);
+
+            var nameRow = ["", "DRIVER NAME:", msj.driverName, "", "", "", "", "", "", "", ""];
+            workSheetData.push(nameRow);
+            merges.push(XLSX.utils.decode_range("C4:G4"));
+
+            var payDateRow = ["", "", "", "", "", "", "", "Pay Date:", msj.payDate, "", ""];
+            workSheetData.push(payDateRow);
+
+            var payrollPeriodRow = ["", "Payroll Period:", msj.payrollPeriod, "", "", "", "", "", "", "", ""];
+            workSheetData.push(payrollPeriodRow);
+            merges.push(XLSX.utils.decode_range("C6:G6"));
+
+            workSheetData.push(["", "", "", "", "", "", "", "", "", "", ""]);
+
+            var totalLoads = "0.00";
+            var totalDemerge = "0.00"
+            var totalOthers = "0.00";
+            var totalReinbursment = "0.00";
+            var totalDeductions = "0.00";
+
+            if(msj.loads && msj.loads.result && msj.loads.result.length && msj.loads.result.length > 0){
+                workSheetData.push(["Loads:"]);
+
+
+                var cellRange = "A".concat(workSheetData.length).concat(":K").concat(workSheetData.length)
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                var loadHeader = [];
+
+                for(var header in msj.loads.result[0]){
+                    loadHeader.push(header);
+                }
+
+                workSheetData.push(loadHeader);
+
+                for(var i = 0; i < msj.loads.result.length; i++){
+                    var row = [];
+                    
+                    for(var field in msj.loads.result[i]){
+                        if($.inArray(field, ['Load Rate', 'Driver Rate', 'Demerge Payment']) !== -1){
+                            row.push('$ ' + msj.loads.result[i][field]);
+                        }else{
+                            row.push(msj.loads.result[i][field]);
+                        }
+                        
+                    }
+
+                    workSheetData.push(row);
+                }
+
+                var totalLoadsRow = ["","","","","","","","TOTAL", '$ ' + msj.loads.totals.loadRate, '$ ' + msj.loads.totals.driversRate, '$ ' + msj.loads.totals.demerge]
+                workSheetData.push(totalLoadsRow);
+
+                totalLoads = msj.loads.totals.driversRate;
+                totalDemerge = msj.loads.totals.demerge;
+
+                workSheetData.push([]);
+            }
+
+            if(msj.others && msj.others.result && msj.others.result.length && msj.others.result.length > 0){
+                workSheetData.push(["Others:", "", "", "", "", "", "", "", "", "", ""]);
+
+                var cellRange = "A".concat(workSheetData.length).concat(":K").concat(workSheetData.length)
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                var other = [];
+
+                for(var header in msj.others.result[0]){
+                    other.push(header);
+
+                    if(header === 'Description'){
+                        for(var desc= 0; desc < 6; desc++){
+                            other.push("");
+                        }
+                    }
+                }
+
+                workSheetData.push(other);
+                var cellRange = "D".concat(workSheetData.length).concat(":J").concat(workSheetData.length );
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                for(var i = 0; i < msj.others.result.length; i++){
+                    var row = [];
+                    
+                    for(var field in msj.others.result[i]){
+                        if($.inArray(field, ['Amount']) !== -1){
+                            row.push('$ ' + msj.others.result[i][field]);
+                        }else{
+                            row.push(msj.others.result[i][field]);
+                        }
+
+                        if(field === 'Description'){
+                            for(var descF = 0; descF < 6; descF++){
+                                row.push("");
+                            }
+                        }
+                        
+                    }
+
+                    workSheetData.push(row);
+                    var cellRange = "D".concat(workSheetData.length).concat(":J").concat(workSheetData.length );
+                    merges.push(XLSX.utils.decode_range(cellRange));
+                }
+
+                var totalOthersRow = ["","","","","","","","","","TOTAL", "$ " + (msj.others.total || "0.00")]
+                workSheetData.push(totalOthersRow);
+
+                totalOthers = msj.others.total || totalOthers;
+
+                workSheetData.push(["", "", "", "", "", "", "", "", "", "", ""]);
+            }
+
+            if(msj.reinbursment && msj.reinbursment.result && msj.reinbursment.result.length && msj.reinbursment.result.length > 0){
+                workSheetData.push(["Reinbursment:", "", "", "", "", "", "", "", "", "", ""]);
+
+                var cellRange = "A".concat(workSheetData.length).concat(":K").concat(workSheetData.length)
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                var other = [];
+
+                for(var header in msj.reinbursment.result[0]){
+                    other.push(header);
+
+                    if(header === 'Description'){
+                        for(var rein = 0; rein < 7; rein++){
+                            other.push("");
+                        }
+                    }
+                }
+
+                workSheetData.push(other);
+                var cellRange = "C".concat(workSheetData.length).concat(":J").concat(workSheetData.length)
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                for(var i = 0; i < msj.reinbursment.result.length; i++){
+                    var row = [];
+                    
+                    for(var field in msj.reinbursment.result[i]){
+                        if($.inArray(field, ['Amount']) !== -1){
+                            row.push('$ ' + msj.reinbursment.result[i][field]);
+                        }else{
+                            row.push(msj.reinbursment.result[i][field]);
+                        }
+                        
+                        if(field === 'Description'){
+                            for(var reinF = 0; reinF < 7; reinF++){
+                                row.push("");
+                            }
+                        }
+                    }
+
+                    workSheetData.push(row);
+                    var cellRange = "C".concat(workSheetData.length).concat(":J").concat(workSheetData.length)
+                    merges.push(XLSX.utils.decode_range(cellRange));
+                }
+
+                var totalReinbursmentRow = ["","","","","","","","","","TOTAL", "$ " + (msj.reinbursment.total || "0.00")]
+                workSheetData.push(totalReinbursmentRow);
+
+                totalReinbursment = msj.reinbursment.total || totalReinbursment;
+
+                workSheetData.push(["", "", "", "", "", "", "", "", "", "", ""]);
+            }
+
+            if(msj.deductions && msj.deductions.result && msj.deductions.result.length && msj.deductions.result.length > 0){
+                workSheetData.push(["Deductions:", "", "", "", "", "", "", "", "", "", ""]);
+
+                var cellRange = "A".concat(workSheetData.length).concat(":K").concat(workSheetData.length)
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                var other = [];
+
+                for(var header in msj.deductions.result[0]){
+                    other.push(header);
+
+                    if(header === 'Description'){
+                        for(var ded = 0; ded < 7; ded++){
+                            other.push("");
+                        }
+                    }
+                }
+
+                workSheetData.push(other);
+                var cellRange = "C".concat(workSheetData.length).concat(":J").concat(workSheetData.length)
+                merges.push(XLSX.utils.decode_range(cellRange));
+
+                for(var i = 0; i < msj.deductions.result.length; i++){
+                    var row = [];
+                    
+                    for(var field in msj.deductions.result[i]){
+                        if($.inArray(field, ['Amount']) !== -1){
+                            row.push('$ ' + msj.deductions.result[i][field]);
+                        }else{
+                            row.push(msj.deductions.result[i][field]);
+                        }
+                        
+                        if(field === 'Description'){
+                            for(var dedF = 0; dedF < 7; dedF++){
+                                row.push("");
+                            }
+                        }
+                    }
+
+                    workSheetData.push(row);
+                    var cellRange = "C".concat(workSheetData.length).concat(":J").concat(workSheetData.length)
+                    merges.push(XLSX.utils.decode_range(cellRange));
+                }
+
+                var totalDeductionssRow = ["","","","","","","","","","TOTAL", "$ " + (msj.deductions.total || "0.00")]
+                workSheetData.push(totalDeductionssRow);
+                totalDeductions = msj.deductions.total || totalDeductions;
+            }
+
+            workSheetData.push(["", "", "", "", "", "", "", "", "", "", ""]);
+            workSheetData.push(["", "", "", "", "", "", "", "", "", "", ""]);
+
+            var loadsTotalRow = ["","","","","","","","","","Loads Total:", "$ " + totalLoads ];
+            workSheetData.push(loadsTotalRow);
+
+            var demergeTotalRow = ["","","","","","","","","","Demerge Total:", "$ " + totalDemerge ];
+            workSheetData.push(demergeTotalRow);
+
+            var othersTotalRow = ["","","","","","","","","","Others Total:", "$ " + totalOthers ];
+            workSheetData.push(othersTotalRow);
+
+            var reinbursmentTotalRow = ["","","","","","","","","","Reinbursment Total:", "$ " + totalReinbursment ];
+            workSheetData.push(reinbursmentTotalRow);
+
+            var deductionsTotalRow = ["","","","","","","","","","Deductions Total:", "$ " + totalDeductions ];
+            workSheetData.push(deductionsTotalRow);
+
+            var grandTotalRow = ["","","","","","","","","","Total:", "$ " + msj.total ];
+            workSheetData.push(grandTotalRow);
+            
+            var workBook = XLSX.utils.book_new();
+            workBook.Props = {
+                Title: "Payroll Receipt",
+                Subject: "Payroll Receipt",
+                Author: "Cedar Logistic System",
+                CreatedDate: new Date()
+            };
+
+            var workSheet = XLSX.utils.aoa_to_sheet(workSheetData);
+            workSheet["!merges"] = merges;
+            workBook.SheetNames.push("Payroll Receipt");
+            workBook.Sheets["Payroll Receipt"] = workSheet;
+
+            var workBookName = new Date().toLocaleDateString('ko-KR').replace(/\s/ig, '') + 'payroll_driver.xlsx';
+            
+            const wbout = XLSX.write(workBook, { type: "array", bookType: "xlsx" });
+            saveAs(new Blob([wbout], { type: "application/octet-stream" }), workBookName);
         }
 
         function addRowToOthers(myId){
