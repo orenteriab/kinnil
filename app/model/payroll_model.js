@@ -266,8 +266,7 @@ const unformatNumber = (amount) => {
 }
 
 const fecthLoads = (payrollId) => {
-    let sql =   "   select          row_number() over (order by `t`.`assign_date`)  `#`                 \
-                                    ,DATE_FORMAT(`t`.`assign_date`, '%m/%d/%Y')     `Date`              \
+    let sql =   " select            DATE_FORMAT(`t`.`assign_date`, '%m/%d/%Y')      `Date`              \
                                     ,`t`.`truck`                                    `Truck #`           \
                                     ,`t`.`bol`                                      `BOL#`              \
                                     ,`t`.`ticket_id`                                `FEVID #`           \
@@ -275,7 +274,7 @@ const fecthLoads = (payrollId) => {
                                     ,`t`.`facility`                                 `Facility`          \
                                     ,`t`.`location`                                 `Location`          \
                                     ,format(`t`.`load_rate`, 2)                     `Load Rate`         \
-                                    ,format(`t`.`driver_rate`, 2)                   `Driver Rate`       \
+                                    ,format(coalesce(`t`.`driver_rate`, 0), 2)      `Driver Rate`       \
                                     ,format(coalesce(`p`.`demerge`, 0), 2)          `Demerge Payment`   \
                      from           `sandras`.`tickets`     `t`                                         \
                         inner join  `sandras`.`payroll_hr`  `p` on `t`.`payroll_hr_id` = `p`.`id`       \
@@ -287,9 +286,10 @@ const fecthLoads = (payrollId) => {
                             const totalLoadRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Load Rate"]) || 0), 0.0)
                             const totalDriversRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Driver Rate"]) || 0), 0.0)
                             const totalDemerge = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Demerge Payment"]) || 0), 0.0)
+                            const defRows = rows.map((value, index) => { return  { '#': index + 1, ...value } })
 
                             return Promise.resolve({
-                                result: rows,
+                                result: defRows,
                                 totals: {
                                     loadRate: parseFloat(totalLoadRate).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
                                     driversRate: parseFloat(totalDriversRate).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
@@ -304,30 +304,31 @@ const fecthConcept = (concept, payrollId) => {
     let sql = "";
 
     if(concept === 'others'){
-        sql = "select  row_number() over(order by `o`.`date`)   `#`             \
-                        ,DATE_FORMAT(`o`.`date`, '%m/%d/%Y')    `Date`          \
-                        ,`o`.`truck`                            `Truck #`       \
-                        ,`o`.`description`                      `Description`   \
-                        ,format(`o`.`amount`,2)                 `Amount`        \
-                from    `sandras`.`other_concepts` `o`                          \
-                where   `o`.`payroll_hr_id` = ?                                 \
-                    and `o`.`type` = ?                                          "
+        sql = " select      DATE_FORMAT(`o`.`date`, '%m/%d/%Y')     `Date`          \
+                            ,`o`.`truck`                            `Truck #`       \
+                            ,`o`.`description`                      `Description`   \
+                            ,format(`o`.`amount`,2)                 `Amount`        \
+                from        `sandras`.`other_concepts` `o`                          \
+                where       `o`.`payroll_hr_id` = ?                                 \
+                    and     `o`.`type` = ?                                          \
+                order by    `o`.`date`                                              "
     }else{
-        sql = "select  row_number() over(order by `o`.`date`)   `#`             \
-                        ,DATE_FORMAT(`o`.`date`, '%m/%d/%Y')    `Date`          \
-                        ,`o`.`description`                      `Description`   \
-                        ,format(`o`.`amount`,2)                 `Amount`        \
-                from    `sandras`.`other_concepts` `o`                          \
-                where   `o`.`payroll_hr_id` = ?                                 \
-                    and `o`.`type` = ?                                          "
+        sql = " select      DATE_FORMAT(`o`.`date`, '%m/%d/%Y')     `Date`          \
+                            ,`o`.`description`                      `Description`   \
+                            ,format(`o`.`amount`,2)                 `Amount`        \
+                from        `sandras`.`other_concepts` `o`                          \
+                where       `o`.`payroll_hr_id` = ?                                 \
+                    and     `o`.`type` = ?                                          \
+                order by    `o`.`date`                                          "
     }
 
     return connectionPool.query(sql, [payrollId, concept])
                         .then((rows) => {
                             const total = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Amount"]) || 0), 0)
-                            
+                            const defRows = rows.map((value, index) => { return { '#' : index + 1, ...value } })
+
                             return Promise.resolve({
-                                result: rows,
+                                result: defRows,
                                 total: parseFloat(total).toFixed(2)
                             })
                         })
@@ -388,4 +389,99 @@ exports.fetchXLSData = (payrollId) => {
                         payDate: payDate
                     })
                 })
+}
+
+const getPaymentDetailsForCompanyDriversWithTransaction = async(ticketList, connection) => {
+    let statement = 'select SUM(`load_rate` * `driver_rate`) amount from `sandras`.`tickets` where `id` in ('+ ticketList +')'
+
+    return await connection.query(statement);
+}
+
+const getPaymentDetailsForDriversWithTransaction = async(ticketList, rate, connection) => {
+    let statement = 'select SUM(`load_rate` * '+ rate +') amount from `sandras`.`tickets` where `id` in ('+ ticketList +')'
+
+    return await connection.query(statement);
+}
+
+const createPayrollEntryforDriversWithTransaction = async(wireTransfer, amount, timestap, id, demergeAmount, connection) => {
+    var demerge = parseFloat(demergeAmount)
+
+    if(isNaN(demerge)){
+        demerge = 0.0
+    }
+
+    let statement = 'insert into `sandras`.`payroll_hr` (`wire_transfer`, `amount`, `date`, `hr_id`, `demerge`) values (?,?,?,?,?)'
+
+    return await connection.query(statement, [wireTransfer, amount, timestap, id, demerge]);
+}
+
+const prepareConceptsWithTransaction = async (concepts, type, payrollId, connection) => {
+    let promises = []
+    let sql = 'insert into `sandras`.`other_concepts`(`type`,`amount`,`description`,`date`,`truck`,`payroll_hr_id`)VALUES(?,?,?,?,?,?)'
+
+    for(let c in concepts){
+        let params = [
+            type,
+            parseFloat(concepts[c].amount).toFixed(2),
+            concepts[c].description || '',
+            concepts[c].date,
+            concepts[c].truck || '',
+            payrollId
+        ]
+        await connection.query(sql, params)
+    }
+
+}
+
+const createConceptsWithTransaction = async (concepts, payrollId, connection) => {
+    if(!concepts){ return }
+
+    if(concepts.deductions){
+        await prepareConceptsWithTransaction(concepts.deductions, 'deduction', payrollId, connection)
+    }
+
+    if(concepts.others){
+        await prepareConceptsWithTransaction(concepts.others, 'others', payrollId, connection)
+    }
+
+    if(concepts.reinbursment){
+        await prepareConceptsWithTransaction(concepts.reinbursment, 'reinbursment', payrollId, connection)
+    }
+
+}
+
+const relateTicketsWithPaymentEventWithTransaction = async(newPaymentId, timestamp, ticketList, connection) => {
+    let statement = 'update `sandras`.`tickets` set payroll_hr_id = ?, payrolled_date = ? where id in ('+ ticketList +')'
+
+    await connection.query(statement, [newPaymentId, timestamp]);
+}
+
+exports.createPayrollEntryForDriverTransactional = async(ticketList, id, wireTransfer, demergeAmount, timestamp, concepts, type, rate) => {
+    try{
+        let connection = await connectionPool.getConnection()
+        await connection.beginTransaction()
+
+        try {
+            let paymentDetails = type === 'DRIVER' ?
+                await getPaymentDetailsForCompanyDriversWithTransaction(ticketList, connection) :
+                await getPaymentDetailsForDriversWithTransaction(ticketList, rate, connection)
+            let payrollEntry = await createPayrollEntryforDriversWithTransaction(wireTransfer, paymentDetails[0].amount, timestamp, id, demergeAmount, connection)
+            
+            await createConceptsWithTransaction(concepts, payrollEntry.insertId, connection)
+            await relateTicketsWithPaymentEventWithTransaction(payrollEntry.insertId, timestamp, ticketList, connection)
+            await connection.commit()
+            await connectionPool.releaseConnection(connection)
+
+            return true
+        } catch (queryExecError) {
+            console.log('[payroll_model][createPayrollEntryForDriverTransactional]: Error when getting connection\n', queryExecError);
+            await connection.rollback()
+        }
+        
+        await connectionPool.releaseConnection(connection)
+    }catch(connectionError){
+        console.log('[payroll_model][createPayrollEntryForDriverTransactional]: Error when getting connection\n', connectionError);
+    }
+
+    throw 'Something went wrong when creating payroll. Please try again'
 }
