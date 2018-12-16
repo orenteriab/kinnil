@@ -495,7 +495,9 @@
                         initGridPayroll($("#id").val());
                         $('#wireTransferModal').modal('hide');
                         $("#wireTransferInput").val("");
-                        location.reload(true);
+                        $("#chk_deductions,#chk_others,#chk_reinbursment")
+                            .prop("checked", false)
+                            .trigger("change");
                     },
                     error: function(xhr) {
                         $('#wireTransferModal').modal('hide');
