@@ -103,48 +103,7 @@ exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer,
 
     // Si el HR es de tipo DRIVER se tienen que hacer los calculos en base a la tabla que nos pasaron
     // TODO: Ocultar el rate para los COMPANY DRIVERS
-    if (type == "DRIVER") {
-        
-        return payrollModel
-            .getPaymentDetailsForCompanyDrivers(ticketList)
-            .then((paymentDetails) => { 
-                paymentDetails = paymentDetails[0]
-                // se crea la entrada en payroll
-                return payrollModel
-                    .createPayrollEntryforDrivers(wireTransfer, paymentDetails.amount, timestap, id, demergeAmount)
-                    .then(returnData => {
-                        return payrollModel
-                                .createConcepts(concepts, returnData.insertId)
-                                .then(() => Promise.resolve(returnData))
-                    })
-                    .then((return_data) => {
-                        // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)
-                        return payrollModel
-                                .relateTicketsWithPaymentEvent(return_data.insertId, timestap, ticketList)
-                    })
-            })
-
-    } else {
-        return payrollModel
-            // se calcula lo que se le tiene que pagar
-            .getPaymentDetailsForDrivers(ticketList, rate)
-            .then((paymentDetails) => { 
-                paymentDetails = paymentDetails[0]
-                // se crea la entrada en payroll
-                return payrollModel
-                    .createPayrollEntryforDrivers(wireTransfer, paymentDetails.amount, timestap, id, demergeAmount)
-                    .then(returnData => {
-                        return payrollModel
-                            .createConcepts(concepts, returnData.insertId)
-                            .then(() => Promise.resolve(returnData))
-                    })
-                    .then((return_data) => {
-                        // se relaciona los eventos de clockin con la entrada de payroll (para mostrarselas despues al cliente)
-                        return payrollModel
-                                .relateTicketsWithPaymentEvent(return_data.insertId, timestap, ticketList)
-                    })
-            })
-    }
+    return payrollModel.createPayrollEntryForDriverTransactional(ticketList, id, wireTransfer, demergeAmount, timestap, concepts, type, rate)
 }
 
 exports.getPayrollHrById = (hr_id) => {
