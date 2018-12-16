@@ -1,4 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `sandras` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
+CREATE DATABASE  IF NOT EXISTS `sandras`;
+
 USE `sandras`;
 -- MySQL dump 10.13  Distrib 8.0.12, for Win64 (x86_64)
 --
@@ -512,15 +513,13 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `other_concepts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `other_concepts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `type` varchar(50) NOT NULL,
   `amount` decimal(29,2) NOT NULL,
-  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` varchar(255) NOT NULL,
   `date` date NOT NULL,
-  `truck` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `truck` varchar(255) NOT NULL DEFAULT '',
   `payroll_hr_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `other_concepts_payroll_hr_fk_idx` (`payroll_hr_id`),
