@@ -88,7 +88,7 @@ ROUTER.post('/createPayrollEntry/', (req, res) => {
 // Crea una entrada en payroll_drivers
 ROUTER.post('/createPayrollEntryforDriver/', (req, res) => {
     payrollService
-        .createPayrollEntryforDriver(req.body.ticketList, req.body.id, req.body.rate, req.body.type, req.body.wireTransfer, req.body.demergeAmount, req.body.concepts)
+        .createPayrollEntryforDriver(req.body.ticketList, req.body.id, req.body.rate, req.body.type, req.body.wireTransfer, req.body.demergeList, req.body.concepts)
         .then((return_data) => {
             res.status(200)
             // TODO: hacer alguna validacion de que si se inserto correctamente devolver el mensaje adecuado
