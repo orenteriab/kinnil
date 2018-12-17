@@ -275,7 +275,7 @@ const fecthLoads = (payrollId) => {
                                     ,`t`.`location`                                 `Location`          \
                                     ,format(`t`.`load_rate`, 2)                     `Load Rate`         \
                                     ,format(coalesce(`t`.`driver_rate`, 0), 2)      `Driver Rate`       \
-                                    ,format(coalesce(`p`.`demerge`, 0), 2)          `Demerge Payment`   \
+                                    ,format(coalesce(`t`.`demerge_amount`, 0), 2)   `Demerge Payment`   \
                      from           `sandras`.`tickets`     `t`                                         \
                         inner join  `sandras`.`payroll_hr`  `p` on `t`.`payroll_hr_id` = `p`.`id`       \
                      where          `p`.`id` = ?                                                        \
@@ -284,7 +284,13 @@ const fecthLoads = (payrollId) => {
     return connectionPool.query(sql, [payrollId])
                         .then((rows) => {
                             const totalLoadRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Load Rate"]) || 0), 0.0)
-                            const totalDriversRate = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Driver Rate"]) || 0), 0.0)
+                            const totalDriversRate = rows.reduce((previous, row) => {
+                                let previousVal = parseFloat(previous)
+                                let loadRate = parseFloat(unformatNumber(row["Load Rate"]) || 0)
+                                let driverRate = parseFloat(unformatNumber(row["Driver Rate"]) || 0)
+                                let rateForLoad = loadRate * driverRate
+                                return previousVal + rateForLoad
+                            }, 0.0)
                             const totalDemerge = rows.reduce((previous, row) => parseFloat(previous) + parseFloat(unformatNumber(row["Demerge Payment"]) || 0), 0.0)
                             const defRows = rows.map((value, index) => { return  { '#': index + 1, ...value } })
 
@@ -456,25 +462,41 @@ const relateTicketsWithPaymentEventWithTransaction = async(newPaymentId, timesta
     await connection.query(statement, [newPaymentId, timestamp]);
 }
 
-exports.createPayrollEntryForDriverTransactional = async(ticketList, id, wireTransfer, demergeAmount, timestamp, concepts, type, rate) => {
+const updateDemergeForTicketsInPayrollWithTransaction = async(demergeList, connection) => {
+    if(!demergeList || !demergeList.length || demergeList.length < 1){ return }
+
+    let statement = '   update  `sandras`.`tickets`     \
+                        set     `demerge_amount` = ?    \
+                        where   `id` = ? '.replace(/\s{2,}/g, ' ')
+
+    demergeList.forEach(async (demerge) => await connection.query(statement, [demerge.amount, demerge.ticketId]))
+}
+
+exports.createPayrollEntryForDriverTransactional = async(ticketList, id, wireTransfer, demergeLines, timestamp, concepts, type, rate) => {
     try{
         let connection = await connectionPool.getConnection()
         await connection.beginTransaction()
 
         try {
+            await updateDemergeForTicketsInPayrollWithTransaction(demergeLines, connection)
+
+            let demergeAmount = demergeLines && demergeLines.length ? parseFloat(demergeLines.reduce((acc, val) => acc + val.amount, 0)).toFixed(2) : "0.00"
+
             let paymentDetails = type === 'DRIVER' ?
                 await getPaymentDetailsForCompanyDriversWithTransaction(ticketList, connection) :
                 await getPaymentDetailsForDriversWithTransaction(ticketList, rate, connection)
+
             let payrollEntry = await createPayrollEntryforDriversWithTransaction(wireTransfer, paymentDetails[0].amount, timestamp, id, demergeAmount, connection)
-            
+        
             await createConceptsWithTransaction(concepts, payrollEntry.insertId, connection)
             await relateTicketsWithPaymentEventWithTransaction(payrollEntry.insertId, timestamp, ticketList, connection)
+
             await connection.commit()
             await connectionPool.releaseConnection(connection)
 
             return true
         } catch (queryExecError) {
-            console.log('[payroll_model][createPayrollEntryForDriverTransactional]: Error when getting connection\n', queryExecError);
+            console.log('[payroll_model][createPayrollEntryForDriverTransactional]: Error when creating payroll entry\n', queryExecError);
             await connection.rollback()
         }
         
