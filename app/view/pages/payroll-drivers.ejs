@@ -460,12 +460,14 @@
                 ticketList.push($(this).val());
             });
 
-            var demergeAmount = ticketList
-                        .reduce((demergeAmt, current) => {
-                            var toAdd = parseFloat($('.cedar-dmg[data-row-id="'+ current +'"]').val());
-                            return demergeAmt + toAdd;
-                        }, 0)
-                        .toFixed(2);
+            var demergeList = [];
+
+            for(var ticketListIndex = 0; ticketListIndex < ticketList.length; ticketListIndex++){
+                var ticketId = ticketList[ticketListIndex];
+                var toAdd = parseFloat($('.cedar-dmg[data-row-id="'+ ticketId +'"]').val());
+
+                demergeList.push({ ticketId: ticketId, amount: toAdd })
+            }
 
             if($("#rate").val() == null || $("#rate").val() == undefined || $("#rate").val() == ""){
                 alert("please define driver rate for selected user");
@@ -484,7 +486,7 @@
                         rate: $("#rate").val(),
                         type: $("#type").val(),
                         wireTransfer: $("#wireTransferInput").val(),
-                        demergeAmount: demergeAmount,
+                        demergeList: demergeList,
                         concepts: concepts
                     },      //Data as js object
                     success: function (msj) {
@@ -635,8 +637,10 @@
                     var row = [];
                     
                     for(var field in msj.loads.result[i]){
-                        if($.inArray(field, ['Load Rate', 'Driver Rate', 'Demerge Payment']) !== -1){
+                        if($.inArray(field, ['Load Rate', 'Demerge Payment']) !== -1){
                             row.push('$ ' + msj.loads.result[i][field]);
+                        }else if($.inArray(field, ['Driver Rate']) !== -1){
+                            row.push(msj.loads.result[i][field] + '%')
                         }else{
                             row.push(msj.loads.result[i][field]);
                         }
