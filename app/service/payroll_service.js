@@ -79,7 +79,7 @@ exports.createPayrollEntry = (clockinList, id, dllsHr, wireTransfer, demergeAmou
             })
 }
 
-exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer, demergeAmount, concepts) => {
+exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer, demergeList, concepts) => {
     // Se obtiene fecha y hora actuales
     var today = new Date();
     var dd = today.getDate();
@@ -103,7 +103,7 @@ exports.createPayrollEntryforDriver = (ticketList, id, rate, type, wireTransfer,
 
     // Si el HR es de tipo DRIVER se tienen que hacer los calculos en base a la tabla que nos pasaron
     // TODO: Ocultar el rate para los COMPANY DRIVERS
-    return payrollModel.createPayrollEntryForDriverTransactional(ticketList, id, wireTransfer, demergeAmount, timestap, concepts, type, rate)
+    return payrollModel.createPayrollEntryForDriverTransactional(ticketList, id, wireTransfer, demergeList, timestap, concepts, type, rate)
 }
 
 exports.getPayrollHrById = (hr_id) => {
