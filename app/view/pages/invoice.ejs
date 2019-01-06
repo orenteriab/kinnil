@@ -640,7 +640,8 @@
                 APP.EVENTS.UI.INVOICED();
                 APP.EVENTS.UI.PAID();
             };
-            APP.INIT();
+
+            APP.addEventListener('load', APP.INIT);
         })(window);
     </script>
 </body>

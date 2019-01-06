@@ -362,9 +362,11 @@
                 }
             };
 
-            APP.LOAD.UPS();
-            APP.LOAD.GRID();
-            APP.EVENTS.INIT();
+            APP.addEventListener('load', function(){
+                APP.LOAD.UPS();
+                APP.LOAD.GRID();
+                APP.EVENTS.INIT();
+            });
         })(window);
 
     </script>

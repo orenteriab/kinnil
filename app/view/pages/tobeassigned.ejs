@@ -784,11 +784,13 @@
                     APP.EVENTS.ERROR_MODAL_HIDE();
                 }
             };
-            
-            APP.LOAD.SIDE_BAR();
-            APP.LOAD.UPS();
-            APP.LOAD.GRID();
-            APP.EVENTS.INIT();
+
+            APP.addEventListener('load', function(){
+                APP.LOAD.SIDE_BAR();
+                APP.LOAD.UPS();
+                APP.LOAD.GRID();
+                APP.EVENTS.INIT();
+            });
         })(window);
     </script>
 

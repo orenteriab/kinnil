@@ -89,444 +89,428 @@
     <script lang="javascript" src="/assets/js/FileSaver.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
+        window.addEventListener('load', function(){
+            $(document).ready(function () {
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
+                });
             });
-        });
 
-        const numberWithCommas = (x) => {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        
-        $("input[name='REPORT_TYPE']").click(function() {
-
-            if (this.value=="dispatch") {
-                    var newOptions = {
-                    'completed_loads' : 'Completed Loads',
-                    'pending_loads' : 'Pending Loads',
-                    'goal' : 'Goal vs actual status'
-                };
-                var selectedOption = 'completed_loads';
-
-                var select = $('#SELECTED_REPORT');
-                if(select.prop) {
-                    var options = select.prop('options');
-                }
-                else {
-                    var options = select.attr('options');
-                }
-                $('option', select).remove();
-
-                $.each(newOptions, function(val, text) {
-                    options[options.length] = new Option(text, val);
-                });
-                select.val(selectedOption);
-
-                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
-                $("#excel_download").prop('disabled', false);
-            } else if(this.value=="invoice"){
-                var newOptions = {
-                    'quickbooks_import' : 'Quickbooks import',
-                    'diamonback': 'DIAMONBACK Report'
-                };
-                var selectedOption = 'quickbooks_import';
-
-                var select = $('#SELECTED_REPORT');
-                if(select.prop) {
-                    var options = select.prop('options');
-                }
-                else {
-                    var options = select.attr('options');
-                }
-                $('option', select).remove();
-
-                $.each(newOptions, function(val, text) {
-                    options[options.length] = new Option(text, val);
-                });
-                select.val(selectedOption);
-
-                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
-                $("#excel_download").prop('disabled', false);
-            } else {
-                var newOptions = {
-                    'no_report_available' : 'No report available'
-                };
-                var selectedOption = 'no_report_available';
-
-                var select = $('#SELECTED_REPORT');
-                if(select.prop) {
-                    var options = select.prop('options');
-                }
-                else {
-                    var options = select.attr('options');
-                }
-                $('option', select).remove();
-
-                $.each(newOptions, function(val, text) {
-                    options[options.length] = new Option(text, val);
-                });
-                select.val(selectedOption);
-
-                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
-                $("#excel_download").prop('disabled', false);
+            function numberWithCommas(x){
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             }
 
-            
-        });
+            $("input[name='REPORT_TYPE']").click(function() {
+                if (this.value=="dispatch") {
+                        var newOptions = {
+                        'completed_loads' : 'Completed Loads',
+                        'pending_loads' : 'Pending Loads',
+                        'goal' : 'Goal vs actual status'
+                    };
+                    var selectedOption = 'completed_loads';
 
-        $("#SELECTED_REPORT").on('change', function() {
-            $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
-        })
+                    var select = $('#SELECTED_REPORT');
+                    if(select.prop) {
+                        var options = select.prop('options');
+                    }
+                    else {
+                        var options = select.attr('options');
+                    }
+                    $('option', select).remove();
 
-        $('li[id="li_sdbr_reports"]').addClass('active');
+                    $.each(newOptions, function(val, text) {
+                        options[options.length] = new Option(text, val);
+                    });
+                    select.val(selectedOption);
 
-        $(document).ready(function() { // El selector de fechas se despliega hasta que toda la pagina cargo
+                    $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                    $("#excel_download").prop('disabled', false);
+                } else if(this.value=="invoice"){
+                    var newOptions = {
+                        'quickbooks_import' : 'Quickbooks import',
+                        'diamonback': 'DIAMONBACK Report'
+                    };
+                    var selectedOption = 'quickbooks_import';
 
-            $(function() {
+                    var select = $('#SELECTED_REPORT');
+                    if(select.prop) {
+                        var options = select.prop('options');
+                    }
+                    else {
+                        var options = select.attr('options');
+                    }
+                    $('option', select).remove();
 
-                $('#reportrange i').click(function() {
-                    $(this).parent().find('input').click();
-                });
+                    $.each(newOptions, function(val, text) {
+                        options[options.length] = new Option(text, val);
+                    });
+                    select.val(selectedOption);
 
-                var start = moment().subtract(29, 'days');
-                var end = moment();
+                    $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                    $("#excel_download").prop('disabled', false);
+                } else {
+                    var newOptions = {
+                        'no_report_available' : 'No report available'
+                    };
+                    var selectedOption = 'no_report_available';
 
-                function cb(start, end) {
-                    $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                    fechaInicio = start;
-                    fechaFin = end;
+                    var select = $('#SELECTED_REPORT');
+                    if(select.prop) {
+                        var options = select.prop('options');
+                    }
+                    else {
+                        var options = select.attr('options');
+                    }
+                    $('option', select).remove();
+
+                    $.each(newOptions, function(val, text) {
+                        options[options.length] = new Option(text, val);
+                    });
+                    select.val(selectedOption);
+
+                    $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                    $("#excel_download").prop('disabled', false);
                 }
 
-                $('#reportrange').daterangepicker({
-                    startDate: start,
-                    endDate: end,
-                    ranges: {
-                    'Today': [moment(), moment()],
-                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Last 7 days': [moment().subtract(6, 'days'), moment()],
-                    'Last 30 days': [moment().subtract(29, 'days'), moment()],
-                    'This month': [moment().startOf('month'), moment().endOf('month')]
-                    /*'Anterior mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]*/
-                    },
-                    locale: {
-                        "direction": "ltr",
-                        "format": "MM/DD/YYYY HH:mm",
-                        "separator": " - ",
-                        "applyLabel": "Apply",
-                        "cancelLabel": "Cancel",
-                        "fromLabel": "From",
-                        "toLabel": "To",
-                        "customRangeLabel": "Custom",
-                        "firstDay": 1
-                    }
-
-                }, cb);
                 
-                cb(start, end);
             });
-        
 
-        $("#excel_download").on('click', function(e) {
+            $("#SELECTED_REPORT").on('change', function() {
+                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+            });
 
-        //function consultar(e) {
-            var e = window.event || e;
-	        var targ = e.target || e.srcElement;
-            e.preventDefault();
+            $('li[id="li_sdbr_reports"]').addClass('active');
+
+            $('#reportrange i').click(function() {
+                $(this).parent().find('input').click();
+            });
+
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                fechaInicio = start;
+                fechaFin = end;
+            }
+
+            $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 days': [moment().subtract(29, 'days'), moment()],
+                'This month': [moment().startOf('month'), moment().endOf('month')]
+                /*'Anterior mes': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]*/
+                },
+                locale: {
+                    "direction": "ltr",
+                    "format": "MM/DD/YYYY HH:mm",
+                    "separator": " - ",
+                    "applyLabel": "Apply",
+                    "cancelLabel": "Cancel",
+                    "fromLabel": "From",
+                    "toLabel": "To",
+                    "customRangeLabel": "Custom",
+                    "firstDay": 1
+                }
+
+            }, cb);
             
-        
-        
-        
+            cb(start, end);
 
-            if($("#SELECTED_REPORT").val() == "completed_loads"){
-                $.ajax({
-                    url: '/api/reports/completed_loads/',
-                    type: 'POST',
-                    data: {
-                        type: $( "#SELECTED_REPORT option:selected" ).val(),
-                        inicio: fechaInicio.format('YYYY-MM-DD'),
-                        fin: fechaFin.format('YYYY-MM-DD')
-                    },
-                    success: function(returnData){
+            $("#excel_download").on('click', function(e) {
+                var e = window.event || e;
+                var targ = e.target || e.srcElement;
+                e.preventDefault();
 
-                        var wb = XLSX.utils.book_new();
+                if($("#SELECTED_REPORT").val() == "completed_loads"){
+                    $.ajax({
+                        url: '/api/reports/completed_loads/',
+                        type: 'POST',
+                        data: {
+                            type: $( "#SELECTED_REPORT option:selected" ).val(),
+                            inicio: fechaInicio.format('YYYY-MM-DD'),
+                            fin: fechaFin.format('YYYY-MM-DD')
+                        },
+                        success: function(returnData){
 
-                        wb.Props = {
-                            Title: "Quickbooks import",
-                            Subject: "Cedar Reports",
-                            Author: "Miguel",
-                            CreatedDate: new Date(2018,07,31)
-                        };
+                            var wb = XLSX.utils.book_new();
 
-                        wb.SheetNames.push("Completed Loads");
+                            wb.Props = {
+                                Title: "Quickbooks import",
+                                Subject: "Cedar Reports",
+                                Author: "Miguel",
+                                CreatedDate: new Date(2018,07,31)
+                            };
 
-                        var ws_data = [['CLOSE LOAD REPORT'],
-                                        ['TMS','BOL #','TRUCK #','TRAILER #','CONTAINER (BASE - SILO)','DRIVER','LOAD DATE - TIME','UNLOAD DATE-TIME']];  //a row with 2 columns
-                        //var ws_data = returnData;
+                            wb.SheetNames.push("Completed Loads");
 
-                        for(i=0;i<returnData.length;i++){
-                            ws_data.push([returnData[i].tms,
-                                        returnData[i].bol,
-                                        returnData[i].truck,
-                                        returnData[i].trailer,
-                                        returnData[i].container,
-                                        returnData[i].name,
-                                        returnData[i].load_date_time,
-                                        returnData[i].unload_date_time])
-                        }
+                            var ws_data = [['CLOSE LOAD REPORT'],
+                                            ['TMS','BOL #','TRUCK #','TRAILER #','CONTAINER (BASE - SILO)','DRIVER','LOAD DATE - TIME','UNLOAD DATE-TIME']];  //a row with 2 columns
+                            //var ws_data = returnData;
 
-
-                        var ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-                        wb.Sheets["Completed Loads"] = ws;
-
-                        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-
-                        function s2ab(s) { 
-                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-                            var view = new Uint8Array(buf);  //create uint8array as viewer
-                            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                            return buf;    
-                        }
-                        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Completed_Loads.xlsx');
-                    },
-                    error: function(){
-                        alert('There was an error when obtaining the report, please try again.');
-                    }
-                });
-            } else if($("#SELECTED_REPORT").val() == "quickbooks_import") {
-
-                /*
-                    Quickbooks import new report
-                 */
-
-                $.ajax({
-                    url: '/api/reports/quickbooks-import/',
-                    type: 'POST',
-                    data: {
-                        type: $( "#SELECTED_REPORT option:selected" ).val(),
-                        inicio: fechaInicio.format('YYYY-MM-DD'),
-                        fin: fechaFin.format('YYYY-MM-DD')
-                    },
-                    success: function(returnData){
-                        var wb = XLSX.utils.book_new();
-
-                        wb.Props = {
-                            Title: "Completed Loads",
-                            Subject: "Cedar Reports",
-                            Author: "Miguel",
-                            CreatedDate: new Date(2018,07,31)
-                        };
-
-                        wb.SheetNames.push("Completed Loads");
-
-                        var ws_data = [['RefNumber','TrackingNum','TxnDate','LineServiceDate','SalesTerm','Charge Code','Driver Ticket #','Bill of Lading','Customer','LineItem','LineDesc','ShipMethodName','LineAmount']];  //a row with 2 columns
-                        //var ws_data = returnData;
-
-                        for(var i=0; i<returnData.length; i++){
-
-                            var { ticket_id, completed_date, tms, bol, location_name, facility_long_name, location_long_name, driver_name, weight, sand_type, product, fuel_surcharge } = returnData[i]
-
-                            ws_data.push([`S-${ticket_id}`,
-                                        `S-${ticket_id}`,
-                                        completed_date,
-                                        completed_date,
-                                        "Net 45",
-                                        tms,
-                                        tms,
-                                        bol,
-                                        `Halliburton Energy Services (${location_name})`,
-                                        "Hauling Sand",
-                                        `ORIGIN\n${facility_long_name}\n\nDESTINATION\n${location_long_name}` ,
-                                        driver_name,
-                                        ""]);
-
-                            ws_data.push([`S-${ticket_id}`,
-                                        `S-${ticket_id}`,
-                                        completed_date,
-                                        completed_date,
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "Equipment Type:Sand Dry Bulk",
-                                        "",
-                                        "",
-                                        ""]);
-
-                            ws_data.push([`S-${ticket_id}`,
-                                        `S-${ticket_id}`,
-                                        completed_date,
-                                        completed_date,
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        numberWithCommas(parseFloat(weight)),
-                                        "WEIGHT (lbs)",
-                                        "",
-                                        ""]);
-
-                            ws_data.push([`S-${ticket_id}`,
-                                        `S-${ticket_id}`,
-                                        completed_date,
-                                        completed_date,
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        `SAND TYPE:${sand_type}`,
-                                        "",
-                                        "",
-                                        ""]);
-                            
-                            ws_data.push([`S-${ticket_id}`,
-                                        `S-${ticket_id}`,
-                                        completed_date,
-                                        completed_date,
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        `Sand # of Miles:${product}`,
-                                        "",
-                                        "",
-                                        ""]);
-
-                            ws_data.push([`S-${ticket_id}`,
-                                        `S-${ticket_id}`,
-                                        completed_date,
-                                        completed_date,
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        "Fuel Surcharge",
-                                        "",
-                                        "",
-                                        fuel_surcharge]);
-                        }
-
-                        
-                        var ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-                        wb.Sheets["Completed Loads"] = ws;
-                        
-                        debugger;
-
-                        var C = XLSX.utils.decode_col("C"); // 2
-                        var fmt = 'mm/dd/yyyy'; // or '"$"#,##0.00_);[Red]\\("$"#,##0.00\\)' or any Excel number format
-
-                        var range = XLSX.utils.decode_range(ws['!ref']);
-
-                        for(var i = range.s.r + 1; i <= range.e.r; ++i) {
-                            /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
-                            var ref = XLSX.utils.encode_cell({r:i, c:C});
-                            /* if the particular row did not contain data for the column, the cell will not be generated */
-                            if(!ws[ref]) continue;
-                            /* `.t == "n"` for number cells */
-                            //if(ws[ref].t != 'n') continue;
-                            /* assign the `.z` number format */
-                            ws[ref].z = fmt;
-                        }
-
-                        var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
-
-                        function s2ab(s) { 
-                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-                            var view = new Uint8Array(buf);  //create uint8array as viewer
-                            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                            return buf;    
-                        }
-                        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Quickbooks import.xlsx');
-                    },
-                    error: function(){
-                        alert('There was an error when obtaining the report, please try again.');
-                    }
-                });
-            } else if($("#SELECTED_REPORT").val() == "diamonback"){
-                $.ajax({
-                    url: '/api/reports/diamonback-report',
-                    type: 'POST',
-                    data: {
-                        type: $( "#SELECTED_REPORT option:selected" ).val(),
-                        inicio: fechaInicio.format('YYYY-MM-DD'),
-                        fin: fechaFin.format('YYYY-MM-DD')
-                    },
-                    success: function(data){
-                        var driverHeader = ['Ticket No.', 'Date', 'Load No. (TMS)', 'BOL', 'Client/Location', 'Facility', 'Weight (tons)', 'Sand # of Miles', 'Sand Type', 'Driver Name'];
-                        var workSheetData = [];
-                        var greatTotalTons = 0.0;
-
-                        for(var d = 0; d < data.length; d++){
-                            workSheetData.push(driverHeader);
-                            var totalTons = 0.0;
-
-                            for(var t = 0;t < data[d].length; t++){
-                                var rowData = [];
-
-                                rowData.push(data[d][t].ticket_number);
-                                rowData.push(data[d][t].date);
-                                rowData.push(data[d][t].load_number);
-                                rowData.push(data[d][t].bol);
-                                rowData.push(data[d][t].location);
-                                rowData.push(data[d][t].facility);
-                                rowData.push(data[d][t].weight);
-                                rowData.push(data[d][t].sand_number_of_miles);
-                                rowData.push(data[d][t].sand_type);
-                                rowData.push(data[d][t].driver_name);
-                                totalTons += parseFloat((data[d][t].weight || 0.0));
-                                workSheetData.push(rowData);
+                            for(i=0;i<returnData.length;i++){
+                                ws_data.push([returnData[i].tms,
+                                            returnData[i].bol,
+                                            returnData[i].truck,
+                                            returnData[i].trailer,
+                                            returnData[i].container,
+                                            returnData[i].name,
+                                            returnData[i].load_date_time,
+                                            returnData[i].unload_date_time])
                             }
 
-                            var totalTonsDriver = "Total Tons - " + data[d][0].driver_name;
-                            workSheetData.push(["","","","","","","","",totalTonsDriver, parseFloat(totalTons).toFixed(2)]);
-                            workSheetData.push(["","","","","","","","","", ""]);
-                            greatTotalTons += parseFloat(totalTons);
+
+                            var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                            wb.Sheets["Completed Loads"] = ws;
+
+                            var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+                            function s2ab(s) { 
+                                var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                                var view = new Uint8Array(buf);  //create uint8array as viewer
+                                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                                return buf;    
+                            }
+                            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Completed_Loads.xlsx');
+                        },
+                        error: function(){
+                            alert('There was an error when obtaining the report, please try again.');
                         }
+                    });
+                } else if($("#SELECTED_REPORT").val() == "quickbooks_import") {
 
-                        workSheetData.push(["","","","","","","","", "Total Tons", parseFloat(greatTotalTons).toFixed(2)]);
+                    /*
+                        Quickbooks import new report
+                    */
 
-                        var workBook = XLSX.utils.book_new();
-                        workBook.Props = {
-                            Title: "Diamonback Completed Loads",
-                            Subject: "Cedar Reports",
-                            Author: "Cedar Logistic System",
-                            CreatedDate: new Date()
-                        };
+                    $.ajax({
+                        url: '/api/reports/quickbooks-import/',
+                        type: 'POST',
+                        data: {
+                            type: $( "#SELECTED_REPORT option:selected" ).val(),
+                            inicio: fechaInicio.format('YYYY-MM-DD'),
+                            fin: fechaFin.format('YYYY-MM-DD')
+                        },
+                        success: function(returnData){
+                            var wb = XLSX.utils.book_new();
 
-                        var workSheet = XLSX.utils.aoa_to_sheet(workSheetData);
-                        workBook.SheetNames.push("Completed Loads");
-                        workBook.Sheets["Completed Loads"] = workSheet;
-                        
-                        var workBookOutput = XLSX.write(workBook, {bookType:'xlsx',  type: 'binary'});
-                        var workBookName = new Date().toLocaleDateString('ko-KR').replace(/\s/ig, '') + 'completed_loads.xlsx';
+                            wb.Props = {
+                                Title: "Completed Loads",
+                                Subject: "Cedar Reports",
+                                Author: "Miguel",
+                                CreatedDate: new Date(2018,07,31)
+                            };
 
-                        saveAs(new Blob([(function(s){
-                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-                            var view = new Uint8Array(buf);  //create uint8array as viewer
-                            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                            return buf;
-                        })(workBookOutput)],{type:"application/octet-stream"}), workBookName);
-                    },
-                    error: function(){
-                        alert('There was an error when obtaining the report, please try again.');
-                    }
-                });
-            } else {
-                alert("No report available, please select another option");
-            }
+                            wb.SheetNames.push("Completed Loads");
 
-            
-        })
-    });
+                            var ws_data = [['RefNumber','TrackingNum','TxnDate','LineServiceDate','SalesTerm','Charge Code','Driver Ticket #','Bill of Lading','Customer','LineItem','LineDesc','ShipMethodName','LineAmount']];  //a row with 2 columns
+                            //var ws_data = returnData;
 
+                            for(var i=0; i<returnData.length; i++){
+
+                                var { ticket_id, completed_date, tms, bol, location_name, facility_long_name, location_long_name, driver_name, weight, sand_type, product, fuel_surcharge } = returnData[i]
+
+                                ws_data.push([`S-${ticket_id}`,
+                                            `S-${ticket_id}`,
+                                            completed_date,
+                                            completed_date,
+                                            "Net 45",
+                                            tms,
+                                            tms,
+                                            bol,
+                                            `Halliburton Energy Services (${location_name})`,
+                                            "Hauling Sand",
+                                            `ORIGIN\n${facility_long_name}\n\nDESTINATION\n${location_long_name}` ,
+                                            driver_name,
+                                            ""]);
+
+                                ws_data.push([`S-${ticket_id}`,
+                                            `S-${ticket_id}`,
+                                            completed_date,
+                                            completed_date,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "Equipment Type:Sand Dry Bulk",
+                                            "",
+                                            "",
+                                            ""]);
+
+                                ws_data.push([`S-${ticket_id}`,
+                                            `S-${ticket_id}`,
+                                            completed_date,
+                                            completed_date,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            numberWithCommas(parseFloat(weight)),
+                                            "WEIGHT (lbs)",
+                                            "",
+                                            ""]);
+
+                                ws_data.push([`S-${ticket_id}`,
+                                            `S-${ticket_id}`,
+                                            completed_date,
+                                            completed_date,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            `SAND TYPE:${sand_type}`,
+                                            "",
+                                            "",
+                                            ""]);
+                                
+                                ws_data.push([`S-${ticket_id}`,
+                                            `S-${ticket_id}`,
+                                            completed_date,
+                                            completed_date,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            `Sand # of Miles:${product}`,
+                                            "",
+                                            "",
+                                            ""]);
+
+                                ws_data.push([`S-${ticket_id}`,
+                                            `S-${ticket_id}`,
+                                            completed_date,
+                                            completed_date,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            "Fuel Surcharge",
+                                            "",
+                                            "",
+                                            fuel_surcharge]);
+                            }
+
+                            
+                            var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                            wb.Sheets["Completed Loads"] = ws;
+                            
+                            debugger;
+
+                            var C = XLSX.utils.decode_col("C"); // 2
+                            var fmt = 'mm/dd/yyyy'; // or '"$"#,##0.00_);[Red]\\("$"#,##0.00\\)' or any Excel number format
+
+                            var range = XLSX.utils.decode_range(ws['!ref']);
+
+                            for(var i = range.s.r + 1; i <= range.e.r; ++i) {
+                                /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
+                                var ref = XLSX.utils.encode_cell({r:i, c:C});
+                                /* if the particular row did not contain data for the column, the cell will not be generated */
+                                if(!ws[ref]) continue;
+                                /* `.t == "n"` for number cells */
+                                //if(ws[ref].t != 'n') continue;
+                                /* assign the `.z` number format */
+                                ws[ref].z = fmt;
+                            }
+
+                            var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+                            function s2ab(s) { 
+                                var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                                var view = new Uint8Array(buf);  //create uint8array as viewer
+                                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                                return buf;    
+                            }
+                            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Quickbooks import.xlsx');
+                        },
+                        error: function(){
+                            alert('There was an error when obtaining the report, please try again.');
+                        }
+                    });
+                } else if($("#SELECTED_REPORT").val() == "diamonback"){
+                    $.ajax({
+                        url: '/api/reports/diamonback-report',
+                        type: 'POST',
+                        data: {
+                            type: $( "#SELECTED_REPORT option:selected" ).val(),
+                            inicio: fechaInicio.format('YYYY-MM-DD'),
+                            fin: fechaFin.format('YYYY-MM-DD')
+                        },
+                        success: function(data){
+                            var driverHeader = ['Ticket No.', 'Date', 'Load No. (TMS)', 'BOL', 'Client/Location', 'Facility', 'Weight (tons)', 'Sand # of Miles', 'Sand Type', 'Driver Name'];
+                            var workSheetData = [];
+                            var greatTotalTons = 0.0;
+
+                            for(var d = 0; d < data.length; d++){
+                                workSheetData.push(driverHeader);
+                                var totalTons = 0.0;
+
+                                for(var t = 0;t < data[d].length; t++){
+                                    var rowData = [];
+
+                                    rowData.push(data[d][t].ticket_number);
+                                    rowData.push(data[d][t].date);
+                                    rowData.push(data[d][t].load_number);
+                                    rowData.push(data[d][t].bol);
+                                    rowData.push(data[d][t].location);
+                                    rowData.push(data[d][t].facility);
+                                    rowData.push(data[d][t].weight);
+                                    rowData.push(data[d][t].sand_number_of_miles);
+                                    rowData.push(data[d][t].sand_type);
+                                    rowData.push(data[d][t].driver_name);
+                                    totalTons += parseFloat((data[d][t].weight || 0.0));
+                                    workSheetData.push(rowData);
+                                }
+
+                                var totalTonsDriver = "Total Tons - " + data[d][0].driver_name;
+                                workSheetData.push(["","","","","","","","",totalTonsDriver, parseFloat(totalTons).toFixed(2)]);
+                                workSheetData.push(["","","","","","","","","", ""]);
+                                greatTotalTons += parseFloat(totalTons);
+                            }
+
+                            workSheetData.push(["","","","","","","","", "Total Tons", parseFloat(greatTotalTons).toFixed(2)]);
+
+                            var workBook = XLSX.utils.book_new();
+                            workBook.Props = {
+                                Title: "Diamonback Completed Loads",
+                                Subject: "Cedar Reports",
+                                Author: "Cedar Logistic System",
+                                CreatedDate: new Date()
+                            };
+
+                            var workSheet = XLSX.utils.aoa_to_sheet(workSheetData);
+                            workBook.SheetNames.push("Completed Loads");
+                            workBook.Sheets["Completed Loads"] = workSheet;
+                            
+                            var workBookOutput = XLSX.write(workBook, {bookType:'xlsx',  type: 'binary'});
+                            var workBookName = new Date().toLocaleDateString('ko-KR').replace(/\s/ig, '') + 'completed_loads.xlsx';
+
+                            saveAs(new Blob([(function(s){
+                                var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                                var view = new Uint8Array(buf);  //create uint8array as viewer
+                                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                                return buf;
+                            })(workBookOutput)],{type:"application/octet-stream"}), workBookName);
+                        },
+                        error: function(){
+                            alert('There was an error when obtaining the report, please try again.');
+                        }
+                    });
+                } else {
+                    alert("No report available, please select another option");
+                }
+            });
+        });
     </script>
 
 

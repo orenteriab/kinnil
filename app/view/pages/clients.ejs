@@ -133,10 +133,12 @@
             APP.INIT = APP.INIT || function(){
                 $('li[id="li_sdbr_administrative"]').addClass('active');
             };
-            
-            APP.LOAD.SIDE_BAR();
-            APP.LOAD.GRID();
-            APP.INIT()
+
+            APP.addEventListener('load', function(){
+                APP.LOAD.SIDE_BAR();
+                APP.LOAD.GRID();
+                APP.INIT()
+            });
         })(window);
     </script>
 

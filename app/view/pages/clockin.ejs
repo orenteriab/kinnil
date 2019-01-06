@@ -135,25 +135,6 @@
 
 <%include ../partials/js %>
 
-<script>
-    $( document ).ready(function() {
-        $('#imageModal').on('shown.bs.modal', function (e) {
-
-            var $trigger = $(e.relatedTarget);
-            console.log($trigger.data('image'));
-            $('#imageModal img').attr('src', ""); 
-            $('#imageModal img').attr('src', $trigger.data('image')); 
-
-        });
-
-    // Limpia los steps y les asigna la clase disabled
-    $('#myModal').on('hide.bs.modal', function (e) {
-        
-    });
-
-});
-</script>
-
 <script type="text/javascript">
     (function (APP) {
         APP.SERVICE = APP.SERVICE || {};
@@ -294,16 +275,31 @@
                     APP.SERVICE.ADMINISTRATIVE.UPDATE($(this).attr('data-id'));
                 });
             },
+            IMAGE_MODAL_SHOWN: function(){
+                $('#imageModal').on('shown.bs.modal', function (e) {
+                    var $trigger = $(e.relatedTarget);
+                    console.log($trigger.data('image'));
+                    $('#imageModal img').attr('src', ""); 
+                    $('#imageModal img').attr('src', $trigger.data('image')); 
+                });
+            },
+            IMAGE_MODAL_HIDE: function(){
+                $('#myModal').on('hide.bs.modal', function (e){});
+            },
             INIT: function () {
                 $('li[id="li_sdbr_administrative"]').addClass('active');
                 APP.EVENTS.BTN_SAVE_EDIT_CLOCKIN();
+                APP.EVENTS.IMAGE_MODAL_SHOWN();
+                APP.EVENTS.IMAGE_MODAL_HIDE();
             }
         };
 
-        APP.LOAD.SIDE_BAR();
-        APP.LOAD.GRID();
-        APP.LOAD.MODALS()
-        APP.EVENTS.INIT();
+        APP.addEventListener('load', function(){
+            APP.LOAD.SIDE_BAR();
+            APP.LOAD.GRID();
+            APP.LOAD.MODALS()
+            APP.EVENTS.INIT();
+        });
     })(window);
 </script>
 

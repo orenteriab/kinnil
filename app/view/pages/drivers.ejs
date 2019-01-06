@@ -348,337 +348,335 @@
                         $('#addSandModal').modal('hide');
                     });
                 },
+                EDIT_DRIVER_MODAL_SHOWN: function(){
+                    $('#editDriverModal').on('shown.bs.modal', function (e) {
+                        var $trigger = $(e.relatedTarget);
+                        
+                        // Obtiene el detalle del ticket
+                        $.getJSON('/api/administrative/getHrDetail/' + $trigger.data('driver'), function(data) {
+                            $('#editName').html(
+                                "<strong><a id='updateName' data-pk='" + data.hr[0].id + "' data-title='Update name' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='name'>"+data.hr[0].name+"</a></strong>"    
+                            );
+                            $('#editAddress').html(
+                                "<strong><a id='updateAddress' data-pk='" + data.hr[0].id + "' data-title='Update address' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='address'>"+data.hr[0].address+"</a></strong>"
+                            );
+                            $('#editTel').html(
+                                "<strong><a id='updateTel' data-pk='" + data.hr[0].id + "' data-title='Update tel' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='tel'>"+data.hr[0].tel+"</a></strong>"
+                            );
+                            $('#editBrith').html(
+                                "<strong><a id='updateBrith' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
+                                "data-type='date' class='black-link' "+
+                                "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
+                            );
+                            $('#editCivilStatus').html(
+                                "<strong><a id='updateCivilStatus' data-pk='" + data.hr[0].id + "' data-title='Update civil status' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='civil_status'>"+data.hr[0].civil_status+"</a></strong>"
+                            );
+                            $('#editEmail').html(
+                                "<strong><a id='updateEmail' data-pk='" + data.hr[0].id + "' data-title='Update email' "+
+                                "data-type='email' class='black-link' "+
+                                "href='#' data-name='email'>"+data.hr[0].email+"</a></strong>"
+                            );
+                            $('#editContact1').html(
+                                "<strong><a id='updateContact1' data-pk='" + data.hr[0].id + "' data-title='Update contact Name' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='contact1'>"+data.hr[0].contact1+"</a></strong>"
+                            );
+                            $('#editContact2').html(
+                                "<strong><a id='updateContact2' data-pk='" + data.hr[0].id + "' data-title='Update contact Phone' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='contact2'>"+data.hr[0].contact2+"</a></strong>"
+                            );
+                            $('#editLaborStatus').html(
+                                "<strong><a id='updateLaborStatus' data-pk='" + data.hr[0].id + "' data-title='Update labor status' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='labor_status'>"+data.hr[0].labor_status+"</a></strong>"
+                            );
+                            $('#editType').html(
+                                "<strong><a id='updateType' data-pk='" + data.hr[0].id + "' data-title='Update type' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='type'>"+data.hr[0].type+"</a></strong>"
+                            );
+                            $('#editCrew').html(
+                                "<strong><a id='updateCrew' data-pk='" + data.hr[0].id + "' data-title='Update crew' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='crew'>"+data.hr[0].crew+"</a></strong>"
+                            );
+                            $('#editShift').html(
+                                "<strong><a id='updateShift' data-pk='" + data.hr[0].id + "' data-title='Update shift' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='shift'>"+data.hr[0].shift+"</a></strong>"
+                            );
+                            $('#editRate').html(
+                                "<strong><a id='updateRate' data-pk='" + data.hr[0].id + "' data-title='Update rate' "+
+                                "data-type='number' min='0' max='1' step='0.01' class='black-link' "+
+                                "href='#' data-name='rate'>"+ data.hr[0].rate * 100 +"</a> %</strong>" // El rate en los drivers es un porcentage asi que le damos formato
+                            );
+                            $('#editUser').html(
+                                "<strong><a id='updateUser' data-pk='" + data.hr[0].id + "' data-title='Update user' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='username'>"+data.hr[0].username+"</a></strong>"
+                            );
+                            $('#editPassword').html(
+                                "<strong><a id='updatePassword' data-pk='" + data.hr[0].id + "' data-title='Update password' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='password'>"+data.hr[0].password+"</a></strong>"
+                            );
+                            $('#editMcExp').html(
+                                "<strong><a id='updateMcExp' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
+                                "data-type='date' class='black-link' "+
+                                "href='#' data-name='mc_exp'>"+data.hr[0].mc_exp+"</a></strong>"
+                            );
+                            $('#editLicense').html(
+                                "<strong><a id='updateLicense' data-pk='" + data.hr[0].id + "' data-title='Update license' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='license'>"+data.hr[0].license+"</a></strong>"
+                            );
+                            $('#editLicenseExp').html(
+                                "<strong><a id='updateLicenseExp' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update license expiration date' "+
+                                "data-type='date' class='black-link' "+
+                                "href='#' data-name='license_exp'>"+data.hr[0].license_exp+"</a></strong>"
+                            );
+                            $('#editLicenseClass').html(
+                                "<strong><a id='updateLicenseClass' data-pk='" + data.hr[0].id + "' data-title='Update license class' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='license_class'>"+data.hr[0].license_class+"</a></strong>"
+                            );
+                            $('#editState').html(
+                                "<strong><a id='updateState' data-pk='" + data.hr[0].id + "' data-title='Update state' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='state'>"+data.hr[0].state+"</a></strong>"
+                            );
+                            $('#editHireDate').html(
+                                "<strong><a id='updateHireDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
+                                "data-type='date' class='black-link' "+
+                                "href='#' data-name='hire_date'>"+data.hr[0].hire_date+"</a></strong>"
+                            );
+                            $('#editExperienceYears').html(
+                                "<strong><a id='updateExperienceYears' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update Experience Years' "+
+                                "data-type='date' class='black-link' "+
+                                "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
+                            );
+                            $('#editSsn').html(
+                                "<strong><a id='updateSsn' data-pk='" + data.hr[0].id + "' data-title='Update ssn' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='ssn'>"+data.hr[0].ssn+"</a></strong>"
+                            );
+
+                            $('#editLinceClass').html(
+                                "<strong><a id='updateLicenceClass' data-pk='" + data.hr[0].id + "' data-title='Update License Class' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='license_class'>"+data.hr[0].license_class+"</a></strong>"
+                            );
+                            $('#editExperience').html(
+                                "<strong><a id='updateExperience' data-pk='" + data.hr[0].id + "' data-title='Update Experience' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
+                            );
+                            $('#editPaymentMethod').html(
+                                "<strong><a id='updatePaymentMethod' data-pk='" + data.hr[0].id + "' data-title='Update Payment Method' "+
+                                "data-type='select' class='black-link' "+
+                                "href='#' data-name='payment_method'>"+data.hr[0].payment_method+"</a></strong>"
+                            );
+                            $('#editBankAccount').html(
+                                "<strong><a id='updateBankAccount' data-pk='" + data.hr[0].id + "' data-title='Update Bank Account' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='bank_account'>"+data.hr[0].bank_account+"</a></strong>"
+                            );
+                            $('#editRoutingNumber').html(
+                                "<strong><a id='updateRoutingNumber' data-pk='" + data.hr[0].id + "' data-title='Update RoutingNumber' "+
+                                "data-type='text' class='black-link' "+
+                                "href='#' data-name='routing_number'>"+data.hr[0].routing_number+"</a></strong>"
+                            );
+            
+                            // x-editable
+                            $('#updateName, #updateAddress, #updateTel, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword, #updateState, #updateLicenceClass, #updateBankAccount, #updateRoutingNumber, #updateLicenseClass').editable({
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                                
+                            });
+
+                            $('#updateRate').editable({ 
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                type : 'number',
+                                step: 'any',
+                                params: function(params) {
+                                    params.value = params.value / 100; // 10 % = 0.10
+                                    return params;
+                                },
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                            });
+
+                            $('#updatePaymentMethod').editable({ 
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                source: [
+                                    {value: "PAY PER CHECK", text: 'Pay per Check'},
+                                    {value: "DIRECT DEPOSIT", text: 'Direct Deposit'}
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                            });
+
+                            $('#updateCrew').editable({
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                source: [
+                                    {value: "1", text: '1'},
+                                    {value: "2", text: '2'},
+                                    {value: "3", text: '3'},
+                                    {value: "4", text: '4'},
+                                    {value: "5", text: '5'},
+                                    {value: "6", text: '6'},
+                                    {value: "7", text: '7'},
+                                    {value: "8", text: '8'},
+                                    {value: "9", text: '9'},
+                                    {value: "10", text: '10'},
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                            });
+
+                            $('#updateShift').editable({
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                source: [
+                                    {value: "AM", text: 'am'},
+                                    {value: "PM", text: 'pm'},
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                }
+                            });
+                            
+
+                            $('#updateCivilStatus').editable({   
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                source: [
+                                    {value: "SINGLE", text: 'Single'},
+                                    {value: "MARRIED", text: 'Maried'},
+                                    {value: "DIVORCED", text: 'Divorced'},
+                                    {value: "SEPARATED", text: 'Separated'},
+                                    {value: "WIDOWED", text: 'Widowed'}
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+
+                            $('#updateBrith, #updateMcExp, #updateLicenseExp, #updateHireDate, #updateExperienceYears').editable({
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                format: 'yyyy-mm-dd',    
+                                viewformat: 'mm-dd-yyyy', 
+                                combodate: { 
+                                    maxYear: 2025,
+                                    minYear:1930
+                                },    
+                                datepicker: {
+                                        weekStart: 1
+                                },
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+
+                            $('#updateLaborStatus').editable({   
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                source: [
+                                    {value: "WORKING WITH US", text: 'Working with us'},
+                                    {value: "NOT WORKING WITH US", text: 'Not working with us'}
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+
+                            $('#updateType').editable({   
+                                url: '/api/administrative/updatehr/',
+                                send: 'always',
+                                source: [
+                                    {value: "DRIVER", text: 'Driver'},
+                                    {value: "HELPER TRUCK", text: 'Helper truck'},
+                                    {value: "OWNER OPERATOR", text: 'Owner operator'}
+                                ],
+                                success: function(response, newValue) {
+                                    if (response.status == 'error') 
+                                        return response.msg; //msg will be shown in editable form
+                                },
+                            });
+                        });
+
+                    });
+                },
+                EDIT_DRIVER_MODA_HIDE: function(){
+                    $('#editDriverModal').on('hide.bs.modal', function (e) {
+                        location.reload();
+                    });
+                },
+                HDR_TO_PDF: function(){
+                    $('#hr-to-pdf').on('click', function(){
+                        /*
+                        * Por las prisas se genera este PDF con addHTML. Hay que ver si no la hacen de pedo por la calidad de la imagen
+                        * Aqui esta un ejemplo que hay que estudiar, parece que tiene todo lo que necesitamos https://codepen.io/LittleViolette/pen/begBbe
+                        */
+                        var pdf = new jsPDF('p', 'pt', 'letter');
+
+                        var options = {
+                            pagesplit: true,
+                            background: '#ffffff',
+                            pagesplit: true
+                        }
+
+                        var nombre = $('#editName').text()
+                        
+                        pdf.addHTML($('#to-print')[0], 40, 40, options, function () {
+                            pdf.save(nombre + '.pdf');
+                        });
+                    });
+                },
                 INIT: function(){
                     $('li[id="li_sdbr_administrative"]').addClass('active');
                     APP.EVENTS.MODALS_SUBMIT();
+                    APP.EVENTS.EDIT_DRIVER_MODAL_SHOWN();
+                    APP.EVENTS.EDIT_DRIVER_MODA_HIDE();
                 }
             };
             
-            APP.LOAD.SIDE_BAR();
-            APP.LOAD.GRID();
-            APP.EVENTS.INIT();
+            APP.addEventListener('load', function(){
+                APP.LOAD.SIDE_BAR();
+                APP.LOAD.GRID();
+                APP.EVENTS.INIT();
+            });
         })(window);
     </script>
 
     <% include ../partials/drivers-detail %>
-
-
-    <script>
-        $( document ).ready(function() {
-            $('#editDriverModal').on('shown.bs.modal', function (e) {
-
-                var $trigger = $(e.relatedTarget);
-                
-                // Obtiene el detalle del ticket
-                $.getJSON('/api/administrative/getHrDetail/' + $trigger.data('driver'), function(data) {
-    
-
-                    $('#editName').html(
-                        "<strong><a id='updateName' data-pk='" + data.hr[0].id + "' data-title='Update name' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='name'>"+data.hr[0].name+"</a></strong>"    
-                    );
-                    $('#editAddress').html(
-                        "<strong><a id='updateAddress' data-pk='" + data.hr[0].id + "' data-title='Update address' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='address'>"+data.hr[0].address+"</a></strong>"
-                    );
-                    $('#editTel').html(
-                        "<strong><a id='updateTel' data-pk='" + data.hr[0].id + "' data-title='Update tel' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='tel'>"+data.hr[0].tel+"</a></strong>"
-                    );
-                    $('#editBrith').html(
-                        "<strong><a id='updateBrith' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update birthdate' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='birthdate'>"+data.hr[0].birthdate+"</a></strong>"
-                    );
-                    $('#editCivilStatus').html(
-                        "<strong><a id='updateCivilStatus' data-pk='" + data.hr[0].id + "' data-title='Update civil status' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='civil_status'>"+data.hr[0].civil_status+"</a></strong>"
-                    );
-                    $('#editEmail').html(
-                        "<strong><a id='updateEmail' data-pk='" + data.hr[0].id + "' data-title='Update email' "+
-                        "data-type='email' class='black-link' "+
-                        "href='#' data-name='email'>"+data.hr[0].email+"</a></strong>"
-                    );
-                    $('#editContact1').html(
-                        "<strong><a id='updateContact1' data-pk='" + data.hr[0].id + "' data-title='Update contact Name' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='contact1'>"+data.hr[0].contact1+"</a></strong>"
-                    );
-                    $('#editContact2').html(
-                        "<strong><a id='updateContact2' data-pk='" + data.hr[0].id + "' data-title='Update contact Phone' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='contact2'>"+data.hr[0].contact2+"</a></strong>"
-                    );
-                    $('#editLaborStatus').html(
-                        "<strong><a id='updateLaborStatus' data-pk='" + data.hr[0].id + "' data-title='Update labor status' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='labor_status'>"+data.hr[0].labor_status+"</a></strong>"
-                    );
-                    $('#editType').html(
-                        "<strong><a id='updateType' data-pk='" + data.hr[0].id + "' data-title='Update type' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='type'>"+data.hr[0].type+"</a></strong>"
-                    );
-                    $('#editCrew').html(
-                        "<strong><a id='updateCrew' data-pk='" + data.hr[0].id + "' data-title='Update crew' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='crew'>"+data.hr[0].crew+"</a></strong>"
-                    );
-                    $('#editShift').html(
-                        "<strong><a id='updateShift' data-pk='" + data.hr[0].id + "' data-title='Update shift' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='shift'>"+data.hr[0].shift+"</a></strong>"
-                    );
-                    $('#editRate').html(
-                        "<strong><a id='updateRate' data-pk='" + data.hr[0].id + "' data-title='Update rate' "+
-                        "data-type='number' min='0' max='1' step='0.01' class='black-link' "+
-                        "href='#' data-name='rate'>"+ data.hr[0].rate * 100 +"</a> %</strong>" // El rate en los drivers es un porcentage asi que le damos formato
-                    );
-                    $('#editUser').html(
-                        "<strong><a id='updateUser' data-pk='" + data.hr[0].id + "' data-title='Update user' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='username'>"+data.hr[0].username+"</a></strong>"
-                    );
-                    $('#editPassword').html(
-                        "<strong><a id='updatePassword' data-pk='" + data.hr[0].id + "' data-title='Update password' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='password'>"+data.hr[0].password+"</a></strong>"
-                    );
-                    $('#editMcExp').html(
-                        "<strong><a id='updateMcExp' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update medical card expiration date' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='mc_exp'>"+data.hr[0].mc_exp+"</a></strong>"
-                    );
-                    $('#editLicense').html(
-                        "<strong><a id='updateLicense' data-pk='" + data.hr[0].id + "' data-title='Update license' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='license'>"+data.hr[0].license+"</a></strong>"
-                    );
-                    $('#editLicenseExp').html(
-                        "<strong><a id='updateLicenseExp' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update license expiration date' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='license_exp'>"+data.hr[0].license_exp+"</a></strong>"
-                    );
-                    $('#editLicenseClass').html(
-                        "<strong><a id='updateLicenseClass' data-pk='" + data.hr[0].id + "' data-title='Update license class' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='license_class'>"+data.hr[0].license_class+"</a></strong>"
-                    );
-                    $('#editState').html(
-                        "<strong><a id='updateState' data-pk='" + data.hr[0].id + "' data-title='Update state' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='state'>"+data.hr[0].state+"</a></strong>"
-                    );
-                    $('#editHireDate').html(
-                        "<strong><a id='updateHireDate' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update years working' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='hire_date'>"+data.hr[0].hire_date+"</a></strong>"
-                    );
-                    $('#editExperienceYears').html(
-                        "<strong><a id='updateExperienceYears' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat='MM-DD-YYYY' data-pk='" + data.hr[0].id + "' data-title='Update Experience Years' "+
-                        "data-type='date' class='black-link' "+
-                        "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
-                    );
-                    $('#editSsn').html(
-                        "<strong><a id='updateSsn' data-pk='" + data.hr[0].id + "' data-title='Update ssn' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='ssn'>"+data.hr[0].ssn+"</a></strong>"
-                    );
-
-                    $('#editLinceClass').html(
-                        "<strong><a id='updateLicenceClass' data-pk='" + data.hr[0].id + "' data-title='Update License Class' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='license_class'>"+data.hr[0].license_class+"</a></strong>"
-                    );
-                    $('#editExperience').html(
-                        "<strong><a id='updateExperience' data-pk='" + data.hr[0].id + "' data-title='Update Experience' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='experience'>"+data.hr[0].experience+"</a></strong>"
-                    );
-                    $('#editPaymentMethod').html(
-                        "<strong><a id='updatePaymentMethod' data-pk='" + data.hr[0].id + "' data-title='Update Payment Method' "+
-                        "data-type='select' class='black-link' "+
-                        "href='#' data-name='payment_method'>"+data.hr[0].payment_method+"</a></strong>"
-                    );
-                    $('#editBankAccount').html(
-                        "<strong><a id='updateBankAccount' data-pk='" + data.hr[0].id + "' data-title='Update Bank Account' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='bank_account'>"+data.hr[0].bank_account+"</a></strong>"
-                    );
-                    $('#editRoutingNumber').html(
-                        "<strong><a id='updateRoutingNumber' data-pk='" + data.hr[0].id + "' data-title='Update RoutingNumber' "+
-                        "data-type='text' class='black-link' "+
-                        "href='#' data-name='routing_number'>"+data.hr[0].routing_number+"</a></strong>"
-                    );
-    
-                    // x-editable
-                    $('#updateName, #updateAddress, #updateTel, #updateEmail, #updateContact1, #updateContact2, #updateLicense, #updateSsn, #updateUser, #updatePassword, #updateState, #updateLicenceClass, #updateBankAccount, #updateRoutingNumber, #updateLicenseClass').editable({
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        }
-                        
-                    });
-
-                    $('#updateRate').editable({ 
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        type : 'number',
-                        step: 'any',
-                        params: function(params) {
-                            params.value = params.value / 100; // 10 % = 0.10
-                            return params;
-                        },
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        }
-                    });
-
-                    $('#updatePaymentMethod').editable({ 
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "PAY PER CHECK", text: 'Pay per Check'},
-                            {value: "DIRECT DEPOSIT", text: 'Direct Deposit'}
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        }
-                    });
-
-                    $('#updateCrew').editable({
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "1", text: '1'},
-                            {value: "2", text: '2'},
-                            {value: "3", text: '3'},
-                            {value: "4", text: '4'},
-                            {value: "5", text: '5'},
-                            {value: "6", text: '6'},
-                            {value: "7", text: '7'},
-                            {value: "8", text: '8'},
-                            {value: "9", text: '9'},
-                            {value: "10", text: '10'},
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        }
-                    });
-
-                    $('#updateShift').editable({
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "AM", text: 'am'},
-                            {value: "PM", text: 'pm'},
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        }
-                    });
-                    
-
-                    $('#updateCivilStatus').editable({   
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "SINGLE", text: 'Single'},
-                            {value: "MARRIED", text: 'Maried'},
-                            {value: "DIVORCED", text: 'Divorced'},
-                            {value: "SEPARATED", text: 'Separated'},
-                            {value: "WIDOWED", text: 'Widowed'}
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-
-                    $('#updateBrith, #updateMcExp, #updateLicenseExp, #updateHireDate, #updateExperienceYears').editable({
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        format: 'yyyy-mm-dd',    
-                        viewformat: 'mm-dd-yyyy', 
-                        combodate: { 
-                            maxYear: 2025,
-                            minYear:1930
-                         },    
-                        datepicker: {
-                                weekStart: 1
-                        },
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-
-                    $('#updateLaborStatus').editable({   
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "WORKING WITH US", text: 'Working with us'},
-                            {value: "NOT WORKING WITH US", text: 'Not working with us'}
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-
-                    $('#updateType').editable({   
-                        url: '/api/administrative/updatehr/',
-                        send: 'always',
-                        source: [
-                            {value: "DRIVER", text: 'Driver'},
-                            {value: "HELPER TRUCK", text: 'Helper truck'},
-                            {value: "OWNER OPERATOR", text: 'Owner operator'}
-                        ],
-                        success: function(response, newValue) {
-                            if (response.status == 'error') 
-                                return response.msg; //msg will be shown in editable form
-                        },
-                    });
-                });
-
-            })
-            
-            // Recarga la pagina para que se vean los cambios
-            $('#editDriverModal').on('hide.bs.modal', function (e) {
-                location.reload();
-            });
-
-            $('#hr-to-pdf').on('click', function(){
-                /*
-                * Por las prisas se genera este PDF con addHTML. Hay que ver si no la hacen de pedo por la calidad de la imagen
-                * Aqui esta un ejemplo que hay que estudiar, parece que tiene todo lo que necesitamos https://codepen.io/LittleViolette/pen/begBbe
-                */
-                var pdf = new jsPDF('p', 'pt', 'letter');
-
-                var options = {
-                    pagesplit: true,
-                    background: '#ffffff',
-                    pagesplit: true
-                }
-
-                var nombre = $('#editName').text()
-                
-                pdf.addHTML($('#to-print')[0], 40, 40, options, function () {
-                    pdf.save(nombre + '.pdf');
-                });
-            });
-        });
-    </script>
 
 </body>
 </html>
