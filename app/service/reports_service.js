@@ -23,11 +23,7 @@ exports.getDiamonBackReport = async(start, end) => {
 
 exports.getPayrollHrReport = async(start, end, position) => {
     try{
-        let HRs = await model.getHrForReport(position)
-        let HRPromises = HRs.map((hr) => {
-            return model.getClockinInfoByHrId(start, end, hr.id);
-        })
-        return Promise.all(HRPromises)
+        return await model.getHrForReportAsync(position, start, end)
     }catch(e){
         return Promise.reject(e);
     }
