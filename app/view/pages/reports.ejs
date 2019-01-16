@@ -60,6 +60,12 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h4 id="report_title"></h4>
+                        <select class="form-control" id="SELECTED_POSITION">
+                            <option value="FIELD CREW OPERATOR">FIELD CREW OPERATOR</option>
+                            <option value="FIELD CREW SUPERVISOR">FIELD CREW SUPERVISOR</option>
+                            <option value="OFFICE">OFFICE</option>
+                            <option value="MECHANICS">MECHANICS</option>
+                        </select>
                         <div class="form-group">
                         <label for="sel1">Date:</label>
                             <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
@@ -128,10 +134,32 @@
                 $("#excel_download").prop('disabled', false);
             } else if(this.value=="invoice"){
                 var newOptions = {
-                    'quickbooks_import' : 'Quickbooks import',
+                    'quickbooks_import' : 'HALLIBURTON Quickbooks import',
                     'diamonback': 'DIAMONBACK Report'
                 };
                 var selectedOption = 'quickbooks_import';
+
+                var select = $('#SELECTED_REPORT');
+                if(select.prop) {
+                    var options = select.prop('options');
+                }
+                else {
+                    var options = select.attr('options');
+                }
+                $('option', select).remove();
+
+                $.each(newOptions, function(val, text) {
+                    options[options.length] = new Option(text, val);
+                });
+                select.val(selectedOption);
+
+                $("#report_title").text($( "#SELECTED_REPORT option:selected" ).text());
+                $("#excel_download").prop('disabled', false);
+            } else if(this.value=="payroll"){
+                var newOptions = {
+                    'payroll-hr' : 'Payroll HR'
+                };
+                var selectedOption = 'payroll-hr';
 
                 var select = $('#SELECTED_REPORT');
                 if(select.prop) {
@@ -246,7 +274,7 @@
                     data: {
                         type: $( "#SELECTED_REPORT option:selected" ).val(),
                         inicio: fechaInicio.format('YYYY-MM-DD'),
-                        fin: fechaFin.format('YYYY-MM-DD')
+                        fin: fechaFin.add(1, 'days').format('YYYY-MM-DD')
                     },
                     success: function(returnData){
 
@@ -307,7 +335,7 @@
                     data: {
                         type: $( "#SELECTED_REPORT option:selected" ).val(),
                         inicio: fechaInicio.format('YYYY-MM-DD'),
-                        fin: fechaFin.format('YYYY-MM-DD')
+                        fin: fechaFin.add(1, 'days').format('YYYY-MM-DD')
                     },
                     success: function(returnData){
                         var wb = XLSX.utils.book_new();
@@ -452,85 +480,130 @@
                 });
             } else if($("#SELECTED_REPORT").val() == "diamonback"){
                 $.ajax({
-                    url: '/api/reports/diamonback-report',
-                    type: 'POST',
-                    data: {
-                        type: $( "#SELECTED_REPORT option:selected" ).val(),
-                        inicio: fechaInicio.format('YYYY-MM-DD'),
-                        fin: fechaFin.format('YYYY-MM-DD')
-                    },
-                    success: function(data){
-                        var driverHeader = ['Ticket No.', 'Date', 'Load No. (TMS)', 'BOL', 'Client/Location', 'Facility', 'Weight (tons)', 'Sand # of Miles', 'Sand Type', 'Driver Name'];
-                        var workSheetData = [];
-                        var greatTotalTons = 0.0;
-
-                        for(var d = 0; d < data.length; d++){
-                            workSheetData.push(driverHeader);
-                            var totalTons = 0.0;
-
-                            for(var t = 0;t < data[d].length; t++){
-                                var rowData = [];
-
-                                rowData.push(data[d][t].ticket_number);
-                                rowData.push(data[d][t].date);
-                                rowData.push(data[d][t].load_number);
-                                rowData.push(data[d][t].bol);
-                                rowData.push(data[d][t].location);
-                                rowData.push(data[d][t].facility);
-                                rowData.push(data[d][t].weight);
-                                rowData.push(data[d][t].sand_number_of_miles);
-                                rowData.push(data[d][t].sand_type);
-                                rowData.push(data[d][t].driver_name);
-                                totalTons += parseFloat((data[d][t].weight || 0.0));
-                                workSheetData.push(rowData);
+                        url: '/api/reports/diamonback-report',
+                        type: 'POST',
+                        data: {
+                            type: $( "#SELECTED_REPORT option:selected" ).val(),
+                            inicio: fechaInicio.format('YYYY-MM-DD'),
+                            fin: fechaFin.add(1, 'days').format('YYYY-MM-DD')
+                        },
+                        success: function(data){
+                            var driverHeader = ['Ticket No.', 'Date', 'Load No. (TMS)', 'BOL', 'Client/Location', 'Facility', 'Weight (tons)', 'Sand # of Miles', 'Sand Type', 'Driver Name'];
+                            var workSheetData = [];
+                            var greatTotalTons = 0.0;
+                             for(var d = 0; d < data.length; d++){
+                                workSheetData.push(driverHeader);
+                                var totalTons = 0.0;
+                                 for(var t = 0;t < data[d].length; t++){
+                                    var rowData = [];
+                                     rowData.push(data[d][t].ticket_number);
+                                    rowData.push(data[d][t].date);
+                                    rowData.push(data[d][t].load_number);
+                                    rowData.push(data[d][t].bol);
+                                    rowData.push(data[d][t].location);
+                                    rowData.push(data[d][t].facility);
+                                    rowData.push(data[d][t].weight);
+                                    rowData.push(data[d][t].sand_number_of_miles);
+                                    rowData.push(data[d][t].sand_type);
+                                    rowData.push(data[d][t].driver_name);
+                                    totalTons += parseFloat((data[d][t].weight || 0.0));
+                                    workSheetData.push(rowData);
+                                }
+                                 var totalTonsDriver = "Total Tons - " + data[d][0].driver_name;
+                                workSheetData.push(["","","","","","","","",totalTonsDriver, parseFloat(totalTons).toFixed(2)]);
+                                workSheetData.push(["","","","","","","","","", ""]);
+                                greatTotalTons += parseFloat(totalTons);
                             }
-
-                            var totalTonsDriver = "Total Tons - " + data[d][0].driver_name;
-                            workSheetData.push(["","","","","","","","",totalTonsDriver, parseFloat(totalTons).toFixed(2)]);
-                            workSheetData.push(["","","","","","","","","", ""]);
-                            greatTotalTons += parseFloat(totalTons);
+                             workSheetData.push(["","","","","","","","", "Total Tons", parseFloat(greatTotalTons).toFixed(2)]);
+                             var workBook = XLSX.utils.book_new();
+                            workBook.Props = {
+                                Title: "Diamonback Completed Loads",
+                                Subject: "Cedar Reports",
+                                Author: "Cedar Logistic System",
+                                CreatedDate: new Date()
+                            };
+                             var workSheet = XLSX.utils.aoa_to_sheet(workSheetData);
+                            workBook.SheetNames.push("Completed Loads");
+                            workBook.Sheets["Completed Loads"] = workSheet;
+                            
+                            var workBookOutput = XLSX.write(workBook, {bookType:'xlsx',  type: 'binary'});
+                            var workBookName = new Date().toLocaleDateString('ko-KR').replace(/\s/ig, '') + 'completed_loads.xlsx';
+                             saveAs(new Blob([(function(s){
+                                var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                                var view = new Uint8Array(buf);  //create uint8array as viewer
+                                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                                return buf;
+                            })(workBookOutput)],{type:"application/octet-stream"}), workBookName);
+                        },
+                        error: function(){
+                            alert('There was an error when obtaining the report, please try again.');
                         }
-
-                        workSheetData.push(["","","","","","","","", "Total Tons", parseFloat(greatTotalTons).toFixed(2)]);
-
-                        var workBook = XLSX.utils.book_new();
-                        workBook.Props = {
-                            Title: "Diamonback Completed Loads",
-                            Subject: "Cedar Reports",
-                            Author: "Cedar Logistic System",
-                            CreatedDate: new Date()
-                        };
-
-                        var workSheet = XLSX.utils.aoa_to_sheet(workSheetData);
-                        workBook.SheetNames.push("Completed Loads");
-                        workBook.Sheets["Completed Loads"] = workSheet;
-                        
-                        var workBookOutput = XLSX.write(workBook, {bookType:'xlsx',  type: 'binary'});
-                        var workBookName = new Date().toLocaleDateString('ko-KR').replace(/\s/ig, '') + 'completed_loads.xlsx';
-
-                        saveAs(new Blob([(function(s){
-                            var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
-                            var view = new Uint8Array(buf);  //create uint8array as viewer
-                            for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
-                            return buf;
-                        })(workBookOutput)],{type:"application/octet-stream"}), workBookName);
-                    },
-                    error: function(){
-                        alert('There was an error when obtaining the report, please try again.');
-                    }
-                });
-            } else {
-                alert("No report available, please select another option");
+                    });
+                } else if($("#SELECTED_REPORT").val() == "payroll-hr"){
+                    $.ajax({
+                            url: '/api/reports/payroll-hr-report',
+                            type: 'POST',
+                            data: {
+                                type: $( "#SELECTED_REPORT option:selected" ).val(),
+                                inicio: fechaInicio.format('YYYY-MM-DD'),
+                                fin: fechaFin.add(1, 'days').format('YYYY-MM-DD'),
+                                position: $( "#SELECTED_POSITION option:selected" ).val(),
+                            },
+                            success: function(data){
+                                var workSheetData = [];
+                                workSheetData.push(["FEVID TRANSPORT LLC"]);
+                                workSheetData.push(["", `Period: `, "", "", "", "", `Pay date: `]);
+                                var total_to_pay = 0.0;
+                                debugger;
+                                for(var d = 0; d < data.length; d++){
+                                    if (data[d].length != 0) { // Solo va a poner al HR si este tiene eventos de clockin en ese periodo
+                                        workSheetData.push([`${data[d][0].name}`, "", "", "", "Coments/Notes", "", "Regular", "Overtime", "Total", "Admin bonus", "Reimbursement", "DEDUCTIONS"]);
+                                        var total_hours_worked = 0.0;
+                                        for(var t = 0;t < data[d].length; t++){
+                                            var rowData = [];
+                                            rowData.push(data[d][t].in);
+                                            rowData.push(data[d][t].out);
+                                            rowData.push(data[d][t].hours_worked);
+                                            workSheetData.push(rowData);
+                                            total_hours_worked = total_hours_worked + data[d][t].hours_worked;
+                                            total_to_pay = total_to_pay + data[d][t].hours_worked;
+                                        }
+                                        workSheetData.push(["", "", "", total_hours_worked, "", "", "", "", total_hours_worked]);
+                                    }
+                                }
+                                workSheetData.push(["TOTAL TO PAY: " + total_to_pay]);
+                                var workBook = XLSX.utils.book_new();
+                                workBook.Props = {
+                                    Title: "Payroll HR Report",
+                                    Subject: "Cedar Reports",
+                                    Author: "Cedar Logistic System",
+                                    CreatedDate: new Date()
+                                };
+                                 var workSheet = XLSX.utils.aoa_to_sheet(workSheetData);
+                                workBook.SheetNames.push("Payroll HR Report");
+                                workBook.Sheets["Payroll HR Report"] = workSheet;
+                                
+                                var workBookOutput = XLSX.write(workBook, {bookType:'xlsx',  type: 'binary'});
+                                var workBookName = new Date().toLocaleDateString('ko-KR').replace(/\s/ig, '') + 'payroll_hr_report.xlsx';
+                                 saveAs(new Blob([(function(s){
+                                    var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+                                    var view = new Uint8Array(buf);  //create uint8array as viewer
+                                    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+                                    return buf;
+                                })(workBookOutput)],{type:"application/octet-stream"}), workBookName);
+                            },
+                            error: function(){
+                                alert('There was an error when obtaining the report, please try again.');
+                            }
+                        });
+                    } else {
+                    alert("No report available, please select another option");
             }
 
             
         })
     });
-
+    
     </script>
-
-
-
-
 </body>
 </html>
