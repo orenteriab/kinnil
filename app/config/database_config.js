@@ -3,7 +3,7 @@ let  createPool = require('promise-mysql').createPool;
 const mysqlPool = createPool({
     host: 'localhost',
     user: 'root',
-    password: 'Fundabled0ubles',
+    password: 'root',
     database: 'sandras',
     connectionLimit: 5000
 });

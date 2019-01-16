@@ -119,12 +119,12 @@ exports.getDiamonbackReportRecord = (start, end, driver) => {
     return connectionPool.query(statement, [start, end, 4, driver.id, 2])
 }
 
-exports.getHrForReportWithConnection = (position, connection) => {
+const getHrForReportWithConnection = (position, connection) => {
     let statement  = "select * from hr where position = ?"
      return connection.query(statement, [position])
  }
 
- exports.getClockinInfoByHrIdWithConnection = (inicio, fin, hr_id, connection) => {
+const getClockinInfoByHrIdWithConnection = (inicio, fin, hr_id, connection) => {
     let statement = 'select `c`.`id`, \
 `hr`.`name`, \
 DATE_FORMAT(`c`.`in`, "%m-%d-%Y %H:%i:%s") `in`, \
