@@ -117,7 +117,57 @@ exports.getDiamonbackReportRecord = (start, end, driver) => {
        statement += "   AND         `d`.`id` = ?                                                                        "
        statement += "   AND         `t`.`clients_id` = ?                                                                "
     return connectionPool.query(statement, [start, end, 4, driver.id, 2])
-} 
+}
+
+exports.getHrForReportWithConnection = (position, connection) => {
+    let statement  = "select * from hr where position = ?"
+     return connection.query(statement, [position])
+ }
+
+ exports.getClockinInfoByHrIdWithConnection = (inicio, fin, hr_id, connection) => {
+    let statement = 'select `c`.`id`, \
+`hr`.`name`, \
+DATE_FORMAT(`c`.`in`, "%m-%d-%Y %H:%i:%s") `in`, \
+DATE_FORMAT(`c`.`out`, "%m-%d-%Y %H:%i:%s") `out`, \
+TIME_TO_SEC(TIMEDIFF(`c`.`out`, `c`.`in`))/3600 `hours_worked` \
+from `sandras`.`clockin` `c` \
+join `sandras`.`hr` `hr` on `hr`.`id` = `c`.`hr_id` \
+where `hr`.`labor_status` != "NOT WORKING WITH US" \
+and `c`.`in` >= ? and `c`.`in` <= ? \
+and `c`.`hr_id` = ?'
+
+    return connection.query(statement, [inicio, fin, hr_id]);
+}
+
+exports.getHrForReportAsync = async(position, start, end) => {
+    let result = []
+
+    try {
+        let auxConnection = await connectionPool.getConnection()
+        await auxConnection.beginTransaction()
+
+        try {
+            let hrs = await getHrForReportWithConnection(position, auxConnection)
+
+            for(let h in hrs){
+                let hr = await getClockinInfoByHrIdWithConnection(start, end, hrs[h].id, auxConnection)
+                result.push(hr)
+            }
+
+            await auxConnection.commit()
+        } catch (transactionError) {
+            console.error('[reports_model][getHrForReportAsync]: Error when getting report\n', transactionError);
+            await connection.rollback()
+        }
+
+        await connectionPool.releaseConnection(auxConnection)
+    } catch (connectionError) {
+        throw "Something happened to the connection!"
+        console.error("[reports_model][getHrForReportAsync]: Error when getting connection:", connectionError)
+    }
+
+    return result;
+}
 
 exports.getHrForReport = (position) => {
     let statement  = "select * from hr where position = ?"
